@@ -108,7 +108,7 @@
 }
 
 .cv-block.is-selected{
-  background: rgba(255, 210, 80, 0.16);
+  background: rgba(255, 210, 80, 0.40);
   box-shadow: 0 10px 25px rgba(0,0,0,0.06);
 }
 
@@ -201,10 +201,16 @@
   max-width: 100%;
   display: block;
 
-  /* Responsive font size */
-  font-size: clamp(26px, 4.2vw, 40px);
-  line-height: 1.1;
+  /* Correct responsive sizing for editor preview */
+  font-size: clamp(18px, 2.4vw, 26px);
+  line-height: 1.15;
+
+  /* Kill inherited Webflow typography */
+  letter-spacing: normal;
+  text-transform: none;
 }
+
+
 
 .cv-block--experience {
   margin-bottom: 18px;
