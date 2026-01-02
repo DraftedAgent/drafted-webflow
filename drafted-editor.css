@@ -218,7 +218,8 @@
 
 .cv-exp-title {
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: normal !important;
+  text-transform: none
 }
 
 .cv-exp-meta {
@@ -237,7 +238,8 @@
 
 .cv-edu-degree {
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: normal !important;
+  text-transform: none
   margin-bottom: 2px;
 }
 
@@ -254,3 +256,16 @@
 .cv-edu-period {
   margin-left: 4px;
 }
+
+.cv-section{
+  margin: 18px 15px 6px;
+}
+
+.cv-section-heading{
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  opacity: 0.9;
+}
+
