@@ -64,12 +64,15 @@
   -webkit-user-select: text;
   outline: none;
   cursor: text;
-}
 
-/* Keep vertical scroll, prevent horizontal scroll artifacts */
-#editor-preview-text{
+  /* Keep vertical scroll, prevent horizontal scroll artifacts */
   overflow-x: hidden;
   overscroll-behavior: contain;
+
+  /* IMPORTANT: scrollbar flush right (no inset padding) */
+  padding: 0 !important;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Hide horizontal scrollbar (WebKit) */
@@ -84,11 +87,17 @@
   overflow-wrap: anywhere;
 }
 
-/* Click-select blocks */
+/* ===============================
+   Click-select blocks (premium + consistent padding)
+   =============================== */
 .cv-block{
   cursor: pointer;
   position: relative;
   border-radius: 12px;
+
+  /* Consistent inner spacing so the yellow selection looks centered */
+  padding: 18px 20px;
+
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
 
@@ -97,23 +106,30 @@
 }
 
 .cv-block.is-selected{
-  background: rgba(255, 210, 80, 0.40);
+  background: rgba(255, 210, 80, 0.16);
   box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+
+  /* Make room for the accent bar so content feels centered */
+  padding-left: 28px;
 }
 
 .cv-block.is-selected::before{
   content: "";
   position: absolute;
-  left: -6px;
-  top: 10px;
-  bottom: 10px;
+
+  /* Put accent INSIDE the block */
+  left: 10px;
+  top: 12px;
+  bottom: 12px;
+
   width: 3px;
   border-radius: 999px;
   background: rgba(255, 210, 80, 0.95);
 }
 
-
-/* Context chip: premium surface + actions */
+/* ===============================
+   Context chip: premium surface + actions
+   =============================== */
 .context-chip{
   display: inline-flex;
   align-items: center;
@@ -173,9 +189,8 @@
   cursor: default;
 }
 
-/* Make Selected / Full feel “active” with a subtle tint */
-.context-chip:has(#chip-clear),
-.context-chip:has(#chip-full){
+/* Chip mode tints (replaces :has) */
+.context-chip.chip--selection{
   border-color: rgba(255, 200, 60, 0.35);
   box-shadow:
     0 14px 30px rgba(255, 200, 60, 0.10),
@@ -183,7 +198,17 @@
     0 2px 6px rgba(0,0,0,0.05);
 }
 
+.context-chip.chip--full{
+  border-color: rgba(0,0,0,0.12);
+}
 
+.context-chip.chip--chat{
+  border-color: rgba(0,0,0,0.08);
+}
+
+/* ===============================
+   Typography helpers
+   =============================== */
 .cv-block--experience {
   margin-bottom: 18px;
 }
