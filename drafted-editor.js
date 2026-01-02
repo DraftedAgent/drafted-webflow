@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
   const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
+  const N8N_CHAT_URL = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
 
   /* ===============================
      ELEMENTS
@@ -23,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const editorApplyBtn = document.getElementById("editor-send");        // Apply
   const editorChatBtn  = document.getElementById("editor-chat-send");   // Send (chat)
   const contextChipEl  = document.getElementById("context-chip");
+  const chatMessagesEl = document.querySelector(".chat-messages");
 
   // Hide these when a CV is loaded (add class "hide-when-cv-loaded" to both texts in Webflow)
   const hideWhenCvLoadedEls = document.querySelectorAll(".hide-when-cv-loaded");
@@ -131,6 +133,34 @@ document.addEventListener("DOMContentLoaded", () => {
     return cleaned;
   }
 
+  function appendChat(role, text) {
+    const msg = String(text || "").trim();
+    if (!msg) return;
+
+    // State
+    chatHistory.push({ role: role === "user" ? "user" : "assistant", content: msg });
+    // Keep history bounded
+    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+
+    // UI (optional)
+    if (!chatMessagesEl) return;
+
+    const wrap = document.createElement("div");
+    wrap.className = role === "user" ? "chat-message user" : "chat-message ai";
+
+    // Use textContent to avoid injection
+    wrap.textContent = msg;
+
+    chatMessagesEl.appendChild(wrap);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  function setApplyLabel() {
+    if (!editorApplyBtn) return;
+    editorApplyBtn.textContent = pendingProposal ? "Apply suggested changes" : "Apply";
+  }
+
+  
   /* ===============================
      STATE
      =============================== */
@@ -144,6 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();    // MULTI
   let lastClickedBlockId = null;       // shift anchor
+
+  let chatHistory = [];        // { role: "user"|"assistant", content: string }
+  let pendingProposal = null;  // { cvVersionId, cvTitle, blocks, summaryOfChanges }
 
   let activeContext = "chat"; // "chat" | "blocks" | "full"
   let documentLanguage = "sv"; // "sv" | "en"
@@ -669,6 +702,17 @@ document.addEventListener("DOMContentLoaded", () => {
       clearNativeSelection();
       updateContextChip();
 
+      // Reset chat UI + state for new CV
+      if (chatMessagesEl) chatMessagesEl.innerHTML = "";
+      chatHistory = [];
+      pendingProposal = null;
+      setApplyLabel();
+
+      const greeting = "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
+      appendChat("assistant", greeting);
+
+
+
     } catch (err) {
       console.error(err);
       alert("Fel vid uppladdning.");
@@ -679,28 +723,124 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ===============================
-     CHAT SEND (placeholder)
+     CHAT SEND 
      =============================== */
-  async function sendChatMessageOnly() {
-    const msg = editorInput.value.trim();
-    if (!msg) return;
+   async function sendChat() {
+  const msg = editorInput.value.trim();
+  if (!msg) return;
 
-    clearBlockSelection("chat");
-    console.log("💬 CHAT:", msg);
-    editorInput.value = "";
+  const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
+  if (!hasBlocks) {
+    appendChat("assistant", "Upload a CV first so I can suggest improvements.");
+    return;
   }
 
-  if (editorChatBtn) {
-    editorChatBtn.addEventListener("click", e => {
-      e.preventDefault();
-      sendChatMessageOnly();
+  appendChat("user", msg);
+  editorInput.value = "";
+
+  const mode =
+    (selectedBlockIds.size > 0) ? "blocks" :
+    (activeContext === "full") ? "full" :
+    "chat";
+
+  const payload = {
+    cvVersionId: cvVersionId || null,
+    cvTitle: documentTitle || "",
+    targetRole: targetRoleInput?.value?.trim() || "",
+    language: documentLanguage || "sv",
+    mode,
+    selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
+    blocks: documentBlocksState,     // ALWAYS full list
+    history: chatHistory.slice(-12),
+    message: msg
+  };
+
+  try {
+    setBusy(true);
+
+    const res = await fetch(N8N_CHAT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
+
+    const raw = await res.text();
+    const data = JSON.parse(sanitizeLeadingGarbage(raw));
+
+    if (!data.ok) {
+      appendChat("assistant", data.error || "Chat error.");
+      pendingProposal = null;
+      setApplyLabel();
+      return;
+    }
+
+    // 1) show assistant message first
+    const assistantMsg = String(data.assistantMessage || "").trim() || "Okay.";
+    appendChat("assistant", assistantMsg);
+
+    // 2) store proposal (if any) + validate it's full blocks list
+    if (data.proposal && Array.isArray(data.proposal.blocks) && data.proposal.blocks.length) {
+      const proposedBlocks = data.proposal.blocks;
+
+      if (proposedBlocks.length < (documentBlocksState?.length || 0)) {
+        pendingProposal = null;
+        appendChat("assistant", "I have suggestions, but couldn’t produce a complete patch. Try again with a more specific request.");
+      } else {
+        pendingProposal = data.proposal;
+      }
+    } else {
+      pendingProposal = null;
+    }
+
+    setApplyLabel();
+
+  } catch (err) {
+    console.error(err);
+    appendChat("assistant", "Something went wrong. Try again.");
+    pendingProposal = null;
+    setApplyLabel();
+  } finally {
+    setBusy(false);
+    forceButtonsActiveLook();
   }
+}
+
 
   /* ===============================
      APPLY (BLOCK-ONLY REWRITE)
      =============================== */
   async function sendApply() {
+    // If we have a chat proposal, Apply should apply it instantly (no rewrite call)
+    if (pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length) {
+      const nextBlocks = pendingProposal.blocks;
+
+      const nextTitle = String(pendingProposal.cvTitle || "").trim();
+      if (nextTitle) documentTitle = nextTitle;
+
+      const nextCvVersionId = String(pendingProposal.cvVersionId || "").trim();
+      if (nextCvVersionId) cvVersionId = nextCvVersionId;
+
+      buildStateFromBlocks(nextBlocks);
+
+      // Clear proposal after applying
+      pendingProposal = null;
+      setApplyLabel();
+
+      // Keep current selection if ids still exist
+      const nextIds = new Set(documentBlocksState.map(b => b.blockId));
+      selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
+      applySelectedBlocksUI();
+      updateContextChip();
+
+      renderDocument(documentTextState);
+      clearNativeSelection();
+      editorInput.value = "";
+
+      appendChat("assistant", "Applied the suggested changes.");
+      return;
+    }
+
+    
     const instruction = editorInput.value.trim();
     if (!instruction) {
       alert("Skriv en instruktion först.");
@@ -780,6 +920,9 @@ document.addEventListener("DOMContentLoaded", () => {
       updateContextChip();
       clearNativeSelection();
       editorInput.value = "";
+      pendingProposal = null;
+      setApplyLabel();
+
 
     } catch (err) {
       console.error(err);
@@ -795,10 +938,18 @@ document.addEventListener("DOMContentLoaded", () => {
     sendApply();
   });
 
-  editorInput.addEventListener("keydown", e => {
+    if (editorChatBtn) {
+    editorChatBtn.addEventListener("click", e => {
+      e.preventDefault();
+      sendChat();
+    });
+  }
+
+    editorInput.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendApply();
+      // Prefer chat on Enter
+      sendChat();
     }
   });
 
@@ -812,4 +963,5 @@ document.addEventListener("DOMContentLoaded", () => {
   setCvLoadedUI(false);
   renderDocument("");
   updateContextChip();
+  setApplyLabel();
 });
