@@ -94,12 +94,15 @@
   cursor: pointer;
   position: relative;
   border-radius: 12px;
-
-  /* Consistent inner spacing so the yellow selection looks centered */
-  padding: 18px 20px;
-
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+
+  /* Your desired spacing */
+  padding-inline-start: 10px;
+  padding-inline-end: 10px;
+  margin-inline-start: 15px;
+  margin-inline-end: 15px;
 }
+
 
 .cv-block:hover{
   background: rgba(0,0,0,0.02);
@@ -108,24 +111,21 @@
 .cv-block.is-selected{
   background: rgba(255, 210, 80, 0.16);
   box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-
-  /* Make room for the accent bar so content feels centered */
-  padding-left: 28px;
+  padding-inline-start: 18px; /* 10px + 8px för att ge plats åt accent */
 }
+
 
 .cv-block.is-selected::before{
   content: "";
   position: absolute;
-
-  /* Put accent INSIDE the block */
   left: 10px;
   top: 12px;
   bottom: 12px;
-
   width: 3px;
   border-radius: 999px;
   background: rgba(255, 210, 80, 0.95);
 }
+
 
 /* ===============================
    Context chip: premium surface + actions
