@@ -726,6 +726,9 @@ document.addEventListener("DOMContentLoaded", () => {
      CHAT SEND 
      =============================== */
    async function sendChat() {
+
+     console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
+
   const msg = editorInput.value.trim();
   if (!msg) return;
 
