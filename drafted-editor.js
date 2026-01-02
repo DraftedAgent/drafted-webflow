@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   editorPreviewEl.setAttribute("tabindex", "0");
   editorPreviewEl.setAttribute("data-placeholder", "true");
 
-  // Force buttons visually active
+  // Force buttons visually active (your UX choice)
   function forceButtonsActiveLook() {
     editorApplyBtn.disabled = false;
     editorApplyBtn.style.opacity = "1";
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Defense-in-depth sanitation for leaked fields ---
-  const FORBIDDEN_PREFIX_RE = /^(employer|title|startDate|endDate|degree|institution|order|type|label|blockId)\s*:\s*/i;
+  const FORBIDDEN_PREFIX_RE = /^(employer|title|startDate|endDate|degree|program|institution|order|type|label|blockId)\s*:\s*/i;
 
   function stripLeakedFields(text) {
     const t = String(text || "");
@@ -136,34 +136,31 @@ document.addEventListener("DOMContentLoaded", () => {
      =============================== */
   let documentTextState = "";
   let documentBlocksState = null;
-  let blockRangesById = {};
+  let blockRangesById = {}; // kept because buildStateFromBlocks populates it (useful for debug)
   let documentTitle = "";
+  let cvVersionId = null;
 
   // Selection state (multi blocks)
-  let pinnedSelection = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();    // MULTI
   let lastClickedBlockId = null;       // shift anchor
 
-  let activeContext = "chat"; // "chat" | "selection" | "full"
-  let lastSelectionKey = "";
-
+  let activeContext = "chat"; // "chat" | "blocks" | "full"
   let documentLanguage = "sv"; // "sv" | "en"
 
-function t(key) {
-  const dict = {
-    sv: {
-      education: "Utbildningar",
-      experience: "Erfarenheter"
-    },
-    en: {
-      education: "Education",
-      experience: "Experience"
-    }
-  };
-  return (dict[documentLanguage] && dict[documentLanguage][key]) || (dict.sv[key] || key);
-}
-
+  function t(key) {
+    const dict = {
+      sv: {
+        education: "Utbildningar",
+        experience: "Erfarenheter"
+      },
+      en: {
+        education: "Education",
+        experience: "Experience"
+      }
+    };
+    return (dict[documentLanguage] && dict[documentLanguage][key]) || (dict.sv[key] || key);
+  }
 
   /* ===============================
      MULTI SELECT HELPERS (BLOCKS)
@@ -218,9 +215,6 @@ function t(key) {
     selectedBlockId = null;
     lastClickedBlockId = null;
 
-    pinnedSelection = null;
-    lastSelectionKey = "";
-
     clearSelectedBlockUI();
     activeContext = keepContext;
     updateContextChip();
@@ -234,8 +228,8 @@ function t(key) {
 
     const parts = [];
     for (const b of selected.slice(0, 2)) {
-      const t = stripLeakedFields(String(b.text || "")).replace(/\s+/g, " ").trim();
-      if (t) parts.push(t);
+      const tt = stripLeakedFields(String(b.text || "")).replace(/\s+/g, " ").trim();
+      if (tt) parts.push(tt);
     }
 
     const joined = parts.join(" / ").trim();
@@ -250,6 +244,7 @@ function t(key) {
     if (!Array.isArray(blocks) || !blocks.length) {
       documentBlocksState = null;
       blockRangesById = {};
+      documentTextState = "";
       return;
     }
 
@@ -263,7 +258,6 @@ function t(key) {
       const start = doc.length;
 
       const rawLabel = block.label ? String(block.label).trim() : "";
-
       const rawText = stripLeakedFields(block.text ? String(block.text).trim() : "");
 
       let labelPart = "";
@@ -304,205 +298,196 @@ function t(key) {
      RENDER BLOCK HTML
      =============================== */
   function renderBlocksHtml(fullText) {
-  if (!documentBlocksState || !documentBlocksState.length) {
-    return escapeHtml(String(fullText || ""));
-  }
+    if (!documentBlocksState || !documentBlocksState.length) {
+      return escapeHtml(String(fullText || ""));
+    }
 
-  const htmlParts = [];
-  let educationHeadingRendered = false;
-  let experienceHeadingRendered = false;
+    const htmlParts = [];
+    let educationHeadingRendered = false;
+    let experienceHeadingRendered = false;
 
-  // Titel överst om vi har den
-  if (documentTitle) {
-    htmlParts.push(`
+    // Title on top
+    if (documentTitle) {
+      htmlParts.push(`
 <section class="cv-block cv-block--title">
   <h1 class="cv-title">${escapeHtml(documentTitle)}</h1>
 </section>`.trim());
-  }
-
-  // helper: try to extract a "degree/title line" from education text
-  function extractEducationNameFromText(rawText) {
-    const text = String(rawText || "").trim();
-    if (!text) return { name: "", rest: "" };
-
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    if (!lines.length) return { name: "", rest: text };
-
-    const first = (lines[0] || "").replace(/^[-•\u2022]+\s*/, "").trim();
-    const firstNorm = normLite(first);
-
-    // Disallow section headings being treated as degree
-    const banned = ["utbildning", "utbildningar", "education"];
-    if (!first || banned.includes(firstNorm)) return { name: "", rest: text };
-
-    // Heuristic: if first line is reasonably short, treat as "degree"
-    if (first.length <= 80) {
-      const rest = lines.slice(1).join("\n").trim();
-      return { name: first, rest };
     }
 
-    return { name: "", rest: text };
-  }
+    // helper: try to extract a "degree/title line" from education text
+    function extractEducationNameFromText(rawText) {
+      const text = String(rawText || "").trim();
+      if (!text) return { name: "", rest: "" };
 
-  for (const block of documentBlocksState) {
-    const id   = String(block.blockId || "");
-    const type = String(block.type || "block");
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (!lines.length) return { name: "", rest: text };
 
-    // All text som renderas ska vara sanerad
-    const rawText = String(block.text || "").trim();
+      const first = (lines[0] || "").replace(/^[-•\u2022]+\s*/, "").trim();
+      const firstNorm = normLite(first);
 
-    // ===== SUMMARY =====
-    if (type === "summary") {
-      const text = stripLeakedFields(rawText);
-      if (!text) continue;
+      const banned = ["utbildning", "utbildningar", "education"];
+      if (!first || banned.includes(firstNorm)) return { name: "", rest: text };
 
-      htmlParts.push(`
+      if (first.length <= 80) {
+        const rest = lines.slice(1).join("\n").trim();
+        return { name: first, rest };
+      }
+
+      return { name: "", rest: text };
+    }
+
+    for (const block of documentBlocksState) {
+      const id   = String(block.blockId || "");
+      const type = String(block.type || "block");
+      const rawText = String(block.text || "").trim();
+
+      // ===== SUMMARY =====
+      if (type === "summary") {
+        const text = stripLeakedFields(rawText);
+        if (!text) continue;
+
+        htmlParts.push(`
 <section class="cv-block cv-block--summary" data-block-id="${escapeHtml(id)}">
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
-      continue;
-    }
+        continue;
+      }
 
-    // ===== EXPERIENCE =====
-    if (type === "experience") {
-      // Insert section heading once, before first experience
-      if (!experienceHeadingRendered) {
-        htmlParts.push(`
+      // ===== EXPERIENCE =====
+      if (type === "experience") {
+        if (!experienceHeadingRendered) {
+          htmlParts.push(`
 <section class="cv-section cv-section--experience">
   <h2 class="cv-section-heading">${escapeHtml(t("experience"))}</h2>
 </section>`.trim());
-        experienceHeadingRendered = true;
-      }
+          experienceHeadingRendered = true;
+        }
 
-      const title     = String(block.title || "").trim();
-      const employer  = String(block.employer || "").trim();
-      const startDate = String(block.startDate || "").trim();
-      const endDate   = String(block.endDate || "").trim();
+        const title     = String(block.title || "").trim();
+        const employer  = String(block.employer || "").trim();
+        const startDate = String(block.startDate || "").trim();
+        const endDate   = String(block.endDate || "").trim();
 
-      const cleanText = stripFirstLineIfDuplicate(rawText, title, employer, startDate, endDate);
+        const cleanText = stripFirstLineIfDuplicate(rawText, title, employer, startDate, endDate);
 
-      let metaPieces = [];
-      if (employer) metaPieces.push(`<span class="cv-exp-company">${escapeHtml(employer)}</span>`);
+        let metaPieces = [];
+        if (employer) metaPieces.push(`<span class="cv-exp-company">${escapeHtml(employer)}</span>`);
 
-      if (startDate || endDate) {
-        const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
-        metaPieces.push(`<span class="cv-exp-period">(${escapeHtml(period)})</span>`);
-      }
+        if (startDate || endDate) {
+          const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
+          metaPieces.push(`<span class="cv-exp-period">(${escapeHtml(period)})</span>`);
+        }
 
-      const metaLine = metaPieces.length
-        ? `<div class="cv-exp-meta">${metaPieces.join(" ")}</div>`
-        : "";
+        const metaLine = metaPieces.length
+          ? `<div class="cv-exp-meta">${metaPieces.join(" ")}</div>`
+          : "";
 
-      const bodyHtml = cleanText
-        ? escapeHtml(cleanText).replace(/\n/g, "<br>")
-        : "";
+        const bodyHtml = cleanText
+          ? escapeHtml(cleanText).replace(/\n/g, "<br>")
+          : "";
 
-      htmlParts.push(`
+        htmlParts.push(`
 <section class="cv-block cv-block--experience" data-block-id="${escapeHtml(id)}">
   ${title ? `<div class="cv-exp-title">${escapeHtml(title)}</div>` : ""}
   ${metaLine}
   ${bodyHtml ? `<div class="cv-block-body">${bodyHtml}</div>` : ""}
 </section>`.trim());
-      continue;
-    }
+        continue;
+      }
 
-    // ===== EDUCATION =====
-    if (type === "education") {
-      // Insert section heading once, before first education
-      if (!educationHeadingRendered) {
-        htmlParts.push(`
+      // ===== EDUCATION =====
+      if (type === "education") {
+        if (!educationHeadingRendered) {
+          htmlParts.push(`
 <section class="cv-section cv-section--education">
   <h2 class="cv-section-heading">${escapeHtml(t("education"))}</h2>
 </section>`.trim());
-        educationHeadingRendered = true;
-      }
+          educationHeadingRendered = true;
+        }
 
-      const degree      = String(block.degree || "").trim();
-      const institution = String(block.institution || "").trim();
-      const startDate   = String(block.startDate || "").trim();
-      const endDate     = String(block.endDate || "").trim();
+        const degree      = String(block.degree || "").trim();
+        const institution = String(block.institution || "").trim();
+        const startDate   = String(block.startDate || "").trim();
+        const endDate     = String(block.endDate || "").trim();
 
-      // If degree missing, attempt extraction from text first line
-      let workingText = rawText;
-      let derivedDegree = "";
+        let workingText = rawText;
+        let derivedDegree = "";
 
-      if (!degree) {
-        const extracted = extractEducationNameFromText(rawText);
-        derivedDegree = extracted.name;
-        if (derivedDegree) workingText = extracted.rest;
-      }
+        if (!degree) {
+          const extracted = extractEducationNameFromText(rawText);
+          derivedDegree = extracted.name;
+          if (derivedDegree) workingText = extracted.rest;
+        }
 
-      const degreeFinal = degree || derivedDegree;
+        const degreeFinal = degree || derivedDegree;
 
-      const cleanText = stripFirstLineIfDuplicate(workingText, degreeFinal, institution, startDate, endDate);
+        const cleanText = stripFirstLineIfDuplicate(workingText, degreeFinal, institution, startDate, endDate);
+        if (!cleanText && !degreeFinal && !institution) continue;
 
-      if (!cleanText && !degreeFinal && !institution) continue;
+        let metaPieces = [];
+        if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
+        if (startDate || endDate) {
+          const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
+          metaPieces.push(`<span class="cv-edu-period">(${escapeHtml(period)})</span>`);
+        }
 
-      let metaPieces = [];
-      if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
-      if (startDate || endDate) {
-        const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
-        metaPieces.push(`<span class="cv-edu-period">(${escapeHtml(period)})</span>`);
-      }
+        const metaLine = metaPieces.length
+          ? `<div class="cv-edu-meta">${metaPieces.join(" ")}</div>`
+          : "";
 
-      const metaLine = metaPieces.length
-        ? `<div class="cv-edu-meta">${metaPieces.join(" ")}</div>`
-        : "";
+        const bodyHtml = cleanText
+          ? `<div class="cv-block-body">${escapeHtml(cleanText).replace(/\n/g, "<br>")}</div>`
+          : "";
 
-      const bodyHtml = cleanText
-        ? `<div class="cv-block-body">${escapeHtml(cleanText).replace(/\n/g, "<br>")}</div>`
-        : "";
-
-      htmlParts.push(`
+        htmlParts.push(`
 <section class="cv-block cv-block--education" data-block-id="${escapeHtml(id)}">
   ${degreeFinal ? `<div class="cv-edu-degree">${escapeHtml(degreeFinal)}</div>` : ""}
   ${metaLine}
   ${bodyHtml}
 </section>`.trim());
-      continue;
-    }
+        continue;
+      }
 
-    // ===== SKILLS =====
-    if (type === "skills") {
-      const text = stripLeakedFields(rawText);
-      if (!text) continue;
+      // ===== SKILLS =====
+      if (type === "skills") {
+        const text = stripLeakedFields(rawText);
+        if (!text) continue;
 
-      htmlParts.push(`
+        htmlParts.push(`
 <section class="cv-block cv-block--skills" data-block-id="${escapeHtml(id)}">
   <h2 class="cv-block-heading">Kompetenser</h2>
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
-      continue;
-    }
+        continue;
+      }
 
-    // ===== LANGUAGES =====
-    if (type === "languages") {
-      const text = stripLeakedFields(rawText);
-      if (!text) continue;
+      // ===== LANGUAGES =====
+      if (type === "languages") {
+        const text = stripLeakedFields(rawText);
+        if (!text) continue;
 
-      htmlParts.push(`
+        htmlParts.push(`
 <section class="cv-block cv-block--languages" data-block-id="${escapeHtml(id)}">
   <h2 class="cv-block-heading">Språk</h2>
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
-      continue;
-    }
+        continue;
+      }
 
-    // ===== Fallback =====
-    const text = stripLeakedFields(rawText);
-    if (!text) continue;
+      // ===== Fallback =====
+      const text = stripLeakedFields(rawText);
+      if (!text) continue;
 
-    htmlParts.push(`
+      htmlParts.push(`
 <section class="cv-block" data-block-id="${escapeHtml(id)}">
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
+    }
+
+    return htmlParts.join("\n");
   }
 
-  return htmlParts.join("\n");
-}
-
-
-  function renderDocument(text, pinnedSel) {
+  function renderDocument(text) {
     const safeText = String(text || "");
     editorPreviewEl.style.whiteSpace = "pre-wrap";
 
@@ -512,179 +497,24 @@ function t(key) {
       return;
     }
 
-    if (pinnedSel && typeof pinnedSel.startIndex === "number" && typeof pinnedSel.endIndex === "number") {
-      const start = Math.max(0, Math.min(safeText.length, pinnedSel.startIndex));
-      const end = Math.max(0, Math.min(safeText.length, pinnedSel.endIndex));
-      if (end <= start) {
-        editorPreviewEl.innerHTML = escapeHtml(safeText);
-        return;
-      }
-
-      const before = safeText.slice(0, start);
-      const selected = safeText.slice(start, end);
-      const after = safeText.slice(end);
-
-      editorPreviewEl.innerHTML =
-        escapeHtml(before) +
-        `<span class="drafted-highlight" data-drafted-highlight="1">` +
-        escapeHtml(selected) +
-        `</span>` +
-        escapeHtml(after);
-
-      return;
-    }
-
     editorPreviewEl.innerHTML = escapeHtml(safeText);
   }
 
   /* ===============================
-     LEGACY TEXT SELECTION HELPERS
-     =============================== */
-  function clampRange(text, startIndex, endIndex) {
-    const len = text.length;
-    const s = Math.max(0, Math.min(len, startIndex));
-    const e = Math.max(0, Math.min(len, endIndex));
-    return { start: Math.min(s, e), end: Math.max(s, e) };
-  }
-
-  function snapToParagraphOrLine(text, startIndex, endIndex) {
-    const { start, end } = clampRange(text, startIndex, endIndex);
-    if (start === end) return { start, end };
-
-    const before = text.slice(0, start);
-    const after = text.slice(end);
-
-    let paraStart = 0;
-    {
-      const matches = before.matchAll(/\n\s*\n/g);
-      let last = null;
-      for (const m of matches) last = m;
-      if (last) paraStart = last.index + last[0].length;
-    }
-
-    let paraEnd = text.length;
-    {
-      const m = after.match(/\n\s*\n/);
-      if (m && typeof m.index === "number") paraEnd = end + m.index;
-    }
-
-    const paragraphLooksValid =
-      !(paraStart === 0 && paraEnd === text.length) &&
-      paraEnd > paraStart;
-
-    if (paragraphLooksValid) return { start: paraStart, end: paraEnd };
-
-    const blockStart = text.lastIndexOf("\n", start - 1) + 1;
-    let blockEnd = text.indexOf("\n", end);
-    if (blockEnd === -1) blockEnd = text.length;
-
-    return { start: blockStart, end: blockEnd };
-  }
-
-  function buildPinnedSelectionForRange(fullText, startIndex, endIndex, snap = true) {
-    const { start, end } = snap
-      ? snapToParagraphOrLine(fullText, startIndex, endIndex)
-      : clampRange(fullText, startIndex, endIndex);
-
-    const CONTEXT_CHARS = 600;
-
-    return {
-      startIndex: start,
-      endIndex: end,
-      selectedText: fullText.slice(start, end),
-      contextBefore: fullText.slice(Math.max(0, start - CONTEXT_CHARS), start),
-      contextAfter: fullText.slice(end, Math.min(fullText.length, end + CONTEXT_CHARS))
-    };
-  }
-
-  function isSelectionInside(el, selection) {
-    if (!selection || selection.rangeCount === 0) return false;
-    const range = selection.getRangeAt(0);
-    const common = range.commonAncestorContainer;
-    const node = common.nodeType === Node.ELEMENT_NODE ? common : common.parentElement;
-    return !!node && el.contains(node);
-  }
-
-  function getTextNodesUnder(root) {
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode: node =>
-        node.nodeValue && node.nodeValue.length
-          ? NodeFilter.FILTER_ACCEPT
-          : NodeFilter.FILTER_REJECT
-    });
-    const nodes = [];
-    let n;
-    while ((n = walker.nextNode())) nodes.push(n);
-    return nodes;
-  }
-
-  function getNodeTextOffset(root, targetNode, targetOffset) {
-    const textNodes = getTextNodesUnder(root);
-    let offset = 0;
-    for (const node of textNodes) {
-      if (node === targetNode) return offset + targetOffset;
-      offset += node.nodeValue.length;
-    }
-    return null;
-  }
-
-  function getSelectionPayload(root) {
-    // When blocks exist: use click selection instead
-    if (documentBlocksState && documentBlocksState.length) return null;
-    if (root.getAttribute("data-placeholder") === "true") return null;
-
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return null;
-    if (!isSelectionInside(root, sel)) return null;
-
-    const range = sel.getRangeAt(0);
-    if (range.collapsed) return null;
-
-    const startAbs = getNodeTextOffset(root, range.startContainer, range.startOffset);
-    const endAbs = getNodeTextOffset(root, range.endContainer, range.endOffset);
-    if (startAbs == null || endAbs == null) return null;
-
-    const rawStart = Math.min(startAbs, endAbs);
-    const rawEnd = Math.max(startAbs, endAbs);
-
-    const fullText = documentTextState || (root.textContent || "");
-    const rawSelected = fullText.slice(rawStart, rawEnd);
-    if (!rawSelected.trim()) return null;
-
-    const snapped = buildPinnedSelectionForRange(fullText, rawStart, rawEnd, true);
-    if (!snapped.selectedText.trim()) return null;
-
-    return snapped;
-  }
-
-  /* ===============================
-     CONTEXT CHIP (NO :has)
+     CONTEXT CHIP (BLOCK-ONLY)
      =============================== */
   function setChipMode(mode) {
-    contextChipEl.classList.remove("chip--chat", "chip--full", "chip--selection");
-    if (mode === "selection") contextChipEl.classList.add("chip--selection");
+    contextChipEl.classList.remove("chip--chat", "chip--full", "chip--selection", "chip--blocks");
+    if (mode === "blocks") contextChipEl.classList.add("chip--blocks");
     else if (mode === "full") contextChipEl.classList.add("chip--full");
     else contextChipEl.classList.add("chip--chat");
-  }
-
-  function clearSelectionState(setContextTo = "chat") {
-    pinnedSelection = null;
-    selectedBlockId = null;
-    selectedBlockIds = new Set();
-    lastClickedBlockId = null;
-    lastSelectionKey = "";
-    renderDocument(documentTextState, null);
-    clearNativeSelection();
-    activeContext = setContextTo;
-    updateContextChip();
-    console.log("🧹 Cleared selection. context =", activeContext);
   }
 
   function updateContextChip() {
     const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
     const selectedCount = selectedBlockIds?.size || 0;
 
-    if (hasBlocks && activeContext === "selection" && selectedCount > 0) {
+    if (hasBlocks && selectedCount > 0) {
       const preview = getSelectedBlocksPreview(110);
 
       contextChipEl.innerHTML = `
@@ -695,7 +525,7 @@ function t(key) {
         <button type="button" id="chip-full">Use full CV</button>
       `;
       contextChipEl.classList.remove("is-hidden");
-      setChipMode("selection");
+      setChipMode("blocks");
 
       contextChipEl.querySelector("#chip-clear")?.addEventListener("click", () => {
         clearBlockSelection("chat");
@@ -703,30 +533,6 @@ function t(key) {
 
       contextChipEl.querySelector("#chip-full")?.addEventListener("click", () => {
         clearBlockSelection("full");
-      });
-
-      return;
-    }
-
-    if (activeContext === "selection" && pinnedSelection?.selectedText) {
-      const chars = pinnedSelection.selectedText.length;
-      const preview = pinnedSelection.selectedText.trim().slice(0, 80).replace(/\s+/g, " ");
-      contextChipEl.innerHTML = `
-        <span><strong>Selected</strong></span>
-        <span class="meta">${chars} chars</span>
-        <span class="meta">"${escapeHtml(preview)}${chars > 80 ? "…" : ""}"</span>
-        <button type="button" id="chip-clear">Clear</button>
-        <button type="button" id="chip-full">Use full CV</button>
-      `;
-      contextChipEl.classList.remove("is-hidden");
-      setChipMode("selection");
-
-      contextChipEl.querySelector("#chip-clear")?.addEventListener("click", () => {
-        clearSelectionState("chat");
-      });
-
-      contextChipEl.querySelector("#chip-full")?.addEventListener("click", () => {
-        clearSelectionState("full");
       });
 
       return;
@@ -766,12 +572,6 @@ function t(key) {
   /* ===============================
      BLOCK CLICK SELECTION (MULTI)
      =============================== */
-  function buildSelectionFromBlockId(blockId) {
-    const r = blockRangesById[blockId];
-    if (!r) return null;
-    return buildPinnedSelectionForRange(documentTextState, r.start, r.end, false);
-  }
-
   editorPreviewEl.addEventListener("click", (e) => {
     if (!documentBlocksState || !documentBlocksState.length) return;
     if (editorPreviewEl.getAttribute("data-placeholder") === "true") return;
@@ -792,45 +592,15 @@ function t(key) {
 
     if (selectedBlockIds.size === 0) {
       activeContext = "chat";
-      pinnedSelection = null;
       selectedBlockId = null;
     } else {
-      activeContext = "selection";
-      pinnedSelection = buildSelectionFromBlockId(id);
+      activeContext = "blocks";
       selectedBlockId = id;
-      lastSelectionKey = `blocks:${Array.from(selectedBlockIds).join(",")}`;
     }
 
     clearNativeSelection();
     applySelectedBlocksUI();
     updateContextChip();
-  });
-
-  /* ===============================
-     TEXT SELECTION (legacy)
-     =============================== */
-  let selectionTimer = null;
-  document.addEventListener("selectionchange", () => {
-    if (selectionTimer) clearTimeout(selectionTimer);
-    selectionTimer = setTimeout(() => {
-      const next = getSelectionPayload(editorPreviewEl);
-      if (!next) return;
-
-      const key = `${next.startIndex}:${next.endIndex}:${next.selectedText.length}`;
-      if (key === lastSelectionKey) return;
-
-      lastSelectionKey = key;
-      pinnedSelection = next;
-
-      selectedBlockId = null;
-      selectedBlockIds = new Set();
-      lastClickedBlockId = null;
-
-      activeContext = "selection";
-
-      renderDocument(documentTextState, pinnedSelection);
-      updateContextChip();
-    }, 150);
   });
 
   /* ===============================
@@ -848,7 +618,7 @@ function t(key) {
   });
 
   /* ===============================
-     UPLOAD -> RENDER
+     UPLOAD -> RENDER (MAIN FLOW)
      =============================== */
   uploadBtn.addEventListener("click", async e => {
     e.preventDefault();
@@ -870,11 +640,13 @@ function t(key) {
       const raw = await res.text();
       const data = JSON.parse(sanitizeLeadingGarbage(raw));
 
-      const rewritten = sanitizeLeadingGarbage(data.rewrittenCv || "");
       const blocks = Array.isArray(data.blocks) ? data.blocks : null;
 
       const nextTitle = String(data.cvTitle || "").trim();
       if (nextTitle) documentTitle = nextTitle;
+
+      const nextCvVersionId = String(data.cvVersionId || "").trim();
+      cvVersionId = nextCvVersionId || cvVersionId || null;
 
       editorPreviewEl.removeAttribute("data-placeholder");
       setCvLoadedUI(true);
@@ -882,20 +654,18 @@ function t(key) {
       if (blocks && blocks.length) {
         buildStateFromBlocks(blocks);
       } else {
-        documentTextState = rewritten;
+        documentTextState = sanitizeLeadingGarbage(data.rewrittenCv || "");
         documentBlocksState = null;
         blockRangesById = {};
       }
 
-      // reset selection
-      pinnedSelection = null;
+      // reset selection / context
       selectedBlockId = null;
       selectedBlockIds = new Set();
       lastClickedBlockId = null;
-      lastSelectionKey = "";
       activeContext = "chat";
 
-      renderDocument(documentTextState, null);
+      renderDocument(documentTextState);
       clearNativeSelection();
       updateContextChip();
 
@@ -904,6 +674,7 @@ function t(key) {
       alert("Fel vid uppladdning.");
     } finally {
       uploadBtn.disabled = false;
+      forceButtonsActiveLook();
     }
   });
 
@@ -913,7 +684,8 @@ function t(key) {
   async function sendChatMessageOnly() {
     const msg = editorInput.value.trim();
     if (!msg) return;
-    clearSelectionState("chat");
+
+    clearBlockSelection("chat");
     console.log("💬 CHAT:", msg);
     editorInput.value = "";
   }
@@ -926,7 +698,7 @@ function t(key) {
   }
 
   /* ===============================
-     APPLY (rewrite)
+     APPLY (BLOCK-ONLY REWRITE)
      =============================== */
   async function sendApply() {
     const instruction = editorInput.value.trim();
@@ -936,35 +708,28 @@ function t(key) {
     }
 
     const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
-    const hasSelectedBlocks = hasBlocks && (selectedBlockIds.size > 0);
+    if (!hasBlocks) {
+      alert("Ladda upp ett CV först (block saknas).");
+      return;
+    }
 
-    // Mode priority:
-    // 1) blocks (multi) if blocks exist and selection exists
-    // 2) selection (legacy text)
-    // 3) full
-    const mode = hasSelectedBlocks
-      ? "blocks"
-      : ((activeContext === "selection" && pinnedSelection) ? "selection" : "full");
+    const hasSelectedBlocks = selectedBlockIds.size > 0;
+    const mode = hasSelectedBlocks ? "blocks" : "full";
+
+    // IMPORTANT: send only selected blocks in blocks-mode
+    const blocksToSend = mode === "blocks"
+      ? documentBlocksState.filter(b => selectedBlockIds.has(b.blockId))
+      : documentBlocksState;
 
     const payload = {
       mode,
       instruction,
       targetRole: targetRoleInput?.value?.trim() || "",
-      documentText: documentTextState || (editorPreviewEl.textContent || "")
+      cvVersionId: cvVersionId || null,
+      cvTitle: documentTitle || "",
+      selectedBlockIds: hasSelectedBlocks ? Array.from(selectedBlockIds) : [],
+      blocks: blocksToSend
     };
-
-    if (mode === "blocks") {
-      payload.selectedBlockIds = Array.from(selectedBlockIds);
-      payload.blocks = documentBlocksState;
-    }
-
-    if (mode === "selection") {
-      payload.selectionStart = pinnedSelection.startIndex;
-      payload.selectionEnd = pinnedSelection.endIndex;
-      payload.selectionText = pinnedSelection.selectedText;
-      payload.contextBefore = pinnedSelection.contextBefore;
-      payload.contextAfter = pinnedSelection.contextAfter;
-    }
 
     try {
       setBusy(true);
@@ -984,112 +749,41 @@ function t(key) {
         return;
       }
 
-      // ---- BLOCKS RESPONSE ----
-      if (data.mode === "blocks") {
-        const blocks = Array.isArray(data.blocks) ? data.blocks : null;
-        if (!blocks || !blocks.length) throw new Error("blocks missing in blocks response");
-
-        const nextTitle = String(data.cvTitle || "").trim();
-        if (nextTitle) documentTitle = nextTitle;
-
-        buildStateFromBlocks(blocks);
-
-        // keep selection if ids still exist
-        const nextIds = new Set(Object.keys(blockRangesById));
-        selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
-
-        if (selectedBlockIds.size === 0) {
-          pinnedSelection = null;
-          selectedBlockId = null;
-          lastClickedBlockId = null;
-          activeContext = "full";
-        } else {
-          activeContext = "selection";
-          if (!selectedBlockId || !selectedBlockIds.has(selectedBlockId)) {
-            selectedBlockId = Array.from(selectedBlockIds)[selectedBlockIds.size - 1];
-          }
-          pinnedSelection = buildSelectionFromBlockId(selectedBlockId);
-        }
-
-        renderDocument(documentTextState, null);
-        applySelectedBlocksUI();
-        updateContextChip();
-        clearNativeSelection();
-        editorInput.value = "";
-        return;
+      // Expect main-format response: cvTitle + blocks[]
+      const nextBlocks = Array.isArray(data.blocks) ? data.blocks : null;
+      if (!nextBlocks || !nextBlocks.length) {
+        throw new Error("blocks missing in editor response");
       }
 
-      // ---- LEGACY SELECTION RESPONSE ----
-      if (data.mode === "selection") {
-        const replacementText = data.replacementText;
-        if (typeof replacementText !== "string" || !replacementText) {
-          throw new Error("replacementText missing");
-        }
+      const nextTitle = String(data.cvTitle || "").trim();
+      if (nextTitle) documentTitle = nextTitle;
 
-        const documentText = payload.documentText;
-        const sel = pinnedSelection;
+      const nextCvVersionId = String(data.cvVersionId || "").trim();
+      if (nextCvVersionId) cvVersionId = nextCvVersionId;
 
-        const newText =
-          documentText.slice(0, sel.startIndex) +
-          replacementText +
-          documentText.slice(sel.endIndex);
+      buildStateFromBlocks(nextBlocks);
 
-        documentTextState = newText;
-        documentBlocksState = null;
-        blockRangesById = {};
+      // keep selection if ids still exist
+      const nextIds = new Set(documentBlocksState.map(b => b.blockId));
+      selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
+
+      if (selectedBlockIds.size === 0) {
         selectedBlockId = null;
-        selectedBlockIds = new Set();
         lastClickedBlockId = null;
-
-        const newStart = sel.startIndex;
-        const newEnd = sel.startIndex + replacementText.length;
-        pinnedSelection = buildPinnedSelectionForRange(documentTextState, newStart, newEnd, false);
-        activeContext = "selection";
-
-        renderDocument(documentTextState, pinnedSelection);
-        updateContextChip();
-        clearNativeSelection();
-
-        editorInput.value = "";
-        return;
-      }
-
-      // ---- FULL RESPONSE ----
-      if (data.mode === "full") {
-        const rewrittenCv = sanitizeLeadingGarbage(data.rewrittenCv || "");
-        if (!rewrittenCv && !Array.isArray(data.blocks)) throw new Error("rewrittenCv missing");
-
-        const blocks = Array.isArray(data.blocks) ? data.blocks : null;
-
-        const nextTitle = String(data.cvTitle || "").trim();
-        if (nextTitle) documentTitle = nextTitle;
-
-        if (blocks && blocks.length) {
-          buildStateFromBlocks(blocks);
-        } else {
-          documentTextState = rewrittenCv;
-          documentBlocksState = null;
-          blockRangesById = {};
+        activeContext = "full"; // after a full rewrite, this makes sense
+      } else {
+        activeContext = "blocks";
+        if (!selectedBlockId || !selectedBlockIds.has(selectedBlockId)) {
+          // pick last from set
+          selectedBlockId = Array.from(selectedBlockIds)[selectedBlockIds.size - 1];
         }
-
-        setCvLoadedUI(true);
-
-        pinnedSelection = null;
-        selectedBlockId = null;
-        selectedBlockIds = new Set();
-        lastClickedBlockId = null;
-        lastSelectionKey = "";
-        activeContext = "full";
-
-        renderDocument(documentTextState, null);
-        updateContextChip();
-        clearNativeSelection();
-
-        editorInput.value = "";
-        return;
       }
 
-      throw new Error("Unknown mode in response");
+      renderDocument(documentTextState);
+      applySelectedBlocksUI();
+      updateContextChip();
+      clearNativeSelection();
+      editorInput.value = "";
 
     } catch (err) {
       console.error(err);
@@ -1120,6 +814,6 @@ function t(key) {
      INITIAL
      =============================== */
   setCvLoadedUI(false);
-  renderDocument("", null);
+  renderDocument("");
   updateContextChip();
 });
