@@ -148,6 +148,23 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeContext = "chat"; // "chat" | "selection" | "full"
   let lastSelectionKey = "";
 
+  let documentLanguage = "sv"; // "sv" | "en"
+
+function t(key) {
+  const dict = {
+    sv: {
+      education: "Utbildningar",
+      experience: "Erfarenheter"
+    },
+    en: {
+      education: "Education",
+      experience: "Experience"
+    }
+  };
+  return (dict[documentLanguage] && dict[documentLanguage][key]) || (dict.sv[key] || key);
+}
+
+
   /* ===============================
      MULTI SELECT HELPERS (BLOCKS)
      =============================== */
@@ -287,141 +304,203 @@ document.addEventListener("DOMContentLoaded", () => {
      RENDER BLOCK HTML
      =============================== */
   function renderBlocksHtml(fullText) {
-    if (!documentBlocksState || !documentBlocksState.length) {
-      return escapeHtml(String(fullText || ""));
-    }
+  if (!documentBlocksState || !documentBlocksState.length) {
+    return escapeHtml(String(fullText || ""));
+  }
 
-    const htmlParts = [];
-    let educationHeadingRendered = false;
+  const htmlParts = [];
+  let educationHeadingRendered = false;
+  let experienceHeadingRendered = false;
 
-    if (documentTitle) {
-      htmlParts.push(`
+  // Titel överst om vi har den
+  if (documentTitle) {
+    htmlParts.push(`
 <section class="cv-block cv-block--title">
   <h1 class="cv-title">${escapeHtml(documentTitle)}</h1>
 </section>`.trim());
+  }
+
+  // helper: try to extract a "degree/title line" from education text
+  function extractEducationNameFromText(rawText) {
+    const text = String(rawText || "").trim();
+    if (!text) return { name: "", rest: "" };
+
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return { name: "", rest: text };
+
+    const first = (lines[0] || "").replace(/^[-•\u2022]+\s*/, "").trim();
+    const firstNorm = normLite(first);
+
+    // Disallow section headings being treated as degree
+    const banned = ["utbildning", "utbildningar", "education"];
+    if (!first || banned.includes(firstNorm)) return { name: "", rest: text };
+
+    // Heuristic: if first line is reasonably short, treat as "degree"
+    if (first.length <= 80) {
+      const rest = lines.slice(1).join("\n").trim();
+      return { name: first, rest };
     }
 
-    for (const block of documentBlocksState) {
-      const id   = String(block.blockId || "");
-      const type = String(block.type || "block");
-      const rawText = String(block.text || "").trim();
+    return { name: "", rest: text };
+  }
 
-      if (type === "summary") {
-        const text = stripLeakedFields(rawText);
-        if (!text) continue;
+  for (const block of documentBlocksState) {
+    const id   = String(block.blockId || "");
+    const type = String(block.type || "block");
 
-        htmlParts.push(`
+    // All text som renderas ska vara sanerad
+    const rawText = String(block.text || "").trim();
+
+    // ===== SUMMARY =====
+    if (type === "summary") {
+      const text = stripLeakedFields(rawText);
+      if (!text) continue;
+
+      htmlParts.push(`
 <section class="cv-block cv-block--summary" data-block-id="${escapeHtml(id)}">
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
-        continue;
+      continue;
+    }
+
+    // ===== EXPERIENCE =====
+    if (type === "experience") {
+      // Insert section heading once, before first experience
+      if (!experienceHeadingRendered) {
+        htmlParts.push(`
+<section class="cv-section cv-section--experience">
+  <h2 class="cv-section-heading">${escapeHtml(t("experience"))}</h2>
+</section>`.trim());
+        experienceHeadingRendered = true;
       }
 
-      if (type === "experience") {
-        const title     = String(block.title || "").trim();
-        const employer  = String(block.employer || "").trim();
-        const startDate = String(block.startDate || "").trim();
-        const endDate   = String(block.endDate || "").trim();
+      const title     = String(block.title || "").trim();
+      const employer  = String(block.employer || "").trim();
+      const startDate = String(block.startDate || "").trim();
+      const endDate   = String(block.endDate || "").trim();
 
-        const cleanText = stripFirstLineIfDuplicate(rawText, title, employer, startDate, endDate);
+      const cleanText = stripFirstLineIfDuplicate(rawText, title, employer, startDate, endDate);
 
-        let metaPieces = [];
-        if (employer) metaPieces.push(`<span class="cv-exp-company">${escapeHtml(employer)}</span>`);
+      let metaPieces = [];
+      if (employer) metaPieces.push(`<span class="cv-exp-company">${escapeHtml(employer)}</span>`);
 
-        if (startDate || endDate) {
-          const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
-          metaPieces.push(`<span class="cv-exp-period">(${escapeHtml(period)})</span>`);
-        }
+      if (startDate || endDate) {
+        const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
+        metaPieces.push(`<span class="cv-exp-period">(${escapeHtml(period)})</span>`);
+      }
 
-        const metaLine = metaPieces.length
-          ? `<div class="cv-exp-meta">${metaPieces.join(" ")}</div>`
-          : "";
+      const metaLine = metaPieces.length
+        ? `<div class="cv-exp-meta">${metaPieces.join(" ")}</div>`
+        : "";
 
-        const bodyHtml = cleanText
-          ? escapeHtml(cleanText).replace(/\n/g, "<br>")
-          : "";
+      const bodyHtml = cleanText
+        ? escapeHtml(cleanText).replace(/\n/g, "<br>")
+        : "";
 
-        htmlParts.push(`
+      htmlParts.push(`
 <section class="cv-block cv-block--experience" data-block-id="${escapeHtml(id)}">
   ${title ? `<div class="cv-exp-title">${escapeHtml(title)}</div>` : ""}
   ${metaLine}
   ${bodyHtml ? `<div class="cv-block-body">${bodyHtml}</div>` : ""}
 </section>`.trim());
-        continue;
+      continue;
+    }
+
+    // ===== EDUCATION =====
+    if (type === "education") {
+      // Insert section heading once, before first education
+      if (!educationHeadingRendered) {
+        htmlParts.push(`
+<section class="cv-section cv-section--education">
+  <h2 class="cv-section-heading">${escapeHtml(t("education"))}</h2>
+</section>`.trim());
+        educationHeadingRendered = true;
       }
 
-      if (type === "education") {
-        const degree      = String(block.degree || "").trim();
-        const institution = String(block.institution || "").trim();
-        const startDate   = String(block.startDate || "").trim();
-        const endDate     = String(block.endDate || "").trim();
+      const degree      = String(block.degree || "").trim();
+      const institution = String(block.institution || "").trim();
+      const startDate   = String(block.startDate || "").trim();
+      const endDate     = String(block.endDate || "").trim();
 
-        const cleanText = stripFirstLineIfDuplicate(rawText, degree, institution, startDate, endDate);
+      // If degree missing, attempt extraction from text first line
+      let workingText = rawText;
+      let derivedDegree = "";
 
-        if (!cleanText && !degree && !institution) continue;
+      if (!degree) {
+        const extracted = extractEducationNameFromText(rawText);
+        derivedDegree = extracted.name;
+        if (derivedDegree) workingText = extracted.rest;
+      }
 
-        const headingHtml = !educationHeadingRendered
-          ? `<h2 class="cv-block-heading">Utbildning</h2>`
-          : "";
-        educationHeadingRendered = true;
+      const degreeFinal = degree || derivedDegree;
 
-        let metaPieces = [];
-        if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
-        if (startDate || endDate) {
-          const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
-          metaPieces.push(`<span class="cv-edu-period">(${escapeHtml(period)})</span>`);
-        }
+      const cleanText = stripFirstLineIfDuplicate(workingText, degreeFinal, institution, startDate, endDate);
 
-        const metaLine = metaPieces.length
-          ? `<div class="cv-edu-meta">${metaPieces.join(" ")}</div>`
-          : "";
+      if (!cleanText && !degreeFinal && !institution) continue;
 
-        const bodyHtml = cleanText
-          ? `<div class="cv-block-body">${escapeHtml(cleanText).replace(/\n/g, "<br>")}</div>`
-          : "";
+      let metaPieces = [];
+      if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
+      if (startDate || endDate) {
+        const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
+        metaPieces.push(`<span class="cv-edu-period">(${escapeHtml(period)})</span>`);
+      }
 
-        htmlParts.push(`
+      const metaLine = metaPieces.length
+        ? `<div class="cv-edu-meta">${metaPieces.join(" ")}</div>`
+        : "";
+
+      const bodyHtml = cleanText
+        ? `<div class="cv-block-body">${escapeHtml(cleanText).replace(/\n/g, "<br>")}</div>`
+        : "";
+
+      htmlParts.push(`
 <section class="cv-block cv-block--education" data-block-id="${escapeHtml(id)}">
-  ${headingHtml}
-  ${degree ? `<div class="cv-edu-degree">${escapeHtml(degree)}</div>` : ""}
+  ${degreeFinal ? `<div class="cv-edu-degree">${escapeHtml(degreeFinal)}</div>` : ""}
   ${metaLine}
   ${bodyHtml}
 </section>`.trim());
-        continue;
-      }
+      continue;
+    }
 
-      if (type === "skills") {
-        const text = stripLeakedFields(rawText);
-        if (!text) continue;
-        htmlParts.push(`
+    // ===== SKILLS =====
+    if (type === "skills") {
+      const text = stripLeakedFields(rawText);
+      if (!text) continue;
+
+      htmlParts.push(`
 <section class="cv-block cv-block--skills" data-block-id="${escapeHtml(id)}">
   <h2 class="cv-block-heading">Kompetenser</h2>
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
-        continue;
-      }
+      continue;
+    }
 
-      if (type === "languages") {
-        const text = stripLeakedFields(rawText);
-        if (!text) continue;
-        htmlParts.push(`
+    // ===== LANGUAGES =====
+    if (type === "languages") {
+      const text = stripLeakedFields(rawText);
+      if (!text) continue;
+
+      htmlParts.push(`
 <section class="cv-block cv-block--languages" data-block-id="${escapeHtml(id)}">
   <h2 class="cv-block-heading">Språk</h2>
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
-        continue;
-      }
+      continue;
+    }
 
-      const text = stripLeakedFields(rawText);
-      if (!text) continue;
-      htmlParts.push(`
+    // ===== Fallback =====
+    const text = stripLeakedFields(rawText);
+    if (!text) continue;
+
+    htmlParts.push(`
 <section class="cv-block" data-block-id="${escapeHtml(id)}">
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
-    }
-
-    return htmlParts.join("\n");
   }
+
+  return htmlParts.join("\n");
+}
+
 
   function renderDocument(text, pinnedSel) {
     const safeText = String(text || "");
