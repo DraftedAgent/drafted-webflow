@@ -103,7 +103,6 @@
   margin-inline-end: 15px;
 }
 
-
 .cv-block:hover{
   background: rgba(0,0,0,0.02);
 }
@@ -111,20 +110,8 @@
 .cv-block.is-selected{
   background: rgba(255, 210, 80, 0.16);
   box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-  padding-inline-start: 18px; /* 10px + 8px för att ge plats åt accent */
 }
 
-
-.cv-block.is-selected::before{
-  content: "";
-  position: absolute;
-  left: 10px;
-  top: 12px;
-  bottom: 12px;
-  width: 3px;
-  border-radius: 999px;
-  background: rgba(255, 210, 80, 0.95);
-}
 
 
 /* ===============================
@@ -209,6 +196,16 @@
 /* ===============================
    Typography helpers
    =============================== */
+.cv-title{
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
+
+  /* Responsive font size */
+  font-size: clamp(26px, 4.2vw, 40px);
+  line-height: 1.1;
+}
+
 .cv-block--experience {
   margin-bottom: 18px;
 }
