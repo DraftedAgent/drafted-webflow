@@ -716,20 +716,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const hasSelectedBlocks = selectedBlockIds.size > 0;
     const mode = hasSelectedBlocks ? "blocks" : "full";
 
-    // IMPORTANT: send only selected blocks in blocks-mode
-    const blocksToSend = mode === "blocks"
-      ? documentBlocksState.filter(b => selectedBlockIds.has(b.blockId))
-      : documentBlocksState;
+   const payload = {
+  mode,
+  instruction,
+  targetRole: targetRoleInput?.value?.trim() || "",
+  cvVersionId: cvVersionId || null,
+  cvTitle: documentTitle || "",
+  selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
+  blocks: documentBlocksState // ALWAYS send full list
+};
 
-    const payload = {
-      mode,
-      instruction,
-      targetRole: targetRoleInput?.value?.trim() || "",
-      cvVersionId: cvVersionId || null,
-      cvTitle: documentTitle || "",
-      selectedBlockIds: hasSelectedBlocks ? Array.from(selectedBlockIds) : [],
-      blocks: blocksToSend
-    };
 
     try {
       setBusy(true);
