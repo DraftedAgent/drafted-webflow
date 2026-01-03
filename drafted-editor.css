@@ -237,6 +237,75 @@
 
 
 /* ===============================
+   Editor Chat cards
+   =============================== */
+/* container */
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* base bubble */
+.chat-message {
+  max-width: 78%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  line-height: 1.35;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+/* user = right */
+.chat-message.user {
+  align-self: flex-end;
+  background: #111;
+  color: #fff;
+  border-top-right-radius: 8px;
+}
+
+/* assistant = left */
+.chat-message.ai {
+  align-self: flex-start;
+  background: #f3f4f6;
+  color: #111;
+  border-top-left-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* proposal card premium */
+.drafted-proposal-card {
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+}
+
+.drafted-proposal-card button {
+  appearance: none;
+  border: 1px solid rgba(0,0,0,0.14);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.drafted-proposal-card button:hover {
+  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+  transform: translateY(-1px);
+}
+
+.drafted-proposal-card button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+
+
+/* ===============================
    Typography helpers
    =============================== */
 .cv-title{
