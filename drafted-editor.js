@@ -1001,7 +1001,18 @@ if (type === "education") {
     });
 
     const raw = await res.text();
+    console.log("CHAT_RAW", raw.slice(0, 800));
+
     const data = JSON.parse(sanitizeLeadingGarbage(raw));
+    console.log("CHAT_RESPONSE", {
+  ok: data.ok,
+  intent: data.intent,
+  hasProposal: !!data.proposal,
+  blocksLen: data.proposal?.blocks?.length,
+  changedLen: data.changedBlockIds?.length,
+  debug: data._debug
+});
+
 
     if (!data.ok) {
       appendChat("assistant", data.error || "Chat error.");
