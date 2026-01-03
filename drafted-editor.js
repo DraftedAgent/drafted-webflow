@@ -444,18 +444,16 @@ if (type === "education") {
   const startDate   = String(block.startDate || "").trim();
   const endDate     = String(block.endDate || "").trim();
 
-if (type === "education") {
-  console.log("EDU BLOCK (render)", {
-    id: block.blockId,
-    degree: block.degree,
-    program: block.program,
-    institution: block.institution,
-    startDate: block.startDate,
-    endDate: block.endDate,
-    text: (block.text || "").slice(0, 80)
-  });
+console.log("EDU BLOCK (render)", {
+  id: block.blockId,
+  degree,
+  program,
+  institution,
+  startDate,
+  endDate,
+  hasProgram: !!program
+});
 
-  
   // Line 1: Degree + Program (or whichever exists)
   const nameLine =
     (degree && program) ? `${degree}, ${program}` :
