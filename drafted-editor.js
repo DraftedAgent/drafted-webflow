@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.count("Drafted init");
+  console.log(
+  "%cDrafted Editor loaded",
+  "color:#18aa7f;font-weight:bold",
+  "build=2026-01-03-1"
+);
+
   const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
   const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
   const N8N_CHAT_URL = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
@@ -156,10 +161,98 @@ document.addEventListener("DOMContentLoaded", () => {
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
   }
 
-  function setApplyLabel() {
-    if (!editorApplyBtn) return;
-    editorApplyBtn.textContent = pendingProposal ? "Apply suggested changes" : "Apply";
+    function appendProposalCard(meta) {
+    if (!chatMessagesEl) return;
+    if (!pendingProposal) return;
+
+    const changedCount = (meta?.changedBlockIds || []).length;
+    const summary = Array.isArray(meta?.summaryOfChanges) ? meta.summaryOfChanges : [];
+
+    const wrap = document.createElement("div");
+    wrap.className = "chat-message ai drafted-proposal-card";
+
+    const title = document.createElement("div");
+    title.style.fontWeight = "600";
+    title.textContent = `Suggestion ready (${changedCount} block${changedCount === 1 ? "" : "s"})`;
+
+    const sub = document.createElement("div");
+    sub.style.opacity = "0.85";
+    sub.style.marginTop = "6px";
+    sub.textContent = "Preview it first, then Apply to make changes. Or Dismiss.";
+
+    wrap.appendChild(title);
+    wrap.appendChild(sub);
+
+    if (summary.length) {
+      const ul = document.createElement("ul");
+      ul.style.margin = "10px 0 0 18px";
+      ul.style.padding = "0";
+      ul.style.opacity = "0.9";
+
+      summary.slice(0, 3).forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = String(s || "").trim();
+        ul.appendChild(li);
+      });
+      wrap.appendChild(ul);
+    }
+
+    const btnRow = document.createElement("div");
+    btnRow.style.display = "flex";
+    btnRow.style.gap = "10px";
+    btnRow.style.marginTop = "12px";
+
+    const btnPreview = document.createElement("button");
+    btnPreview.type = "button";
+    btnPreview.textContent = isPreviewingProposal ? "Exit preview" : "Preview";
+    btnPreview.addEventListener("click", () => {
+      if (!pendingProposal) return;
+      if (isPreviewingProposal) exitProposalPreview();
+      else previewProposal();
+    });
+
+    const btnApply = document.createElement("button");
+    btnApply.type = "button";
+    btnApply.textContent = "Apply";
+    btnApply.addEventListener("click", () => {
+      if (!pendingProposal) return;
+      applyProposal();
+    });
+
+    const btnDismiss = document.createElement("button");
+    btnDismiss.type = "button";
+    btnDismiss.textContent = "Dismiss";
+    btnDismiss.addEventListener("click", () => {
+      dismissProposal();
+    });
+
+    btnRow.appendChild(btnPreview);
+    btnRow.appendChild(btnApply);
+    btnRow.appendChild(btnDismiss);
+
+    wrap.appendChild(btnRow);
+
+    chatMessagesEl.appendChild(wrap);
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
   }
+
+  function clearAllProposalCards() {
+    if (!chatMessagesEl) return;
+    chatMessagesEl.querySelectorAll(".drafted-proposal-card").forEach(el => el.remove());
+  }
+
+
+    function setApplyLabel() {
+    if (!editorApplyBtn) return;
+
+    if (pendingProposal) {
+      editorApplyBtn.textContent = isPreviewingProposal ? "Apply (keep previewed changes)" : "Apply suggested changes";
+      return;
+    }
+
+    editorApplyBtn.textContent = "Apply";
+  }
+
 
   
   /* ===============================
@@ -178,6 +271,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let chatHistory = [];        // { role: "user"|"assistant", content: string }
   let pendingProposal = null;  // { cvVersionId, cvTitle, blocks, summaryOfChanges }
+
+    let pendingProposalMeta = null; // { changedBlockIds: [], summaryOfChanges: [] }
+  let isPreviewingProposal = false;
+  let previewSnapshot = null;
+
+  function deepClone(obj) {
+    try { return JSON.parse(JSON.stringify(obj)); } catch { return obj; }
+  }
+
+  function snapshotCurrentState() {
+    return {
+      documentTextState,
+      documentBlocksState: deepClone(documentBlocksState),
+      blockRangesById: deepClone(blockRangesById),
+      documentTitle,
+      cvVersionId,
+      selectedBlockId,
+      selectedBlockIds: new Set(Array.from(selectedBlockIds)),
+      lastClickedBlockId,
+      activeContext
+    };
+  }
+
+  function restoreSnapshot(snap) {
+    if (!snap) return;
+
+    documentTextState = snap.documentTextState || "";
+    documentBlocksState = snap.documentBlocksState || null;
+    blockRangesById = snap.blockRangesById || {};
+    documentTitle = snap.documentTitle || "";
+    cvVersionId = snap.cvVersionId || null;
+
+    selectedBlockId = snap.selectedBlockId || null;
+    selectedBlockIds = new Set(Array.from(snap.selectedBlockIds || []));
+    lastClickedBlockId = snap.lastClickedBlockId || null;
+    activeContext = snap.activeContext || "chat";
+
+    renderDocument(documentTextState);
+    applySelectedBlocksUI();
+    updateContextChip();
+  }
+
 
   let activeContext = "chat"; // "chat" | "blocks" | "full"
   let documentLanguage = "sv"; // "sv" | "en"
@@ -451,8 +586,6 @@ if (type === "education") {
   (degree || program);
 
   const debugLine = `DEBUG: [${degree}] + [${program}] => [${nameLine}]`;
-  console.log("EDU nameLine", { id, degree, program, nameLine });
-
   
   // Line 2: Institution + Period
   let metaPieces = [];
@@ -709,7 +842,12 @@ if (type === "education") {
       if (chatMessagesEl) chatMessagesEl.innerHTML = "";
       chatHistory = [];
       pendingProposal = null;
+      pendingProposalMeta = null;
+      isPreviewingProposal = false;
+      previewSnapshot = null;
+      clearAllProposalCards();
       setApplyLabel();
+
 
       const greeting = "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
       appendChat("assistant", greeting);
@@ -728,9 +866,101 @@ if (type === "education") {
   /* ===============================
      CHAT SEND 
      =============================== */
+  function previewProposal() {
+    if (!pendingProposal?.blocks?.length) return;
+
+    if (!isPreviewingProposal) {
+      previewSnapshot = snapshotCurrentState();
+      isPreviewingProposal = true;
+    }
+
+    const nextBlocks = deepClone(pendingProposal.blocks);
+    const nextTitle = String(pendingProposal.cvTitle || "").trim();
+    const nextCvVersionId = String(pendingProposal.cvVersionId || "").trim();
+
+    if (nextTitle) documentTitle = nextTitle;
+    if (nextCvVersionId) cvVersionId = nextCvVersionId;
+
+    buildStateFromBlocks(nextBlocks);
+    renderDocument(documentTextState);
+    applySelectedBlocksUI();
+    updateContextChip();
+
+    appendChat("assistant", "Previewing the suggested changes. Click Apply to keep them, or Exit preview/Dismiss.");
+    setApplyLabel();
+    clearAllProposalCards();
+    appendProposalCard(pendingProposalMeta);
+  }
+
+  function exitProposalPreview() {
+    if (!isPreviewingProposal) return;
+    isPreviewingProposal = false;
+
+    const snap = previewSnapshot;
+    previewSnapshot = null;
+    restoreSnapshot(snap);
+
+    appendChat("assistant", "Exited preview. No changes were applied.");
+    setApplyLabel();
+    clearAllProposalCards();
+    if (pendingProposal) appendProposalCard(pendingProposalMeta);
+  }
+
+  function applyProposal() {
+    if (!pendingProposal?.blocks?.length) return;
+
+    // If we were previewing, we are already showing the proposal state.
+    // But we still commit by rebuilding from proposal and clearing snapshot.
+    const nextBlocks = deepClone(pendingProposal.blocks);
+
+    const nextTitle = String(pendingProposal.cvTitle || "").trim();
+    const nextCvVersionId = String(pendingProposal.cvVersionId || "").trim();
+
+    if (nextTitle) documentTitle = nextTitle;
+    if (nextCvVersionId) cvVersionId = nextCvVersionId;
+
+    buildStateFromBlocks(nextBlocks);
+
+    // clear preview state + proposal
+    isPreviewingProposal = false;
+    previewSnapshot = null;
+
+    pendingProposal = null;
+    pendingProposalMeta = null;
+
+    renderDocument(documentTextState);
+    applySelectedBlocksUI();
+    updateContextChip();
+
+    clearNativeSelection();
+    editorInput.value = "";
+
+    clearAllProposalCards();
+    appendChat("assistant", "Applied the suggested changes.");
+    setApplyLabel();
+  }
+
+  function dismissProposal() {
+    // If user is previewing, revert first
+    if (isPreviewingProposal) {
+      isPreviewingProposal = false;
+      const snap = previewSnapshot;
+      previewSnapshot = null;
+      restoreSnapshot(snap);
+    }
+
+    pendingProposal = null;
+    pendingProposalMeta = null;
+
+    clearAllProposalCards();
+    appendChat("assistant", "Dismissed the suggestion.");
+    setApplyLabel();
+  }
+
+  
    async function sendChat() {
 
-     console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
+  console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
 
   const msg = editorInput.value.trim();
   if (!msg) return;
@@ -785,20 +1015,39 @@ if (type === "education") {
     appendChat("assistant", assistantMsg);
 
     // 2) store proposal (if any) + validate it's full blocks list
-    if (data.proposal && Array.isArray(data.proposal.blocks) && data.proposal.blocks.length) {
+        // 2) store proposal (if any) + meta
+    pendingProposal = null;
+    pendingProposalMeta = null;
+
+    const intent = String(data.intent || "").trim().toLowerCase();
+
+    if (intent === "proposal" && data.proposal && Array.isArray(data.proposal.blocks) && data.proposal.blocks.length) {
       const proposedBlocks = data.proposal.blocks;
 
+      // Basic guard: must not be shorter than current
       if (proposedBlocks.length < (documentBlocksState?.length || 0)) {
         pendingProposal = null;
+        pendingProposalMeta = null;
         appendChat("assistant", "I have suggestions, but couldn’t produce a complete patch. Try again with a more specific request.");
       } else {
         pendingProposal = data.proposal;
+        pendingProposalMeta = {
+          changedBlockIds: Array.isArray(data.changedBlockIds) ? data.changedBlockIds : [],
+          summaryOfChanges: Array.isArray(data.proposal.summaryOfChanges) ? data.proposal.summaryOfChanges : []
+        };
+
+        // Show a clear suggestion card (Preview / Apply / Dismiss)
+        clearAllProposalCards();
+        appendProposalCard(pendingProposalMeta);
       }
     } else {
       pendingProposal = null;
+      pendingProposalMeta = null;
+      clearAllProposalCards();
     }
 
     setApplyLabel();
+
 
   } catch (err) {
     console.error(err);
@@ -812,41 +1061,16 @@ if (type === "education") {
 }
 
 
-  /* ===============================
+    /* ===============================
      APPLY (BLOCK-ONLY REWRITE)
      =============================== */
   async function sendApply() {
-    // If we have a chat proposal, Apply should apply it instantly (no rewrite call)
+    // If we have a chat proposal, Apply commits it (no rewrite call)
     if (pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length) {
-      const nextBlocks = pendingProposal.blocks;
-
-      const nextTitle = String(pendingProposal.cvTitle || "").trim();
-      if (nextTitle) documentTitle = nextTitle;
-
-      const nextCvVersionId = String(pendingProposal.cvVersionId || "").trim();
-      if (nextCvVersionId) cvVersionId = nextCvVersionId;
-
-      buildStateFromBlocks(nextBlocks);
-
-      // Clear proposal after applying
-      pendingProposal = null;
-      setApplyLabel();
-
-      // Keep current selection if ids still exist
-      const nextIds = new Set(documentBlocksState.map(b => b.blockId));
-      selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
-      applySelectedBlocksUI();
-      updateContextChip();
-
-      renderDocument(documentTextState);
-      clearNativeSelection();
-      editorInput.value = "";
-
-      appendChat("assistant", "Applied the suggested changes.");
+      applyProposal();
       return;
     }
 
-    
     const instruction = editorInput.value.trim();
     if (!instruction) {
       alert("Skriv en instruktion först.");
@@ -862,16 +1086,15 @@ if (type === "education") {
     const hasSelectedBlocks = selectedBlockIds.size > 0;
     const mode = hasSelectedBlocks ? "blocks" : "full";
 
-   const payload = {
-  mode,
-  instruction,
-  targetRole: targetRoleInput?.value?.trim() || "",
-  cvVersionId: cvVersionId || null,
-  cvTitle: documentTitle || "",
-  selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
-  blocks: documentBlocksState // ALWAYS send full list
-};
-
+    const payload = {
+      mode,
+      instruction,
+      targetRole: targetRoleInput?.value?.trim() || "",
+      cvVersionId: cvVersionId || null,
+      cvTitle: documentTitle || "",
+      selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
+      blocks: documentBlocksState // ALWAYS send full list
+    };
 
     try {
       setBusy(true);
@@ -891,11 +1114,8 @@ if (type === "education") {
         return;
       }
 
-      // Expect main-format response: cvTitle + blocks[]
       const nextBlocks = Array.isArray(data.blocks) ? data.blocks : null;
-      if (!nextBlocks || !nextBlocks.length) {
-        throw new Error("blocks missing in editor response");
-      }
+      if (!nextBlocks || !nextBlocks.length) throw new Error("blocks missing in editor response");
 
       const nextTitle = String(data.cvTitle || "").trim();
       if (nextTitle) documentTitle = nextTitle;
@@ -905,30 +1125,33 @@ if (type === "education") {
 
       buildStateFromBlocks(nextBlocks);
 
-      // keep selection if ids still exist
       const nextIds = new Set(documentBlocksState.map(b => b.blockId));
       selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
 
       if (selectedBlockIds.size === 0) {
         selectedBlockId = null;
         lastClickedBlockId = null;
-        activeContext = "full"; // after a full rewrite, this makes sense
+        activeContext = "full";
       } else {
         activeContext = "blocks";
         if (!selectedBlockId || !selectedBlockIds.has(selectedBlockId)) {
-          // pick last from set
           selectedBlockId = Array.from(selectedBlockIds)[selectedBlockIds.size - 1];
         }
       }
+
+      // Clear any pending proposal state (since this is a separate rewrite action)
+      pendingProposal = null;
+      pendingProposalMeta = null;
+      isPreviewingProposal = false;
+      previewSnapshot = null;
+      clearAllProposalCards();
+      setApplyLabel();
 
       renderDocument(documentTextState);
       applySelectedBlocksUI();
       updateContextChip();
       clearNativeSelection();
       editorInput.value = "";
-      pendingProposal = null;
-      setApplyLabel();
-
 
     } catch (err) {
       console.error(err);
@@ -938,6 +1161,7 @@ if (type === "education") {
       forceButtonsActiveLook();
     }
   }
+
 
   editorApplyBtn.addEventListener("click", e => {
     e.preventDefault();
