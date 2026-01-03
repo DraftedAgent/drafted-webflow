@@ -444,21 +444,15 @@ if (type === "education") {
   const startDate   = String(block.startDate || "").trim();
   const endDate     = String(block.endDate || "").trim();
 
-console.log("EDU BLOCK (render)", {
-  id: block.blockId,
-  degree,
-  program,
-  institution,
-  startDate,
-  endDate,
-  hasProgram: !!program
-});
-
   // Line 1: Degree + Program (or whichever exists)
   const nameLine =
-    (degree && program) ? `${degree}, ${program}` :
-    (degree || program);
+  (degree && program) ? `${degree}, ${program}` :
+  (degree || program);
 
+  const debugLine = `DEBUG: [${degree}] + [${program}] => [${nameLine}]`;
+  console.log("EDU nameLine", { id, degree, program, nameLine });
+
+  
   // Line 2: Institution + Period
   let metaPieces = [];
   if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
