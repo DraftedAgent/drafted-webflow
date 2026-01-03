@@ -438,21 +438,25 @@ document.addEventListener("DOMContentLoaded", () => {
           educationHeadingRendered = true;
         }
 
-        const degree      = String(block.degree || "").trim();
-        const institution = String(block.institution || "").trim();
-        const startDate   = String(block.startDate || "").trim();
-        const endDate     = String(block.endDate || "").trim();
+       const degree      = String(block.degree || "").trim();
+const program     = String(block.program || "").trim();   // <-- ADD
+const institution = String(block.institution || "").trim();
+const startDate   = String(block.startDate || "").trim();
+const endDate     = String(block.endDate || "").trim();
 
-        let workingText = rawText;
-        let derivedDegree = "";
+let workingText = rawText;
+let derivedDegree = "";
 
-        if (!degree) {
-          const extracted = extractEducationNameFromText(rawText);
-          derivedDegree = extracted.name;
-          if (derivedDegree) workingText = extracted.rest;
-        }
+// Only try derive from text if BOTH degree and program are empty
+if (!degree && !program) {
+  const extracted = extractEducationNameFromText(rawText);
+  derivedDegree = extracted.name;
+  if (derivedDegree) workingText = extracted.rest;
+}
 
-        const degreeFinal = degree || derivedDegree;
+// Show degree if exists, else program, else derived
+const degreeFinal = degree || program || derivedDegree;
+
 
         const cleanText = stripFirstLineIfDuplicate(workingText, degreeFinal, institution, startDate, endDate);
         if (!cleanText && !degreeFinal && !institution) continue;
