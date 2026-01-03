@@ -429,61 +429,55 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // ===== EDUCATION =====
-      if (type === "education") {
-        if (!educationHeadingRendered) {
-          htmlParts.push(`
+if (type === "education") {
+  if (!educationHeadingRendered) {
+    htmlParts.push(`
 <section class="cv-section cv-section--education">
   <h2 class="cv-section-heading">${escapeHtml(t("education"))}</h2>
 </section>`.trim());
-          educationHeadingRendered = true;
-        }
+    educationHeadingRendered = true;
+  }
 
-       const degree      = String(block.degree || "").trim();
-const program     = String(block.program || "").trim();   // <-- ADD
-const institution = String(block.institution || "").trim();
-const startDate   = String(block.startDate || "").trim();
-const endDate     = String(block.endDate || "").trim();
+  const degree      = String(block.degree || "").trim();
+  const program     = String(block.program || "").trim();
+  const institution = String(block.institution || "").trim();
+  const startDate   = String(block.startDate || "").trim();
+  const endDate     = String(block.endDate || "").trim();
 
-let workingText = rawText;
-let derivedDegree = "";
+  // Line 1: Degree + Program (or whichever exists)
+  const nameLine =
+    (degree && program) ? `${degree}, ${program}` :
+    (degree || program);
 
-// Only try derive from text if BOTH degree and program are empty
-if (!degree && !program) {
-  const extracted = extractEducationNameFromText(rawText);
-  derivedDegree = extracted.name;
-  if (derivedDegree) workingText = extracted.rest;
-}
+  // Line 2: Institution + Period
+  let metaPieces = [];
+  if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
+  if (startDate || endDate) {
+    const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
+    metaPieces.push(`<span class="cv-edu-period">(${escapeHtml(period)})</span>`);
+  }
+  const metaLine = metaPieces.length
+    ? `<div class="cv-edu-meta">${metaPieces.join(" ")}</div>`
+    : "";
 
-// Show degree if exists, else program, else derived
-const degreeFinal = degree || program || derivedDegree;
+  // Line 3: Description text
+  const cleanText = stripFirstLineIfDuplicate(rawText, nameLine, institution, startDate, endDate);
+  const bodyHtml = cleanText
+    ? `<div class="cv-block-body">${escapeHtml(cleanText).replace(/\n/g, "<br>")}</div>`
+    : "";
 
+  // Skip only if truly empty
+  if (!nameLine && !institution && !cleanText) continue;
 
-        const cleanText = stripFirstLineIfDuplicate(workingText, degreeFinal, institution, startDate, endDate);
-        if (!cleanText && !degreeFinal && !institution) continue;
-
-        let metaPieces = [];
-        if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
-        if (startDate || endDate) {
-          const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
-          metaPieces.push(`<span class="cv-edu-period">(${escapeHtml(period)})</span>`);
-        }
-
-        const metaLine = metaPieces.length
-          ? `<div class="cv-edu-meta">${metaPieces.join(" ")}</div>`
-          : "";
-
-        const bodyHtml = cleanText
-          ? `<div class="cv-block-body">${escapeHtml(cleanText).replace(/\n/g, "<br>")}</div>`
-          : "";
-
-        htmlParts.push(`
+  htmlParts.push(`
 <section class="cv-block cv-block--education" data-block-id="${escapeHtml(id)}">
-  ${degreeFinal ? `<div class="cv-edu-degree">${escapeHtml(degreeFinal)}</div>` : ""}
+  ${nameLine ? `<div class="cv-edu-degree">${escapeHtml(nameLine)}</div>` : ""}
   ${metaLine}
   ${bodyHtml}
 </section>`.trim());
-        continue;
-      }
+  continue;
+}
+
 
       // ===== SKILLS =====
       if (type === "skills") {
