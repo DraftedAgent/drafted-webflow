@@ -243,15 +243,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     function setApplyLabel() {
-    if (!editorApplyBtn) return;
+  if (!editorApplyBtn) return;
 
-    if (pendingProposal) {
-      editorApplyBtn.textContent = isPreviewingProposal ? "Apply (keep previewed changes)" : "Apply suggested changes";
-      return;
-    }
-
-    editorApplyBtn.textContent = "Apply";
+  if (pendingProposal) {
+    editorApplyBtn.textContent = isPreviewingProposal
+      ? "Apply (keep previewed changes)"
+      : "Apply suggested changes";
+    return;
   }
+
+  if (pendingSuggestion) {
+    editorApplyBtn.textContent = "Apply suggested changes";
+    return;
+  }
+
+  editorApplyBtn.textContent = "Apply";
+}
+
 
 
   
@@ -272,7 +280,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let chatHistory = [];        // { role: "user"|"assistant", content: string }
   let pendingProposal = null;  // { cvVersionId, cvTitle, blocks, summaryOfChanges }
 
-    let pendingProposalMeta = null; // { changedBlockIds: [], summaryOfChanges: [] }
+  let pendingProposalMeta = null; // { changedBlockIds: [], summaryOfChanges: [] }
+  let pendingSuggestion = null; // { mode, selectedBlockIds, instruction }
   let isPreviewingProposal = false;
   let previewSnapshot = null;
 
@@ -959,7 +968,6 @@ if (type === "education") {
 
   
    async function sendChat() {
-
   console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
 
   const msg = editorInput.value.trim();
@@ -986,7 +994,7 @@ if (type === "education") {
     language: documentLanguage || "sv",
     mode,
     selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
-    blocks: documentBlocksState,     // ALWAYS full list
+    blocks: documentBlocksState,     // ALWAYS full list (chat-flow can ignore/trim)
     history: chatHistory.slice(-12),
     message: msg
   };
@@ -1001,45 +1009,52 @@ if (type === "education") {
     });
 
     const raw = await res.text();
-    console.log("CHAT_RAW", raw.slice(0, 800));
+    console.log("CHAT_RAW", raw.slice(0, 1200));
 
     const data = JSON.parse(sanitizeLeadingGarbage(raw));
-    console.log("CHAT_RESPONSE", {
-  ok: data.ok,
-  intent: data.intent,
-  hasProposal: !!data.proposal,
-  blocksLen: data.proposal?.blocks?.length,
-  changedLen: data.changedBlockIds?.length,
-  debug: data._debug
-});
 
+    console.log("CHAT_RESPONSE", {
+      ok: data.ok,
+      intent: data.intent,
+      hasProposal: !!data.proposal,
+      hasSuggestion: !!data.suggestion,
+      debug: data._debug
+    });
 
     if (!data.ok) {
       appendChat("assistant", data.error || "Chat error.");
       pendingProposal = null;
+      pendingProposalMeta = null;
+      pendingSuggestion = null;
+      clearAllProposalCards();
       setApplyLabel();
       return;
     }
 
-    // 1) show assistant message first
+    // 1) show assistant message
     const assistantMsg = String(data.assistantMessage || "").trim() || "Okay.";
     appendChat("assistant", assistantMsg);
 
-    // 2) store proposal (if any) + validate it's full blocks list
-        // 2) store proposal (if any) + meta
+    // reset all pending states
     pendingProposal = null;
     pendingProposalMeta = null;
+    pendingSuggestion = null;
+    isPreviewingProposal = false;
+    previewSnapshot = null;
 
     const intent = String(data.intent || "").trim().toLowerCase();
 
+    // ===== CASE A: legacy proposal (blocks) =====
     if (intent === "proposal" && data.proposal && Array.isArray(data.proposal.blocks) && data.proposal.blocks.length) {
       const proposedBlocks = data.proposal.blocks;
 
       // Basic guard: must not be shorter than current
       if (proposedBlocks.length < (documentBlocksState?.length || 0)) {
+        appendChat("assistant", "I have suggestions, but couldn’t produce a complete patch. Try again with a more specific request.");
         pendingProposal = null;
         pendingProposalMeta = null;
-        appendChat("assistant", "I have suggestions, but couldn’t produce a complete patch. Try again with a more specific request.");
+        pendingSuggestion = null;
+        clearAllProposalCards();
       } else {
         pendingProposal = data.proposal;
         pendingProposalMeta = {
@@ -1047,23 +1062,61 @@ if (type === "education") {
           summaryOfChanges: Array.isArray(data.proposal.summaryOfChanges) ? data.proposal.summaryOfChanges : []
         };
 
-        // Show a clear suggestion card (Preview / Apply / Dismiss)
         clearAllProposalCards();
         appendProposalCard(pendingProposalMeta);
       }
-    } else {
-      pendingProposal = null;
-      pendingProposalMeta = null;
-      clearAllProposalCards();
+
+      setApplyLabel();
+      return;
     }
 
-    setApplyLabel();
+    // ===== CASE B: new suggestion (instruction only) =====
+    // Expected:
+    // data.suggestion = { mode:"blocks|full", selectedBlockIds:[], instruction:"..." }
+    if (intent === "suggestion" && data.suggestion && typeof data.suggestion === "object") {
+      const sugMode = String(data.suggestion.mode || "").toLowerCase();
+      const sugInstruction = String(data.suggestion.instruction || "").trim();
+      const sugIds = Array.isArray(data.suggestion.selectedBlockIds) ? data.suggestion.selectedBlockIds.map(String) : [];
 
+      if (!sugInstruction) {
+        // nothing actionable, treat like answer
+        pendingSuggestion = null;
+        clearAllProposalCards();
+        setApplyLabel();
+        return;
+      }
+
+      pendingSuggestion = {
+        mode: (sugMode === "blocks" || sugMode === "full") ? sugMode : "blocks",
+        selectedBlockIds: sugIds,
+        instruction: sugInstruction
+      };
+
+      // Show the same proposal card UI (Preview will do nothing, Apply will run rewrite flow)
+      pendingProposalMeta = {
+        changedBlockIds: sugIds, // not truly "changed" yet, but useful label
+        summaryOfChanges: [sugInstruction]
+      };
+
+      clearAllProposalCards();
+      appendProposalCard(pendingProposalMeta);
+
+      // Update Apply button label
+      setApplyLabel();
+      return;
+    }
+
+    // ===== CASE C: plain answer =====
+    clearAllProposalCards();
+    setApplyLabel();
 
   } catch (err) {
     console.error(err);
     appendChat("assistant", "Something went wrong. Try again.");
     pendingProposal = null;
+    pendingProposalMeta = null;
+    pendingSuggestion = null;
+    clearAllProposalCards();
     setApplyLabel();
   } finally {
     setBusy(false);
@@ -1072,30 +1125,34 @@ if (type === "education") {
 }
 
 
+
     /* ===============================
      APPLY (BLOCK-ONLY REWRITE)
      =============================== */
   async function sendApply() {
-    // If we have a chat proposal, Apply commits it (no rewrite call)
-    if (pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length) {
-      applyProposal();
-      return;
-    }
+  // 1) If we have a legacy proposal with full blocks, Apply commits locally
+  if (pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length) {
+    applyProposal();
+    return;
+  }
 
-    const instruction = editorInput.value.trim();
-    if (!instruction) {
-      alert("Skriv en instruktion först.");
-      return;
-    }
-
+  // 2) If we have a suggestion (instruction-only), run the rewrite flow (N8N_EDITOR_URL)
+  if (pendingSuggestion && pendingSuggestion.instruction) {
     const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
     if (!hasBlocks) {
       alert("Ladda upp ett CV först (block saknas).");
       return;
     }
 
-    const hasSelectedBlocks = selectedBlockIds.size > 0;
-    const mode = hasSelectedBlocks ? "blocks" : "full";
+    const mode = pendingSuggestion.mode === "full" ? "full" : "blocks";
+    const instruction = String(pendingSuggestion.instruction || "").trim();
+
+    const selectedIds =
+      mode === "blocks"
+        ? (Array.isArray(pendingSuggestion.selectedBlockIds) && pendingSuggestion.selectedBlockIds.length
+            ? pendingSuggestion.selectedBlockIds
+            : Array.from(selectedBlockIds))
+        : [];
 
     const payload = {
       mode,
@@ -1103,8 +1160,8 @@ if (type === "education") {
       targetRole: targetRoleInput?.value?.trim() || "",
       cvVersionId: cvVersionId || null,
       cvTitle: documentTitle || "",
-      selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
-      blocks: documentBlocksState // ALWAYS send full list
+      selectedBlockIds: selectedIds,
+      blocks: documentBlocksState // ALWAYS send full list to rewrite flow
     };
 
     try {
@@ -1136,25 +1193,17 @@ if (type === "education") {
 
       buildStateFromBlocks(nextBlocks);
 
+      // Keep selection if possible
       const nextIds = new Set(documentBlocksState.map(b => b.blockId));
       selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
 
-      if (selectedBlockIds.size === 0) {
-        selectedBlockId = null;
-        lastClickedBlockId = null;
-        activeContext = "full";
-      } else {
-        activeContext = "blocks";
-        if (!selectedBlockId || !selectedBlockIds.has(selectedBlockId)) {
-          selectedBlockId = Array.from(selectedBlockIds)[selectedBlockIds.size - 1];
-        }
-      }
-
-      // Clear any pending proposal state (since this is a separate rewrite action)
+      // Clear pending suggestion and UI cards
+      pendingSuggestion = null;
       pendingProposal = null;
       pendingProposalMeta = null;
       isPreviewingProposal = false;
       previewSnapshot = null;
+
       clearAllProposalCards();
       setApplyLabel();
 
@@ -1171,7 +1220,92 @@ if (type === "education") {
       setBusy(false);
       forceButtonsActiveLook();
     }
+
+    return;
   }
+
+  // 3) Default behavior: use editorInput as instruction
+  const instruction = editorInput.value.trim();
+  if (!instruction) {
+    alert("Skriv en instruktion först.");
+    return;
+  }
+
+  const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
+  if (!hasBlocks) {
+    alert("Ladda upp ett CV först (block saknas).");
+    return;
+  }
+
+  const hasSelectedBlocks = selectedBlockIds.size > 0;
+  const mode = hasSelectedBlocks ? "blocks" : "full";
+
+  const payload = {
+    mode,
+    instruction,
+    targetRole: targetRoleInput?.value?.trim() || "",
+    cvVersionId: cvVersionId || null,
+    cvTitle: documentTitle || "",
+    selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
+    blocks: documentBlocksState
+  };
+
+  try {
+    setBusy(true);
+
+    const res = await fetch(N8N_EDITOR_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const raw = await res.text();
+    const data = JSON.parse(sanitizeLeadingGarbage(raw));
+
+    if (!data.ok) {
+      console.error("n8n error:", data);
+      alert(data.error || "n8n error");
+      return;
+    }
+
+    const nextBlocks = Array.isArray(data.blocks) ? data.blocks : null;
+    if (!nextBlocks || !nextBlocks.length) throw new Error("blocks missing in editor response");
+
+    const nextTitle = String(data.cvTitle || "").trim();
+    if (nextTitle) documentTitle = nextTitle;
+
+    const nextCvVersionId = String(data.cvVersionId || "").trim();
+    if (nextCvVersionId) cvVersionId = nextCvVersionId;
+
+    buildStateFromBlocks(nextBlocks);
+
+    const nextIds = new Set(documentBlocksState.map(b => b.blockId));
+    selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
+
+    pendingSuggestion = null;
+    pendingProposal = null;
+    pendingProposalMeta = null;
+    isPreviewingProposal = false;
+    previewSnapshot = null;
+
+    clearAllProposalCards();
+    setApplyLabel();
+
+    renderDocument(documentTextState);
+    applySelectedBlocksUI();
+    updateContextChip();
+    clearNativeSelection();
+    editorInput.value = "";
+
+  } catch (err) {
+    console.error(err);
+    alert("Apply-fel.");
+  } finally {
+    setBusy(false);
+    forceButtonsActiveLook();
+  }
+}
+
 
 
   editorApplyBtn.addEventListener("click", e => {
