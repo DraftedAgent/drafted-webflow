@@ -162,13 +162,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
     /* ===============================
-   PROPOSAL CARD UI
+   PROPOSAL CARD UI (WITH LOADING)
    =============================== */
+
+let isGeneratingSuggestionPreview = false; // NEW
 
 function appendProposalCard(meta) {
   if (!chatMessagesEl) return;
 
-  // If we have neither proposal nor suggestion, don't show card
   const hasProposal = !!(pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length);
   const hasSuggestion = !!(pendingSuggestion && pendingSuggestion.instruction);
 
@@ -218,14 +219,16 @@ function appendProposalCard(meta) {
 
   const btnPreview = document.createElement("button");
   btnPreview.type = "button";
-  btnPreview.textContent = isPreviewingProposal ? "Exit preview" : "Preview";
+  btnPreview.textContent = isPreviewingProposal ? "Exit preview" : (isGeneratingSuggestionPreview ? "Generating preview…" : "Preview");
+  btnPreview.disabled = !!isGeneratingSuggestionPreview;
   btnPreview.addEventListener("click", async () => {
     await handlePreviewClick();
   });
 
   const btnApply = document.createElement("button");
   btnApply.type = "button";
-  btnApply.textContent = "Apply";
+  btnApply.textContent = isGeneratingSuggestionPreview ? "Applying…" : "Apply";
+  btnApply.disabled = !!isGeneratingSuggestionPreview;
   btnApply.addEventListener("click", async () => {
     await handleApplyClick();
   });
@@ -233,6 +236,7 @@ function appendProposalCard(meta) {
   const btnDismiss = document.createElement("button");
   btnDismiss.type = "button";
   btnDismiss.textContent = "Dismiss";
+  btnDismiss.disabled = !!isGeneratingSuggestionPreview;
   btnDismiss.addEventListener("click", () => {
     dismissProposal();
   });
@@ -717,6 +721,10 @@ function computeChangedBlockIds(oldBlocks, newBlocks) {
   return changed;
 }
 
+/* ===============================
+   FETCH PROPOSAL FROM SUGGESTION (WITH LOADING)
+   =============================== */
+
 async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
   if (!pendingSuggestion || !pendingSuggestion.instruction) {
     return { ok: false, error: "No pendingSuggestion" };
@@ -747,6 +755,12 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     blocks: documentBlocksState // ALWAYS send full list
   };
 
+  // NEW: loading state for UI
+  isGeneratingSuggestionPreview = true;
+  clearAllProposalCards();
+  appendProposalCard(pendingProposalMeta);
+  setApplyLabel();
+
   try {
     setBusy(true);
 
@@ -773,13 +787,12 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
 
     const changedFromServer = Array.isArray(data.changedBlockIds) ? data.changedBlockIds.map(String) : null;
     const changedLocal = computeChangedBlockIds(documentBlocksState, nextBlocks);
-    const changedBlockIds = changedFromServer && changedFromServer.length ? changedFromServer : changedLocal;
+    const changedBlockIds = (changedFromServer && changedFromServer.length) ? changedFromServer : changedLocal;
 
     const summary = Array.isArray(data.summaryOfChanges)
       ? data.summaryOfChanges
       : (instruction ? [instruction] : []);
 
-    // Store as pendingProposal so we can Preview/Apply with your existing mechanics
     pendingProposal = {
       cvVersionId: nextCvVersionId,
       cvTitle: nextTitle,
@@ -804,6 +817,12 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
   } finally {
     setBusy(false);
     forceButtonsActiveLook();
+
+    // NEW: loading state off
+    isGeneratingSuggestionPreview = false;
+    clearAllProposalCards();
+    appendProposalCard(pendingProposalMeta);
+    setApplyLabel();
   }
 }
   
