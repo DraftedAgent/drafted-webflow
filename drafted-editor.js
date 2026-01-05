@@ -161,98 +161,106 @@ document.addEventListener("DOMContentLoaded", () => {
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
   }
 
-    function appendProposalCard(meta) {
-    if (!chatMessagesEl) return;
-    if (!pendingProposal) return;
+    /* ===============================
+   PROPOSAL CARD UI
+   =============================== */
 
-    const changedCount = (meta?.changedBlockIds || []).length;
-    const summary = Array.isArray(meta?.summaryOfChanges) ? meta.summaryOfChanges : [];
+function appendProposalCard(meta) {
+  if (!chatMessagesEl) return;
 
-    const wrap = document.createElement("div");
-    wrap.className = "chat-message ai drafted-proposal-card";
+  // If we have neither proposal nor suggestion, don't show card
+  const hasProposal = !!(pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length);
+  const hasSuggestion = !!(pendingSuggestion && pendingSuggestion.instruction);
 
-    const title = document.createElement("div");
-    title.style.fontWeight = "600";
-    title.textContent = `Suggestion ready (${changedCount} block${changedCount === 1 ? "" : "s"})`;
+  if (!hasProposal && !hasSuggestion) return;
 
-    const sub = document.createElement("div");
-    sub.style.opacity = "0.85";
-    sub.style.marginTop = "6px";
-    sub.textContent = "Preview it first, then Apply to make changes. Or Dismiss.";
+  const changedCount = (meta?.changedBlockIds || []).length;
+  const summary = Array.isArray(meta?.summaryOfChanges) ? meta.summaryOfChanges : [];
 
-    wrap.appendChild(title);
-    wrap.appendChild(sub);
+  const wrap = document.createElement("div");
+  wrap.className = "chat-message ai drafted-proposal-card";
 
-    if (summary.length) {
-      const ul = document.createElement("ul");
-      ul.style.margin = "10px 0 0 18px";
-      ul.style.padding = "0";
-      ul.style.opacity = "0.9";
+  const title = document.createElement("div");
+  title.style.fontWeight = "600";
+  title.textContent = hasProposal
+    ? `Suggestion ready (${changedCount} block${changedCount === 1 ? "" : "s"})`
+    : "Suggestion ready";
 
-      summary.slice(0, 3).forEach(s => {
-        const li = document.createElement("li");
-        li.textContent = String(s || "").trim();
-        ul.appendChild(li);
-      });
-      wrap.appendChild(ul);
-    }
+  const sub = document.createElement("div");
+  sub.style.opacity = "0.85";
+  sub.style.marginTop = "6px";
+  sub.textContent = hasProposal
+    ? "Preview it first, then Apply to make changes. Or Dismiss."
+    : "Preview will generate a draft. Then Apply or Dismiss.";
 
-    const btnRow = document.createElement("div");
-    btnRow.style.display = "flex";
-    btnRow.style.gap = "10px";
-    btnRow.style.marginTop = "12px";
+  wrap.appendChild(title);
+  wrap.appendChild(sub);
 
-    const btnPreview = document.createElement("button");
-    btnPreview.type = "button";
-    btnPreview.textContent = isPreviewingProposal ? "Exit preview" : "Preview";
-    btnPreview.addEventListener("click", () => {
-      if (!pendingProposal) return;
-      if (isPreviewingProposal) exitProposalPreview();
-      else previewProposal();
+  if (summary.length) {
+    const ul = document.createElement("ul");
+    ul.style.margin = "10px 0 0 18px";
+    ul.style.padding = "0";
+    ul.style.opacity = "0.9";
+
+    summary.slice(0, 3).forEach(s => {
+      const li = document.createElement("li");
+      li.textContent = String(s || "").trim();
+      ul.appendChild(li);
     });
 
-    const btnApply = document.createElement("button");
-    btnApply.type = "button";
-    btnApply.textContent = "Apply";
-    btnApply.addEventListener("click", () => {
-      if (!pendingProposal) return;
-      applyProposal();
-    });
-
-    const btnDismiss = document.createElement("button");
-    btnDismiss.type = "button";
-    btnDismiss.textContent = "Dismiss";
-    btnDismiss.addEventListener("click", () => {
-      dismissProposal();
-    });
-
-    btnRow.appendChild(btnPreview);
-    btnRow.appendChild(btnApply);
-    btnRow.appendChild(btnDismiss);
-
-    wrap.appendChild(btnRow);
-
-    chatMessagesEl.appendChild(wrap);
-    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    wrap.appendChild(ul);
   }
+
+  const btnRow = document.createElement("div");
+  btnRow.style.display = "flex";
+  btnRow.style.gap = "10px";
+  btnRow.style.marginTop = "12px";
+
+  const btnPreview = document.createElement("button");
+  btnPreview.type = "button";
+  btnPreview.textContent = isPreviewingProposal ? "Exit preview" : "Preview";
+  btnPreview.addEventListener("click", async () => {
+    await handlePreviewClick();
+  });
+
+  const btnApply = document.createElement("button");
+  btnApply.type = "button";
+  btnApply.textContent = "Apply";
+  btnApply.addEventListener("click", async () => {
+    await handleApplyClick();
+  });
+
+  const btnDismiss = document.createElement("button");
+  btnDismiss.type = "button";
+  btnDismiss.textContent = "Dismiss";
+  btnDismiss.addEventListener("click", () => {
+    dismissProposal();
+  });
+
+  btnRow.appendChild(btnPreview);
+  btnRow.appendChild(btnApply);
+  btnRow.appendChild(btnDismiss);
+
+  wrap.appendChild(btnRow);
+
+  chatMessagesEl.appendChild(wrap);
+  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+}
 
   function clearAllProposalCards() {
-    if (!chatMessagesEl) return;
-    chatMessagesEl.querySelectorAll(".drafted-proposal-card").forEach(el => el.remove());
-  }
+  if (!chatMessagesEl) return;
+  chatMessagesEl.querySelectorAll(".drafted-proposal-card").forEach(el => el.remove());
+}
 
-
-    function setApplyLabel() {
+function setApplyLabel() {
   if (!editorApplyBtn) return;
 
-  if (pendingProposal) {
-    editorApplyBtn.textContent = isPreviewingProposal
-      ? "Apply (keep previewed changes)"
-      : "Apply suggested changes";
+  if (pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length) {
+    editorApplyBtn.textContent = isPreviewingProposal ? "Apply (keep previewed changes)" : "Apply suggested changes";
     return;
   }
 
-  if (pendingSuggestion) {
+  if (pendingSuggestion && pendingSuggestion.instruction) {
     editorApplyBtn.textContent = "Apply suggested changes";
     return;
   }
@@ -278,10 +286,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastClickedBlockId = null;       // shift anchor
 
   let chatHistory = [];        // { role: "user"|"assistant", content: string }
-  let pendingProposal = null;  // { cvVersionId, cvTitle, blocks, summaryOfChanges }
+  let pendingProposal = null;      // { cvVersionId, cvTitle, blocks, summaryOfChanges? }
+  let pendingProposalMeta = null;  // { changedBlockIds: [], summaryOfChanges: [] }
+  let pendingSuggestion = null;    // { mode:"blocks|full", selectedBlockIds:[], instruction:"..." }
 
-  let pendingProposalMeta = null; // { changedBlockIds: [], summaryOfChanges: [] }
-  let pendingSuggestion = null; // { mode, selectedBlockIds, instruction }
   let isPreviewingProposal = false;
   let previewSnapshot = null;
 
@@ -678,6 +686,128 @@ if (type === "education") {
     editorPreviewEl.innerHTML = escapeHtml(safeText);
   }
 
+
+
+
+/* ===============================
+   PROPOSAL / SUGGESTION HELPERS
+   =============================== */
+
+function computeChangedBlockIds(oldBlocks, newBlocks) {
+  const oldById = new Map((Array.isArray(oldBlocks) ? oldBlocks : []).map(b => [String(b.blockId), b]));
+  const changed = [];
+
+  for (const nb of (Array.isArray(newBlocks) ? newBlocks : [])) {
+    const id = String(nb?.blockId || "");
+    if (!id) continue;
+    const ob = oldById.get(id);
+    if (!ob) { changed.push(id); continue; }
+
+    // Compare only fields that matter for rendering
+    const keys = ["text", "title", "employer", "startDate", "endDate", "institution", "degree", "program", "label", "type", "order"];
+    let diff = false;
+    for (const k of keys) {
+      const a = (ob && ob[k] !== undefined) ? String(ob[k] ?? "") : "";
+      const b = (nb && nb[k] !== undefined) ? String(nb[k] ?? "") : "";
+      if (a !== b) { diff = true; break; }
+    }
+    if (diff) changed.push(id);
+  }
+
+  return changed;
+}
+
+async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
+  if (!pendingSuggestion || !pendingSuggestion.instruction) {
+    return { ok: false, error: "No pendingSuggestion" };
+  }
+
+  const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
+  if (!hasBlocks) {
+    return { ok: false, error: "No blocks loaded" };
+  }
+
+  const mode = (pendingSuggestion.mode === "full") ? "full" : "blocks";
+  const instruction = String(pendingSuggestion.instruction || "").trim();
+
+  const selectedIds =
+    mode === "blocks"
+      ? (Array.isArray(pendingSuggestion.selectedBlockIds) && pendingSuggestion.selectedBlockIds.length
+          ? pendingSuggestion.selectedBlockIds.map(String)
+          : Array.from(selectedBlockIds))
+      : [];
+
+  const payload = {
+    mode,
+    instruction,
+    targetRole: targetRoleInput?.value?.trim() || "",
+    cvVersionId: cvVersionId || null,
+    cvTitle: documentTitle || "",
+    selectedBlockIds: selectedIds,
+    blocks: documentBlocksState // ALWAYS send full list
+  };
+
+  try {
+    setBusy(true);
+
+    const res = await fetch(N8N_EDITOR_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const raw = await res.text();
+    const data = JSON.parse(sanitizeLeadingGarbage(raw));
+
+    if (!data.ok) {
+      return { ok: false, error: data.error || "Rewrite flow error" };
+    }
+
+    const nextBlocks = Array.isArray(data.blocks) ? data.blocks : null;
+    if (!nextBlocks || !nextBlocks.length) {
+      return { ok: false, error: "Rewrite flow returned no blocks" };
+    }
+
+    const nextTitle = String(data.cvTitle || "").trim() || (documentTitle || "");
+    const nextCvVersionId = String(data.cvVersionId || "").trim() || (cvVersionId || null);
+
+    const changedFromServer = Array.isArray(data.changedBlockIds) ? data.changedBlockIds.map(String) : null;
+    const changedLocal = computeChangedBlockIds(documentBlocksState, nextBlocks);
+    const changedBlockIds = changedFromServer && changedFromServer.length ? changedFromServer : changedLocal;
+
+    const summary = Array.isArray(data.summaryOfChanges)
+      ? data.summaryOfChanges
+      : (instruction ? [instruction] : []);
+
+    // Store as pendingProposal so we can Preview/Apply with your existing mechanics
+    pendingProposal = {
+      cvVersionId: nextCvVersionId,
+      cvTitle: nextTitle,
+      blocks: nextBlocks,
+      summaryOfChanges: summary
+    };
+
+    pendingProposalMeta = {
+      changedBlockIds,
+      summaryOfChanges: summary
+    };
+
+    if (commitImmediately) {
+      applyProposal();
+    }
+
+    return { ok: true };
+
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: "Rewrite fetch failed" };
+  } finally {
+    setBusy(false);
+    forceButtonsActiveLook();
+  }
+}
+  
+
   /* ===============================
      CONTEXT CHIP (BLOCK-ONLY)
      =============================== */
@@ -873,101 +1003,148 @@ if (type === "education") {
   });
 
   /* ===============================
-     CHAT SEND 
-     =============================== */
+   PREVIEW / APPLY / DISMISS (NO CHAT NOISE)
+   =============================== */
   function previewProposal() {
-    if (!pendingProposal?.blocks?.length) return;
+  if (!pendingProposal?.blocks?.length) return;
 
-    if (!isPreviewingProposal) {
-      previewSnapshot = snapshotCurrentState();
-      isPreviewingProposal = true;
-    }
-
-    const nextBlocks = deepClone(pendingProposal.blocks);
-    const nextTitle = String(pendingProposal.cvTitle || "").trim();
-    const nextCvVersionId = String(pendingProposal.cvVersionId || "").trim();
-
-    if (nextTitle) documentTitle = nextTitle;
-    if (nextCvVersionId) cvVersionId = nextCvVersionId;
-
-    buildStateFromBlocks(nextBlocks);
-    renderDocument(documentTextState);
-    applySelectedBlocksUI();
-    updateContextChip();
-
-    appendChat("assistant", "Previewing the suggested changes. Click Apply to keep them, or Exit preview/Dismiss.");
-    setApplyLabel();
-    clearAllProposalCards();
-    appendProposalCard(pendingProposalMeta);
+  if (!isPreviewingProposal) {
+    previewSnapshot = snapshotCurrentState();
+    isPreviewingProposal = true;
   }
 
-  function exitProposalPreview() {
-    if (!isPreviewingProposal) return;
-    isPreviewingProposal = false;
+  const nextBlocks = deepClone(pendingProposal.blocks);
+  const nextTitle = String(pendingProposal.cvTitle || "").trim();
+  const nextCvVersionId = String(pendingProposal.cvVersionId || "").trim();
 
+  if (nextTitle) documentTitle = nextTitle;
+  if (nextCvVersionId) cvVersionId = nextCvVersionId;
+
+  buildStateFromBlocks(nextBlocks);
+  renderDocument(documentTextState);
+  applySelectedBlocksUI();
+  updateContextChip();
+
+  setApplyLabel();
+  clearAllProposalCards();
+  appendProposalCard(pendingProposalMeta);
+}
+
+  function exitProposalPreview() {
+  if (!isPreviewingProposal) return;
+  isPreviewingProposal = false;
+
+  const snap = previewSnapshot;
+  previewSnapshot = null;
+  restoreSnapshot(snap);
+
+  setApplyLabel();
+  clearAllProposalCards();
+  if (pendingProposal || pendingSuggestion) appendProposalCard(pendingProposalMeta);
+}
+
+  function applyProposal() {
+  if (!pendingProposal?.blocks?.length) return;
+
+  const nextBlocks = deepClone(pendingProposal.blocks);
+
+  const nextTitle = String(pendingProposal.cvTitle || "").trim();
+  const nextCvVersionId = String(pendingProposal.cvVersionId || "").trim();
+
+  if (nextTitle) documentTitle = nextTitle;
+  if (nextCvVersionId) cvVersionId = nextCvVersionId;
+
+  buildStateFromBlocks(nextBlocks);
+
+  // clear preview state + proposal + suggestion
+  isPreviewingProposal = false;
+  previewSnapshot = null;
+
+  pendingProposal = null;
+  pendingProposalMeta = null;
+  pendingSuggestion = null;
+
+  renderDocument(documentTextState);
+  applySelectedBlocksUI();
+  updateContextChip();
+
+  clearNativeSelection();
+  editorInput.value = "";
+
+  clearAllProposalCards();
+  setApplyLabel();
+}
+
+  function dismissProposal() {
+  // If previewing, revert
+  if (isPreviewingProposal) {
+    isPreviewingProposal = false;
     const snap = previewSnapshot;
     previewSnapshot = null;
     restoreSnapshot(snap);
-
-    appendChat("assistant", "Exited preview. No changes were applied.");
-    setApplyLabel();
-    clearAllProposalCards();
-    if (pendingProposal) appendProposalCard(pendingProposalMeta);
   }
 
-  function applyProposal() {
-    if (!pendingProposal?.blocks?.length) return;
+  pendingProposal = null;
+  pendingProposalMeta = null;
+  pendingSuggestion = null;
 
-    // If we were previewing, we are already showing the proposal state.
-    // But we still commit by rebuilding from proposal and clearing snapshot.
-    const nextBlocks = deepClone(pendingProposal.blocks);
+  clearAllProposalCards();
+  setApplyLabel();
+}
 
-    const nextTitle = String(pendingProposal.cvTitle || "").trim();
-    const nextCvVersionId = String(pendingProposal.cvVersionId || "").trim();
+  /* ===============================
+   BUTTON HANDLERS (PREVIEW/APPLY)
+   =============================== */
 
-    if (nextTitle) documentTitle = nextTitle;
-    if (nextCvVersionId) cvVersionId = nextCvVersionId;
-
-    buildStateFromBlocks(nextBlocks);
-
-    // clear preview state + proposal
-    isPreviewingProposal = false;
-    previewSnapshot = null;
-
-    pendingProposal = null;
-    pendingProposalMeta = null;
-
-    renderDocument(documentTextState);
-    applySelectedBlocksUI();
-    updateContextChip();
-
-    clearNativeSelection();
-    editorInput.value = "";
-
-    clearAllProposalCards();
-    appendChat("assistant", "Applied the suggested changes.");
-    setApplyLabel();
+async function handlePreviewClick() {
+  // toggle off
+  if (isPreviewingProposal) {
+    exitProposalPreview();
+    return;
   }
 
-  function dismissProposal() {
-    // If user is previewing, revert first
-    if (isPreviewingProposal) {
-      isPreviewingProposal = false;
-      const snap = previewSnapshot;
-      previewSnapshot = null;
-      restoreSnapshot(snap);
+  // If we already have a proposal, preview it
+  if (pendingProposal?.blocks?.length) {
+    previewProposal();
+    return;
+  }
+
+  // If we only have a suggestion, generate the proposal first (rewrite flow), then preview
+  if (pendingSuggestion?.instruction) {
+    const r = await fetchProposalFromSuggestion({ commitImmediately: false });
+    if (!r.ok) {
+      appendChat("assistant", r.error || "Could not generate preview.");
+      return;
     }
-
-    pendingProposal = null;
-    pendingProposalMeta = null;
-
-    clearAllProposalCards();
-    appendChat("assistant", "Dismissed the suggestion.");
-    setApplyLabel();
+    previewProposal();
+    return;
   }
+}
+
+  async function handleApplyClick() {
+  // If we already have a proposal, apply it
+  if (pendingProposal?.blocks?.length) {
+    applyProposal();
+    return;
+  }
+
+  // If we only have a suggestion, generate + apply immediately
+  if (pendingSuggestion?.instruction) {
+    const r = await fetchProposalFromSuggestion({ commitImmediately: true });
+    if (!r.ok) {
+      appendChat("assistant", r.error || "Could not apply suggestion.");
+      return;
+    }
+    return;
+  }
+}
 
   
-   async function sendChat() {
+  /* ===============================
+   CHAT SEND (supports suggestion + proposal)
+   =============================== */
+
+async function sendChat() {
   console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
 
   const msg = editorInput.value.trim();
@@ -994,7 +1171,7 @@ if (type === "education") {
     language: documentLanguage || "sv",
     mode,
     selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
-    blocks: documentBlocksState,     // ALWAYS full list (chat-flow can ignore/trim)
+    blocks: documentBlocksState, // chat flow may trim internally but we send full list
     history: chatHistory.slice(-12),
     message: msg
   };
@@ -1013,14 +1190,6 @@ if (type === "education") {
 
     const data = JSON.parse(sanitizeLeadingGarbage(raw));
 
-    console.log("CHAT_RESPONSE", {
-      ok: data.ok,
-      intent: data.intent,
-      hasProposal: !!data.proposal,
-      hasSuggestion: !!data.suggestion,
-      debug: data._debug
-    });
-
     if (!data.ok) {
       appendChat("assistant", data.error || "Chat error.");
       pendingProposal = null;
@@ -1031,11 +1200,10 @@ if (type === "education") {
       return;
     }
 
-    // 1) show assistant message
     const assistantMsg = String(data.assistantMessage || "").trim() || "Okay.";
     appendChat("assistant", assistantMsg);
 
-    // reset all pending states
+    // reset pending states
     pendingProposal = null;
     pendingProposalMeta = null;
     pendingSuggestion = null;
@@ -1044,43 +1212,26 @@ if (type === "education") {
 
     const intent = String(data.intent || "").trim().toLowerCase();
 
-    // ===== CASE A: legacy proposal (blocks) =====
+    // Legacy proposal support (if you ever re-enable it)
     if (intent === "proposal" && data.proposal && Array.isArray(data.proposal.blocks) && data.proposal.blocks.length) {
-      const proposedBlocks = data.proposal.blocks;
-
-      // Basic guard: must not be shorter than current
-      if (proposedBlocks.length < (documentBlocksState?.length || 0)) {
-        appendChat("assistant", "I have suggestions, but couldn’t produce a complete patch. Try again with a more specific request.");
-        pendingProposal = null;
-        pendingProposalMeta = null;
-        pendingSuggestion = null;
-        clearAllProposalCards();
-      } else {
-        pendingProposal = data.proposal;
-        pendingProposalMeta = {
-          changedBlockIds: Array.isArray(data.changedBlockIds) ? data.changedBlockIds : [],
-          summaryOfChanges: Array.isArray(data.proposal.summaryOfChanges) ? data.proposal.summaryOfChanges : []
-        };
-
-        clearAllProposalCards();
-        appendProposalCard(pendingProposalMeta);
-      }
-
+      pendingProposal = data.proposal;
+      pendingProposalMeta = {
+        changedBlockIds: Array.isArray(data.changedBlockIds) ? data.changedBlockIds : [],
+        summaryOfChanges: Array.isArray(data.proposal.summaryOfChanges) ? data.proposal.summaryOfChanges : []
+      };
+      clearAllProposalCards();
+      appendProposalCard(pendingProposalMeta);
       setApplyLabel();
       return;
     }
 
-    // ===== CASE B: new suggestion (instruction only) =====
-    // Expected:
-    // data.suggestion = { mode:"blocks|full", selectedBlockIds:[], instruction:"..." }
+    // New suggestion support
     if (intent === "suggestion" && data.suggestion && typeof data.suggestion === "object") {
       const sugMode = String(data.suggestion.mode || "").toLowerCase();
       const sugInstruction = String(data.suggestion.instruction || "").trim();
       const sugIds = Array.isArray(data.suggestion.selectedBlockIds) ? data.suggestion.selectedBlockIds.map(String) : [];
 
       if (!sugInstruction) {
-        // nothing actionable, treat like answer
-        pendingSuggestion = null;
         clearAllProposalCards();
         setApplyLabel();
         return;
@@ -1092,21 +1243,17 @@ if (type === "education") {
         instruction: sugInstruction
       };
 
-      // Show the same proposal card UI (Preview will do nothing, Apply will run rewrite flow)
       pendingProposalMeta = {
-        changedBlockIds: sugIds, // not truly "changed" yet, but useful label
+        changedBlockIds: sugIds,
         summaryOfChanges: [sugInstruction]
       };
 
       clearAllProposalCards();
       appendProposalCard(pendingProposalMeta);
-
-      // Update Apply button label
       setApplyLabel();
       return;
     }
 
-    // ===== CASE C: plain answer =====
     clearAllProposalCards();
     setApplyLabel();
 
@@ -1126,105 +1273,27 @@ if (type === "education") {
 
 
 
-    /* ===============================
-     APPLY (BLOCK-ONLY REWRITE)
-     =============================== */
-  async function sendApply() {
-  // 1) If we have a legacy proposal with full blocks, Apply commits locally
+  /* ===============================
+   APPLY BUTTON (main Apply)
+   =============================== */
+
+async function sendApply() {
+  // If preview/proposal exists, apply locally
   if (pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length) {
     applyProposal();
     return;
   }
 
-  // 2) If we have a suggestion (instruction-only), run the rewrite flow (N8N_EDITOR_URL)
+  // If suggestion exists but no proposal yet, generate+apply via rewrite flow
   if (pendingSuggestion && pendingSuggestion.instruction) {
-    const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
-    if (!hasBlocks) {
-      alert("Ladda upp ett CV först (block saknas).");
-      return;
+    const r = await fetchProposalFromSuggestion({ commitImmediately: true });
+    if (!r.ok) {
+      appendChat("assistant", r.error || "Could not apply suggestion.");
     }
-
-    const mode = pendingSuggestion.mode === "full" ? "full" : "blocks";
-    const instruction = String(pendingSuggestion.instruction || "").trim();
-
-    const selectedIds =
-      mode === "blocks"
-        ? (Array.isArray(pendingSuggestion.selectedBlockIds) && pendingSuggestion.selectedBlockIds.length
-            ? pendingSuggestion.selectedBlockIds
-            : Array.from(selectedBlockIds))
-        : [];
-
-    const payload = {
-      mode,
-      instruction,
-      targetRole: targetRoleInput?.value?.trim() || "",
-      cvVersionId: cvVersionId || null,
-      cvTitle: documentTitle || "",
-      selectedBlockIds: selectedIds,
-      blocks: documentBlocksState // ALWAYS send full list to rewrite flow
-    };
-
-    try {
-      setBusy(true);
-
-      const res = await fetch(N8N_EDITOR_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const raw = await res.text();
-      const data = JSON.parse(sanitizeLeadingGarbage(raw));
-
-      if (!data.ok) {
-        console.error("n8n error:", data);
-        alert(data.error || "n8n error");
-        return;
-      }
-
-      const nextBlocks = Array.isArray(data.blocks) ? data.blocks : null;
-      if (!nextBlocks || !nextBlocks.length) throw new Error("blocks missing in editor response");
-
-      const nextTitle = String(data.cvTitle || "").trim();
-      if (nextTitle) documentTitle = nextTitle;
-
-      const nextCvVersionId = String(data.cvVersionId || "").trim();
-      if (nextCvVersionId) cvVersionId = nextCvVersionId;
-
-      buildStateFromBlocks(nextBlocks);
-
-      // Keep selection if possible
-      const nextIds = new Set(documentBlocksState.map(b => b.blockId));
-      selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
-
-      // Clear pending suggestion and UI cards
-      pendingSuggestion = null;
-      pendingProposal = null;
-      pendingProposalMeta = null;
-      isPreviewingProposal = false;
-      previewSnapshot = null;
-
-      clearAllProposalCards();
-      setApplyLabel();
-
-      renderDocument(documentTextState);
-      applySelectedBlocksUI();
-      updateContextChip();
-      clearNativeSelection();
-      editorInput.value = "";
-
-    } catch (err) {
-      console.error(err);
-      alert("Apply-fel.");
-    } finally {
-      setBusy(false);
-      forceButtonsActiveLook();
-    }
-
     return;
   }
 
-  // 3) Default behavior: use editorInput as instruction
+  // Default: use editor input as instruction and call rewrite flow
   const instruction = editorInput.value.trim();
   if (!instruction) {
     alert("Skriv en instruktion först.");
@@ -1305,8 +1374,6 @@ if (type === "education") {
     forceButtonsActiveLook();
   }
 }
-
-
 
   editorApplyBtn.addEventListener("click", e => {
     e.preventDefault();
