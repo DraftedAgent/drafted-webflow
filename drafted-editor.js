@@ -140,26 +140,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function appendChat(role, text) {
-    const msg = String(text || "").trim();
-    if (!msg) return;
+  const msg = String(text || "").trim();
+  if (!msg) return;
 
-    // State
-    chatHistory.push({ role: role === "user" ? "user" : "assistant", content: msg });
-    // Keep history bounded
-    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+  // State
+  chatHistory.push({ role: role === "user" ? "user" : "assistant", content: msg });
+  if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
 
-    // UI (optional)
-    if (!chatMessagesEl) return;
+  // UI
+  if (!chatMessagesEl) return;
 
-    const wrap = document.createElement("div");
-    wrap.className = role === "user" ? "chat-message user" : "chat-message ai";
+  const wrap = document.createElement("div");
+  const normalizedRole =
+    role === "user" ? "user" :
+    role === "system" ? "system" :
+    "ai";
 
-    // Use textContent to avoid injection
-    wrap.textContent = msg;
+  wrap.className = `chat-message ${normalizedRole}`;
 
-    chatMessagesEl.appendChild(wrap);
-    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
-  }
+  // IMPORTANT: left aligned readability while keeping user bubble on right via CSS
+  wrap.style.textAlign = "left";
+
+  // Use textContent to avoid injection
+  wrap.textContent = msg;
+
+  chatMessagesEl.appendChild(wrap);
+  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+}
+
 
     /* ===============================
    PROPOSAL CARD UI (WITH LOADING)
@@ -180,6 +188,7 @@ function appendProposalCard(meta) {
 
   const wrap = document.createElement("div");
   wrap.className = "chat-message ai drafted-proposal-card";
+  wrap.style.textAlign = "left";
 
   const title = document.createElement("div");
   title.style.fontWeight = "600";
@@ -208,7 +217,6 @@ function appendProposalCard(meta) {
       li.textContent = String(s || "").trim();
       ul.appendChild(li);
     });
-
     wrap.appendChild(ul);
   }
 
@@ -217,29 +225,57 @@ function appendProposalCard(meta) {
   btnRow.style.gap = "10px";
   btnRow.style.marginTop = "12px";
 
-  const btnPreview = document.createElement("button");
-  btnPreview.type = "button";
-  btnPreview.textContent = isPreviewingProposal ? "Exit preview" : (isGeneratingSuggestionPreview ? "Generating preview…" : "Preview");
-  btnPreview.disabled = !!isGeneratingSuggestionPreview;
-  btnPreview.addEventListener("click", async () => {
-    await handlePreviewClick();
-  });
+  // helper to build a button with optional spinner
+  function makeBtn(label, { busy = false } = {}) {
+    const btn = document.createElement("button");
+    btn.type = "button";
 
-  const btnApply = document.createElement("button");
-  btnApply.type = "button";
-  btnApply.textContent = isGeneratingSuggestionPreview ? "Applying…" : "Apply";
-  btnApply.disabled = !!isGeneratingSuggestionPreview;
-  btnApply.addEventListener("click", async () => {
-    await handleApplyClick();
-  });
+    const spinner = document.createElement("span");
+    spinner.className = "drafted-btn-spinner";
+    spinner.hidden = !busy;
+
+    const txt = document.createElement("span");
+    txt.textContent = label;
+
+    btn.appendChild(spinner);
+    btn.appendChild(txt);
+
+    if (busy) btn.disabled = true;
+
+    return { btn, spinner, txt };
+  }
+
+  const previewLabel = isPreviewingProposal
+    ? "Exit preview"
+    : (isGeneratingSuggestionPreview ? "Generating preview…" : "Preview");
+
+  const applyLabel = isGeneratingSuggestionPreview ? "Applying…" : "Apply";
+
+  const { btn: btnPreview, spinner: spPreview } = makeBtn(previewLabel, { busy: isGeneratingSuggestionPreview });
+  const { btn: btnApply, spinner: spApply } = makeBtn(applyLabel, { busy: isGeneratingSuggestionPreview });
 
   const btnDismiss = document.createElement("button");
   btnDismiss.type = "button";
   btnDismiss.textContent = "Dismiss";
   btnDismiss.disabled = !!isGeneratingSuggestionPreview;
+
+  btnPreview.addEventListener("click", async () => {
+    await handlePreviewClick();
+  });
+
+  btnApply.addEventListener("click", async () => {
+    await handleApplyClick();
+  });
+
   btnDismiss.addEventListener("click", () => {
     dismissProposal();
   });
+
+  // If we're previewing already, Preview button should not show spinner
+  if (isPreviewingProposal) {
+    spPreview.hidden = true;
+    btnPreview.disabled = false;
+  }
 
   btnRow.appendChild(btnPreview);
   btnRow.appendChild(btnApply);
@@ -250,6 +286,7 @@ function appendProposalCard(meta) {
   chatMessagesEl.appendChild(wrap);
   chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
 }
+
 
   function clearAllProposalCards() {
   if (!chatMessagesEl) return;
