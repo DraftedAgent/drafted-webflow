@@ -242,68 +242,99 @@
 
 
 /* ===============================
-   Editor Chat cards
+   CHAT LAYOUT
    =============================== */
-/* container */
+
+/* Container should stack messages vertically */
 .chat-messages {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* base bubble */
+/* Base bubble */
 .chat-message {
   max-width: 78%;
-  padding: 10px 12px;
-  border-radius: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
   line-height: 1.35;
-  font-size: 14px;
   white-space: pre-wrap;
+
+  /* IMPORTANT: readability */
+  text-align: left;
 }
 
-/* user = right */
-.chat-message.user {
-  align-self: flex-end;
-  background: #111;
-  color: #fff;
-  border-top-right-radius: 8px;
-}
-
-/* assistant = left */
+/* AI bubble on left */
 .chat-message.ai {
   align-self: flex-start;
-  background: #f3f4f6;
-  color: #111;
-  border-top-left-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.06);
 }
 
-/* proposal card premium */
-.drafted-proposal-card {
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 14px;
-  padding: 14px 14px 12px;
-  background: #fff;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+/* User bubble on right (Messenger style) */
+.chat-message.user {
+  align-self: flex-end;
+  text-align: left; /* keep left aligned even on right side */
 }
+
+/* If you have system messages, treat as AI but still left-aligned */
+.chat-message.system {
+  align-self: flex-start;
+  text-align: left;
+  opacity: 0.95;
+}
+
+
+/* ===============================
+   PROPOSAL CARD BUTTONS + SPINNER
+   =============================== */
 
 .drafted-proposal-card button {
-  appearance: none;
-  border: 1px solid rgba(0,0,0,0.14);
-  background: #fff;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
   border-radius: 999px;
-  padding: 8px 12px;
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.drafted-proposal-card button:hover {
+/* Disabled style */
+.drafted-proposal-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Spinner element */
+.drafted-btn-spinner {
+  width: 14px;
+  height: 14px;
+  min-width: 14px; /* prevents layout shift */
+  min-height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  display: inline-block;
+  animation: draftedSpin 0.8s linear infinite;
+}
+
+/* Keep layout stable when spinner hidden */
+.drafted-btn-spinner[hidden] {
+  visibility: hidden; /* keeps space */
+}
+
+@keyframes draftedSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Hover only when actually enabled */
+.drafted-proposal-card button:not(:disabled):hover {
   box-shadow: 0 10px 18px rgba(0,0,0,0.10);
   transform: translateY(-1px);
 }
 
-.drafted-proposal-card button:active {
+.drafted-proposal-card button:not(:disabled):active {
   transform: translateY(0);
   box-shadow: none;
 }
