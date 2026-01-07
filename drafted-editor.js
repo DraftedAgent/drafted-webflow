@@ -18,6 +18,39 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("input[type='file']");
 
   const uploadBtn = document.getElementById("upload-btn");
+// --- Upload button: hard reset + bind verification ---
+(function initUploadBtn() {
+  if (!uploadBtn) {
+    console.error("❌ uploadBtn not found (#upload-btn).");
+    return;
+  }
+
+  // 1) Hard reset disabled state (disabled buttons do NOT fire click)
+  uploadBtn.disabled = false;
+  uploadBtn.removeAttribute("disabled");
+  uploadBtn.style.pointerEvents = "auto";
+  uploadBtn.style.opacity = "1";
+
+  // 2) Log binding (so you KNOW this runs)
+  console.log("✅ Upload button ready", {
+    id: uploadBtn.id,
+    disabled: uploadBtn.disabled,
+    pointerEvents: getComputedStyle(uploadBtn).pointerEvents
+  });
+
+  // 3) Direct listener + delegation fallback (handles DOM replacement by Webflow)
+  uploadBtn.addEventListener("click", (e) => {
+    console.log("🟢 Upload clicked (direct listener)");
+  });
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("#upload-btn");
+    if (!btn) return;
+    console.log("🟢 Upload clicked (delegation)");
+  }, true);
+})();
+
+  
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
   const targetRoleInput = document.getElementById("target-role-input");
