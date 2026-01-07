@@ -1152,15 +1152,15 @@ function startUploadStepText(){
   if (!title || !meta) return;
 
   const steps = [
-    { t: "Läser filen", m: "Extraherar text och struktur." },
-    { t: "Identifierar sektioner", m: "Erfarenhet, utbildning, kompetenser och språk." },
-    { t: "Skapar en förbättrad version", m: "Anpassar språk, tydlighet och struktur." },
-    { t: "Förbereder editor-läge", m: "Bygger block så du kan redigera smart." }
+    { t: "Reading file", m: "Extracting text and structure." },
+    { t: "Identifying sections", m: "Experience, education, skills, and languages." },
+    { t: "Creating an improved version", m: "Refining clarity, structure, and language." },
+    { t: "Preparing editor mode", m: "Building editable blocks for smart refinement." }
   ];
 
   let i = 0;
-  title.textContent = "Analyserar ditt CV";
-  meta.textContent  = "Detta tar oftast 30-60 sekunder.";
+  title.textContent = "Analyzing your CV";
+  meta.textContent  = "This usually takes 30–60 seconds.";
 
   clearInterval(uploadStepTimer);
   uploadStepTimer = setInterval(() => {
@@ -1170,6 +1170,7 @@ function startUploadStepText(){
     i++;
   }, 5500);
 }
+
 
 function stopUploadStepText(){
   clearInterval(uploadStepTimer);
