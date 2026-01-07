@@ -899,19 +899,21 @@ if (!data.ok) {
   } catch (e) {
     console.error(e);
     return { ok: false, error: "Rewrite fetch failed" };
-  } finally {
-  setBusy(false);
-  forceButtonsActiveLook();
+    } finally {
+    setBusy(false);
+    forceButtonsActiveLook();
 
-  isGeneratingSuggestionPreview = false;
+    isGeneratingSuggestionPreview = false;
 
-  // Om commitImmediately kördes, hoppa över card re-render
-  if (!commitImmediately){
-    clearAllProposalCards();
-    appendProposalCard(pendingProposalMeta);
-    setApplyLabel();
+    // If commitImmediately ran, skip card re-render
+    if (!commitImmediately) {
+      clearAllProposalCards();
+      appendProposalCard(pendingProposalMeta);
+      setApplyLabel();
+    }
   }
 }
+
 
   
 
@@ -1036,11 +1038,6 @@ if (!data.ok) {
      UPLOAD -> RENDER (MAIN FLOW)
      =============================== */
   async function handleUpload(){
-    console.log("handleUpload fired", {
-    hasFile: !!fileInput?.files?.[0],
-    uploadBtn: !!uploadBtn,
-    N8N_UPLOAD_URL
-  });
   const file = fileInput?.files?.[0];
   if (!file){
     alert("Välj en PDF först.");
