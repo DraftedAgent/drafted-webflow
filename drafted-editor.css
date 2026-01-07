@@ -1,3 +1,7 @@
+/* ===============================
+   CV PREVIEW (PDF/embed)
+   =============================== */
+
 /* Make the preview system fill its parent (cv-preview-box) */
 .cv-preview-wrap{
   position: relative;
@@ -34,14 +38,113 @@
   display: none;
 }
 
-/* ===== Highlight for pinned selection ===== */
+
+/* ===============================
+   Upload loading state (overlay + button spinner)
+   =============================== */
+
+#upload-btn{
+  position: relative;
+}
+
+#upload-btn.is-loading{
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* spinner inside upload button */
+#upload-btn .btn-spinner{
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  display: none;
+  animation: draftedSpin 0.8s linear infinite;
+  margin-right: 8px;
+}
+
+#upload-btn.is-loading .btn-spinner{
+  display: inline-block;
+}
+
+/* overlay that sits on top of the CV preview area */
+.cv-preview-loading{
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 5;
+  pointer-events: none;
+
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(6px);
+}
+
+.cv-preview-wrap.is-loading .cv-preview-loading{
+  display: flex;
+}
+
+.cv-preview-loading .panel{
+  width: min(520px, 92%);
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.10);
+  padding: 16px 16px 14px;
+}
+
+.cv-preview-loading .row{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.cv-preview-loading .big-spinner{
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 50%;
+  border: 3px solid rgba(0,0,0,0.35);
+  border-top-color: transparent;
+  animation: draftedSpin 0.8s linear infinite;
+  flex: 0 0 auto;
+}
+
+.cv-preview-loading .title{
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.cv-preview-loading .meta{
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.75;
+  line-height: 1.35;
+}
+
+
+/* ===============================
+   Highlight helpers
+   =============================== */
+
+/* Highlight for pinned selection (old selection system or inline text) */
 .drafted-highlight{
   background: rgba(255, 210, 80, 0.40);
   border-radius: 4px;
   padding: 0 2px;
 }
 
-/* ===== Force buttons to look active unless actually disabled ===== */
+
+/* ===============================
+   Force buttons to look active unless actually disabled
+   =============================== */
+
 #editor-send,
 #editor-chat-send{
   opacity: 1 !important;
@@ -56,7 +159,11 @@
   filter: grayscale(30%) !important;
 }
 
-/* ===== Editor preview behavior (text selection + rendering) ===== */
+
+/* ===============================
+   Editor preview behavior (text selection + rendering)
+   =============================== */
+
 /* This is your DIV with id="editor-preview-text" */
 #editor-preview-text{
   white-space: pre-wrap;
@@ -87,16 +194,17 @@
   overflow-wrap: anywhere;
 }
 
+
 /* ===============================
    Click-select blocks (premium + consistent padding)
    =============================== */
+
 .cv-block{
   cursor: pointer;
   position: relative;
   border-radius: 12px;
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
 
-  /* Your desired spacing */
   padding-inline-start: 10px;
   padding-inline-end: 10px;
   margin-inline-start: 15px;
@@ -107,16 +215,69 @@
   background: rgba(0,0,0,0.02);
 }
 
+/* Selected state (context selection) */
 .cv-block.is-selected{
   background: rgba(255, 210, 80, 0.40);
   box-shadow: 0 10px 25px rgba(0,0,0,0.06);
 }
 
+/* Preview changed state (different from selected) */
+.cv-block.is-preview-changed{
+  background: rgba(24,170,127,0.10);
+  border: 1px solid rgba(24,170,127,0.20);
+  box-shadow: 0 12px 28px rgba(24,170,127,0.10);
+}
+
+
+/* ===============================
+   Preview mode banner (editor preview)
+   =============================== */
+
+/* Put this class on the wrapper around the preview (added by JS): .editor-preview-wrap.is-preview */
+.editor-preview-wrap.is-preview{
+  outline: 2px solid rgba(24,170,127,0.35);
+  border-radius: 14px;
+}
+
+/* Banner inserted by JS inside wrapper */
+.drafted-preview-banner{
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 12px;
+  margin: 0 0 10px 0;
+
+  border-radius: 12px;
+  border: 1px solid rgba(24,170,127,0.25);
+  background: rgba(24,170,127,0.10);
+  backdrop-filter: blur(6px);
+}
+
+.editor-preview-wrap.is-preview .drafted-preview-banner{
+  display: flex;
+}
+
+.drafted-preview-banner .left{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.drafted-preview-banner .right{
+  font-size: 13px;
+  opacity: 0.8;
+}
 
 
 /* ===============================
    Context chip: premium surface + actions
    =============================== */
+
 .context-chip{
   display: inline-flex;
   align-items: center;
@@ -194,11 +355,11 @@
 }
 
 
-
 /* ===============================
    Editor Proposal card
    =============================== */
-.drafted-proposal-card {
+
+.drafted-proposal-card{
   border: 1px solid rgba(0,0,0,0.08);
   border-radius: 14px;
   padding: 14px 14px 12px;
@@ -206,111 +367,57 @@
   box-shadow: 0 10px 26px rgba(0,0,0,0.08);
 }
 
-.drafted-proposal-card button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.drafted-proposal-card button {
-  appearance: none;
-  border: 1px solid rgba(0,0,0,0.14);
-  background: #fff;
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.drafted-proposal-card button:hover {
-  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
-  transform: translateY(-1px);
-}
-
-.drafted-proposal-card button:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-.drafted-proposal-card ul {
+.drafted-proposal-card ul{
   margin: 10px 0 0 18px;
 }
 
-.drafted-proposal-card li {
+.drafted-proposal-card li{
   margin: 4px 0;
 }
 
-
-/* ===============================
-   CHAT LAYOUT
-   =============================== */
-
-/* Container should stack messages vertically */
-.chat-messages {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* Base bubble */
-.chat-message {
-  max-width: 78%;
-  padding: 14px 16px;
-  border-radius: 16px;
-  line-height: 1.35;
-  white-space: pre-wrap;
-
-  /* IMPORTANT: readability */
-  text-align: left;
-}
-
-/* AI bubble on left */
-.chat-message.ai {
-  align-self: flex-start;
-}
-
-/* User bubble on right (Messenger style) */
-.chat-message.user {
-  align-self: flex-end;
-  text-align: left; /* keep left aligned even on right side */
-}
-
-/* If you have system messages, treat as AI but still left-aligned */
-.chat-message.system {
-  align-self: flex-start;
-  text-align: left;
-  opacity: 0.95;
-}
-
-
-/* ===============================
-   PROPOSAL CARD BUTTONS + SPINNER
-   =============================== */
-
-.drafted-proposal-card button {
+/* Buttons: unified definition (no duplicates) */
+.drafted-proposal-card button{
+  appearance: none;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 12px;
+
+  border: 1px solid rgba(0,0,0,0.14);
+  background: #fff;
   border-radius: 999px;
+  padding: 10px 12px;
+
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Disabled style */
-.drafted-proposal-card button:disabled {
+.drafted-proposal-card button:disabled{
   opacity: 0.6;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
 }
 
-/* Spinner element */
-.drafted-btn-spinner {
+.drafted-proposal-card button:not(:disabled):hover{
+  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+  transform: translateY(-1px);
+}
+
+.drafted-proposal-card button:not(:disabled):active{
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Spinner element (used inside proposal buttons) */
+.drafted-btn-spinner{
   width: 14px;
   height: 14px;
-  min-width: 14px; /* prevents layout shift */
+  min-width: 14px;
   min-height: 14px;
   border-radius: 50%;
   border: 2px solid currentColor;
@@ -320,87 +427,122 @@
 }
 
 /* Keep layout stable when spinner hidden */
-.drafted-btn-spinner[hidden] {
+.drafted-btn-spinner[hidden]{
   visibility: hidden; /* keeps space */
 }
 
-@keyframes draftedSpin {
-  to { transform: rotate(360deg); }
+
+/* ===============================
+   CHAT LAYOUT + BUBBLE VISUALS
+   =============================== */
+
+/* Container should stack messages vertically */
+.chat-messages{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* Hover only when actually enabled */
-.drafted-proposal-card button:not(:disabled):hover {
-  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
-  transform: translateY(-1px);
+/* Base bubble */
+.chat-message{
+  max-width: 78%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  text-align: left;
+
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.06);
 }
 
-.drafted-proposal-card button:not(:disabled):active {
-  transform: translateY(0);
-  box-shadow: none;
+/* AI bubble on left */
+.chat-message.ai{
+  align-self: flex-start;
+  background: linear-gradient(180deg, #ffffff 0%, #f6f6f6 100%);
 }
 
+/* User bubble on right */
+.chat-message.user{
+  align-self: flex-end;
+  text-align: left;
 
+  background: linear-gradient(180deg, #111111 0%, #1a1a1a 100%);
+  color: rgba(255,255,255,0.92);
+  border-color: rgba(255,255,255,0.10);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.14);
+}
+
+/* System bubble */
+.chat-message.system{
+  align-self: flex-start;
+  text-align: left;
+  opacity: 0.95;
+
+  background: rgba(24,170,127,0.08);
+  border-color: rgba(24,170,127,0.20);
+}
 
 
 /* ===============================
    Typography helpers
    =============================== */
+
 .cv-title{
   white-space: nowrap;
   max-width: 100%;
   display: block;
 
-  /* Correct responsive sizing for editor preview */
   font-size: clamp(18px, 2.4vw, 26px);
   line-height: 1.15;
 
-  /* Kill inherited Webflow typography */
   letter-spacing: normal;
   text-transform: none;
 }
 
-.cv-block--experience {
+.cv-block--experience{
   margin-bottom: 18px;
 }
 
-.cv-exp-title {
+.cv-exp-title{
   font-weight: 600;
   letter-spacing: normal !important;
-  text-transform: none
+  text-transform: none;
 }
 
-.cv-exp-meta {
+.cv-exp-meta{
   font-size: 13px;
   opacity: 0.8;
   margin-bottom: 4px;
 }
 
-.cv-exp-company {
+.cv-exp-company{
   font-weight: 500;
 }
 
-.cv-exp-period {
+.cv-exp-period{
   margin-left: 4px;
 }
 
-.cv-edu-degree {
+.cv-edu-degree{
   font-weight: 600;
   letter-spacing: normal !important;
-  text-transform: none
+  text-transform: none;
   margin-bottom: 2px;
 }
 
-.cv-edu-meta {
+.cv-edu-meta{
   font-size: 13px;
   opacity: 0.8;
   margin-bottom: 6px;
 }
 
-.cv-edu-inst {
+.cv-edu-inst{
   font-weight: 500;
 }
 
-.cv-edu-period {
+.cv-edu-period{
   margin-left: 4px;
 }
 
@@ -416,3 +558,11 @@
   opacity: 0.9;
 }
 
+
+/* ===============================
+   Animations
+   =============================== */
+
+@keyframes draftedSpin{
+  to { transform: rotate(360deg); }
+}
