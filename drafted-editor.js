@@ -1036,6 +1036,11 @@ if (!data.ok) {
      UPLOAD -> RENDER (MAIN FLOW)
      =============================== */
   async function handleUpload(){
+    console.log("handleUpload fired", {
+    hasFile: !!fileInput?.files?.[0],
+    uploadBtn: !!uploadBtn,
+    N8N_UPLOAD_URL
+  });
   const file = fileInput?.files?.[0];
   if (!file){
     alert("Välj en PDF först.");
