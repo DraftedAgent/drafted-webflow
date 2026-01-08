@@ -415,3 +415,86 @@
   text-transform: none;
   opacity: 0.9;
 }
+
+
+/* ===============================
+   UPLOAD LOADING (button + preview overlay)
+   =============================== */
+
+/* Button: keep layout stable + show spinner */
+#upload-btn{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#upload-btn[disabled]{
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+/* Small spinner that matches your existing style */
+.drafted-upload-spinner{
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  display: inline-block;
+  animation: draftedSpin 0.8s linear infinite;
+}
+
+/* When hidden, keep space to avoid button "jump" */
+.drafted-upload-spinner[hidden]{
+  visibility: hidden;
+}
+
+/* Overlay inside preview area */
+.cv-preview-loading{
+  position: absolute;
+  inset: 0;
+  display: none;               /* toggled by JS */
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px;
+  z-index: 5;
+  pointer-events: none;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.cv-preview-wrap.is-loading .cv-preview-loading{
+  display: flex;
+}
+
+.cv-preview-loading .inner{
+  max-width: 420px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+}
+
+.cv-preview-loading .title{
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.cv-preview-loading .meta{
+  opacity: 0.75;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.cv-preview-loading .row{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
