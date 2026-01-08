@@ -5,6 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
   "build=2026-01-03-1"
 );
 
+  console.log("DRAFTED_BUILD_CHECK", "upload-overlay-test", "2026-01-08-1");
+window.__DRAFTED_BUILD__ = "upload-overlay-test-2026-01-08-1";
+
+
   const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
   const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
   const N8N_CHAT_URL = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
