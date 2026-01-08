@@ -71,6 +71,67 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   forceButtonsActiveLook();
 
+
+   // ===============================
+  // Upload loading UI  (PUT THIS HERE)
+  // ===============================
+  const uploadBtnOriginalText = uploadBtn ? uploadBtn.textContent : "Upload CV";
+
+  function ensureUploadButtonSpinner() {
+    if (!uploadBtn) return null;
+
+    let sp = uploadBtn.querySelector(".drafted-upload-spinner");
+    if (!sp) {
+      sp = document.createElement("span");
+      sp.className = "drafted-upload-spinner";
+      sp.hidden = true;
+      uploadBtn.prepend(sp);
+    }
+    return sp;
+  }
+
+  function ensurePreviewLoadingOverlay() {
+    if (!previewWrap) return null;
+
+    let overlay = previewWrap.querySelector(".cv-preview-loading");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "cv-preview-loading";
+      overlay.innerHTML = `
+        <div class="inner">
+          <div class="row">
+            <span class="drafted-upload-spinner"></span>
+            <div>
+              <div class="title">Analyzing your CV</div>
+              <div class="meta">This usually takes around 60 seconds. Keep this tab open.</div>
+            </div>
+          </div>
+        </div>
+      `;
+      previewWrap.appendChild(overlay);
+    }
+    return overlay;
+  }
+
+  function setUploadLoading(isLoading) {
+    const btnSpinner = ensureUploadButtonSpinner();
+    ensurePreviewLoadingOverlay();
+
+    if (previewWrap) previewWrap.classList.toggle("is-loading", !!isLoading);
+
+    if (uploadBtn) {
+      uploadBtn.disabled = !!isLoading;
+      uploadBtn.textContent = isLoading ? "Analyzing…" : uploadBtnOriginalText;
+
+      // textContent wipes children, so re-add spinner
+      if (btnSpinner) {
+        uploadBtn.prepend(btnSpinner);
+        btnSpinner.hidden = !isLoading;
+      }
+    }
+  }
+
+  
   let currentUrl = null;
 
   /* ===============================
@@ -985,78 +1046,81 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
      UPLOAD -> RENDER (MAIN FLOW)
      =============================== */
   uploadBtn.addEventListener("click", async e => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const file = fileInput.files?.[0];
-    if (!file) {
-      alert("Välj en PDF först.");
-      return;
+  const file = fileInput.files?.[0];
+  if (!file) {
+    alert("Välj en PDF först.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("targetRole", targetRoleInput?.value?.trim() || "");
+
+  try {
+    setUploadLoading(true);
+
+    const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
+    const raw = await res.text();
+
+    // Hard fail if server responded with error (you want to know)
+    if (!res.ok) {
+      console.error("Upload failed:", res.status, raw);
+      throw new Error("Upload failed: " + res.status);
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("targetRole", targetRoleInput?.value?.trim() || "");
+    const data = JSON.parse(sanitizeLeadingGarbage(raw));
 
-    try {
-      uploadBtn.disabled = true;
+    const blocks = Array.isArray(data.blocks) ? data.blocks : null;
 
-      const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
-      const raw = await res.text();
-      const data = JSON.parse(sanitizeLeadingGarbage(raw));
+    const nextTitle = String(data.cvTitle || "").trim();
+    if (nextTitle) documentTitle = nextTitle;
 
-      const blocks = Array.isArray(data.blocks) ? data.blocks : null;
+    const nextCvVersionId = String(data.cvVersionId || "").trim();
+    cvVersionId = nextCvVersionId || cvVersionId || null;
 
-      const nextTitle = String(data.cvTitle || "").trim();
-      if (nextTitle) documentTitle = nextTitle;
+    editorPreviewEl.removeAttribute("data-placeholder");
+    setCvLoadedUI(true);
 
-      const nextCvVersionId = String(data.cvVersionId || "").trim();
-      cvVersionId = nextCvVersionId || cvVersionId || null;
-
-      editorPreviewEl.removeAttribute("data-placeholder");
-      setCvLoadedUI(true);
-
-      if (blocks && blocks.length) {
-        buildStateFromBlocks(blocks);
-      } else {
-        documentTextState = sanitizeLeadingGarbage(data.rewrittenCv || "");
-        documentBlocksState = null;
-        blockRangesById = {};
-      }
-
-      // reset selection / context
-      selectedBlockId = null;
-      selectedBlockIds = new Set();
-      lastClickedBlockId = null;
-      activeContext = "chat";
-
-      renderDocument(documentTextState);
-      clearNativeSelection();
-      updateContextChip();
-
-      // Reset chat UI + state for new CV
-      if (chatMessagesEl) chatMessagesEl.innerHTML = "";
-      chatHistory = [];
-      pendingProposal = null;
-      pendingProposalMeta = null;
-      isPreviewingProposal = false;
-      previewSnapshot = null;
-      clearAllProposalCards();
-      setApplyLabel();
-
-
-      const greeting = "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
-      appendChat("assistant", greeting);
-
-
-
-    } catch (err) {
-      console.error(err);
-      alert("Fel vid uppladdning.");
-    } finally {
-      uploadBtn.disabled = false;
-      forceButtonsActiveLook();
+    if (blocks && blocks.length) {
+      buildStateFromBlocks(blocks);
+    } else {
+      documentTextState = sanitizeLeadingGarbage(data.rewrittenCv || "");
+      documentBlocksState = null;
+      blockRangesById = {};
     }
-  });
+
+    selectedBlockId = null;
+    selectedBlockIds = new Set();
+    lastClickedBlockId = null;
+    activeContext = "chat";
+
+    renderDocument(documentTextState);
+    clearNativeSelection();
+    updateContextChip();
+
+    if (chatMessagesEl) chatMessagesEl.innerHTML = "";
+    chatHistory = [];
+    pendingProposal = null;
+    pendingProposalMeta = null;
+    isPreviewingProposal = false;
+    previewSnapshot = null;
+    clearAllProposalCards();
+    setApplyLabel();
+
+    const greeting = "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
+    appendChat("assistant", greeting);
+
+  } catch (err) {
+    console.error(err);
+    alert("Fel vid uppladdning.");
+  } finally {
+    setUploadLoading(false);
+    forceButtonsActiveLook();
+  }
+});
+
 
   /* ===============================
    PREVIEW / APPLY / DISMISS (NO CHAT NOISE)
