@@ -18,39 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("input[type='file']");
 
   const uploadBtn = document.getElementById("upload-btn");
-// --- Upload button: hard reset + bind verification ---
-(function initUploadBtn() {
-  if (!uploadBtn) {
-    console.error("❌ uploadBtn not found (#upload-btn).");
-    return;
-  }
-
-  // 1) Hard reset disabled state (disabled buttons do NOT fire click)
-  uploadBtn.disabled = false;
-  uploadBtn.removeAttribute("disabled");
-  uploadBtn.style.pointerEvents = "auto";
-  uploadBtn.style.opacity = "1";
-
-  // 2) Log binding (so you KNOW this runs)
-  console.log("✅ Upload button ready", {
-    id: uploadBtn.id,
-    disabled: uploadBtn.disabled,
-    pointerEvents: getComputedStyle(uploadBtn).pointerEvents
-  });
-
-  // 3) Direct listener + delegation fallback (handles DOM replacement by Webflow)
-  uploadBtn.addEventListener("click", (e) => {
-    console.log("🟢 Upload clicked (direct listener)");
-  });
-
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest("#upload-btn");
-    if (!btn) return;
-    console.log("🟢 Upload clicked (delegation)");
-  }, true);
-})();
-
-  
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
   const targetRoleInput = document.getElementById("target-role-input");
@@ -899,21 +866,19 @@ if (!data.ok) {
   } catch (e) {
     console.error(e);
     return { ok: false, error: "Rewrite fetch failed" };
-    } finally {
-    setBusy(false);
-    forceButtonsActiveLook();
+  } finally {
+  setBusy(false);
+  forceButtonsActiveLook();
 
-    isGeneratingSuggestionPreview = false;
+  isGeneratingSuggestionPreview = false;
 
-    // If commitImmediately ran, skip card re-render
-    if (!commitImmediately) {
-      clearAllProposalCards();
-      appendProposalCard(pendingProposalMeta);
-      setApplyLabel();
-    }
+  // Om commitImmediately kördes, hoppa över card re-render
+  if (!commitImmediately){
+    clearAllProposalCards();
+    appendProposalCard(pendingProposalMeta);
+    setApplyLabel();
   }
 }
-
 
   
 
@@ -1187,15 +1152,15 @@ function startUploadStepText(){
   if (!title || !meta) return;
 
   const steps = [
-    { t: "Reading file", m: "Extracting text and structure." },
-    { t: "Identifying sections", m: "Experience, education, skills, and languages." },
-    { t: "Creating an improved version", m: "Refining clarity, structure, and language." },
-    { t: "Preparing editor mode", m: "Building editable blocks for smart refinement." }
+    { t: "Läser filen", m: "Extraherar text och struktur." },
+    { t: "Identifierar sektioner", m: "Erfarenhet, utbildning, kompetenser och språk." },
+    { t: "Skapar en förbättrad version", m: "Anpassar språk, tydlighet och struktur." },
+    { t: "Förbereder editor-läge", m: "Bygger block så du kan redigera smart." }
   ];
 
   let i = 0;
-  title.textContent = "Analyzing your CV";
-  meta.textContent  = "This usually takes 30–60 seconds.";
+  title.textContent = "Analyserar ditt CV";
+  meta.textContent  = "Detta tar oftast 30-60 sekunder.";
 
   clearInterval(uploadStepTimer);
   uploadStepTimer = setInterval(() => {
@@ -1205,7 +1170,6 @@ function startUploadStepText(){
     i++;
   }, 5500);
 }
-
 
 function stopUploadStepText(){
   clearInterval(uploadStepTimer);
