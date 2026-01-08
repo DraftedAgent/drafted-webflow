@@ -20,6 +20,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadBtn = document.getElementById("upload-btn");
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
+// DEBUG: verify previewWrap
+console.log("previewWrap found:", !!previewWrap);
+
+(function mountPreviewLoadingOverlayOnce() {
+  if (!previewWrap) return;
+
+  let overlay = previewWrap.querySelector(".cv-preview-loading");
+  if (overlay) {
+    console.log("cv-preview-loading already exists");
+    return;
+  }
+
+  overlay = document.createElement("div");
+  overlay.className = "cv-preview-loading";
+  overlay.innerHTML = `
+    <div class="inner">
+      <div class="row">
+        <span class="drafted-upload-spinner"></span>
+        <div>
+          <div class="title">Analyzing your CV</div>
+          <div class="meta">This usually takes around 60 seconds. Keep this tab open.</div>
+        </div>
+      </div>
+    </div>
+  `;
+  previewWrap.appendChild(overlay);
+  console.log("cv-preview-loading mounted");
+})();
+ 
   const targetRoleInput = document.getElementById("target-role-input");
 
   const editorPreviewEl =
