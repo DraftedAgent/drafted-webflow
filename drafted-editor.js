@@ -59,15 +59,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Force buttons visually active (your UX choice)
   function forceButtonsActiveLook() {
-  editorApplyBtn.style.opacity = "1";
-  editorApplyBtn.style.pointerEvents = "auto";
+    editorApplyBtn.disabled = false;
+    editorApplyBtn.style.opacity = "1";
+    editorApplyBtn.style.pointerEvents = "auto";
 
-  if (editorChatBtn) {
-    editorChatBtn.style.opacity = "1";
-    editorChatBtn.style.pointerEvents = "auto";
+    if (editorChatBtn) {
+      editorChatBtn.disabled = false;
+      editorChatBtn.style.opacity = "1";
+      editorChatBtn.style.pointerEvents = "auto";
+    }
   }
-}
-
   forceButtonsActiveLook();
 
   let currentUrl = null;
@@ -642,6 +643,7 @@ if (type === "education") {
   (degree && program) ? `${degree}, ${program}` :
   (degree || program);
 
+  const debugLine = `DEBUG: [${degree}] + [${program}] => [${nameLine}]`;
   
   // Line 2: Institution + Period
   let metaPieces = [];
@@ -790,7 +792,7 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     blocks: documentBlocksState // ALWAYS send full list
   };
 
-  // loading state for UI
+  // NEW: loading state for UI
   isGeneratingSuggestionPreview = true;
   clearAllProposalCards();
   appendProposalCard(pendingProposalMeta);
@@ -806,28 +808,11 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     });
 
     const raw = await res.text();
+    const data = JSON.parse(sanitizeLeadingGarbage(raw));
 
-if (!res.ok) {
-  return {
-    ok: false,
-    error: `Rewrite failed (${res.status})`
-  };
-}
-
-let data;
-try {
-  data = JSON.parse(sanitizeLeadingGarbage(raw));
-} catch {
-  return {
-    ok: false,
-    error: "Rewrite returned invalid JSON"
-  };
-}
-
-if (!data.ok) {
-  return { ok: false, error: data.error || "Rewrite flow error" };
-}
-
+    if (!data.ok) {
+      return { ok: false, error: data.error || "Rewrite flow error" };
+    }
 
     const nextBlocks = Array.isArray(data.blocks) ? data.blocks : null;
     if (!nextBlocks || !nextBlocks.length) {
@@ -867,19 +852,16 @@ if (!data.ok) {
     console.error(e);
     return { ok: false, error: "Rewrite fetch failed" };
   } finally {
-  setBusy(false);
-  forceButtonsActiveLook();
+    setBusy(false);
+    forceButtonsActiveLook();
 
-  isGeneratingSuggestionPreview = false;
-
-  // Om commitImmediately kördes, hoppa över card re-render
-  if (!commitImmediately){
+    // NEW: loading state off
+    isGeneratingSuggestionPreview = false;
     clearAllProposalCards();
     appendProposalCard(pendingProposalMeta);
     setApplyLabel();
   }
 }
-
   
 
   /* ===============================
@@ -1002,180 +984,79 @@ if (!data.ok) {
   /* ===============================
      UPLOAD -> RENDER (MAIN FLOW)
      =============================== */
-  async function handleUpload(){
-  const file = fileInput?.files?.[0];
-  if (!file){
-    alert("Välj en PDF först.");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("targetRole", targetRoleInput?.value?.trim() || "");
-
-  try{
-    setBusy(true);
-    setUploadLoading(true);
-    startUploadStepText();
-
-    const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
-const raw = await res.text();
-
-if (!res.ok){
-  throw new Error(`Upload failed: ${res.status} ${raw.slice(0, 200)}`);
-}
-
-let data;
-try{
-  data = JSON.parse(sanitizeLeadingGarbage(raw));
-}catch(e){
-  throw new Error("Upload returned invalid JSON");
-}
-
-    const blocks = Array.isArray(data.blocks) ? data.blocks : null;
-
-    const nextTitle = String(data.cvTitle || "").trim();
-    if (nextTitle) documentTitle = nextTitle;
-
-    const nextCvVersionId = String(data.cvVersionId || "").trim();
-    cvVersionId = nextCvVersionId || cvVersionId || null;
-
-    editorPreviewEl.removeAttribute("data-placeholder");
-    setCvLoadedUI(true);
-
-    if (blocks && blocks.length){
-      buildStateFromBlocks(blocks);
-    } else {
-      documentTextState = sanitizeLeadingGarbage(data.rewrittenCv || "");
-      documentBlocksState = null;
-      blockRangesById = {};
-    }
-
-    // reset selection / context
-    selectedBlockId = null;
-    selectedBlockIds = new Set();
-    lastClickedBlockId = null;
-    activeContext = "chat";
-
-    renderDocument(documentTextState);
-    clearNativeSelection();
-    updateContextChip();
-
-    // Reset chat UI + state for new CV
-    if (chatMessagesEl) chatMessagesEl.innerHTML = "";
-    chatHistory = [];
-    pendingProposal = null;
-    pendingProposalMeta = null;
-    isPreviewingProposal = false;
-    previewSnapshot = null;
-    clearAllProposalCards();
-    setApplyLabel();
-
-    const greeting =
-      "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
-    appendChat("assistant", greeting);
-
-  }catch(err){
-    console.error(err);
-
-    const meta = document.getElementById("upload-loading-meta");
-    if (meta) meta.textContent = "Något gick fel. Försök igen.";
-
-    alert("Fel vid uppladdning.");
-  }finally{
-    stopUploadStepText();
-    setUploadLoading(false);
-    setBusy(false);
-    forceButtonsActiveLook();
-  }
-}
-
-if (uploadBtn){
-  uploadBtn.addEventListener("click", (e) => {
+  uploadBtn.addEventListener("click", async e => {
     e.preventDefault();
-    handleUpload();
-  });
-}
 
-
-
-  /* ===============================
-   SHOW TEXTS/STATES AFTER 'UPLOAD-CV BUTTON' HAS BEEN PRESSED
-   =============================== */
-
-  function ensureUploadOverlay(){
-  if (!previewWrap) return null;
-  let el = previewWrap.querySelector(".cv-preview-loading");
-  if (el) return el;
-
-  el = document.createElement("div");
-  el.className = "cv-preview-loading";
-  el.innerHTML = `
-    <div class="panel">
-      <div class="row">
-        <span class="big-spinner" aria-hidden="true"></span>
-        <div>
-          <div class="title" id="upload-loading-title">Analyserar ditt CV</div>
-          <div class="meta" id="upload-loading-meta">Detta tar oftast 30-60 sekunder.</div>
-        </div>
-      </div>
-    </div>
-  `;
-  previewWrap.appendChild(el);
-  return el;
-}
-
-function setUploadLoading(isLoading){
-  ensureUploadOverlay();
-  if (!uploadBtn || !previewWrap) return;
-
-  uploadBtn.classList.toggle("is-loading", isLoading);
-  previewWrap.classList.toggle("is-loading", isLoading);
-
-  uploadBtn.disabled = isLoading;               
-  if (fileInput) fileInput.disabled = isLoading; 
-
-  if (isLoading){
-    if (!uploadBtn.querySelector(".btn-spinner")){
-      const sp = document.createElement("span");
-      sp.className = "btn-spinner";
-      uploadBtn.prepend(sp);
+    const file = fileInput.files?.[0];
+    if (!file) {
+      alert("Välj en PDF först.");
+      return;
     }
-  }
-}
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("targetRole", targetRoleInput?.value?.trim() || "");
+
+    try {
+      uploadBtn.disabled = true;
+
+      const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
+      const raw = await res.text();
+      const data = JSON.parse(sanitizeLeadingGarbage(raw));
+
+      const blocks = Array.isArray(data.blocks) ? data.blocks : null;
+
+      const nextTitle = String(data.cvTitle || "").trim();
+      if (nextTitle) documentTitle = nextTitle;
+
+      const nextCvVersionId = String(data.cvVersionId || "").trim();
+      cvVersionId = nextCvVersionId || cvVersionId || null;
+
+      editorPreviewEl.removeAttribute("data-placeholder");
+      setCvLoadedUI(true);
+
+      if (blocks && blocks.length) {
+        buildStateFromBlocks(blocks);
+      } else {
+        documentTextState = sanitizeLeadingGarbage(data.rewrittenCv || "");
+        documentBlocksState = null;
+        blockRangesById = {};
+      }
+
+      // reset selection / context
+      selectedBlockId = null;
+      selectedBlockIds = new Set();
+      lastClickedBlockId = null;
+      activeContext = "chat";
+
+      renderDocument(documentTextState);
+      clearNativeSelection();
+      updateContextChip();
+
+      // Reset chat UI + state for new CV
+      if (chatMessagesEl) chatMessagesEl.innerHTML = "";
+      chatHistory = [];
+      pendingProposal = null;
+      pendingProposalMeta = null;
+      isPreviewingProposal = false;
+      previewSnapshot = null;
+      clearAllProposalCards();
+      setApplyLabel();
 
 
-let uploadStepTimer = null;
-function startUploadStepText(){
-  const title = document.getElementById("upload-loading-title");
-  const meta  = document.getElementById("upload-loading-meta");
-  if (!title || !meta) return;
+      const greeting = "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
+      appendChat("assistant", greeting);
 
-  const steps = [
-    { t: "Läser filen", m: "Extraherar text och struktur." },
-    { t: "Identifierar sektioner", m: "Erfarenhet, utbildning, kompetenser och språk." },
-    { t: "Skapar en förbättrad version", m: "Anpassar språk, tydlighet och struktur." },
-    { t: "Förbereder editor-läge", m: "Bygger block så du kan redigera smart." }
-  ];
 
-  let i = 0;
-  title.textContent = "Analyserar ditt CV";
-  meta.textContent  = "Detta tar oftast 30-60 sekunder.";
 
-  clearInterval(uploadStepTimer);
-  uploadStepTimer = setInterval(() => {
-    const s = steps[i % steps.length];
-    title.textContent = s.t;
-    meta.textContent  = s.m;
-    i++;
-  }, 5500);
-}
-
-function stopUploadStepText(){
-  clearInterval(uploadStepTimer);
-  uploadStepTimer = null;
-}
-
+    } catch (err) {
+      console.error(err);
+      alert("Fel vid uppladdning.");
+    } finally {
+      uploadBtn.disabled = false;
+      forceButtonsActiveLook();
+    }
+  });
 
   /* ===============================
    PREVIEW / APPLY / DISMISS (NO CHAT NOISE)
@@ -1200,15 +1081,11 @@ function stopUploadStepText(){
   applySelectedBlocksUI();
   updateContextChip();
 
-  setPreviewMode(true);
-  markPreviewChangedBlocks(pendingProposalMeta?.changedBlockIds || []);
-
   setApplyLabel();
   clearAllProposalCards();
   appendProposalCard(pendingProposalMeta);
 }
 
-  
   function exitProposalPreview() {
   if (!isPreviewingProposal) return;
   isPreviewingProposal = false;
@@ -1217,15 +1094,11 @@ function stopUploadStepText(){
   previewSnapshot = null;
   restoreSnapshot(snap);
 
-  setPreviewMode(false);
-  markPreviewChangedBlocks([]);
-
   setApplyLabel();
   clearAllProposalCards();
   if (pendingProposal || pendingSuggestion) appendProposalCard(pendingProposalMeta);
 }
 
-  
   function applyProposal() {
   if (!pendingProposal?.blocks?.length) return;
 
@@ -1242,10 +1115,7 @@ function stopUploadStepText(){
   // clear preview state + proposal + suggestion
   isPreviewingProposal = false;
   previewSnapshot = null;
-    
-  setPreviewMode(false);
-  markPreviewChangedBlocks([]);
-    
+
   pendingProposal = null;
   pendingProposalMeta = null;
   pendingSuggestion = null;
@@ -1261,7 +1131,6 @@ function stopUploadStepText(){
   setApplyLabel();
 }
 
-  
   function dismissProposal() {
   // If previewing, revert
   if (isPreviewingProposal) {
@@ -1278,46 +1147,6 @@ function stopUploadStepText(){
   clearAllProposalCards();
   setApplyLabel();
 }
-
-  const editorPreviewWrap =
-  document.querySelector(".editor-preview-wrap") ||
-  (editorPreviewEl ? editorPreviewEl.parentElement : null);
-
-  
-function ensurePreviewBanner(){
-  if (!editorPreviewWrap) return null;
-  let b = editorPreviewWrap.querySelector(".drafted-preview-banner");
-  if (b) return b;
-
-  b = document.createElement("div");
-  b.className = "drafted-preview-banner";
-  b.innerHTML = `
-    <div class="left">Preview</div>
-    <div class="right">Detta är en förhandsvisning av ändringarna</div>
-  `;
-  editorPreviewWrap.prepend(b);
-  return b;
-}
-
-function setPreviewMode(isPreview){
-  if (!editorPreviewWrap) return;
-  ensurePreviewBanner();
-  editorPreviewWrap.classList.toggle("is-preview", isPreview);
-}
-
-/*
-  När du får preview-resultatet från n8n:
-  1) setPreviewMode(true)
-  2) markera vilka block som ändrats
-*/
-function markPreviewChangedBlocks(changedBlockIds){
-  const set = new Set(changedBlockIds || []);
-  document.querySelectorAll(".cv-block[data-block-id]").forEach(el => {
-    const id = el.getAttribute("data-block-id");
-    el.classList.toggle("is-preview-changed", set.has(id));
-  });
-}
-
 
   /* ===============================
    BUTTON HANDLERS (PREVIEW/APPLY)
@@ -1413,42 +1242,19 @@ async function sendChat() {
     });
 
     const raw = await res.text();
-console.log("CHAT_RAW", raw.slice(0, 1200));
+    console.log("CHAT_RAW", raw.slice(0, 1200));
 
-if (!res.ok){
-  appendChat("assistant", `Chat error (${res.status}). Try again.`);
-  pendingProposal = null;
-  pendingProposalMeta = null;
-  pendingSuggestion = null;
-  clearAllProposalCards();
-  setApplyLabel();
-  return;
-}
+    const data = JSON.parse(sanitizeLeadingGarbage(raw));
 
-let data;
-try{
-  data = JSON.parse(sanitizeLeadingGarbage(raw));
-}catch(parseErr){
-  console.error("Failed to parse chat response:", parseErr, raw);
-  appendChat("assistant", "Chat error. Invalid response from server.");
-  pendingProposal = null;
-  pendingProposalMeta = null;
-  pendingSuggestion = null;
-  clearAllProposalCards();
-  setApplyLabel();
-  return;
-}
-
-if (!data.ok) {
-  appendChat("assistant", data.error || "Chat error.");
-  pendingProposal = null;
-  pendingProposalMeta = null;
-  pendingSuggestion = null;
-  clearAllProposalCards();
-  setApplyLabel();
-  return;
-}
-
+    if (!data.ok) {
+      appendChat("assistant", data.error || "Chat error.");
+      pendingProposal = null;
+      pendingProposalMeta = null;
+      pendingSuggestion = null;
+      clearAllProposalCards();
+      setApplyLabel();
+      return;
+    }
 
     const assistantMsg = String(data.assistantMessage || "").trim() || "Okay.";
     appendChat("assistant", assistantMsg);
@@ -1535,9 +1341,11 @@ async function sendApply() {
   }
 
   // If suggestion exists but no proposal yet, generate+apply via rewrite flow
-  if (typeof fetchProposalFromSuggestion === "function" && pendingSuggestion && pendingSuggestion.instruction) {
+  if (pendingSuggestion && pendingSuggestion.instruction) {
     const r = await fetchProposalFromSuggestion({ commitImmediately: true });
-    if (!r.ok) appendChat("assistant", r.error || "Could not apply suggestion.");
+    if (!r.ok) {
+      appendChat("assistant", r.error || "Could not apply suggestion.");
+    }
     return;
   }
 
@@ -1577,17 +1385,7 @@ async function sendApply() {
     });
 
     const raw = await res.text();
-
-    if (!res.ok){
-      throw new Error(`Rewrite failed: ${res.status} ${raw.slice(0, 200)}`);
-    }
-
-    let data;
-    try{
-      data = JSON.parse(sanitizeLeadingGarbage(raw));
-    }catch(e){
-      throw new Error("Rewrite returned invalid JSON");
-    }
+    const data = JSON.parse(sanitizeLeadingGarbage(raw));
 
     if (!data.ok) {
       console.error("n8n error:", data);
@@ -1614,9 +1412,6 @@ async function sendApply() {
     pendingProposalMeta = null;
     isPreviewingProposal = false;
     previewSnapshot = null;
-
-    setPreviewMode(false);
-    markPreviewChangedBlocks([]);
 
     clearAllProposalCards();
     setApplyLabel();
