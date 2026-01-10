@@ -252,34 +252,40 @@
   gap: 12px;
 }
 
-/* Base bubble */
+/* Base bubble: layout + surface */
 .chat-message {
   max-width: 78%;
   padding: 14px 16px;
   border-radius: 16px;
   line-height: 1.35;
   white-space: pre-wrap;
-
-  /* IMPORTANT: readability */
   text-align: left;
+
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
 }
 
 /* AI bubble on left */
 .chat-message.ai {
   align-self: flex-start;
+  background: #ffffff;
 }
 
 /* User bubble on right (Messenger style) */
 .chat-message.user {
   align-self: flex-end;
-  text-align: left; /* keep left aligned even on right side */
+  background: rgba(0,0,0,0.04);
 }
 
-/* If you have system messages, treat as AI but still left-aligned */
+/* System message */
 .chat-message.system {
   align-self: flex-start;
-  text-align: left;
   opacity: 0.95;
+
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.06);
+  box-shadow: none;
 }
 
 
@@ -366,7 +372,7 @@
 .cv-exp-title {
   font-weight: 600;
   letter-spacing: normal !important;
-  text-transform: none
+  text-transform: none;
 }
 
 .cv-exp-meta {
@@ -386,7 +392,7 @@
 .cv-edu-degree {
   font-weight: 600;
   letter-spacing: normal !important;
-  text-transform: none
+  text-transform: none;
   margin-bottom: 2px;
 }
 
