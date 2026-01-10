@@ -124,6 +124,18 @@ console.log("previewWrap found:", !!previewWrap);
   editorPreviewEl.setAttribute("tabindex", "0");
   editorPreviewEl.setAttribute("data-placeholder", "true");
 
+  // Ensure editor placeholder is visible on first load
+(function ensureEditorPlaceholder() {
+  const isPlaceholder = editorPreviewEl.getAttribute("data-placeholder") === "true";
+  const hasContent = (editorPreviewEl.textContent || "").trim().length > 0;
+
+  if (isPlaceholder && !hasContent) {
+    editorPreviewEl.textContent =
+      "Upload a CV to see your rewritten draft here.\nYou’ll be able to select any part of the text and refine it through the editor.";
+  }
+})();
+
+
   function forceButtonsActiveLook() {
     editorApplyBtn.disabled = false;
     editorApplyBtn.style.opacity = "1";
@@ -1157,6 +1169,8 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
 
     editorPreviewEl.removeAttribute("data-placeholder");
     setCvLoadedUI(true);
+
+    editorPreviewEl.textContent = "";
 
     if (blocks && blocks.length) {
       buildStateFromBlocks(blocks);
