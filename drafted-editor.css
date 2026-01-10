@@ -275,7 +275,8 @@
 /* User bubble on right (Messenger style) */
 .chat-message.user {
   align-self: flex-end;
-  background: rgba(0,0,0,0.04);
+  background: #111;
+  color: #f7f7f7;
 }
 
 /* System message */
