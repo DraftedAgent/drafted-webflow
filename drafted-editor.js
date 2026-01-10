@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 );
 
   console.log("DRAFTED_BUILD_CHECK", "upload-overlay-test", "2026-01-08-1");
-window.__DRAFTED_BUILD__ = "upload-overlay-test-2026-01-08-1";
+  window.__DRAFTED_BUILD__ = "upload-overlay-test-2026-01-08-1";
 
 
   const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
@@ -26,7 +26,8 @@ window.__DRAFTED_BUILD__ = "upload-overlay-test-2026-01-08-1";
   const previewWrap = document.querySelector(".cv-preview-wrap");
   const editorDocument = document.querySelector(".cv-document"); 
   const editorPaper = document.querySelector(".cv-document-inner"); 
-console.log("previewWrap found:", !!previewWrap);
+  
+   console.log("previewWrap found:", !!previewWrap);
 
   // Original uploaded CV-preview (top one)
 (function mountPreviewLoadingOverlayOnce() {
@@ -86,6 +87,46 @@ console.log("previewWrap found:", !!previewWrap);
   console.log("editor-processing mounted");
 })();
 
+  function setEditorPlaceholder(isOn) {
+  if (!editorPaper) return;
+  editorPaper.classList.toggle("has-placeholder", !!isOn);
+}
+
+function setEditorProcessing(isOn) {
+  if (!editorPaper) return;
+  editorPaper.classList.toggle("is-processing", !!isOn);
+}
+
+  
+
+(function mountEditorPlaceholderOnce() {
+  if (!editorPaper) {
+    console.log("editorPaper not found (cv-document-inner)");
+    return;
+  }
+
+  let ph = editorPaper.querySelector(".editor-placeholder");
+  if (ph) {
+    console.log("editor-placeholder already exists");
+    return;
+  }
+
+  ph = document.createElement("div");
+  ph.className = "editor-placeholder";
+  ph.innerHTML = `
+    <div class="editor-placeholder__inner">
+      <div class="editor-placeholder__title">Upload a CV to begin</div>
+      <div class="editor-placeholder__meta">
+        Your rewritten CV will appear here. You’ll be able to select any part and refine it through the editor.
+      </div>
+    </div>
+  `;
+  editorPaper.appendChild(ph);
+  console.log("editor-placeholder mounted");
+})();
+
+  setEditorProcessing(false);
+  setEditorPlaceholder(true);
  
   const targetRoleInput = document.getElementById("target-role-input");
 
@@ -120,20 +161,7 @@ console.log("previewWrap found:", !!previewWrap);
   }
 
   console.log("✅ Drafted editor loaded");
-
   editorPreviewEl.setAttribute("tabindex", "0");
-  editorPreviewEl.setAttribute("data-placeholder", "true");
-
-  // Ensure editor placeholder is visible on first load
-(function ensureEditorPlaceholder() {
-  const isPlaceholder = editorPreviewEl.getAttribute("data-placeholder") === "true";
-  const hasContent = (editorPreviewEl.textContent || "").trim().length > 0;
-
-  if (isPlaceholder && !hasContent) {
-    editorPreviewEl.textContent =
-      "Upload a CV to see your rewritten draft here.\nYou’ll be able to select any part of the text and refine it through the editor.";
-  }
-})();
 
 
   function forceButtonsActiveLook() {
@@ -208,15 +236,6 @@ console.log("previewWrap found:", !!previewWrap);
       }
     }
   }
-
-  
-  function setEditorProcessing(isLoading) {
-  if (!editorPaper) return;
-
-  editorPaper.classList.toggle("is-processing", !!isLoading);
-}
-
-
   
   let currentUrl = null;
 
@@ -1083,7 +1102,6 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
      =============================== */
   editorPreviewEl.addEventListener("click", (e) => {
     if (!documentBlocksState || !documentBlocksState.length) return;
-    if (editorPreviewEl.getAttribute("data-placeholder") === "true") return;
 
     const blockEl = e.target.closest(".cv-block[data-block-id]");
     if (!blockEl || !editorPreviewEl.contains(blockEl)) return;
@@ -1146,6 +1164,7 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
 
   try {
     setUploadLoading(true);
+    setEditorPlaceholder(false);
     setEditorProcessing(true);
 
     const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
@@ -1167,7 +1186,6 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     const nextCvVersionId = String(data.cvVersionId || "").trim();
     cvVersionId = nextCvVersionId || cvVersionId || null;
 
-    editorPreviewEl.removeAttribute("data-placeholder");
     setCvLoadedUI(true);
 
     editorPreviewEl.textContent = "";
@@ -1186,6 +1204,7 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     activeContext = "chat";
 
     renderDocument(documentTextState);
+    setEditorProcessing(false);
     clearNativeSelection();
     updateContextChip();
 
@@ -1203,6 +1222,11 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
 
   } catch (err) {
     console.error(err);
+
+    setEditorProcessing(false);
+    setEditorPlaceholder(true);
+
+    
     alert("Fel vid uppladdning.");
   } finally {
     setUploadLoading(false);
