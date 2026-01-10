@@ -87,6 +87,8 @@
   overflow-wrap: anywhere;
 }
 
+
+
 /* ===============================
    Click-select blocks (premium + consistent padding)
    =============================== */
@@ -241,6 +243,7 @@
 }
 
 
+
 /* ===============================
    CHAT LAYOUT
    =============================== */
@@ -288,6 +291,7 @@
   border-color: rgba(0,0,0,0.06);
   box-shadow: none;
 }
+
 
 
 /* ===============================
@@ -345,7 +349,6 @@
   transform: translateY(0);
   box-shadow: none;
 }
-
 
 
 
@@ -504,4 +507,49 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+}
+
+
+/* Editor processing state (right panel) */
+.cv-document-inner { position: relative; }
+
+.editor-processing {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px;
+  pointer-events: none;
+}
+
+.cv-document-inner.is-processing .editor-processing {
+  display: flex;
+}
+
+.editor-processing__inner {
+  max-width: 460px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(0,0,0,0.06);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.editor-processing__title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.editor-processing__meta {
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.75;
+}
+
+/* Hide editor content while processing (without destroying state) */
+.cv-document-inner.is-processing > *:not(.editor-processing) {
+  visibility: hidden;
 }
