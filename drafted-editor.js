@@ -1124,6 +1124,8 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
   uploadBtn.addEventListener("click", async e => {
   e.preventDefault();
 
+  console.log("UPLOAD CLICKED");
+
   const file = fileInput.files?.[0];
   if (!file) {
     alert("Välj en PDF först.");
