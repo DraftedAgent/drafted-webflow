@@ -27,6 +27,7 @@ window.__DRAFTED_BUILD__ = "upload-overlay-test-2026-01-08-1";
 // DEBUG: verify previewWrap
 console.log("previewWrap found:", !!previewWrap);
 
+  // Original uploaded CV-preview (top one)
 (function mountPreviewLoadingOverlayOnce() {
   if (!previewWrap) return;
 
@@ -52,6 +53,38 @@ console.log("previewWrap found:", !!previewWrap);
   previewWrap.appendChild(overlay);
   console.log("cv-preview-loading mounted");
 })();
+
+// Rewritten CV-preview (editor)
+  (function mountEditorLoadingOverlayOnce() {
+  if (!editorPaper) {
+    console.log("editorPaper not found (cv-document-inner)");
+    return;
+  }
+
+  let overlay = editorPaper.querySelector(".editor-processing");
+  if (overlay) {
+    console.log("editor-processing already exists");
+    return;
+  }
+
+  // Make sure the paper can contain absolute overlay
+  editorPaper.style.position = editorPaper.style.position || "relative";
+
+  overlay = document.createElement("div");
+  overlay.className = "editor-processing";
+  overlay.innerHTML = `
+    <div class="editor-processing__inner">
+      <div class="editor-processing__title">Shaping your rewritten CV</div>
+      <div class="editor-processing__meta">
+        We’re restructuring for clarity, relevance, and role fit.<br/>
+        This usually takes about a minute.
+      </div>
+    </div>
+  `;
+  editorPaper.appendChild(overlay);
+  console.log("editor-processing mounted");
+})();
+
  
   const targetRoleInput = document.getElementById("target-role-input");
 
@@ -59,9 +92,14 @@ console.log("previewWrap found:", !!previewWrap);
     document.getElementById("editor-preview-text") ||
     document.querySelector(".cv-document-text");
 
+    // Editor preview surfaces (right panel)
+  const editorDocument = document.querySelector(".cv-document"); // grey desk
+  const editorPaper = document.querySelector(".cv-document-inner"); // white paper
+
+
   const editorInput = document.getElementById("editor-input");
-  const editorApplyBtn = document.getElementById("editor-send");        // Apply
-  const editorChatBtn  = document.getElementById("editor-chat-send");   // Send (chat)
+  const editorApplyBtn = document.getElementById("editor-send");       
+  const editorChatBtn  = document.getElementById("editor-chat-send");   
   const contextChipEl  = document.getElementById("context-chip");
   const chatMessagesEl = document.querySelector(".chat-messages");
 
@@ -90,7 +128,6 @@ console.log("previewWrap found:", !!previewWrap);
   editorPreviewEl.setAttribute("tabindex", "0");
   editorPreviewEl.setAttribute("data-placeholder", "true");
 
-  // Force buttons visually active (your UX choice)
   function forceButtonsActiveLook() {
     editorApplyBtn.disabled = false;
     editorApplyBtn.style.opacity = "1";
@@ -106,7 +143,7 @@ console.log("previewWrap found:", !!previewWrap);
 
 
    // ===============================
-  // Upload loading UI  (PUT THIS HERE)
+  // Upload loading UI 
   // ===============================
   const uploadBtnOriginalText = uploadBtn ? uploadBtn.textContent : "Upload CV";
 
@@ -163,6 +200,14 @@ console.log("previewWrap found:", !!previewWrap);
       }
     }
   }
+
+  
+  function setEditorProcessing(isLoading) {
+  if (!editorPaper) return;
+
+  editorPaper.classList.toggle("is-processing", !!isLoading);
+}
+
 
   
   let currentUrl = null;
@@ -267,7 +312,7 @@ console.log("previewWrap found:", !!previewWrap);
    PROPOSAL CARD UI (WITH LOADING)
    =============================== */
 
-let isGeneratingSuggestionPreview = false; // NEW
+let isGeneratingSuggestionPreview = false; 
 
 function appendProposalCard(meta) {
   if (!chatMessagesEl) return;
@@ -411,13 +456,13 @@ function setApplyLabel() {
      =============================== */
   let documentTextState = "";
   let documentBlocksState = null;
-  let blockRangesById = {}; // kept because buildStateFromBlocks populates it (useful for debug)
+  let blockRangesById = {}; 
   let documentTitle = "";
   let cvVersionId = null;
 
   // Selection state (multi blocks)
   let selectedBlockId = null;          // last clicked block (compat)
-  let selectedBlockIds = new Set();    // MULTI
+  let selectedBlockIds = new Set();  
   let lastClickedBlockId = null;       // shift anchor
 
   let chatHistory = [];        // { role: "user"|"assistant", content: string }
@@ -627,7 +672,6 @@ function setApplyLabel() {
     let educationHeadingRendered = false;
     let experienceHeadingRendered = false;
 
-    // Title on top
     if (documentTitle) {
       htmlParts.push(`
 <section class="cv-block cv-block--title">
@@ -635,7 +679,7 @@ function setApplyLabel() {
 </section>`.trim());
     }
 
-    // helper: try to extract a "degree/title line" from education text
+  
     function extractEducationNameFromText(rawText) {
       const text = String(rawText || "").trim();
       if (!text) return { name: "", rest: "" };
@@ -949,7 +993,6 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     setBusy(false);
     forceButtonsActiveLook();
 
-    // NEW: loading state off
     isGeneratingSuggestionPreview = false;
     clearAllProposalCards();
     appendProposalCard(pendingProposalMeta);
@@ -1093,6 +1136,7 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
 
   try {
     setUploadLoading(true);
+    setEditorProcessing(true);
 
     const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
     const raw = await res.text();
@@ -1150,6 +1194,7 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     alert("Fel vid uppladdning.");
   } finally {
     setUploadLoading(false);
+    setEditorProcessing(false);
     forceButtonsActiveLook();
   }
 });
