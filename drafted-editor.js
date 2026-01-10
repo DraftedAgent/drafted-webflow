@@ -24,7 +24,8 @@ window.__DRAFTED_BUILD__ = "upload-overlay-test-2026-01-08-1";
   const uploadBtn = document.getElementById("upload-btn");
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
-// DEBUG: verify previewWrap
+  const editorDocument = document.querySelector(".cv-document"); 
+  const editorPaper = document.querySelector(".cv-document-inner"); 
 console.log("previewWrap found:", !!previewWrap);
 
   // Original uploaded CV-preview (top one)
@@ -91,11 +92,6 @@ console.log("previewWrap found:", !!previewWrap);
   const editorPreviewEl =
     document.getElementById("editor-preview-text") ||
     document.querySelector(".cv-document-text");
-
-    // Editor preview surfaces (right panel)
-  const editorDocument = document.querySelector(".cv-document"); // grey desk
-  const editorPaper = document.querySelector(".cv-document-inner"); // white paper
-
 
   const editorInput = document.getElementById("editor-input");
   const editorApplyBtn = document.getElementById("editor-send");       
