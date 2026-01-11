@@ -101,17 +101,53 @@
   box-shadow: 0 10px 25px rgba(0,0,0,0.06);
 }
 
-/* EXPERIENCE: keep header centered */
+
+
+/* ===============================
+   LEFT ALIGN ONLY BODY TEXT (NOT HEADERS)
+   =============================== */
+
+/* SUMMARY: only the paragraph body left */
+.cv-block--summary .cv-block-body {
+  text-align: left;
+}
+
+/* EDUCATION: keep degree + meta centered, only description left */
+.cv-block--education .cv-edu-degree,
+.cv-block--education .cv-edu-meta {
+  text-align: center;
+}
+
+.cv-block--education .cv-block-body {
+  text-align: left;
+}
+
+/* SKILLS: keep heading centered, body left */
+.cv-block--skills .cv-block-heading {
+  text-align: center;
+}
+
+.cv-block--skills .cv-block-body {
+  text-align: left;
+}
+
+/* LANGUAGES: keep heading centered, body left */
+.cv-block--languages .cv-block-heading {
+  text-align: center;
+}
+
+.cv-block--languages .cv-block-body {
+  text-align: left;
+}
+
 .cv-block--experience .cv-exp-title,
 .cv-block--experience .cv-exp-meta {
   text-align: center;
 }
 
-/* EXPERIENCE: left-align only the body text (where your bullets live) */
 .cv-block--experience .cv-block-body {
   text-align: left;
 }
-
 
 
 /* ===============================
