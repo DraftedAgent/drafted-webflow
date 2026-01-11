@@ -1553,67 +1553,65 @@ async function sendChat() {
 
 const EDITOR_PLACEHOLDER_DEFAULT =
   (editorInput && editorInput.getAttribute("placeholder")) || "Write a message…";
-
 const EDITOR_PLACEHOLDER_PROCESSING = "Working on your draft…";
 
+  
 function setCommandBarLocked(isLocked) {
   const locked = !!isLocked;
+  const input = document.getElementById("editor-input");
+  const chatBtn = document.getElementById("editor-chat-send");
+  const applyBtn = document.getElementById("editor-send");
 
-  // Input
-  if (editorInput) {
-    // Store the original placeholder once
-    if (!editorInput.dataset.placeholderDefault) {
-      editorInput.dataset.placeholderDefault =
-        editorInput.getAttribute("placeholder") || EDITOR_PLACEHOLDER_DEFAULT;
+  if (input) {
+    if (!input.dataset.placeholderDefault) {
+      input.dataset.placeholderDefault =
+        input.getAttribute("placeholder") || "Write a message…";
     }
 
-    editorInput.disabled = locked;
-    editorInput.setAttribute("aria-disabled", locked ? "true" : "false");
+    input.disabled = locked;
+    input.setAttribute("aria-disabled", locked ? "true" : "false");
 
-    // Swap placeholder copy
-    editorInput.setAttribute(
+    input.setAttribute(
       "placeholder",
-      locked ? EDITOR_PLACEHOLDER_PROCESSING : (editorInput.dataset.placeholderDefault || EDITOR_PLACEHOLDER_DEFAULT)
+      locked
+        ? "Working on your draft…"
+        : input.dataset.placeholderDefault
     );
 
-    // Optional: remove focus if it’s locked mid-typing
-    if (locked && document.activeElement === editorInput) {
-      editorInput.blur();
+    if (locked && document.activeElement === input) {
+      input.blur();
     }
 
-    // Block Enter submissions while locked (and avoid duplicate listeners)
-    if (!editorInput.dataset.processingKeyguard) {
-      editorInput.dataset.processingKeyguard = "1";
+    if (!input.dataset.processingKeyguard) {
+      input.dataset.processingKeyguard = "1";
 
-      editorInput.addEventListener(
+      input.addEventListener(
         "keydown",
         (e) => {
-          // Detect processing via the same class you already toggle
-          const isProcessing = !!(editorPaper && editorPaper.classList.contains("is-processing"));
+          const isProcessing =
+            editorPaper && editorPaper.classList.contains("is-processing");
+
           if (!isProcessing) return;
 
-          // Prevent Enter from triggering any submit behavior
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
             return false;
           }
         },
-        true // capture so it beats other handlers
+        true
       );
     }
   }
 
   // Buttons
-  const btns = [editorChatBtn, editorApplyBtn];
-  btns.forEach((btn) => {
+  [chatBtn, applyBtn].forEach((btn) => {
     if (!btn) return;
     btn.disabled = locked;
     btn.setAttribute("aria-disabled", locked ? "true" : "false");
     btn.classList.toggle("is-locked", locked);
   });
 
-  // Optional: add a class to the row for styling if you want
   const row = document.querySelector(".chat-input-row");
   if (row) row.classList.toggle("is-locked", locked);
 }
@@ -1623,7 +1621,6 @@ function setCommandBarLocked(isLocked) {
   /* ===============================
    APPLY BUTTON (main Apply)
    =============================== */
-
 async function sendApply() {
   // If preview/proposal exists, apply locally
   if (pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length) {
