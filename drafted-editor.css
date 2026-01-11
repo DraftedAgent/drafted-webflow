@@ -36,6 +36,22 @@
   padding: 0 2px;
 }
 
+.cv-card {
+  position: relative;
+}
+
+.cv-actions-row {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 10px;
+  z-index: 20;
+  margin: 0;        
+  padding: 0;
+}
+
+
 /* ===== Force buttons to look active unless actually disabled ===== */
 #editor-send,
 #editor-chat-send{
