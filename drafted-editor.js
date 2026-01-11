@@ -8,11 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("DRAFTED_BUILD_CHECK", "upload-overlay-test", "2026-01-08-1");
   window.__DRAFTED_BUILD__ = "upload-overlay-test-2026-01-08-1";
 
-
   const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
   const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
   const N8N_CHAT_URL = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
 
+
+  
   /* ===============================
      ELEMENTS
      =============================== */
@@ -20,14 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("#cv-file-wrap input[type='file']") ||
     document.getElementById("cv-file") ||
     document.querySelector("input[type='file']");
-
   const uploadBtn = document.getElementById("upload-btn");
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
   const editorDocument = document.querySelector(".cv-document"); 
   const editorPaper = document.querySelector(".cv-document-inner"); 
   
-   console.log("previewWrap found:", !!previewWrap);
+  console.log("previewWrap found:", !!previewWrap);
 
   // Original uploaded CV-preview (top one)
 (function mountPreviewLoadingOverlayOnce() {
@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("cv-preview-loading mounted");
 })();
 
+  
 // Rewritten CV-preview (editor)
   (function mountEditorLoadingOverlayOnce() {
   if (!editorPaper) {
@@ -69,9 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Make sure the paper can contain absolute overlay
   editorPaper.style.position = editorPaper.style.position || "relative";
-
   overlay = document.createElement("div");
   overlay.className = "editor-processing";
   overlay.innerHTML = `
@@ -87,23 +86,22 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("editor-processing mounted");
 })();
 
+  
   function setEditorPlaceholder(isOn) {
   if (!editorPaper) return;
   editorPaper.classList.toggle("has-placeholder", !!isOn);
 }
 
+  
 function setEditorProcessing(isOn) {
   if (!editorPaper) return;
 
   const next = !!isOn;
 
-  // Single source of truth: one class drives everything
   editorPaper.classList.toggle("is-processing", next);
 
-  // Lock/unlock the command bar based on that state
   setCommandBarLocked(next);
 }
-
   
 
 (function mountEditorPlaceholderOnce() {
@@ -136,11 +134,9 @@ function setEditorProcessing(isOn) {
   setEditorPlaceholder(true);
  
   const targetRoleInput = document.getElementById("target-role-input");
-
   const editorPreviewEl =
     document.getElementById("editor-preview-text") ||
     document.querySelector(".cv-document-text");
-
   const editorInput = document.getElementById("editor-input");
   const editorApplyBtn = document.getElementById("editor-send");       
   const editorChatBtn  = document.getElementById("editor-chat-send");   
@@ -184,6 +180,7 @@ function setEditorProcessing(isOn) {
   }
   forceButtonsActiveLook();
 
+  
 
    // ===============================
   // Upload loading UI 
@@ -203,6 +200,7 @@ function setEditorProcessing(isOn) {
     return sp;
   }
 
+  
   function ensurePreviewLoadingOverlay() {
     if (!previewWrap) return null;
 
@@ -226,6 +224,7 @@ function setEditorProcessing(isOn) {
     return overlay;
   }
 
+  
   function setUploadLoading(isLoading) {
     const btnSpinner = ensureUploadButtonSpinner();
     ensurePreviewLoadingOverlay();
@@ -236,7 +235,6 @@ function setEditorProcessing(isOn) {
       uploadBtn.disabled = !!isLoading;
       uploadBtn.textContent = isLoading ? "Analyzing…" : uploadBtnOriginalText;
 
-      // textContent wipes children, so re-add spinner
       if (btnSpinner) {
         uploadBtn.prepend(btnSpinner);
         btnSpinner.hidden = !isLoading;
@@ -246,6 +244,8 @@ function setEditorProcessing(isOn) {
   
   let currentUrl = null;
 
+
+  
   /* ===============================
      HELPERS
      =============================== */
@@ -255,6 +255,7 @@ function setEditorProcessing(isOn) {
       .replace(/^=+/, "");
   }
 
+  
   function escapeHtml(str) {
     return String(str || "")
       .replace(/&/g, "&amp;")
@@ -264,10 +265,12 @@ function setEditorProcessing(isOn) {
       .replace(/'/g, "&#039;");
   }
 
+  
   function clearNativeSelection() {
     try { window.getSelection().removeAllRanges(); } catch (e) {}
   }
 
+  
   function setBusy(isBusy) {
     editorApplyBtn.disabled = isBusy;
     if (editorChatBtn) editorChatBtn.disabled = isBusy;
@@ -276,6 +279,7 @@ function setEditorProcessing(isOn) {
   // --- Defense-in-depth sanitation for leaked fields ---
   const FORBIDDEN_PREFIX_RE = /^(employer|title|startDate|endDate|degree|program|institution|order|type|label|blockId)\s*:\s*/i;
 
+  
   function stripLeakedFields(text) {
     const t = String(text || "");
     if (!t.trim()) return "";
@@ -302,21 +306,19 @@ function setEditorProcessing(isOn) {
 
     const firstRaw = (lines[0] || "").trim().replace(/^[-•\u2022]+\s*/, "");
     const first = normLite(firstRaw);
-
     const period = String(`${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`).trim();
     const needles = [a, b, period].map(normLite).filter(Boolean);
-
     const hit = needles.some(n => n && first.includes(n));
     if (hit) return lines.slice(1).join("\n").replace(/\n{3,}/g, "\n\n").trim();
 
     return cleaned;
   }
 
+  
   function appendChat(role, text) {
   const msg = String(text || "").trim();
   if (!msg) return;
 
-  // State
   chatHistory.push({ role: role === "user" ? "user" : "assistant", content: msg });
   if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
 
@@ -342,12 +344,13 @@ function setEditorProcessing(isOn) {
 }
 
 
+  
     /* ===============================
    PROPOSAL CARD UI (WITH LOADING)
    =============================== */
-
 let isGeneratingSuggestionPreview = false; 
 
+  
 function appendProposalCard(meta) {
   if (!chatMessagesEl) return;
 
@@ -358,11 +361,9 @@ function appendProposalCard(meta) {
 
   const changedCount = (meta?.changedBlockIds || []).length;
   const summary = Array.isArray(meta?.summaryOfChanges) ? meta.summaryOfChanges : [];
-
   const wrap = document.createElement("div");
   wrap.className = "chat-message ai drafted-proposal-card";
   wrap.style.textAlign = "left";
-
   const title = document.createElement("div");
   title.style.fontWeight = "600";
   title.textContent = hasProposal
@@ -398,7 +399,7 @@ function appendProposalCard(meta) {
   btnRow.style.gap = "10px";
   btnRow.style.marginTop = "12px";
 
-  // helper to build a button with optional spinner
+  
   function makeBtn(label, { busy = false } = {}) {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -423,10 +424,8 @@ function appendProposalCard(meta) {
     : (isGeneratingSuggestionPreview ? "Generating preview…" : "Preview");
 
   const applyLabel = isGeneratingSuggestionPreview ? "Applying…" : "Apply";
-
   const { btn: btnPreview, spinner: spPreview } = makeBtn(previewLabel, { busy: isGeneratingSuggestionPreview });
   const { btn: btnApply, spinner: spApply } = makeBtn(applyLabel, { busy: isGeneratingSuggestionPreview });
-
   const btnDismiss = document.createElement("button");
   btnDismiss.type = "button";
   btnDismiss.textContent = "Dismiss";
@@ -453,9 +452,7 @@ function appendProposalCard(meta) {
   btnRow.appendChild(btnPreview);
   btnRow.appendChild(btnApply);
   btnRow.appendChild(btnDismiss);
-
   wrap.appendChild(btnRow);
-
   chatMessagesEl.appendChild(wrap);
   chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
 }
@@ -466,6 +463,7 @@ function appendProposalCard(meta) {
   chatMessagesEl.querySelectorAll(".drafted-proposal-card").forEach(el => el.remove());
 }
 
+  
 function setApplyLabel() {
   if (!editorApplyBtn) return;
 
@@ -483,7 +481,6 @@ function setApplyLabel() {
 }
 
 
-
   
   /* ===============================
      STATE
@@ -493,24 +490,22 @@ function setApplyLabel() {
   let blockRangesById = {}; 
   let documentTitle = "";
   let cvVersionId = null;
-
-  // Selection state (multi blocks)
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
   let lastClickedBlockId = null;       // shift anchor
-
   let chatHistory = [];        // { role: "user"|"assistant", content: string }
   let pendingProposal = null;      // { cvVersionId, cvTitle, blocks, summaryOfChanges? }
   let pendingProposalMeta = null;  // { changedBlockIds: [], summaryOfChanges: [] }
   let pendingSuggestion = null;    // { mode:"blocks|full", selectedBlockIds:[], instruction:"..." }
-
   let isPreviewingProposal = false;
   let previewSnapshot = null;
 
+  
   function deepClone(obj) {
     try { return JSON.parse(JSON.stringify(obj)); } catch { return obj; }
   }
 
+  
   function snapshotCurrentState() {
     return {
       documentTextState,
@@ -525,6 +520,7 @@ function setApplyLabel() {
     };
   }
 
+  
   function restoreSnapshot(snap) {
     if (!snap) return;
 
@@ -533,7 +529,6 @@ function setApplyLabel() {
     blockRangesById = snap.blockRangesById || {};
     documentTitle = snap.documentTitle || "";
     cvVersionId = snap.cvVersionId || null;
-
     selectedBlockId = snap.selectedBlockId || null;
     selectedBlockIds = new Set(Array.from(snap.selectedBlockIds || []));
     lastClickedBlockId = snap.lastClickedBlockId || null;
@@ -544,10 +539,10 @@ function setApplyLabel() {
     updateContextChip();
   }
 
-
   let activeContext = "chat"; // "chat" | "blocks" | "full"
   let documentLanguage = "sv"; // "sv" | "en"
 
+  
   function t(key) {
     const dict = {
       sv: {
@@ -562,6 +557,8 @@ function setApplyLabel() {
     return (dict[documentLanguage] && dict[documentLanguage][key]) || (dict.sv[key] || key);
   }
 
+
+  
   /* ===============================
      MULTI SELECT HELPERS (BLOCKS)
      =============================== */
@@ -569,12 +566,14 @@ function setApplyLabel() {
     return Array.from(editorPreviewEl.querySelectorAll(".cv-block[data-block-id]"));
   }
 
+  
   function clearSelectedBlockUI() {
     editorPreviewEl.querySelectorAll(".cv-block.is-selected").forEach(el => {
       el.classList.remove("is-selected");
     });
   }
 
+  
   function applySelectedBlocksUI() {
     clearSelectedBlockUI();
     if (!selectedBlockIds || selectedBlockIds.size === 0) return;
@@ -585,6 +584,7 @@ function setApplyLabel() {
     }
   }
 
+  
   function toggleBlockSelection(id) {
     if (!id) return;
     if (selectedBlockIds.has(id)) selectedBlockIds.delete(id);
@@ -592,12 +592,12 @@ function setApplyLabel() {
     selectedBlockId = id;
   }
 
+  
   function addRangeSelection(anchorId, clickedId) {
     if (!anchorId || !clickedId) return;
 
     const blocks = getAllBlockElements();
     const ids = blocks.map(b => b.getAttribute("data-block-id")).filter(Boolean);
-
     const a = ids.indexOf(anchorId);
     const c = ids.indexOf(clickedId);
     if (a === -1 || c === -1) {
@@ -610,6 +610,7 @@ function setApplyLabel() {
     for (let i = start; i <= end; i++) selectedBlockIds.add(ids[i]);
   }
 
+  
   function clearBlockSelection(keepContext = "chat") {
     selectedBlockIds = new Set();
     selectedBlockId = null;
@@ -620,6 +621,7 @@ function setApplyLabel() {
     updateContextChip();
   }
 
+  
   function getSelectedBlocksPreview(maxChars = 110) {
     if (!documentBlocksState || !documentBlocksState.length) return "";
 
@@ -637,6 +639,8 @@ function setApplyLabel() {
     return joined.length > maxChars ? joined.slice(0, maxChars) + "…" : joined;
   }
 
+
+  
   /* ===============================
      BUILD STATE FROM BLOCKS
      =============================== */
@@ -694,6 +698,8 @@ function setApplyLabel() {
     });
   }
 
+
+  
   /* ===============================
      RENDER BLOCK HTML
      =============================== */
@@ -846,7 +852,6 @@ if (type === "education") {
   continue;
 }
 
-
       // ===== SKILLS =====
       if (type === "skills") {
         const text = stripLeakedFields(rawText);
@@ -905,7 +910,6 @@ if (type === "education") {
 /* ===============================
    PROPOSAL / SUGGESTION HELPERS
    =============================== */
-
 function computeChangedBlockIds(oldBlocks, newBlocks) {
   const oldById = new Map((Array.isArray(oldBlocks) ? oldBlocks : []).map(b => [String(b.blockId), b]));
   const changed = [];
@@ -930,10 +934,11 @@ function computeChangedBlockIds(oldBlocks, newBlocks) {
   return changed;
 }
 
+
+  
 /* ===============================
    FETCH PROPOSAL FROM SUGGESTION (WITH LOADING)
    =============================== */
-
 async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
   if (!pendingSuggestion || !pendingSuggestion.instruction) {
     return { ok: false, error: "No pendingSuggestion" };
@@ -964,7 +969,6 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     blocks: documentBlocksState // ALWAYS send full list
   };
 
-  // NEW: loading state for UI
   isGeneratingSuggestionPreview = true;
   clearAllProposalCards();
   appendProposalCard(pendingProposalMeta);
@@ -993,7 +997,6 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
 
     const nextTitle = String(data.cvTitle || "").trim() || (documentTitle || "");
     const nextCvVersionId = String(data.cvVersionId || "").trim() || (cvVersionId || null);
-
     const changedFromServer = Array.isArray(data.changedBlockIds) ? data.changedBlockIds.map(String) : null;
     const changedLocal = computeChangedBlockIds(documentBlocksState, nextBlocks);
     const changedBlockIds = (changedFromServer && changedFromServer.length) ? changedFromServer : changedLocal;
@@ -1104,6 +1107,8 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     });
   }
 
+
+  
   /* ===============================
      BLOCK CLICK SELECTION (MULTI)
      =============================== */
@@ -1137,6 +1142,8 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     updateContextChip();
   });
 
+
+  
   /* ===============================
      FILE PREVIEW
      =============================== */
@@ -1151,10 +1158,12 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     previewWrap?.classList.add("has-file");
   });
 
+
+  
   /* ===============================
      UPLOAD -> RENDER (MAIN FLOW)
      =============================== */
-  uploadBtn.addEventListener("click", async e => {
+  uploadBtn.addEventListener("click", async (e) => {
   e.preventDefault();
 
   console.log("UPLOAD CLICKED");
@@ -1211,7 +1220,6 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     activeContext = "chat";
 
     renderDocument(documentTextState);
-    setEditorProcessing(false);
     clearNativeSelection();
     updateContextChip();
 
@@ -1224,23 +1232,24 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     clearAllProposalCards();
     setApplyLabel();
 
-    const greeting = "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
+    const greeting =
+      "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
     appendChat("assistant", greeting);
-
   } catch (err) {
     console.error(err);
 
-    setEditorProcessing(false);
+    // Error UI state (but do NOT touch processing here)
     setEditorPlaceholder(true);
 
-    
     alert("Fel vid uppladdning.");
   } finally {
+    // Single exit point: always restore UI here
     setUploadLoading(false);
     setEditorProcessing(false);
     forceButtonsActiveLook();
   }
 });
+
 
 
   /* ===============================
