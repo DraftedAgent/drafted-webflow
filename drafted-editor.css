@@ -399,6 +399,7 @@
 /* Global default: body text is left-aligned */
 .cv-block-body {
   text-align: left;
+  padding: 12px;
 }
 
 /* ===============================
