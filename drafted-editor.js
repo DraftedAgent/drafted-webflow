@@ -1218,16 +1218,46 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     setEditorPlaceholder(false);
     setEditorProcessing(true);
 
-    const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
-    const raw = await res.text();
+   const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
+const raw = await res.text();
 
-    // Hard fail if server responded with error (you want to know)
-    if (!res.ok) {
-      console.error("Upload failed:", res.status, raw);
-      throw new Error("Upload failed: " + res.status);
-    }
+console.log("UPLOAD_RES", {
+  ok: res.ok,
+  status: res.status,
+  contentType: res.headers.get("content-type"),
+  rawLen: raw ? raw.length : 0,
+  rawHead: (raw || "").slice(0, 240)
+});
 
-    const data = JSON.parse(sanitizeLeadingGarbage(raw));
+// Hard fail if server responded with error (you want to know)
+if (!res.ok) {
+  console.error("Upload failed:", res.status, raw);
+  throw new Error("Upload failed: " + res.status);
+}
+
+const cleaned = sanitizeLeadingGarbage(raw || "").trim();
+
+// Guard: empty body
+if (!cleaned) {
+  console.error("Upload returned empty body");
+  throw new Error("Upload returned empty response body");
+}
+
+// Guard: not JSON (often HTML error page)
+const ct = (res.headers.get("content-type") || "").toLowerCase();
+const looksJson = cleaned.startsWith("{") || cleaned.startsWith("[");
+if (!looksJson && !ct.includes("application/json")) {
+  console.error("Upload returned non-JSON body head:", cleaned.slice(0, 600));
+  throw new Error("Upload returned non-JSON response");
+}
+
+let data;
+try {
+  data = JSON.parse(cleaned);
+} catch (e) {
+  console.error("Upload JSON.parse failed. Body head:", cleaned.slice(0, 800));
+  throw e;
+}
 
     const blocks = Array.isArray(data.blocks) ? data.blocks : null;
 
