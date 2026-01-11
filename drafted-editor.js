@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewWrap = document.querySelector(".cv-preview-wrap");
   const editorDocument = document.querySelector(".cv-document"); 
   const editorPaper = document.querySelector(".cv-document-inner"); 
+
+  // Global lock shared across all listeners / duplicate bindings
+  window.__DRAFTED_CHAT__ = window.__DRAFTED_CHAT__ || { inFlight: false };
   
   console.log("previewWrap found:", !!previewWrap);
 
@@ -1427,19 +1430,20 @@ async function handlePreviewClick() {
    =============================== */
 
 async function sendChat() {
-  // Hard guard: Webflow can still fire handlers even if UI looks disabled
+  // Block during upload-processing lock
   if (editorPaper && editorPaper.classList.contains("is-processing")) {
-    console.log("⛔ sendChat blocked: editor is processing");
     return;
   }
 
- // Block if a chat request is already running (prevents double-submit even if Webflow fires)
-  if (sendChat._inFlight) {
-    console.log("⛔ sendChat blocked: in-flight");
+  // Hard global guard (works even if multiple listeners exist)
+  if (window.__DRAFTED_CHAT__?.inFlight) {
     return;
   }
-  
-  console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
+
+  // Also block if UI is already busy/disabled (extra defense)
+  if ((editorChatBtn && editorChatBtn.disabled) || (editorInput && editorInput.disabled)) {
+    return;
+  }
 
   const msg = (editorInput?.value || "").trim();
   if (!msg) return;
@@ -1449,6 +1453,12 @@ async function sendChat() {
     appendChat("assistant", "Upload a CV first so I can suggest improvements.");
     return;
   }
+
+  // Lock immediately BEFORE any async work
+  window.__DRAFTED_CHAT__.inFlight = true;
+  setBusy(true);
+
+  console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
 
   appendChat("user", msg);
   editorInput.value = "";
@@ -1465,14 +1475,12 @@ async function sendChat() {
     language: documentLanguage || "sv",
     mode,
     selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
-    blocks: documentBlocksState, // chat flow may trim internally but we send full list
+    blocks: documentBlocksState,
     history: chatHistory.slice(-12),
     message: msg
   };
 
   try {
-    setBusy(true);
-
     const res = await fetch(N8N_CHAT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1517,7 +1525,6 @@ async function sendChat() {
 
     const intent = String(data.intent || "").trim().toLowerCase();
 
-    // Legacy proposal support (if you ever re-enable it)
     if (
       intent === "proposal" &&
       data.proposal &&
@@ -1535,7 +1542,6 @@ async function sendChat() {
       return;
     }
 
-    // New suggestion support
     if (intent === "suggestion" && data.suggestion && typeof data.suggestion === "object") {
       const sugMode = String(data.suggestion.mode || "").toLowerCase();
       const sugInstruction = String(data.suggestion.instruction || "").trim();
@@ -1577,12 +1583,14 @@ async function sendChat() {
     pendingSuggestion = null;
     clearAllProposalCards();
     setApplyLabel();
-    } finally {
-    sendChat._inFlight = false;
+  } finally {
+    // Always release lock
+    window.__DRAFTED_CHAT__.inFlight = false;
     setBusy(false);
     forceButtonsActiveLook();
   }
 }
+
 
 
 
@@ -1767,11 +1775,11 @@ async function sendApply() {
 
     editorInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
-    // Do nothing while processing or busy
     const isProcessing = editorPaper && editorPaper.classList.contains("is-processing");
+    const isInFlight = !!window.__DRAFTED_CHAT__?.inFlight;
     const isBusy = !!(editorChatBtn && editorChatBtn.disabled);
 
-    if (isProcessing || isBusy || sendChat._inFlight) {
+    if (isProcessing || isInFlight || isBusy) {
       e.preventDefault();
       return;
     }
@@ -1780,6 +1788,7 @@ async function sendApply() {
     sendChat();
   }
 });
+
 
 
   window.addEventListener("beforeunload", () => {
