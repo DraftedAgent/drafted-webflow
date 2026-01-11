@@ -1488,20 +1488,68 @@ async function sendChat() {
     });
 
     const raw = await res.text();
-    console.log("CHAT_RAW", raw.slice(0, 1200));
 
-    if (!res.ok) {
-      console.error("Chat failed:", res.status, raw);
-      appendChat("assistant", "Chat error. Try again.");
-      pendingProposal = null;
-      pendingProposalMeta = null;
-      pendingSuggestion = null;
-      clearAllProposalCards();
-      setApplyLabel();
-      return;
-    }
+console.log("CHAT_RES", {
+  ok: res.ok,
+  status: res.status,
+  contentType: res.headers.get("content-type"),
+  rawLen: raw ? raw.length : 0,
+  rawHead: (raw || "").slice(0, 240)
+});
 
-    const data = JSON.parse(sanitizeLeadingGarbage(raw));
+console.log("CHAT_RAW", (raw || "").slice(0, 1200));
+
+if (!res.ok) {
+  console.error("Chat failed:", res.status, raw);
+  appendChat("assistant", "Chat error. Try again.");
+  pendingProposal = null;
+  pendingProposalMeta = null;
+  pendingSuggestion = null;
+  clearAllProposalCards();
+  setApplyLabel();
+  return;
+}
+
+// Guard: empty body
+const cleaned = sanitizeLeadingGarbage(raw || "").trim();
+if (!cleaned) {
+  console.error("Chat returned empty body");
+  appendChat("assistant", "Chat error (empty response). Try again.");
+  pendingProposal = null;
+  pendingProposalMeta = null;
+  pendingSuggestion = null;
+  clearAllProposalCards();
+  setApplyLabel();
+  return;
+}
+
+// Guard: not JSON (often HTML error page)
+const ct = (res.headers.get("content-type") || "").toLowerCase();
+const looksJson = cleaned.startsWith("{") || cleaned.startsWith("[");
+if (!looksJson && !ct.includes("application/json")) {
+  console.error("Chat returned non-JSON body head:", cleaned.slice(0, 600));
+  appendChat("assistant", "Chat error (non-JSON response). Try again.");
+  pendingProposal = null;
+  pendingProposalMeta = null;
+  pendingSuggestion = null;
+  clearAllProposalCards();
+  setApplyLabel();
+  return;
+}
+
+let data;
+try {
+  data = JSON.parse(cleaned);
+} catch (e) {
+  console.error("Chat JSON.parse failed. Body head:", cleaned.slice(0, 800));
+  appendChat("assistant", "Chat error (invalid JSON). Try again.");
+  pendingProposal = null;
+  pendingProposalMeta = null;
+  pendingSuggestion = null;
+  clearAllProposalCards();
+  setApplyLabel();
+  return;
+}
 
     if (!data.ok) {
       appendChat("assistant", data.error || "Chat error.");
