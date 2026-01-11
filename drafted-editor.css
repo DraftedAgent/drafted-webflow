@@ -101,6 +101,17 @@
   box-shadow: 0 10px 25px rgba(0,0,0,0.06);
 }
 
+/* EXPERIENCE: keep header centered */
+.cv-block--experience .cv-exp-title,
+.cv-block--experience .cv-exp-meta {
+  text-align: center;
+}
+
+/* EXPERIENCE: left-align only the body text (where your bullets live) */
+.cv-block--experience .cv-block-body {
+  text-align: left;
+}
+
 
 
 /* ===============================
