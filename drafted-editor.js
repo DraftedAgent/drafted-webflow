@@ -1395,9 +1395,15 @@ async function handlePreviewClick() {
    =============================== */
 
 async function sendChat() {
+  // Hard guard: Webflow can still fire handlers even if UI looks disabled
+  if (editorPaper && editorPaper.classList.contains("is-processing")) {
+    console.log("⛔ sendChat blocked: editor is processing");
+    return;
+  }
+
   console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
 
-  const msg = editorInput.value.trim();
+  const msg = (editorInput?.value || "").trim();
   if (!msg) return;
 
   const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
@@ -1438,6 +1444,17 @@ async function sendChat() {
     const raw = await res.text();
     console.log("CHAT_RAW", raw.slice(0, 1200));
 
+    if (!res.ok) {
+      console.error("Chat failed:", res.status, raw);
+      appendChat("assistant", "Chat error. Try again.");
+      pendingProposal = null;
+      pendingProposalMeta = null;
+      pendingSuggestion = null;
+      clearAllProposalCards();
+      setApplyLabel();
+      return;
+    }
+
     const data = JSON.parse(sanitizeLeadingGarbage(raw));
 
     if (!data.ok) {
@@ -1463,7 +1480,12 @@ async function sendChat() {
     const intent = String(data.intent || "").trim().toLowerCase();
 
     // Legacy proposal support (if you ever re-enable it)
-    if (intent === "proposal" && data.proposal && Array.isArray(data.proposal.blocks) && data.proposal.blocks.length) {
+    if (
+      intent === "proposal" &&
+      data.proposal &&
+      Array.isArray(data.proposal.blocks) &&
+      data.proposal.blocks.length
+    ) {
       pendingProposal = data.proposal;
       pendingProposalMeta = {
         changedBlockIds: Array.isArray(data.changedBlockIds) ? data.changedBlockIds : [],
@@ -1479,7 +1501,9 @@ async function sendChat() {
     if (intent === "suggestion" && data.suggestion && typeof data.suggestion === "object") {
       const sugMode = String(data.suggestion.mode || "").toLowerCase();
       const sugInstruction = String(data.suggestion.instruction || "").trim();
-      const sugIds = Array.isArray(data.suggestion.selectedBlockIds) ? data.suggestion.selectedBlockIds.map(String) : [];
+      const sugIds = Array.isArray(data.suggestion.selectedBlockIds)
+        ? data.suggestion.selectedBlockIds.map(String)
+        : [];
 
       if (!sugInstruction) {
         clearAllProposalCards();
