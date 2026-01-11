@@ -162,6 +162,16 @@ function setEditorProcessing(isOn) {
     });
   }
 
+  
+  function updatePreviewHeaderVisibility() {
+  const hasCv = !!(documentBlocksState && documentBlocksState.length);
+  const titleEl = document.querySelector(".cv-card-title");
+  if (!titleEl) return;
+
+  titleEl.style.display = hasCv ? "none" : "";
+}
+
+
   if (!fileInput || !uploadBtn || !editorPreviewEl || !editorInput || !editorApplyBtn || !contextChipEl) {
   console.error("❌ Missing required DOM elements", {
     fileInput: !!fileInput,
@@ -1280,10 +1290,17 @@ try {
 
     if (blocks && blocks.length) {
       buildStateFromBlocks(blocks);
+
+      // hide preview card title when CV exists
+     updatePreviewHeaderVisibility();
+      
     } else {
       documentTextState = sanitizeLeadingGarbage(data.rewrittenCv || "");
       documentBlocksState = null;
       blockRangesById = {};
+
+      // ensure title shows if no blocks
+      updatePreviewHeaderVisibility();
     }
 
     selectedBlockId = null;
