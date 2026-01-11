@@ -130,9 +130,6 @@ function setEditorProcessing(isOn) {
   console.log("editor-placeholder mounted");
 })();
 
-  setEditorProcessing(false);
-  setEditorPlaceholder(true);
- 
   const targetRoleInput = document.getElementById("target-role-input");
   const editorPreviewEl =
     document.getElementById("editor-preview-text") ||
@@ -179,8 +176,8 @@ function setEditorProcessing(isOn) {
     }
   }
   forceButtonsActiveLook();
-
-  
+  setEditorProcessing(false);
+  setEditorPlaceholder(true);
 
    // ===============================
   // Upload loading UI 
@@ -1550,12 +1547,6 @@ async function sendChat() {
   /* ===============================
    COMMAND BAR LOCK (processing)
    =============================== */
-
-const EDITOR_PLACEHOLDER_DEFAULT =
-  (editorInput && editorInput.getAttribute("placeholder")) || "Write a message…";
-const EDITOR_PLACEHOLDER_PROCESSING = "Working on your draft…";
-
-  
 function setCommandBarLocked(isLocked) {
   const locked = !!isLocked;
   const input = document.getElementById("editor-input");
