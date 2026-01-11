@@ -106,8 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("setEditorPlaceholder", { on, hasPh: !!ph, classOn: editorPaper.classList.contains("has-placeholder") });
 }
 
-
-
   
 function setEditorProcessing(isOn) {
   if (!editorPaper) return;
@@ -319,7 +317,6 @@ forceButtonsActiveLook();
 
   forceButtonsActiveLook();
 }
-
 
   // --- Defense-in-depth sanitation for leaked fields ---
   const FORBIDDEN_PREFIX_RE = /^(employer|title|startDate|endDate|degree|program|institution|order|type|label|blockId)\s*:\s*/i;
