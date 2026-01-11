@@ -95,13 +95,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const on = !!isOn;
 
-  // Toggle a state class for styling if you want
   editorPaper.classList.toggle("has-placeholder", on);
 
-  // Actually hide/show the real placeholder element you appended
   const ph = editorPaper.querySelector(".editor-placeholder");
-  if (ph) ph.style.display = on ? "" : "none";
+  if (ph) {
+    ph.style.display = on ? "" : "none"; // extra hard override
+    ph.setAttribute("aria-hidden", on ? "false" : "true");
+  }
+
+  console.log("setEditorPlaceholder", { on, hasPh: !!ph, classOn: editorPaper.classList.contains("has-placeholder") });
 }
+
 
 
   
