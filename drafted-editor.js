@@ -92,8 +92,17 @@ document.addEventListener("DOMContentLoaded", () => {
   
   function setEditorPlaceholder(isOn) {
   if (!editorPaper) return;
-  editorPaper.classList.toggle("has-placeholder", !!isOn);
+
+  const on = !!isOn;
+
+  // Toggle a state class for styling if you want
+  editorPaper.classList.toggle("has-placeholder", on);
+
+  // Actually hide/show the real placeholder element you appended
+  const ph = editorPaper.querySelector(".editor-placeholder");
+  if (ph) ph.style.display = on ? "" : "none";
 }
+
 
   
 function setEditorProcessing(isOn) {
@@ -195,9 +204,6 @@ forceButtonsActiveLook();
     editorInput.style.pointerEvents = editorInput.disabled ? "none" : "auto";
   }
 }
-  setEditorProcessing(false);
-  setEditorPlaceholder(true);
-  forceButtonsActiveLook();
 
    // ===============================
   // Upload loading UI 
@@ -1268,7 +1274,7 @@ try {
     cvVersionId = nextCvVersionId || cvVersionId || null;
 
     setCvLoadedUI(true);
-
+    setEditorPlaceholder(false);
     editorPreviewEl.textContent = "";
 
     if (blocks && blocks.length) {
@@ -1877,6 +1883,7 @@ async function sendApply() {
      INITIAL
      =============================== */
   setCvLoadedUI(false);
+  setEditorPlaceholder(true);
   renderDocument("");
   updateContextChip();
   setApplyLabel();
