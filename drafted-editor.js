@@ -149,35 +149,52 @@ function setEditorProcessing(isOn) {
   }
 
   if (!fileInput || !uploadBtn || !editorPreviewEl || !editorInput || !editorApplyBtn || !contextChipEl) {
-    console.error("❌ Missing required DOM elements", {
-      fileInput: !!fileInput,
-      uploadBtn: !!uploadBtn,
-      editorPreviewEl: !!editorPreviewEl,
-      editorInput: !!editorInput,
-      editorApplyBtn: !!editorApplyBtn,
-      contextChipEl: !!contextChipEl
-    });
-    return;
-  }
+  console.error("❌ Missing required DOM elements", {
+    fileInput: !!fileInput,
+    uploadBtn: !!uploadBtn,
+    editorPreviewEl: !!editorPreviewEl,
+    editorInput: !!editorInput,
+    editorApplyBtn: !!editorApplyBtn,
+    contextChipEl: !!contextChipEl
+  });
+  return;
+}
 
-  console.log("✅ Drafted editor loaded");
+console.log("✅ Drafted editor loaded");
+
+// Initial UI state — safe to run now
+setEditorProcessing(false);
+setEditorPlaceholder(true);
+forceButtonsActiveLook();
   editorPreviewEl.setAttribute("tabindex", "0");
 
 
   function forceButtonsActiveLook() {
-    editorApplyBtn.disabled = false;
-    editorApplyBtn.style.opacity = "1";
-    editorApplyBtn.style.pointerEvents = "auto";
+  const isProcessing = !!(editorPaper && editorPaper.classList.contains("is-processing"));
 
-    if (editorChatBtn) {
-      editorChatBtn.disabled = false;
-      editorChatBtn.style.opacity = "1";
-      editorChatBtn.style.pointerEvents = "auto";
+  // Never override lock state
+  if (isProcessing) return;
+
+  const btns = [editorApplyBtn, editorChatBtn].filter(Boolean);
+
+  btns.forEach((btn) => {
+    if (btn.disabled) {
+      btn.style.opacity = "0.6";
+      btn.style.pointerEvents = "none";
+    } else {
+      btn.style.opacity = "1";
+      btn.style.pointerEvents = "auto";
     }
+  });
+
+  if (editorInput) {
+    editorInput.style.opacity = editorInput.disabled ? "0.7" : "1";
+    editorInput.style.pointerEvents = editorInput.disabled ? "none" : "auto";
   }
-  forceButtonsActiveLook();
+}
   setEditorProcessing(false);
   setEditorPlaceholder(true);
+  forceButtonsActiveLook();
 
    // ===============================
   // Upload loading UI 
@@ -269,9 +286,27 @@ function setEditorProcessing(isOn) {
 
   
   function setBusy(isBusy) {
-    editorApplyBtn.disabled = isBusy;
-    if (editorChatBtn) editorChatBtn.disabled = isBusy;
+  const busy = !!isBusy;
+
+  editorApplyBtn.disabled = busy;
+  if (editorChatBtn) editorChatBtn.disabled = busy;
+
+  if (editorInput) {
+    editorInput.disabled = busy;
+    editorInput.setAttribute("aria-disabled", busy ? "true" : "false");
+
+    // Placeholder swap (keep it clean)
+    if (!editorInput.dataset.placeholderDefault) {
+      editorInput.dataset.placeholderDefault = editorInput.getAttribute("placeholder") || "Describe the change…";
+    }
+    editorInput.setAttribute("placeholder", busy ? "Working on your draft…" : editorInput.dataset.placeholderDefault);
+
+    if (busy && document.activeElement === editorInput) editorInput.blur();
   }
+
+  forceButtonsActiveLook();
+}
+
 
   // --- Defense-in-depth sanitation for leaked fields ---
   const FORBIDDEN_PREFIX_RE = /^(employer|title|startDate|endDate|degree|program|institution|order|type|label|blockId)\s*:\s*/i;
@@ -1398,6 +1433,12 @@ async function sendChat() {
     return;
   }
 
+ // Block if a chat request is already running (prevents double-submit even if Webflow fires)
+  if (sendChat._inFlight) {
+    console.log("⛔ sendChat blocked: in-flight");
+    return;
+  }
+  
   console.log("✅ sendChat(fetch) is running", { N8N_CHAT_URL });
 
   const msg = (editorInput?.value || "").trim();
@@ -1536,11 +1577,13 @@ async function sendChat() {
     pendingSuggestion = null;
     clearAllProposalCards();
     setApplyLabel();
-  } finally {
+    } finally {
+    sendChat._inFlight = false;
     setBusy(false);
     forceButtonsActiveLook();
   }
 }
+
 
 
 
@@ -1722,13 +1765,22 @@ async function sendApply() {
     });
   }
 
-    editorInput.addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    editorInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    // Do nothing while processing or busy
+    const isProcessing = editorPaper && editorPaper.classList.contains("is-processing");
+    const isBusy = !!(editorChatBtn && editorChatBtn.disabled);
+
+    if (isProcessing || isBusy || sendChat._inFlight) {
       e.preventDefault();
-      // Prefer chat on Enter
-      sendChat();
+      return;
     }
-  });
+
+    e.preventDefault();
+    sendChat();
+  }
+});
+
 
   window.addEventListener("beforeunload", () => {
     if (currentUrl) URL.revokeObjectURL(currentUrl);
