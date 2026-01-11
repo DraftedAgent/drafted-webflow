@@ -165,11 +165,22 @@ function setEditorProcessing(isOn) {
   
   function updatePreviewHeaderVisibility() {
   const hasCv = !!(documentBlocksState && documentBlocksState.length);
-  const titleEl = document.querySelector(".cv-card-title");
-  if (!titleEl) return;
 
-  titleEl.style.display = hasCv ? "none" : "";
+  const titleEl = document.querySelector(".cv-card-title");
+  if (titleEl) titleEl.style.display = hasCv ? "none" : "";
+
+  const descEl = document.querySelector(".cv-card-description");
+  if (descEl) descEl.style.display = hasCv ? "none" : "";
+
+  // ✅ NEW: show tools only when CV exists
+  const toolsEl = document.querySelector(".cv-tools");
+  if (toolsEl) toolsEl.style.display = hasCv ? "flex" : "none";
+
+  // optional: padding only when loaded
+  const docEl = document.querySelector(".cv-document");
+  if (docEl) docEl.classList.toggle("is-loaded", hasCv);
 }
+
 
 
   if (!fileInput || !uploadBtn || !editorPreviewEl || !editorInput || !editorApplyBtn || !contextChipEl) {
