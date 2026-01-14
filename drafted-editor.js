@@ -167,16 +167,16 @@ function setEditorProcessing(isOn) {
 
 
   if (!fileInput || !uploadBtn || !editorPreviewEl || !editorInput || !editorApplyBtn || !contextChipEl) {
-  console.error("❌ Missing required DOM elements", {
-    fileInput: !!fileInput,
-    uploadBtn: !!uploadBtn,
-    editorPreviewEl: !!editorPreviewEl,
-    editorInput: !!editorInput,
-    editorApplyBtn: !!editorApplyBtn,
-    contextChipEl: !!contextChipEl
-  });
-  return;
-}
+    console.error("❌ Missing required DOM elements", {
+      fileInput: !!fileInput,
+      uploadBtn: !!uploadBtn,
+      editorPreviewEl: !!editorPreviewEl,
+      editorInput: !!editorInput,
+      editorApplyBtn: !!editorApplyBtn,
+      contextChipEl: !!contextChipEl
+    });
+    throw new Error("Missing required Drafted editor DOM elements");
+  }
 
 console.log("✅ Drafted editor loaded");
 
