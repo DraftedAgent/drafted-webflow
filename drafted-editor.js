@@ -1,5 +1,12 @@
 console.log("🚀 drafted-editor.js executing");
 
+// ===============================
+// n8n endpoints (GLOBAL CONFIG)
+// ===============================
+const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
+const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
+const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
+
   const fileInput =
     document.querySelector("#cv-file-wrap input[type='file']") ||
     document.getElementById("cv-file") ||
