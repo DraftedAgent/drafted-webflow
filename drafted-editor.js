@@ -1,4 +1,4 @@
-console.log("DRAFTED_JS_SOURCE", "2026-01-17-2302");
+console.log("DRAFTED_JS_SOURCE", "2026-01-17-2312");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -18,6 +18,19 @@ const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
   function getFileInput() {
     return document.getElementById("cv-file");
   }
+
+  function getFileNameEl() {
+    return document.getElementById("file-name");
+  }
+
+  function getPreviewFrame() {
+    return document.getElementById("cv-preview");
+  }
+
+  function getPreviewWrap() {
+    return document.querySelector(".cv-preview-wrap");
+  }
+
   
   // Global lock shared across all listeners / duplicate bindings
   window.__DRAFTED_CHAT__ = window.__DRAFTED_CHAT__ || { inFlight: false };
@@ -175,8 +188,10 @@ function setEditorProcessing(isOn) {
 
 
 
-  if (!fileInput || !uploadBtn || !editorPreviewEl || !editorInput || !editorApplyBtn || !contextChipEl) {
+  const hasFileInput = !!getFileInput();
+  if (!hasFileInput || !uploadBtn || !editorPreviewEl || !editorInput || !editorApplyBtn || !contextChipEl) {
     console.error("❌ Missing required DOM elements", {
+      fileInput: hasFileInput,
       uploadBtn: !!uploadBtn,
       editorPreviewEl: !!editorPreviewEl,
       editorInput: !!editorInput,
@@ -290,17 +305,16 @@ function onReady(fn) {
 }
 
 function setupFilePicker() {
-  const fileInput = document.getElementById("cv-file");
-  const fileName  = document.getElementById("file-name");
-  const previewFrame = document.getElementById("cv-preview");
-  const previewWrap  = document.querySelector(".cv-preview-wrap");
+  const fileInput = getFileInput();
+  const fileName = getFileNameEl();
+  const previewFrame = getPreviewFrame();
+  const previewWrap = getPreviewWrap();
 
   if (!fileInput) {
     console.warn("setupFilePicker: #cv-file not found");
     return;
   }
 
-  // prevent double bind
   if (fileInput.dataset.bound === "1") return;
   fileInput.dataset.bound = "1";
 
@@ -317,6 +331,7 @@ function setupFilePicker() {
     previewWrap?.classList.add("has-file");
   });
 }
+
 
 
   
@@ -1291,7 +1306,7 @@ function updateContextChip() {
   console.log("UPLOAD CLICKED");
 
   const fileInput = getFileInput();
-const file = fileInput?.files?.[0];
+  const file = fileInput?.files?.[0];
 
   if (!file) {
     alert("Välj en PDF först.");
