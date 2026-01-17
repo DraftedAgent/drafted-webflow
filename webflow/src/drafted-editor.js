@@ -9,50 +9,20 @@ const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv"
 const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
 const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const fileInput = document.getElementById("cv-file");
-  const fileBtn   = document.getElementById("file-btn");
-  const fileName  = document.getElementById("file-name");
-
-  if (!fileInput || !fileBtn) {
-    console.warn("File picker missing elements", {
-      fileInput: !!fileInput,
-      fileBtn: !!fileBtn,
-      fileName: !!fileName
-    });
-    return;
-  }
-
-  fileBtn.type = "button";
-
-  fileBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    fileInput.click();
-  });
-
-  fileInput.addEventListener("change", () => {
-    const f = fileInput.files && fileInput.files[0];
-    if (fileName) {
-      fileName.textContent = f ? f.name : "No file selected";
-    }
-  });
-});
-
-
   const uploadBtn = document.getElementById("upload-btn");
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
   const editorDocument = document.querySelector(".cv-document"); 
   const editorPaper = document.querySelector(".cv-document-inner"); 
 
+  function getFileInput() {
+    return document.getElementById("cv-file");
+  }
+  
   // Global lock shared across all listeners / duplicate bindings
   window.__DRAFTED_CHAT__ = window.__DRAFTED_CHAT__ || { inFlight: false };
   
   console.log("previewWrap found:", !!previewWrap);
-
-  fileBtn?.addEventListener("click", () => {
-    fileInput?.click();
-  });
 
   // Original uploaded CV-preview (top one)
 (function mountPreviewLoadingOverlayOnce() {
@@ -207,7 +177,6 @@ function setEditorProcessing(isOn) {
 
   if (!fileInput || !uploadBtn || !editorPreviewEl || !editorInput || !editorApplyBtn || !contextChipEl) {
     console.error("❌ Missing required DOM elements", {
-      fileInput: !!fileInput,
       uploadBtn: !!uploadBtn,
       editorPreviewEl: !!editorPreviewEl,
       editorInput: !!editorInput,
@@ -311,6 +280,43 @@ forceButtonsActiveLook();
   }
   
   let currentUrl = null;
+
+function onReady(fn) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn, { once: true });
+  } else {
+    fn();
+  }
+}
+
+function setupFilePicker() {
+  const fileInput = document.getElementById("cv-file");
+  const fileName  = document.getElementById("file-name");
+  const previewFrame = document.getElementById("cv-preview");
+  const previewWrap  = document.querySelector(".cv-preview-wrap");
+
+  if (!fileInput) {
+    console.warn("setupFilePicker: #cv-file not found");
+    return;
+  }
+
+  // prevent double bind
+  if (fileInput.dataset.bound === "1") return;
+  fileInput.dataset.bound = "1";
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files?.[0] || null;
+
+    if (fileName) fileName.textContent = file ? file.name : "No file selected";
+    if (!file) return;
+
+    if (currentUrl) URL.revokeObjectURL(currentUrl);
+    currentUrl = URL.createObjectURL(file);
+
+    if (previewFrame) previewFrame.src = currentUrl;
+    previewWrap?.classList.add("has-file");
+  });
+}
 
 
   
@@ -1272,22 +1278,7 @@ function updateContextChip() {
   /* ===============================
      FILE PREVIEW
      =============================== */
-  fileInput.addEventListener("change", () => {
-    if (!fileInput.files?.length) {
-      if (fileName) fileName.textContent = "No file selected";
-      return;
-    }
-
-    if (fileName) fileName.textContent = fileInput.files[0].name;
-
-    const file = fileInput.files[0];
-
-    if (currentUrl) URL.revokeObjectURL(currentUrl);
-    currentUrl = URL.createObjectURL(file);
-
-    if (previewFrame) previewFrame.src = currentUrl;
-    previewWrap?.classList.add("has-file");
-  });
+  onReady(setupFilePicker);
 
 
   
@@ -1299,7 +1290,9 @@ function updateContextChip() {
 
   console.log("UPLOAD CLICKED");
 
-  const file = fileInput.files?.[0];
+  const fileInput = getFileInput();
+const file = fileInput?.files?.[0];
+
   if (!file) {
     alert("Välj en PDF först.");
     return;
