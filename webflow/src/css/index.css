@@ -18,8 +18,5 @@
 @import url("./states/processing.css");
 @import url("./states/placeholder.css");
 
-/* legacy (temporary) */
-@import url("./components/legacy.css");
-
 /* utilities (last word) */
 @import url("./utilities/helpers.css");
