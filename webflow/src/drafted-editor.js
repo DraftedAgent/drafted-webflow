@@ -1103,8 +1103,15 @@ function updateContextChip() {
   const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
   const selectedCount = selectedBlockIds?.size || 0;
 
+  // If no CV loaded yet: hide chip completely
+  if (!hasBlocks) {
+    contextChipEl.classList.add("is-hidden");
+    setChipMode("chat");
+    return;
+  }
+
   // 1) BLOCK SELECTION MODE
-  if (hasBlocks && selectedCount > 0) {
+  if (selectedCount > 0) {
     const label = getSelectionLabel();
     const safeLabel = label ? escapeHtml(label) : "";
 
@@ -1160,7 +1167,7 @@ function updateContextChip() {
     return;
   }
 
-  // 3) CHAT MODE (default)
+  // 3) CHAT MODE (default when CV loaded)
   contextChipEl.innerHTML = `
     <div class="chip-label">
       <span class="chip-badge">Scope</span>
@@ -1181,6 +1188,7 @@ function updateContextChip() {
     updateContextChip();
   });
 }
+
 
 
 
