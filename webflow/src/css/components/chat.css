@@ -1,0 +1,41 @@
+/* ===============================
+     CHAT LAYOUT
+     =============================== */
+  
+     .chat-messages {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .chat-message {
+        max-width: 78%;
+        padding: 14px 16px;
+        border-radius: 16px;
+        line-height: 1.35;
+        white-space: pre-wrap;
+        text-align: left;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.08);
+        box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+      }
+      
+      .chat-message.ai {
+        align-self: flex-start;
+        background: #ffffff;
+      }
+      
+      .chat-message.user {
+        align-self: flex-end;
+        background: #111;
+        color: #f7f7f7;
+      }
+      
+      /* System message */
+      .chat-message.system {
+        align-self: flex-start;
+        opacity: 0.95;
+        background: rgba(0,0,0,0.02);
+        border-color: rgba(0,0,0,0.06);
+        box-shadow: none;
+      }

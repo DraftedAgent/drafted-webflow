@@ -1,0 +1,74 @@
+  /* ===============================
+     Context chip: premium surface + actions
+     =============================== */
+     .context-chip{
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 13px;
+        line-height: 1.1;
+        background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 999px;
+        padding: 10px 12px;
+        box-shadow:
+          0 10px 25px rgba(0,0,0,0.06),
+          0 2px 6px rgba(0,0,0,0.05);
+      }
+      
+      .context-chip.is-hidden{ display: none; }
+      
+      .context-chip strong{ letter-spacing: -0.01em; }
+      
+      .context-chip .meta{
+        max-width: 420px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        opacity: .7;
+      }
+      
+      .context-chip button{
+        border: 1px solid rgba(0,0,0,0.10);
+        background: rgba(255,255,255,0.9);
+        padding: 6px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+      }
+      
+      .context-chip button:hover{
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+        background: #ffffff;
+      }
+      
+      .context-chip button:active{
+        transform: translateY(0px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      }
+      
+      .context-chip button:disabled{
+        opacity: .5;
+        cursor: default;
+      }
+      
+      .context-chip.chip--selection{
+        border-color: rgba(255, 200, 60, 0.35);
+        box-shadow:
+          0 14px 30px rgba(255, 200, 60, 0.10),
+          0 10px 25px rgba(0,0,0,0.06),
+          0 2px 6px rgba(0,0,0,0.05);
+      }
+      
+      .context-chip.chip--full{
+        border-color: rgba(0,0,0,0.12);
+      }
+      
+      .context-chip.chip--chat{
+        border-color: rgba(0,0,0,0.08);
+      }

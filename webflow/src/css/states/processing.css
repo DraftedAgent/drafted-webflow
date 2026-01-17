@@ -1,0 +1,50 @@
+ /* Editor processing state (right panel) */
+ .cv-document-inner { position: relative; }
+  
+ .editor-processing {
+   display: none;
+   position: absolute;
+   inset: 0;
+   align-items: flex-start; 
+   justify-content: center;
+   text-align: center;
+   padding-top: 120px;    
+   padding-left: 28px;
+   padding-right: 28px;
+   pointer-events: none;
+ }
+ 
+ .cv-document-inner.is-processing .editor-processing {
+   display: flex;
+ }
+ 
+ .editor-processing__inner {
+   max-width: 460px;
+   padding: 14px 16px;
+   border-radius: 12px;
+   background: rgba(255,255,255,0.92);
+   border: 1px solid rgba(0,0,0,0.10);
+   box-shadow: 0 12px 30px rgba(0,0,0,0.10);
+   backdrop-filter: blur(3px);
+   -webkit-backdrop-filter: blur(3px);
+ }
+ 
+ .editor-processing__title {
+   font-weight: 700;
+   margin-bottom: 6px;
+   color: rgba(0,0,0,0.88);
+ }
+ 
+ .editor-processing__meta {
+   font-size: 13px;
+   line-height: 1.4;
+   color: rgba(0,0,0,0.62);
+ }
+ 
+ .editor-processing {
+   z-index: 5;
+ }
+ 
+ .cv-document-inner.is-processing > *:not(.editor-processing) {
+   visibility: hidden;
+ }

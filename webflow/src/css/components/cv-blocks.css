@@ -1,0 +1,98 @@
+  /* ===============================
+     Click-select blocks (premium + consistent padding)
+     =============================== */
+     .cv-block{
+        cursor: pointer;
+        position: relative;
+        border-radius: 12px;
+        transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+        padding-inline-start: 10px;
+        padding-inline-end: 10px;
+        margin-inline-start: 15px;
+        margin-inline-end: 15px;
+      }
+      
+      .cv-block:hover{
+        background: rgba(0,0,0,0.02);
+      }
+      
+      .cv-block.is-selected{
+        background: rgba(255, 210, 80, 0.40);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      }
+
+       /* ===============================
+     Typography helpers
+     =============================== */
+  .cv-title{
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+    font-size: clamp(18px, 2.4vw, 26px);
+    line-height: 1.15;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+  
+  .cv-block--experience {
+    margin-bottom: 18px;
+  }
+  
+  .cv-exp-title {
+    font-weight: 600;
+    letter-spacing: normal !important;
+    text-transform: none;
+  }
+  
+  .cv-exp-meta {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-bottom: 4px;
+  }
+  
+  .cv-exp-company {
+    font-weight: 500;
+  }
+  
+  .cv-exp-period {
+    margin-left: 4px;
+  }
+  
+  .cv-edu-degree {
+    font-weight: 600;
+    letter-spacing: normal !important;
+    text-transform: none;
+    margin-bottom: 2px;
+  }
+  
+  .cv-edu-meta {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-bottom: 6px;
+  }
+  
+  .cv-edu-inst {
+    font-weight: 500;
+  }
+  
+  .cv-edu-period {
+    margin-left: 4px;
+  }
+  
+  .cv-section{
+    margin: 18px 15px 6px;
+  }
+  
+  .cv-section-heading{
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+    opacity: 0.9;
+  }
+  
+  /* Global default: body text is left-aligned */
+  .cv-block-body {
+    text-align: left;
+    padding: 12px;
+  }

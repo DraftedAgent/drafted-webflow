@@ -1,0 +1,73 @@
+/* Proposal card */
+.drafted-proposal-card{
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 14px;
+    padding: 14px 14px 12px;
+    background: #fff;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+  }
+  
+  .drafted-proposal-card ul{
+    margin: 10px 0 0 18px;
+  }
+  
+  .drafted-proposal-card li{
+    margin: 4px 0;
+  }
+  
+  /* Button (single source of truth) */
+  .drafted-proposal-card button{
+    appearance: none;
+    border: 1px solid rgba(0,0,0,0.14);
+    background: #fff;
+    border-radius: 999px;
+  
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  
+    padding: 10px 12px; /* final value you’re using now */
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+  
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  
+  .drafted-proposal-card button:disabled{
+    opacity: 0.6;       /* final value you’re using now */
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  
+  /* Hover/active only when enabled */
+  .drafted-proposal-card button:not(:disabled):hover{
+    box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+    transform: translateY(-1px);
+  }
+  
+  .drafted-proposal-card button:not(:disabled):active{
+    transform: translateY(0);
+    box-shadow: none;
+  }
+  
+  /* Spinner */
+  .drafted-btn-spinner{
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    display: inline-block;
+    animation: draftedSpin 0.8s linear infinite;
+  }
+  
+  .drafted-btn-spinner[hidden]{
+    visibility: hidden;
+  }
+  

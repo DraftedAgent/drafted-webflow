@@ -1,0 +1,25 @@
+/* drafted-editor.css – source entrypoint */
+@import url("./tokens.css");
+@import url("./base.css");
+@import url("./layout.css");
+
+/* components */
+@import url("./components/cv-preview.css");
+@import url("./components/editor-preview.css");
+@import url("./components/cv-blocks.css");
+@import url("./components/context-chip.css");
+@import url("./components/proposal-card.css");
+@import url("./components/chat.css");
+@import url("./components/tooltips.css");
+
+/* states */
+@import url("./states/buttons.css");
+@import url("./states/loading.css");
+@import url("./states/processing.css");
+@import url("./states/placeholder.css");
+
+/* legacy (temporary) */
+@import url("./components/legacy.css");
+
+/* utilities (last word) */
+@import url("./utilities/helpers.css");

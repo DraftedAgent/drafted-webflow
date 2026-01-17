@@ -1,0 +1,24 @@
+  /* ===== Editor preview behavior (text selection + rendering) ===== */
+  #editor-preview-text{
+    white-space: pre-wrap;
+    user-select: text;
+    -webkit-user-select: text;
+    outline: none;
+    cursor: text;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Hide horizontal scrollbar (WebKit) */
+  #editor-preview-text::-webkit-scrollbar:horizontal{
+    height: 0;
+  }
+  
+  #editor-preview-text *{
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+  }
