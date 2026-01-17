@@ -84,8 +84,21 @@
     text-overflow: ellipsis;
     max-width: 240px;
   }
-  
-  .file-picker input[type="file"]{
-    display: none !important;
-  }
+
+.file-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-picker input[type="file"]{
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
     
