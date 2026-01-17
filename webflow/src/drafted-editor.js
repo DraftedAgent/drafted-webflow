@@ -399,6 +399,12 @@ forceButtonsActiveLook();
 }
 
 
+function applyFullScopeUI(isFull) {
+  if (!editorPaper) return;
+  editorPaper.classList.toggle("is-scope-full", !!isFull);
+}
+
+
   
     /* ===============================
    PROPOSAL CARD UI (WITH LOADING)
@@ -1103,8 +1109,9 @@ function updateContextChip() {
   const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
   const selectedCount = selectedBlockIds?.size || 0;
 
-  // If no CV loaded yet: hide chip completely
+  // If no CV loaded yet: hide chip completely + remove full-scope UI
   if (!hasBlocks) {
+    applyFullScopeUI(false);
     contextChipEl.classList.add("is-hidden");
     setChipMode("chat");
     return;
@@ -1112,6 +1119,8 @@ function updateContextChip() {
 
   // 1) BLOCK SELECTION MODE
   if (selectedCount > 0) {
+    applyFullScopeUI(false);
+
     const label = getSelectionLabel();
     const safeLabel = label ? escapeHtml(label) : "";
 
@@ -1144,6 +1153,8 @@ function updateContextChip() {
 
   // 2) FULL CV MODE
   if (activeContext === "full") {
+    applyFullScopeUI(true);
+
     contextChipEl.innerHTML = `
       <div class="chip-label">
         <span class="chip-badge">Scope</span>
@@ -1168,6 +1179,8 @@ function updateContextChip() {
   }
 
   // 3) CHAT MODE (default when CV loaded)
+  applyFullScopeUI(false);
+
   contextChipEl.innerHTML = `
     <div class="chip-label">
       <span class="chip-badge">Scope</span>
@@ -1188,8 +1201,6 @@ function updateContextChip() {
     updateContextChip();
   });
 }
-
-
 
 
   

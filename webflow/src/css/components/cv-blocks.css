@@ -21,6 +21,51 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.06);
       }
 
+      
+      /* ===============================
+   FULL CV SCOPE (global selection)
+   =============================== */
+
+.cv-document-inner.is-scope-full{
+    position: relative;
+  }
+  
+  /* Subtil ram som matchar block-highlightens gulhet */
+  .cv-document-inner.is-scope-full::before{
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border-radius: 14px;
+    pointer-events: none;
+  
+    outline: 2px solid rgba(255, 210, 80, 0.55);
+    outline-offset: 6px;
+  
+    box-shadow:
+      0 0 0 10px rgba(255, 210, 80, 0.10),
+      0 18px 50px rgba(0,0,0,0.10);
+  }
+  
+  /* Badge: gör scope explicit */
+  .cv-document-inner.is-scope-full::after{
+    content: "Full CV selected";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
+    pointer-events: none;
+  
+    font-size: 12px;
+    font-weight: 800;
+    padding: 7px 10px;
+    border-radius: 999px;
+  
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+  }
+  
+
        /* ===============================
      Typography helpers
      =============================== */
