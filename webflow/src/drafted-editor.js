@@ -676,24 +676,6 @@ function setApplyLabel() {
     updateContextChip();
   }
 
-  
-  function getSelectedBlocksPreview(maxChars = 110) {
-    if (!documentBlocksState || !documentBlocksState.length) return "";
-
-    const selected = documentBlocksState.filter(b => selectedBlockIds.has(b.blockId));
-    if (!selected.length) return "";
-
-    const parts = [];
-    for (const b of selected.slice(0, 2)) {
-      const tt = stripLeakedFields(String(b.text || "")).replace(/\s+/g, " ").trim();
-      if (tt) parts.push(tt);
-    }
-
-    const joined = parts.join(" / ").trim();
-    if (!joined) return "";
-    return joined.length > maxChars ? joined.slice(0, maxChars) + "…" : joined;
-  }
-
 
   
   /* ===============================
@@ -1094,73 +1076,112 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
   
 
   /* ===============================
-     CONTEXT CHIP (BLOCK-ONLY)
-     =============================== */
-  function setChipMode(mode) {
-    contextChipEl.classList.remove("chip--chat", "chip--full", "chip--selection", "chip--blocks");
-    if (mode === "blocks") contextChipEl.classList.add("chip--blocks");
-    else if (mode === "full") contextChipEl.classList.add("chip--full");
-    else contextChipEl.classList.add("chip--chat");
-  }
+   CONTEXT CHIP (BLOCK + MODES)
+   =============================== */
 
-  function updateContextChip() {
-    const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
-    const selectedCount = selectedBlockIds?.size || 0;
+function setChipMode(mode) {
+  contextChipEl.classList.remove("chip--chat", "chip--full", "chip--selection");
+  if (mode === "blocks") contextChipEl.classList.add("chip--selection");
+  else if (mode === "full") contextChipEl.classList.add("chip--full");
+  else contextChipEl.classList.add("chip--chat");
+}
 
-    if (hasBlocks && selectedCount > 0) {
-      const preview = getSelectedBlocksPreview(110);
+// Short, human label for the selection (no text dump)
+function getSelectionLabel() {
+  if (!documentBlocksState?.length || !selectedBlockIds?.size) return "";
 
-      contextChipEl.innerHTML = `
-        <span><strong>Selected blocks</strong></span>
-        <span class="meta">${selectedCount}</span>
-        ${preview ? `<span class="meta">"${escapeHtml(preview)}"</span>` : ""}
-        <button type="button" id="chip-clear">Clear</button>
-        <button type="button" id="chip-full">Use full CV</button>
-      `;
-      contextChipEl.classList.remove("is-hidden");
-      setChipMode("blocks");
+  const ids = Array.from(selectedBlockIds);
+  const first = documentBlocksState.find((b) => b?.blockId === ids[0]);
 
-      contextChipEl.querySelector("#chip-clear")?.addEventListener("click", () => {
-        clearBlockSelection("chat");
-      });
+  const type = (first?.type || first?.section || "").toString().trim();
+  const more = ids.length > 1 ? ` +${ids.length - 1} more` : "";
 
-      contextChipEl.querySelector("#chip-full")?.addEventListener("click", () => {
-        clearBlockSelection("full");
-      });
+  return (type ? type : "Block") + more;
+}
 
-      return;
-    }
+function updateContextChip() {
+  const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
+  const selectedCount = selectedBlockIds?.size || 0;
 
-    if (activeContext === "full") {
-      contextChipEl.innerHTML = `
-        <span><strong>Full CV</strong></span>
-        <span class="meta">Applies changes to the whole document</span>
-        <button type="button" id="chip-chat">Chat only</button>
-      `;
-      contextChipEl.classList.remove("is-hidden");
-      setChipMode("full");
-
-      contextChipEl.querySelector("#chip-chat")?.addEventListener("click", () => {
-        activeContext = "chat";
-        updateContextChip();
-      });
-
-      return;
-    }
+  // 1) BLOCK SELECTION MODE
+  if (hasBlocks && selectedCount > 0) {
+    const label = getSelectionLabel();
+    const safeLabel = label ? escapeHtml(label) : "";
 
     contextChipEl.innerHTML = `
-      <span><strong>Chat</strong></span>
-      <span class="meta">No CV changes</span>
-      <button type="button" id="chip-full">Use full CV</button>
+      <div class="chip-label">
+        <span class="chip-badge">Selected</span>
+        <span class="chip-title">${selectedCount} block${selectedCount === 1 ? "" : "s"}</span>
+        ${safeLabel ? `<span class="chip-sub">${safeLabel}</span>` : ""}
+      </div>
+
+      <div class="chip-actions">
+        <button type="button" class="chip-btn chip-btn--ghost" id="chip-clear">Clear</button>
+        <button type="button" class="chip-btn chip-btn--primary" id="chip-full">Use full CV</button>
+      </div>
     `;
+
     contextChipEl.classList.remove("is-hidden");
-    setChipMode("chat");
+    setChipMode("blocks");
+
+    contextChipEl.querySelector("#chip-clear")?.addEventListener("click", () => {
+      clearBlockSelection("chat");
+    });
 
     contextChipEl.querySelector("#chip-full")?.addEventListener("click", () => {
-      activeContext = "full";
+      clearBlockSelection("full");
+    });
+
+    return;
+  }
+
+  // 2) FULL CV MODE
+  if (activeContext === "full") {
+    contextChipEl.innerHTML = `
+      <div class="chip-label">
+        <span class="chip-badge">Scope</span>
+        <span class="chip-title">Full CV</span>
+        <span class="chip-sub">Applies changes to the whole document</span>
+      </div>
+
+      <div class="chip-actions">
+        <button type="button" class="chip-btn chip-btn--ghost" id="chip-chat">Chat only</button>
+      </div>
+    `;
+
+    contextChipEl.classList.remove("is-hidden");
+    setChipMode("full");
+
+    contextChipEl.querySelector("#chip-chat")?.addEventListener("click", () => {
+      activeContext = "chat";
       updateContextChip();
     });
+
+    return;
   }
+
+  // 3) CHAT MODE (default)
+  contextChipEl.innerHTML = `
+    <div class="chip-label">
+      <span class="chip-badge">Scope</span>
+      <span class="chip-title">Chat</span>
+      <span class="chip-sub">No CV changes</span>
+    </div>
+
+    <div class="chip-actions">
+      <button type="button" class="chip-btn chip-btn--primary" id="chip-full">Use full CV</button>
+    </div>
+  `;
+
+  contextChipEl.classList.remove("is-hidden");
+  setChipMode("chat");
+
+  contextChipEl.querySelector("#chip-full")?.addEventListener("click", () => {
+    activeContext = "full";
+    updateContextChip();
+  });
+}
+
 
 
   

@@ -1,74 +1,146 @@
-  /* ===============================
-     Context chip: premium surface + actions
-     =============================== */
-     .context-chip{
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        max-width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 13px;
-        line-height: 1.1;
-        background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
-        border: 1px solid rgba(0,0,0,0.08);
-        border-radius: 999px;
-        padding: 10px 12px;
-        box-shadow:
-          0 10px 25px rgba(0,0,0,0.06),
-          0 2px 6px rgba(0,0,0,0.05);
-      }
-      
-      .context-chip.is-hidden{ display: none; }
-      
-      .context-chip strong{ letter-spacing: -0.01em; }
-      
-      .context-chip .meta{
-        max-width: 420px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        opacity: .7;
-      }
-      
-      .context-chip button{
-        border: 1px solid rgba(0,0,0,0.10);
-        background: rgba(255,255,255,0.9);
-        padding: 6px 10px;
-        border-radius: 999px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-      }
-      
-      .context-chip button:hover{
-        transform: translateY(-1px);
-        box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-        background: #ffffff;
-      }
-      
-      .context-chip button:active{
-        transform: translateY(0px);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-      }
-      
-      .context-chip button:disabled{
-        opacity: .5;
-        cursor: default;
-      }
-      
-      .context-chip.chip--selection{
-        border-color: rgba(255, 200, 60, 0.35);
-        box-shadow:
-          0 14px 30px rgba(255, 200, 60, 0.10),
-          0 10px 25px rgba(0,0,0,0.06),
-          0 2px 6px rgba(0,0,0,0.05);
-      }
-      
-      .context-chip.chip--full{
-        border-color: rgba(0,0,0,0.12);
-      }
-      
-      .context-chip.chip--chat{
-        border-color: rgba(0,0,0,0.08);
-      }
+/* ===============================
+   CONTEXT CHIP (CLEAN, SEMANTIC)
+   =============================== */
+
+   .context-chip{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 100%;
+    padding: 10px 12px;
+  
+    font-size: 13px;
+    line-height: 1.2;
+  
+    background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 999px;
+  
+    box-shadow:
+      0 10px 25px rgba(0,0,0,0.06),
+      0 2px 6px rgba(0,0,0,0.05);
+  }
+  
+  .context-chip.is-hidden{
+    display: none;
+  }
+  
+  /* ---------- LABEL ---------- */
+  
+  .context-chip .chip-label{
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+  }
+  
+  .context-chip .chip-badge{
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 999px;
+  
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(0,0,0,0.08);
+  
+    flex: 0 0 auto;
+  }
+  
+  .context-chip .chip-title{
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    flex: 0 0 auto;
+  }
+  
+  .context-chip .chip-sub{
+    font-size: 13px;
+    opacity: 0.65;
+  
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* ---------- ACTIONS ---------- */
+  
+  .context-chip .chip-actions{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+  
+  .context-chip .chip-btn{
+    padding: 7px 10px;
+    border-radius: 999px;
+  
+    font-size: 12.5px;
+    font-weight: 700;
+  
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.10);
+    background: rgba(255,255,255,0.9);
+  
+    transition:
+      transform .12s ease,
+      box-shadow .12s ease,
+      background .12s ease,
+      opacity .12s ease;
+  }
+  
+  .context-chip .chip-btn:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(0,0,0,0.08);
+    background: #ffffff;
+  }
+  
+  .context-chip .chip-btn:active{
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  
+  .context-chip .chip-btn:disabled{
+    opacity: 0.45;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+  }
+  
+  /* ---------- BUTTON VARIANTS ---------- */
+  
+  .context-chip .chip-btn--ghost{
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.10);
+  }
+  
+  .context-chip .chip-btn--primary{
+    background: #111;
+    color: #fff;
+    border-color: rgba(0,0,0,0.22);
+  }
+  
+  .context-chip .chip-btn--primary:hover{
+    background: #000;
+  }
+  
+  /* ---------- CONTEXT VARIANTS ---------- */
+  
+  .context-chip.chip--selection{
+    border-color: rgba(255, 200, 60, 0.35);
+    box-shadow:
+      0 14px 30px rgba(255, 200, 60, 0.10),
+      0 10px 25px rgba(0,0,0,0.06),
+      0 2px 6px rgba(0,0,0,0.05);
+  }
+  
+  .context-chip.chip--full{
+    border-color: rgba(0,0,0,0.12);
+  }
+  
+  .context-chip.chip--chat{
+    border-color: rgba(0,0,0,0.08);
+  }
+  
