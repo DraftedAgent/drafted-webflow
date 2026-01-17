@@ -3,6 +3,8 @@ html {
 }
 
 .page-scroll {
+  height: 100vh;
+  overflow-y: auto;
   scroll-snap-type: y mandatory;
   scroll-padding: 50vh; /* centers snap targets */
 }
