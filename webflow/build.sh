@@ -93,3 +93,22 @@ echo "OK: wrote $ROOT_DIR/drafted-editor.css"
 if [[ -f "$JS_OUT" ]]; then
   echo "OK: wrote $ROOT_DIR/drafted-editor.js"
 fi
+
+# ---------------------------
+# Publish "latest" pointer (stable URL for Webflow)
+# ---------------------------
+LATEST_SRC="$ROOT_DIR/webflow/latest.json"
+LATEST_ROOT="$ROOT_DIR/latest.json"
+
+cat > "$LATEST_SRC" <<JSON
+{
+  "build": "$BUILD_ID",
+  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=$BUILD_ID",
+  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=$BUILD_ID",
+  "ts": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+JSON
+
+cp "$LATEST_SRC" "$LATEST_ROOT"
+
+echo "OK: wrote $LATEST_ROOT"
