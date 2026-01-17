@@ -1,0 +1,20 @@
+html {
+  scroll-behavior: smooth;
+}
+
+.page-scroll {
+  scroll-snap-type: y mandatory;
+  scroll-padding: 50vh; /* centers snap targets */
+}
+
+.snap-section {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
