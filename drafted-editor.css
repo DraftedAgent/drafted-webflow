@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-01-17-2017 */
+/* drafted-editor.css | build=2026-01-17-2021 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -619,9 +619,6 @@
   }
 /* --- end import: ./states/placeholder.css --- */
 
-
-/* legacy (temporary) */
-/* WARN: missing import ./components/legacy.css referenced from /home/manpanther/drafted-webflow/webflow/src/css/index.css */
 
 /* utilities (last word) */
 
