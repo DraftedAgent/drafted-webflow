@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-01-17-2151 */
+/* drafted-editor.css | build=2026-01-17-2238 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -631,6 +631,65 @@
         opacity: 0.6;
       }
       
+
+      /* ===============================
+   FILE PICKER (CUSTOM)
+   =============================== */
+
+.file-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  
+    padding: 10px 14px;
+    border-radius: 999px;
+  
+    font-size: 13px;
+    font-weight: 700;
+  
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: #fff;
+    color: #111;
+  
+    box-shadow:
+      0 6px 14px rgba(0,0,0,0.08);
+  
+    transition:
+      background .15s ease,
+      box-shadow .15s ease,
+      transform .12s ease;
+  }
+  
+  .file-btn:hover{
+    background: #fff;
+    box-shadow:
+      0 10px 22px rgba(0,0,0,0.12);
+    transform: translateY(-1px);
+  }
+  
+  .file-btn:active{
+    transform: translateY(0);
+    box-shadow:
+      0 4px 10px rgba(0,0,0,0.10);
+  }
+  
+  /* Filename text */
+  .file-name{
+    margin-left: 10px;
+    font-size: 13px;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+  }
+  
+  .file-picker input[type="file"]{
+    display: none !important;
+  }
+    
 /* --- end import: ./states/buttons.css --- */
 
 

@@ -1,4 +1,4 @@
-console.log("DRAFTED_JS_SOURCE", "2026-01-17-2151");
+console.log("DRAFTED_JS_SOURCE", "2026-01-17-2238");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -9,10 +9,36 @@ const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv"
 const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
 const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
 
-  const fileInput =
-    document.querySelector("#cv-file-wrap input[type='file']") ||
-    document.getElementById("cv-file") ||
-    document.querySelector("input[type='file']");
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("cv-file");
+  const fileBtn   = document.getElementById("file-btn");
+  const fileName  = document.getElementById("file-name");
+
+  if (!fileInput || !fileBtn) {
+    console.warn("File picker missing elements", {
+      fileInput: !!fileInput,
+      fileBtn: !!fileBtn,
+      fileName: !!fileName
+    });
+    return;
+  }
+
+  fileBtn.type = "button";
+
+  fileBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", () => {
+    const f = fileInput.files && fileInput.files[0];
+    if (fileName) {
+      fileName.textContent = f ? f.name : "No file selected";
+    }
+  });
+});
+
+
   const uploadBtn = document.getElementById("upload-btn");
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
@@ -23,6 +49,10 @@ const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
   window.__DRAFTED_CHAT__ = window.__DRAFTED_CHAT__ || { inFlight: false };
   
   console.log("previewWrap found:", !!previewWrap);
+
+  fileBtn?.addEventListener("click", () => {
+    fileInput?.click();
+  });
 
   // Original uploaded CV-preview (top one)
 (function mountPreviewLoadingOverlayOnce() {
@@ -1243,8 +1273,14 @@ function updateContextChip() {
      FILE PREVIEW
      =============================== */
   fileInput.addEventListener("change", () => {
-    const file = fileInput.files?.[0];
-    if (!file) return;
+    if (!fileInput.files?.length) {
+      if (fileName) fileName.textContent = "No file selected";
+      return;
+    }
+
+    if (fileName) fileName.textContent = fileInput.files[0].name;
+
+    const file = fileInput.files[0];
 
     if (currentUrl) URL.revokeObjectURL(currentUrl);
     currentUrl = URL.createObjectURL(file);
