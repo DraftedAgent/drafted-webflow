@@ -559,41 +559,75 @@ function assertDraftedCvResponse(data) {
  * Chat is advisory: no blocks here. :contentReference[oaicite:10]{index=10}
  */
 function assertDraftedChatResponse(data) {
-  if (!isPlainObject(data)) throw new DraftedContractError("CONTRACT_NOT_OBJECT", "Response JSON must be an object");
+  if (!isPlainObject(data)) {
+    throw new DraftedContractError("CONTRACT_NOT_OBJECT", "Response JSON must be an object");
+  }
 
-  // ADD "intent" as an allowed optional field (forward compatible metadata)
-  const allowed = ["ok", "message", "proposal", "contractError", "intent"];
+  const allowed = [
+    "ok",
+    "message",
+    "intent",
+    "proposal",
+    "suggestion",
+    "changedBlockIds",
+    "contractError",
+  ];
   assertNoUnexpectedFields(data, allowed, "Chat response");
 
   requireBoolean(data.ok, "ok");
 
-  // If present, intent must be a string
   if ("intent" in data && data.intent != null) {
     requireString(data.intent, "intent");
   }
 
+  if ("changedBlockIds" in data && data.changedBlockIds != null) {
+    requireArray(data.changedBlockIds, "changedBlockIds");
+    for (let i = 0; i < data.changedBlockIds.length; i++) {
+      requireString(data.changedBlockIds[i], `changedBlockIds[${i}]`);
+    }
+  }
+
+  if ("proposal" in data && data.proposal != null && !isPlainObject(data.proposal)) {
+    throw new DraftedContractError("CONTRACT_INVALID_TYPE", "proposal must be object|null");
+  }
+
+  if ("suggestion" in data && data.suggestion != null && !isPlainObject(data.suggestion)) {
+    throw new DraftedContractError("CONTRACT_INVALID_TYPE", "suggestion must be object|null");
+  }
+
   if (data.ok === true) {
     if ("contractError" in data) {
-      throw new DraftedContractError("CONTRACT_ERROR_FIELD_ON_SUCCESS", "contractError must not be present when ok=true");
+      throw new DraftedContractError(
+        "CONTRACT_ERROR_FIELD_ON_SUCCESS",
+        "contractError must not be present when ok=true"
+      );
     }
     requireString(data.message, "message");
 
-    if ("proposal" in data) {
-      const p = data.proposal;
-      if (!isPlainObject(p)) throw new DraftedContractError("CONTRACT_INVALID_TYPE", "proposal must be object");
-      if ("type" in p) requireString(p.type, "proposal.type");
-      if ("scope" in p) requireString(p.scope, "proposal.scope");
-      if ("content" in p) requireString(p.content, "proposal.content");
-    }
-
-    return { ok: true, message: data.message, proposal: data.proposal, intent: data.intent };
+    return {
+      ok: true,
+      message: data.message,
+      intent: data.intent,
+      proposal: data.proposal ?? null,
+      suggestion: data.suggestion ?? null,
+      changedBlockIds: data.changedBlockIds ?? [],
+    };
   }
 
   if (!("contractError" in data)) {
-    throw new DraftedContractError("CONTRACT_MISSING_FIELD", "contractError must be present when ok=false");
+    throw new DraftedContractError(
+      "CONTRACT_MISSING_FIELD",
+      "contractError must be present when ok=false"
+    );
   }
-  return { ok: false, contractError: data.contractError, intent: data.intent };
+
+  return {
+    ok: false,
+    contractError: data.contractError,
+    intent: data.intent,
+  };
 }
+
 
 
 /**
