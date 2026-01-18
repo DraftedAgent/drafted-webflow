@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-01-17-2331 */
+/* drafted-editor.css | build=2026-01-18-2221 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -665,7 +665,7 @@ html {
     gap: 8px;
   
     padding: 10px 14px;
-    border-radius: 999px;
+    border-radius: 10px;
   
     font-size: 13px;
     font-weight: 700;

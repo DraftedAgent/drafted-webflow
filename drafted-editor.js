@@ -1,4 +1,4 @@
-console.log("DRAFTED_JS_SOURCE", "2026-01-17-2331");
+console.log("DRAFTED_JS_SOURCE", "2026-01-18-2221");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -381,6 +381,265 @@ function setupFilePicker() {
 
   forceButtonsActiveLook();
 }
+
+/* ===============================
+   DRAFTED CONTRACT: fetch + assert
+   =============================== */
+
+class DraftedContractError extends Error {
+  constructor(code, message, details) {
+    super(message);
+    this.name = "DraftedContractError";
+    this.code = code;
+    this.details = details || null;
+  }
+}
+
+function isPlainObject(x) {
+  return !!x && typeof x === "object" && !Array.isArray(x);
+}
+
+function requireBoolean(x, path) {
+  if (typeof x !== "boolean") throw new DraftedContractError("CONTRACT_INVALID_TYPE", `${path} must be boolean`, { path, got: typeof x });
+}
+function requireString(x, path) {
+  if (typeof x !== "string") throw new DraftedContractError("CONTRACT_INVALID_TYPE", `${path} must be string`, { path, got: typeof x });
+}
+function requireNumber(x, path) {
+  if (typeof x !== "number" || Number.isNaN(x)) throw new DraftedContractError("CONTRACT_INVALID_TYPE", `${path} must be number`, { path, got: x });
+}
+function requireArray(x, path) {
+  if (!Array.isArray(x)) throw new DraftedContractError("CONTRACT_INVALID_TYPE", `${path} must be array`, { path, got: typeof x });
+}
+
+function assertNoUnexpectedFields(obj, allowedKeys, label) {
+  const keys = Object.keys(obj);
+  for (const k of keys) {
+    if (!allowedKeys.includes(k)) {
+      throw new DraftedContractError(
+        "CONTRACT_UNEXPECTED_FIELD",
+        `${label}: unexpected field '${k}'`,
+        { unexpectedField: k, allowedKeys }
+      );
+    }
+  }
+}
+
+/**
+ * Strict validation of upload/editor-rewrite response contract v1.0
+ * Returns a normalized, safe object you can trust.
+ */
+function assertDraftedCvResponse(data) {
+  if (!isPlainObject(data)) throw new DraftedContractError("CONTRACT_NOT_OBJECT", "Response JSON must be an object");
+
+  // Allowed top-level keys for CV responses (success or failure)
+  // Keep this strict. If backend adds fields later, you will notice immediately.
+  const allowed = [
+    "ok",
+    "blocksSchemaVersion",
+    "cvVersionId",
+    "cvTitle",
+    "summaryOfChanges",
+    "blocks",
+    "rewrittenCv",
+    "rewrittenCvLegacy",
+    "contractError",
+  ];
+  assertNoUnexpectedFields(data, allowed, "CV response");
+
+  requireBoolean(data.ok, "ok");
+  requireString(data.blocksSchemaVersion, "blocksSchemaVersion");
+  if (data.blocksSchemaVersion !== "1.0") {
+    throw new DraftedContractError("CONTRACT_UNSUPPORTED_SCHEMA", "Unsupported blocksSchemaVersion", { got: data.blocksSchemaVersion });
+  }
+
+  // blocks must always exist as array per contract doc (empty allowed only on ok=false)
+  requireArray(data.blocks, "blocks");
+
+  if (data.ok === true) {
+    // contractError must NOT be present when ok=true
+    if ("contractError" in data) {
+      throw new DraftedContractError("CONTRACT_ERROR_FIELD_ON_SUCCESS", "contractError must not be present when ok=true");
+    }
+
+    // Required fields on success
+    // cvVersionId must be present and non-empty string (or if you allow null on success, decide now. Contract says must be present when ok=true.)
+    if (data.cvVersionId == null || typeof data.cvVersionId !== "string" || data.cvVersionId.trim() === "") {
+      throw new DraftedContractError("CONTRACT_MISSING_FIELD", "cvVersionId must be a non-empty string when ok=true");
+    }
+
+    // These can be empty strings but must exist
+    requireString(data.cvTitle, "cvTitle");
+    requireString(data.summaryOfChanges, "summaryOfChanges");
+    requireString(data.rewrittenCv, "rewrittenCv");
+    requireString(data.rewrittenCvLegacy, "rewrittenCvLegacy");
+
+    if (data.blocks.length <= 0) {
+      throw new DraftedContractError("CONTRACT_EMPTY_BLOCKS", "blocks must be non-empty when ok=true");
+    }
+
+    // Validate each block base shape (typed fields validated lightly, but base is hard)
+    for (let i = 0; i < data.blocks.length; i++) {
+      const b = data.blocks[i];
+      const p = `blocks[${i}]`;
+      if (!isPlainObject(b)) throw new DraftedContractError("CONTRACT_INVALID_BLOCK", `${p} must be object`);
+
+      // Base required
+      requireString(b.blockId, `${p}.blockId`);
+      if (!b.blockId.trim()) throw new DraftedContractError("CONTRACT_INVALID_BLOCK", `${p}.blockId must be non-empty`);
+      requireString(b.type, `${p}.type`);
+      if (!b.type.trim()) throw new DraftedContractError("CONTRACT_INVALID_BLOCK", `${p}.type must be non-empty`);
+      requireString(b.label, `${p}.label`);
+      requireNumber(b.order, `${p}.order`);
+      requireString(b.text, `${p}.text`);
+
+      // Typed extensions: only enforce when type matches, otherwise allow unknown types (forward compatible)
+      if (b.type === "experience") {
+        requireString(b.employer, `${p}.employer`);
+        requireString(b.title, `${p}.title`);
+        requireString(b.startDate, `${p}.startDate`);
+        requireString(b.endDate, `${p}.endDate`);
+      } else if (b.type === "education") {
+        requireString(b.institution, `${p}.institution`);
+        requireString(b.degree, `${p}.degree`);
+        requireString(b.program, `${p}.program`);
+        requireString(b.startDate, `${p}.startDate`);
+        requireString(b.endDate, `${p}.endDate`);
+      }
+    }
+
+    // Minimal normalization (allowed): ensure strings exist (already required), trim nothing to avoid hidden mutation.
+    return {
+      ok: true,
+      blocksSchemaVersion: "1.0",
+      cvVersionId: data.cvVersionId,
+      cvTitle: data.cvTitle ?? "",
+      summaryOfChanges: data.summaryOfChanges ?? "",
+      blocks: data.blocks,
+      rewrittenCv: data.rewrittenCv ?? "",
+      rewrittenCvLegacy: data.rewrittenCvLegacy ?? data.rewrittenCv ?? "",
+    };
+  }
+
+  // ok === false
+  // contractError must exist (can be object|string|null per contract)
+  if (!("contractError" in data)) {
+    throw new DraftedContractError("CONTRACT_MISSING_FIELD", "contractError must be present when ok=false");
+  }
+
+  // cvVersionId may be null on hard failures, but field should exist in your contract doc.
+  // If you want it always present, enforce it here. Your contract doc says it exists top-level always. :contentReference[oaicite:9]{index=9}
+  if (!("cvVersionId" in data)) {
+    throw new DraftedContractError("CONTRACT_MISSING_FIELD", "cvVersionId must be present (can be null) when ok=false");
+  }
+
+  return {
+    ok: false,
+    blocksSchemaVersion: "1.0",
+    cvVersionId: (typeof data.cvVersionId === "string" ? data.cvVersionId : null),
+    contractError: data.contractError,
+    blocks: data.blocks,
+  };
+}
+
+/**
+ * Strict validation of chat response (flow-editor-chat).
+ * Chat is advisory: no blocks here. :contentReference[oaicite:10]{index=10}
+ */
+function assertDraftedChatResponse(data) {
+  if (!isPlainObject(data)) throw new DraftedContractError("CONTRACT_NOT_OBJECT", "Response JSON must be an object");
+
+  const allowed = ["ok", "message", "proposal", "contractError"];
+  assertNoUnexpectedFields(data, allowed, "Chat response");
+
+  requireBoolean(data.ok, "ok");
+
+  if (data.ok === true) {
+    if ("contractError" in data) {
+      throw new DraftedContractError("CONTRACT_ERROR_FIELD_ON_SUCCESS", "contractError must not be present when ok=true");
+    }
+    requireString(data.message, "message");
+
+    if ("proposal" in data) {
+      const p = data.proposal;
+      if (!isPlainObject(p)) throw new DraftedContractError("CONTRACT_INVALID_TYPE", "proposal must be object");
+      // Keep proposal strict but minimal: type/scope/content if present in your flow. :contentReference[oaicite:11]{index=11}
+      if ("type" in p) requireString(p.type, "proposal.type");
+      if ("scope" in p) requireString(p.scope, "proposal.scope");
+      if ("content" in p) requireString(p.content, "proposal.content");
+    }
+
+    return { ok: true, message: data.message, proposal: data.proposal };
+  }
+
+  // ok=false
+  if (!("contractError" in data)) {
+    throw new DraftedContractError("CONTRACT_MISSING_FIELD", "contractError must be present when ok=false");
+  }
+  return { ok: false, contractError: data.contractError };
+}
+
+/**
+ * One single entrypoint you asked for.
+ * kind must be: "cv" | "chat"
+ */
+function assertDraftedResponse(data, kind) {
+  if (kind === "cv") return assertDraftedCvResponse(data);
+  if (kind === "chat") return assertDraftedChatResponse(data);
+  throw new DraftedContractError("CONTRACT_INTERNAL", "Unknown assert kind", { kind });
+}
+
+/**
+ * Single fetch wrapper used everywhere.
+ * Reads body ONCE, parses JSON, asserts contract, throws loud on violations.
+ */
+async function draftedFetchJson(url, options, kind) {
+  let res;
+  try {
+    res = await fetch(url, options);
+  } catch (e) {
+    throw new DraftedContractError(
+      "HTTP_FETCH_FAILED",
+      "Network error while calling server",
+      { url, message: String(e && e.message ? e.message : e) }
+    );
+  }
+
+  const contentType = (res.headers.get("content-type") || "").toLowerCase();
+  const raw = await res.text(); // READ ONCE
+
+  if (!raw || raw.trim() === "") {
+    throw new DraftedContractError(
+      "HTTP_EMPTY_BODY",
+      "Server returned empty body",
+      { url, status: res.status, statusText: res.statusText, contentType }
+    );
+  }
+
+  let json;
+  try {
+    json = JSON.parse(raw);
+  } catch (e) {
+    throw new DraftedContractError(
+      "HTTP_INVALID_JSON",
+      "Server returned non-JSON or invalid JSON",
+      { url, status: res.status, statusText: res.statusText, contentType, sample: raw.slice(0, 240) }
+    );
+  }
+
+  const asserted = assertDraftedResponse(json, kind);
+
+  if (asserted.ok === false) {
+    throw new DraftedContractError(
+      "BACKEND_OK_FALSE",
+      "Backend returned ok=false",
+      { url, status: res.status, contractError: asserted.contractError }
+    );
+  }
+
+  return asserted;
+}
+
 
   // --- Defense-in-depth sanitation for leaked fields ---
   const FORBIDDEN_PREFIX_RE = /^(employer|title|startDate|endDate|degree|program|institution|order|type|label|blockId)\s*:\s*/i;
@@ -1071,29 +1330,24 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
   try {
     setBusy(true);
 
-    const res = await fetch(N8N_EDITOR_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    const data = await draftedFetchJson(
+      N8N_EDITOR_URL,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      },
+      "cv"
+    );
 
-    const raw = await res.text();
-    const data = JSON.parse(sanitizeLeadingGarbage(raw));
-
-    if (!data.ok) {
-      return { ok: false, error: data.error || "Rewrite flow error" };
-    }
-
-    const nextBlocks = Array.isArray(data.blocks) ? data.blocks : null;
+    const nextBlocks = data.blocks;
     if (!nextBlocks || !nextBlocks.length) {
       return { ok: false, error: "Rewrite flow returned no blocks" };
     }
 
     const nextTitle = String(data.cvTitle || "").trim() || (documentTitle || "");
     const nextCvVersionId = String(data.cvVersionId || "").trim() || (cvVersionId || null);
-    const changedFromServer = Array.isArray(data.changedBlockIds) ? data.changedBlockIds.map(String) : null;
-    const changedLocal = computeChangedBlockIds(documentBlocksState, nextBlocks);
-    const changedBlockIds = (changedFromServer && changedFromServer.length) ? changedFromServer : changedLocal;
+    const changedBlockIds = computeChangedBlockIds(documentBlocksState, nextBlocks);
 
     const summary = Array.isArray(data.summaryOfChanges)
       ? data.summaryOfChanges
@@ -1118,7 +1372,11 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     return { ok: true };
 
   } catch (e) {
-    console.error(e);
+    if (e && e.name === "DraftedContractError") {
+      console.error("DraftedContractError", e.code, e.details, e);
+    } else {
+      console.error(e);
+    }
     return { ok: false, error: "Rewrite fetch failed" };
   } finally {
     setBusy(false);
@@ -1319,51 +1577,15 @@ function updateContextChip() {
 
   try {
     setUploadLoading(true);
-    setEditorPlaceholder(false);
     setEditorProcessing(true);
 
-   const res = await fetch(N8N_UPLOAD_URL, { method: "POST", body: formData });
-const raw = await res.text();
+    const data = await draftedFetchJson(
+      N8N_UPLOAD_URL,
+      { method: "POST", body: formData },
+      "cv"
+    );
 
-console.log("UPLOAD_RES", {
-  ok: res.ok,
-  status: res.status,
-  contentType: res.headers.get("content-type"),
-  rawLen: raw ? raw.length : 0,
-  rawHead: (raw || "").slice(0, 240)
-});
-
-// Hard fail if server responded with error (you want to know)
-if (!res.ok) {
-  console.error("Upload failed:", res.status, raw);
-  throw new Error("Upload failed: " + res.status);
-}
-
-const cleaned = sanitizeLeadingGarbage(raw || "").trim();
-
-// Guard: empty body
-if (!cleaned) {
-  console.error("Upload returned empty body");
-  throw new Error("Upload returned empty response body");
-}
-
-// Guard: not JSON (often HTML error page)
-const ct = (res.headers.get("content-type") || "").toLowerCase();
-const looksJson = cleaned.startsWith("{") || cleaned.startsWith("[");
-if (!looksJson && !ct.includes("application/json")) {
-  console.error("Upload returned non-JSON body head:", cleaned.slice(0, 600));
-  throw new Error("Upload returned non-JSON response");
-}
-
-let data;
-try {
-  data = JSON.parse(cleaned);
-} catch (e) {
-  console.error("Upload JSON.parse failed. Body head:", cleaned.slice(0, 800));
-  throw e;
-}
-
-    const blocks = Array.isArray(data.blocks) ? data.blocks : null;
+    const blocks = data.blocks;
 
     const nextTitle = String(data.cvTitle || "").trim();
     if (nextTitle) documentTitle = nextTitle;
@@ -1375,20 +1597,11 @@ try {
     setEditorPlaceholder(false);
     editorPreviewEl.textContent = "";
 
-    if (blocks && blocks.length) {
-      buildStateFromBlocks(blocks);
+    buildStateFromBlocks(blocks);
+    setEditorPlaceholder(false);
 
-      // hide preview card title when CV exists
-     updatePreviewHeaderVisibility();
-      
-    } else {
-      documentTextState = sanitizeLeadingGarbage(data.rewrittenCv || "");
-      documentBlocksState = null;
-      blockRangesById = {};
-
-      // ensure title shows if no blocks
-      updatePreviewHeaderVisibility();
-    }
+    // hide preview card title when CV exists
+    updatePreviewHeaderVisibility();
 
     selectedBlockId = null;
     selectedBlockIds = new Set();
@@ -1412,13 +1625,23 @@ try {
       "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
     appendChat("assistant", greeting);
   } catch (err) {
-    console.error(err);
-
-    // Error UI state (but do NOT touch processing here)
+    if (err && err.name === "DraftedContractError") {
+      console.error("DraftedContractError", err.code, err.details, err);
+    } else {
+      console.error(err);
+    }
+  
+    // Error UI state (do NOT advance editor state)
     setEditorPlaceholder(true);
-
-    alert("Fel vid uppladdning.");
+  
+    const msg =
+      (err && err.name === "DraftedContractError")
+        ? `Fel vid uppladdning (${err.code}).`
+        : "Fel vid uppladdning.";
+  
+    alert(msg);
   } finally {
+  
     // Single exit point: always restore UI here
     setUploadLoading(false);
     setEditorProcessing(false);
@@ -1622,87 +1845,17 @@ async function sendChat() {
   };
 
   try {
-    const res = await fetch(N8N_CHAT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    const data = await draftedFetchJson(
+      N8N_CHAT_URL,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      },
+      "chat"
+    );
 
-    const raw = await res.text();
-
-console.log("CHAT_RES", {
-  ok: res.ok,
-  status: res.status,
-  contentType: res.headers.get("content-type"),
-  rawLen: raw ? raw.length : 0,
-  rawHead: (raw || "").slice(0, 240)
-});
-
-console.log("CHAT_RAW", (raw || "").slice(0, 1200));
-
-if (!res.ok) {
-  console.error("Chat failed:", res.status, raw);
-  appendChat("assistant", "Chat error. Try again.");
-  pendingProposal = null;
-  pendingProposalMeta = null;
-  pendingSuggestion = null;
-  clearAllProposalCards();
-  setApplyLabel();
-  return;
-}
-
-// Guard: empty body
-const cleaned = sanitizeLeadingGarbage(raw || "").trim();
-if (!cleaned) {
-  console.error("Chat returned empty body");
-  appendChat("assistant", "Chat error (empty response). Try again.");
-  pendingProposal = null;
-  pendingProposalMeta = null;
-  pendingSuggestion = null;
-  clearAllProposalCards();
-  setApplyLabel();
-  return;
-}
-
-// Guard: not JSON (often HTML error page)
-const ct = (res.headers.get("content-type") || "").toLowerCase();
-const looksJson = cleaned.startsWith("{") || cleaned.startsWith("[");
-if (!looksJson && !ct.includes("application/json")) {
-  console.error("Chat returned non-JSON body head:", cleaned.slice(0, 600));
-  appendChat("assistant", "Chat error (non-JSON response). Try again.");
-  pendingProposal = null;
-  pendingProposalMeta = null;
-  pendingSuggestion = null;
-  clearAllProposalCards();
-  setApplyLabel();
-  return;
-}
-
-let data;
-try {
-  data = JSON.parse(cleaned);
-} catch (e) {
-  console.error("Chat JSON.parse failed. Body head:", cleaned.slice(0, 800));
-  appendChat("assistant", "Chat error (invalid JSON). Try again.");
-  pendingProposal = null;
-  pendingProposalMeta = null;
-  pendingSuggestion = null;
-  clearAllProposalCards();
-  setApplyLabel();
-  return;
-}
-
-    if (!data.ok) {
-      appendChat("assistant", data.error || "Chat error.");
-      pendingProposal = null;
-      pendingProposalMeta = null;
-      pendingSuggestion = null;
-      clearAllProposalCards();
-      setApplyLabel();
-      return;
-    }
-
-    const assistantMsg = String(data.assistantMessage || "").trim() || "Okay.";
+    const assistantMsg = String(data.message || "").trim() || "Okay.";
     appendChat("assistant", assistantMsg);
 
     // reset pending states
@@ -1712,60 +1865,15 @@ try {
     isPreviewingProposal = false;
     previewSnapshot = null;
 
-    const intent = String(data.intent || "").trim().toLowerCase();
-
-    if (
-      intent === "proposal" &&
-      data.proposal &&
-      Array.isArray(data.proposal.blocks) &&
-      data.proposal.blocks.length
-    ) {
-      pendingProposal = data.proposal;
-      pendingProposalMeta = {
-        changedBlockIds: Array.isArray(data.changedBlockIds) ? data.changedBlockIds : [],
-        summaryOfChanges: Array.isArray(data.proposal.summaryOfChanges) ? data.proposal.summaryOfChanges : []
-      };
-      clearAllProposalCards();
-      appendProposalCard(pendingProposalMeta);
-      setApplyLabel();
-      return;
-    }
-
-    if (intent === "suggestion" && data.suggestion && typeof data.suggestion === "object") {
-      const sugMode = String(data.suggestion.mode || "").toLowerCase();
-      const sugInstruction = String(data.suggestion.instruction || "").trim();
-      const sugIds = Array.isArray(data.suggestion.selectedBlockIds)
-        ? data.suggestion.selectedBlockIds.map(String)
-        : [];
-
-      if (!sugInstruction) {
-        clearAllProposalCards();
-        setApplyLabel();
-        return;
-      }
-
-      pendingSuggestion = {
-        mode: (sugMode === "blocks" || sugMode === "full") ? sugMode : "blocks",
-        selectedBlockIds: sugIds,
-        instruction: sugInstruction
-      };
-
-      pendingProposalMeta = {
-        changedBlockIds: sugIds,
-        summaryOfChanges: [sugInstruction]
-      };
-
-      clearAllProposalCards();
-      appendProposalCard(pendingProposalMeta);
-      setApplyLabel();
-      return;
-    }
-
     clearAllProposalCards();
     setApplyLabel();
 
   } catch (err) {
-    console.error(err);
+    if (err && err.name === "DraftedContractError") {
+      console.error("DraftedContractError", err.code, err.details, err);
+    } else {
+      console.error(err);
+    }
     appendChat("assistant", "Something went wrong. Try again.");
     pendingProposal = null;
     pendingProposalMeta = null;
@@ -1897,22 +2005,17 @@ async function sendApply() {
   try {
     setBusy(true);
 
-    const res = await fetch(N8N_EDITOR_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    const data = await draftedFetchJson(
+      N8N_EDITOR_URL,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      },
+      "cv"
+    );
 
-    const raw = await res.text();
-    const data = JSON.parse(sanitizeLeadingGarbage(raw));
-
-    if (!data.ok) {
-      console.error("n8n error:", data);
-      alert(data.error || "n8n error");
-      return;
-    }
-
-    const nextBlocks = Array.isArray(data.blocks) ? data.blocks : null;
+    const nextBlocks = data.blocks;
     if (!nextBlocks || !nextBlocks.length) throw new Error("blocks missing in editor response");
 
     const nextTitle = String(data.cvTitle || "").trim();
@@ -1942,7 +2045,11 @@ async function sendApply() {
     editorInput.value = "";
 
   } catch (err) {
-    console.error(err);
+    if (err && err.name === "DraftedContractError") {
+      console.error("DraftedContractError", err.code, err.details, err);
+    } else {
+      console.error(err);
+    }
     alert("Apply-fel.");
   } finally {
     setBusy(false);
