@@ -1,3 +1,15 @@
+/**
+ * IMPORTANT:
+ * This file enforces the backend response contract defined in:
+ * - contracts/response-contract.md
+ * - contracts/block-schema-v1.md
+ *
+ * blocks[] is the single source of truth.
+ * Any code suggestion violating this is invalid.
+ */
+
+
+
 console.log("DRAFTED_JS_SOURCE", "__DRAFTED_BUILD_ID__");
 
 console.log("🚀 drafted-editor.js executing");
@@ -549,10 +561,16 @@ function assertDraftedCvResponse(data) {
 function assertDraftedChatResponse(data) {
   if (!isPlainObject(data)) throw new DraftedContractError("CONTRACT_NOT_OBJECT", "Response JSON must be an object");
 
-  const allowed = ["ok", "message", "proposal", "contractError"];
+  // ADD "intent" as an allowed optional field (forward compatible metadata)
+  const allowed = ["ok", "message", "proposal", "contractError", "intent"];
   assertNoUnexpectedFields(data, allowed, "Chat response");
 
   requireBoolean(data.ok, "ok");
+
+  // If present, intent must be a string
+  if ("intent" in data && data.intent != null) {
+    requireString(data.intent, "intent");
+  }
 
   if (data.ok === true) {
     if ("contractError" in data) {
@@ -563,21 +581,20 @@ function assertDraftedChatResponse(data) {
     if ("proposal" in data) {
       const p = data.proposal;
       if (!isPlainObject(p)) throw new DraftedContractError("CONTRACT_INVALID_TYPE", "proposal must be object");
-      // Keep proposal strict but minimal: type/scope/content if present in your flow. :contentReference[oaicite:11]{index=11}
       if ("type" in p) requireString(p.type, "proposal.type");
       if ("scope" in p) requireString(p.scope, "proposal.scope");
       if ("content" in p) requireString(p.content, "proposal.content");
     }
 
-    return { ok: true, message: data.message, proposal: data.proposal };
+    return { ok: true, message: data.message, proposal: data.proposal, intent: data.intent };
   }
 
-  // ok=false
   if (!("contractError" in data)) {
     throw new DraftedContractError("CONTRACT_MISSING_FIELD", "contractError must be present when ok=false");
   }
-  return { ok: false, contractError: data.contractError };
+  return { ok: false, contractError: data.contractError, intent: data.intent };
 }
+
 
 /**
  * One single entrypoint you asked for.
