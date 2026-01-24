@@ -65,6 +65,8 @@ Arkitekturen är byggd för att:
    `+-- flow-editor-chat`  
    `+-- flow-editor-rewrite`  
    `+-- flow-apply-proposal`
+   `+-- flow-export-pdf`
+
 
 Frontend äger:
 
@@ -174,6 +176,33 @@ Backend äger:
 
 ---
 
+### **5. flow-export-pdf.md**
+
+**Purpose:**  
+Skapa en *deriverad artefakt* (PDF) från existerande CV-state.
+
+**Consumes:**
+- `blocks[]`
+- `cvVersionId`
+- `cvTitle`
+- `templateId`
+- `language` (valfri, men stödd)
+
+**Produces:**
+- `application/pdf` (binary)
+
+**Never:**
+- muterar state
+- returnerar nya `blocks[]`
+- anropar AI för innehållsgenerering
+
+**Notes:**
+- PDF renderas server-side via HTML-template
+- Artefakten är alltid slängbar
+
+---
+
+
 ## **Data Ownership Map**
 
 | Data | Owner |
@@ -200,6 +229,10 @@ Backend äger:
 
 `APPLY`  
   `-> blocks v2`
+
+  `EXPORT`  
+  `-> PDF artifact (no state change)`
+
 
 If a flow does not clearly fit one of these:  
  **it does not belong in the system**.

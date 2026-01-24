@@ -2217,7 +2217,7 @@ function bindPdfDownloadButton() {
     e.stopPropagation();
 
     // enkel lock (delad med chat om du vill, men du kan hålla den separat)
-    if (window.__DRAFTED_CHAT__?.inFlight) return;
+    if (window.__DRAFTED_EXPORT__?.inFlight) return;
 
     const built = buildPdfExportPayload();
     if (!built.ok) {
@@ -2228,8 +2228,8 @@ function bindPdfDownloadButton() {
     }
 
     try {
-      window.__DRAFTED_CHAT__ = window.__DRAFTED_CHAT__ || { inFlight: false };
-      window.__DRAFTED_CHAT__.inFlight = true;
+      window.__DRAFTED_EXPORT__ = window.__DRAFTED_EXPORT__ || { inFlight: false };
+      window.__DRAFTED_EXPORT__.inFlight = true;
 
       const res = await fetch(N8N_EXPORT_PDF_URL, {
         method: "POST",
@@ -2282,7 +2282,7 @@ function bindPdfDownloadButton() {
       console.error("Export exception:", err);
       alert("Export misslyckades (exception). Se console.");
     } finally {
-      if (window.__DRAFTED_CHAT__) window.__DRAFTED_CHAT__.inFlight = false;
+      if (window.__DRAFTED_EXPORT__) window.__DRAFTED_EXPORT__.inFlight = false;
     }
   });
 }
