@@ -1907,17 +1907,48 @@ async function sendChat() {
     );
 
     const assistantMsg = String(data.message || "").trim() || "Okay.";
-    appendChat("assistant", assistantMsg);
+appendChat("assistant", assistantMsg);
 
-    // reset pending states
-    pendingProposal = null;
-    pendingProposalMeta = null;
-    pendingSuggestion = null;
-    isPreviewingProposal = false;
-    previewSnapshot = null;
+// Reset preview state on any new assistant answer
+isPreviewingProposal = false;
+previewSnapshot = null;
 
-    clearAllProposalCards();
-    setApplyLabel();
+// Normalize incoming suggestion/proposal
+const nextSuggestion =
+  (data && data.suggestion && typeof data.suggestion === "object" && !Array.isArray(data.suggestion))
+    ? data.suggestion
+    : null;
+
+const nextProposal =
+  (data && data.proposal && typeof data.proposal === "object" && !Array.isArray(data.proposal))
+    ? data.proposal
+    : null;
+
+pendingSuggestion = nextSuggestion;
+pendingProposal = nextProposal;
+
+// Build meta used by your existing proposal card UI.
+// Keep it compatible with fetchProposalFromSuggestion(), which uses appendProposalCard(pendingProposalMeta).
+pendingProposalMeta = {
+  intent: data.intent || (nextProposal ? "proposal" : nextSuggestion ? "suggestion" : "answer"),
+  changedBlockIds: Array.isArray(data.changedBlockIds) ? data.changedBlockIds : [],
+  // If your card expects summaryOfChanges, keep it as empty list.
+  summaryOfChanges: []
+};
+
+// Render: clear old cards first, then show card if we have something actionable
+clearAllProposalCards();
+
+const hasActionableSuggestion = !!(pendingSuggestion && pendingSuggestion.instruction);
+const hasReadyProposal = !!(pendingProposal && pendingProposal.blocks && pendingProposal.blocks.length);
+
+if (hasReadyProposal || hasActionableSuggestion) {
+  appendProposalCard(pendingProposalMeta);
+}
+
+setApplyLabel();
+
+
 
   } catch (err) {
     if (err && err.name === "DraftedContractError") {
