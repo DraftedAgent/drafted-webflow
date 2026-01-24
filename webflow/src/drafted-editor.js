@@ -20,6 +20,9 @@ console.log("🚀 drafted-editor.js executing");
 const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
 const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
 const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
+const N8N_EXPORT_PDF_URL = "https://drafted.app.n8n.cloud/webhook/webflow-export-pdf";
+
+
 
   const uploadBtn = document.getElementById("upload-btn");
   const previewFrame = document.getElementById("cv-preview");
@@ -2173,9 +2176,6 @@ async function sendApply() {
    EXPORT / DOWNLOAD (PDF)
    =============================== */
 
-// 1) Lägg nära dina andra N8N_*_URL konstanter
-const N8N_EXPORT_PDF_URL = "https://drafted.app.n8n.cloud/webhook/webflow-export-pdf";
-
 // 2) Bygg payload ENBART från blocks som source of truth
 function buildPdfExportPayload() {
   // documentBlocksState och cvVersionId och documentTitle ligger i closure-scope (STATE)
@@ -2287,39 +2287,6 @@ function bindPdfDownloadButton() {
   });
 }
 
-async function downloadPdf() {
-  const payload = {
-    cvVersionId,
-    cvTitle: documentTitle,
-    language: "sv",
-    templateId: "classic_v1",
-    blocks: documentBlocksState,
-  };
-
-  const res = await fetch(N8N_EXPORT_PDF_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    console.error("PDF export failed", await res.text());
-    alert("Kunde inte ladda ner PDF.");
-    return;
-  }
-
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${documentTitle || "CV"}.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  URL.revokeObjectURL(url);
-}
 
 
 
