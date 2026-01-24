@@ -10,7 +10,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-01-24-2120");
+console.log("DRAFTED_JS_SOURCE", "2026-01-24-2222");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -2285,6 +2285,40 @@ function bindPdfDownloadButton() {
       if (window.__DRAFTED_CHAT__) window.__DRAFTED_CHAT__.inFlight = false;
     }
   });
+}
+
+async function downloadPdf() {
+  const payload = {
+    cvVersionId,
+    cvTitle: documentTitle,
+    language: "sv",
+    templateId: "classic_v1",
+    blocks: documentBlocksState,
+  };
+
+  const res = await fetch(N8N_EXPORT_PDF_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    console.error("PDF export failed", await res.text());
+    alert("Kunde inte ladda ner PDF.");
+    return;
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${documentTitle || "CV"}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
 }
 
 
