@@ -189,9 +189,11 @@ function setEditorProcessing(isOn) {
   const descEl = document.querySelector(".cv-card-description");
   if (descEl) descEl.style.display = hasCv ? "none" : "";
 
-  // ✅ NEW: show tools only when CV exists
+  // show tools only when CV exists
   const toolsEl = document.querySelector(".cv-tools");
   if (toolsEl) toolsEl.style.display = hasCv ? "flex" : "none";
+  if (hasCv) bindPdfDownloadButton();
+
 
   // optional: padding only when loaded
   const docEl = document.querySelector(".cv-document");
@@ -2166,6 +2168,125 @@ async function sendApply() {
     sendChat();
   }
 });
+
+/* ===============================
+   EXPORT / DOWNLOAD (PDF)
+   =============================== */
+
+// 1) Lägg nära dina andra N8N_*_URL konstanter
+const N8N_EXPORT_PDF_URL = "https://drafted.app.n8n.cloud/webhook/webflow-export-pdf";
+
+// 2) Bygg payload ENBART från blocks som source of truth
+function buildPdfExportPayload() {
+  // documentBlocksState och cvVersionId och documentTitle ligger i closure-scope (STATE)
+  if (!documentBlocksState || !Array.isArray(documentBlocksState) || documentBlocksState.length === 0) {
+    return { ok: false, reason: "NO_BLOCKS" };
+  }
+  if (!cvVersionId) {
+    return { ok: false, reason: "NO_CV_VERSION_ID" };
+  }
+
+  return {
+    ok: true,
+    payload: {
+      cvVersionId,
+      cvTitle: documentTitle || "CV",
+      language: "sv",
+      templateId: "classic_v1",
+      blocks: documentBlocksState
+    }
+  };
+}
+
+// 3) Hitta download-knappen via SVG och bind click
+function bindPdfDownloadButton() {
+  const toolsEl = document.querySelector(".cv-tools");
+  if (!toolsEl) return;
+
+  // robust: hittar ikonen och går upp till närmaste klickbara wrapper
+  const icon = toolsEl.querySelector("svg.feather.feather-download");
+  const clickable = icon?.closest("button, a, [role='button'], .tool-btn, .tool-item, div");
+  if (!clickable) return;
+
+  // undvik dubbelbindningar
+  if (clickable.dataset?.draftedBound === "1") return;
+  if (clickable.dataset) clickable.dataset.draftedBound = "1";
+
+  clickable.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // enkel lock (delad med chat om du vill, men du kan hålla den separat)
+    if (window.__DRAFTED_CHAT__?.inFlight) return;
+
+    const built = buildPdfExportPayload();
+    if (!built.ok) {
+      console.warn("PDF export blocked:", built.reason);
+      // här kan du återanvända din befintliga UI toast/appendChatMessage om du vill
+      alert("Kan inte ladda ner ännu: CV-data saknas.");
+      return;
+    }
+
+    try {
+      window.__DRAFTED_CHAT__ = window.__DRAFTED_CHAT__ || { inFlight: false };
+      window.__DRAFTED_CHAT__.inFlight = true;
+
+      const res = await fetch(N8N_EXPORT_PDF_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/pdf, application/json"
+        },
+        body: JSON.stringify(built.payload),
+      });
+
+      const contentType = (res.headers.get("content-type") || "").toLowerCase();
+
+      // Om backend failar ska den svara JSON (ok:false)
+      if (contentType.includes("application/json")) {
+        const err = await res.json().catch(() => null);
+        console.error("Export JSON error:", err);
+        alert(err?.message || err?.contractError || "Export misslyckades.");
+        return;
+      }
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        console.error("Export HTTP error:", res.status, txt);
+        alert("Export misslyckades (HTTP " + res.status + ").");
+        return;
+      }
+
+      // PDF binary
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      const safeTitle = (documentTitle || "CV")
+        .trim()
+        .replace(/[^\w\d\- _åäöÅÄÖ]/g, "")
+        .replace(/\s+/g, " ")
+        .slice(0, 80);
+
+      const filename = `${safeTitle || "CV"}.pdf`;
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      // cleanup
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      console.error("Export exception:", err);
+      alert("Export misslyckades (exception). Se console.");
+    } finally {
+      if (window.__DRAFTED_CHAT__) window.__DRAFTED_CHAT__.inFlight = false;
+    }
+  });
+}
+
 
 
 
