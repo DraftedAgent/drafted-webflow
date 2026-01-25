@@ -1,72 +1,131 @@
-\# export-contract.md (v1)
+# export-contract.md (v1 – locked)
 
-\#\# Purpose  
-flow-export-pdf generates a PDF artifact from canonical CV state.  
-Export is derived-only and MUST NOT mutate or persist any state.
+## Purpose
+flow-export-pdf generates a PDF artifact from canonical CV state.
 
-Hard invariants:  
-\- stateless  
-\- deterministic (same input \=\> same output, given same renderer/template)  
-\- template-driven (templateId allowlist)  
-\- discardable (PDF is not source of truth)
+Export is DERIVED-ONLY and MUST NOT mutate, persist, or enrich state.
 
-\#\# Request (JSON)  
-POST application/json
+Hard invariants:
+- stateless
+- deterministic (same input => same output, given same template + renderer)
+- template-driven (templateId allowlist)
+- discardable (PDF is not a source of truth)
 
-Body MUST be a JSON object:
+---
 
-Required:  
-\- cvVersionId: string (3..128, /^\[A-Za-z0-9.\_-\]+$/)  
-\- cvTitle: string (0..140)  
-\- templateId: string (1..64) MUST be allowlisted server-side  
-\- language: "sv" | "en"  
-\- blocks: array (1..200)
+## Request
 
-Size limits:  
-\- total text chars across blocks\[\].text \<= 120000  
-\- approximate JSON size \<= 350KB (hard fail)
+POST  
+Content-Type: application/json
 
-\#\#\# Block minimum schema (v1 enforcement)  
-Each block MUST be an object:  
-\- blockId: string (1..80, /^\[A-Za-z0-9.\_-\]+$/) unique across blocks\[\]  
-\- type: string (1..32)  
-\- order: number (finite)  
-\- text: string (0..6000)
+### Body
+Body MUST be a single JSON object.
 
-Type constraints:  
-\- experience: employer,title,startDate,endDate: string (1..120 for employer/title; 1..40 for dates)  
-\- education: institution,degree,startDate,endDate: string (institution 1..120; others 0..120; dates 0..40)
+### Required fields
+- cvVersionId: string  
+  - length: 3..128  
+  - pattern: /^[A-Za-z0-9._-]+$/
 
-Unknown block types allowed if minimum schema holds.
+- cvTitle: string  
+  - length: 0..140  
+  - MAY be empty  
+  - MUST be present (empty string allowed)
 
-Normalization:  
-\- backend sorts blocks deterministically by (order asc, blockId asc)
+- templateId: string  
+  - length: 1..64  
+  - MUST be allowlisted server-side
 
-\#\# Success response (binary only)  
-\- Status 200  
-\- Content-Type: application/pdf  
-\- Body: raw PDF bytes  
-\- MUST NOT return JSON on success
+- language: string  
+  - allowed values: "sv" | "en"
 
-\#\# Error response (JSON only)  
-\- Status 400 for contract/input errors, 500 for render/internal  
-\- Content-Type: application/json  
-Body EXACTLY:  
-{  
-  "ok": false,  
-  "contractError": { "code": "EXPORT\_\*", "message": "string" }  
+- blocks: array  
+  - length: 1..200
+
+### Size limits (hard fail)
+- Sum of blocks[].text length <= 120000 characters
+- Approximate request JSON size <= 350 KB
+
+---
+
+## Block schema (v1)
+
+Each item in blocks[] MUST be an object.
+
+### Common fields (required)
+- blockId: string  
+  - length: 1..80  
+  - pattern: /^[A-Za-z0-9._-]+$/  
+  - MUST be unique across blocks[]
+
+- type: string  
+  - length: 1..32
+
+- order: number  
+  - MUST be finite (Number.isFinite)
+
+- text: string  
+  - length: 0..6000  
+  - MAY be empty
+
+### Type-specific constraints
+
+If type === "experience":
+- employer: string (1..120)
+- title: string (1..120)
+- startDate: string (1..40)
+- endDate: string (1..40)
+
+If type === "education":
+- institution: string (1..120)
+- degree: string (0..120)
+- startDate: string (0..40)
+- endDate: string (0..40)
+
+### Unknown types
+- Unknown block types are allowed
+- They MUST still satisfy the common field requirements
+
+---
+
+## Normalization
+
+Backend MUST normalize input before rendering:
+- blocks are sorted deterministically by:
+  1. order ascending
+  2. blockId ascending
+
+No other mutations are allowed.
+
+---
+
+## Success response (binary only)
+
+- HTTP status: 200
+- Content-Type: application/pdf
+- Body: raw PDF bytes
+
+On success:
+- MUST NOT return JSON
+- MUST NOT include ok, metadata, or headers beyond Content-Type / Content-Disposition
+
+---
+
+## Error response (JSON only)
+
+On any failure:
+- MUST return JSON
+- MUST NOT return partial or corrupted PDF bytes
+
+### Status codes
+- 400: contract / input violation
+- 500: render or internal failure
+
+### Response body (exact shape)
+```json
+{
+  "ok": false,
+  "contractError": {
+    "code": "EXPORT_*",
+    "message": "string"
+  }
 }
-
-No extra fields. No stack traces. No partial PDFs.
-
-Recommended codes:  
-EXPORT\_INVALID\_JSON  
-EXPORT\_MISSING\_FIELD  
-EXPORT\_INVALID\_FIELD\_TYPE  
-EXPORT\_INVALID\_FIELD\_VALUE  
-EXPORT\_BLOCK\_SCHEMA\_INVALID  
-EXPORT\_BLOCK\_ID\_DUPLICATE  
-EXPORT\_TEMPLATE\_NOT\_ALLOWED  
-EXPORT\_PAYLOAD\_TOO\_LARGE  
-EXPORT\_RENDER\_FAILED
-
