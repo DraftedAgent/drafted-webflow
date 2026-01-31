@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-01-31-1655 */
+/* drafted-editor.css | build=2026-01-31-1709 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -12,6 +12,40 @@
 
 /* --- import: ./layout.css (from index.css) --- */
 /* --- end import: ./layout.css --- */
+
+
+/* page behavior */
+
+/* --- import: ./scroll-snap.css (from index.css) --- */
+/* Scroll behavior belongs to the page feature, not global layout */
+
+html, body {
+    height: 100%;
+    overflow: hidden; /* only .page-scroll scrolls */
+  }
+  
+  .page-scroll {
+    height: 100vh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .snap-section {
+    height: 100vh;
+    box-sizing: border-box;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .page-scroll {
+      scroll-behavior: auto;
+    }
+  }
+  
+/* --- end import: ./scroll-snap.css --- */
 
 
 /* components */
