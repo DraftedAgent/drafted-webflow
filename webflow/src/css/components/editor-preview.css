@@ -57,12 +57,18 @@
 }
 
 #editor-preview-text .cv-section{
-  margin: 14px 15px 6px;
+  margin-top: 18px;           /* lite mer luft före sektion */
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.10);
 }
 
 #editor-preview-text .cv-section-heading{
-  margin: 0 0 6px;
-  line-height: 1.2;
+  font-size: 13px;            /* mindre än rolltitlar */
+  font-weight: 800;
+  letter-spacing: 0.08em;     /* ger “SECTION” känsla */
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin: 0 0 8px;
 }
 
 #editor-preview-text .cv-title{
@@ -72,8 +78,12 @@
 
 #editor-preview-text .cv-exp-title,
 #editor-preview-text .cv-edu-degree{
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;       /* viktig skillnad mot sektion */
+  opacity: 0.95;
   margin-bottom: 4px;
-  line-height: 1.2;
 }
 
 #editor-preview-text .cv-exp-meta,
