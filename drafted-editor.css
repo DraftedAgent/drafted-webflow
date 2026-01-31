@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-01-31-1626 */
+/* drafted-editor.css | build=2026-01-31-1636 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -161,6 +161,15 @@ html {
 /* avoid extra whitespace at the very end */
 #editor-preview-text > .cv-block:last-of-type{
   margin-bottom: 0;
+}
+/* --- FIX: do NOT pre-wrap the whole preview DOM (it renders indentation/newlines) --- */
+#editor-preview-text{
+  white-space: normal !important; /* collapse whitespace text nodes between sections */
+}
+
+/* Keep pre-wrapping only where you render text content */
+#editor-preview-text .cv-block-body{
+  white-space: pre-wrap;          /* preserve intentional line breaks inside content */
 }
 /* --- end import: ./components/editor-preview.css --- */
 

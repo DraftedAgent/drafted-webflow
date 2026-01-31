@@ -86,3 +86,12 @@
 #editor-preview-text > .cv-block:last-of-type{
   margin-bottom: 0;
 }
+/* --- FIX: do NOT pre-wrap the whole preview DOM (it renders indentation/newlines) --- */
+#editor-preview-text{
+  white-space: normal !important; /* collapse whitespace text nodes between sections */
+}
+
+/* Keep pre-wrapping only where you render text content */
+#editor-preview-text .cv-block-body{
+  white-space: pre-wrap;          /* preserve intentional line breaks inside content */
+}
