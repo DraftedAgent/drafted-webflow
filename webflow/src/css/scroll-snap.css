@@ -8,8 +8,8 @@ html, body {
   .page-scroll {
     height: 100vh;
     overflow-y: auto;
-    scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
+    scroll-snap-type: y proximity;  
+    scroll-behavior: auto;          
     -webkit-overflow-scrolling: touch;
   }
   
@@ -17,7 +17,7 @@ html, body {
     height: 100vh;
     box-sizing: border-box;
     scroll-snap-align: center;
-    scroll-snap-stop: always;
+    scroll-snap-stop: normal;       
   }
   
   @media (prefers-reduced-motion: reduce) {
