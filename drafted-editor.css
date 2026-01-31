@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-01-31-1642 */
+/* drafted-editor.css | build=2026-01-31-1655 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -11,28 +11,6 @@
 
 
 /* --- import: ./layout.css (from index.css) --- */
-html {
-  scroll-behavior: smooth;
-}
-
-.page-scroll {
-  height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-padding: 50vh; /* centers snap targets */
-}
-
-.snap-section {
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
-  min-height: 100vh;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
 /* --- end import: ./layout.css --- */
 
 
