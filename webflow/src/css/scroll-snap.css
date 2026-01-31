@@ -1,28 +1,27 @@
 /* Scroll behavior belongs to the page feature, not global layout */
 
 html, body {
-    height: 100%;
-    overflow: hidden; /* only .page-scroll scrolls */
-  }
-  
+  height: 100%;
+  overflow: hidden; /* only .page-scroll scrolls */
+}
+
+.page-scroll {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.snap-section {
+  height: 100vh;
+  box-sizing: border-box;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+@media (prefers-reduced-motion: reduce) {
   .page-scroll {
-    height: 100vh;
-    overflow-y: auto;
-    scroll-snap-type: y proximity;  
-    scroll-behavior: auto;          
-    -webkit-overflow-scrolling: touch;
+    scroll-behavior: auto;
   }
-  
-  .snap-section {
-    height: 100vh;
-    box-sizing: border-box;
-    scroll-snap-align: center;
-    scroll-snap-stop: normal;       
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    .page-scroll {
-      scroll-behavior: auto;
-    }
-  }
-  
+}
