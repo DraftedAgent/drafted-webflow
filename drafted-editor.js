@@ -10,7 +10,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-01-25-2045");
+console.log("DRAFTED_JS_SOURCE", "2026-01-31-1506");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -969,21 +969,6 @@ function setApplyLabel() {
   let activeContext = "chat"; // "chat" | "blocks" | "full"
   let documentLanguage = "sv"; // "sv" | "en"
 
-  
-  function t(key) {
-    const dict = {
-      sv: {
-        education: "Utbildningar",
-        experience: "Erfarenheter"
-      },
-      en: {
-        education: "Education",
-        experience: "Experience"
-      }
-    };
-    return (dict[documentLanguage] && dict[documentLanguage][key]) || (dict.sv[key] || key);
-  }
-
 
   
   /* ===============================
@@ -1120,6 +1105,22 @@ function setApplyLabel() {
     const htmlParts = [];
     let educationHeadingRendered = false;
     let experienceHeadingRendered = false;
+    let skillsHeadingRendered = false;
+    let languagesHeadingRendered = false;
+    let certificationsHeadingRendered = false;
+
+    function getHeadingFromBlocks(type, fallback) {
+      if (!documentBlocksState || !documentBlocksState.length) return fallback;
+      const match = documentBlocksState.find(block => String(block.type || "") === type);
+      const label = match && match.label ? String(match.label).trim() : "";
+      return label || fallback;
+    }
+
+    const experienceHeading = getHeadingFromBlocks("experience", "Experience");
+    const educationHeading = getHeadingFromBlocks("education", "Education");
+    const skillsHeading = getHeadingFromBlocks("skills", "Skills");
+    const languagesHeading = getHeadingFromBlocks("languages", "Languages");
+    const certificationsHeading = getHeadingFromBlocks("certifications", "Certifications");
 
     if (documentTitle) {
       htmlParts.push(`
@@ -1129,27 +1130,6 @@ function setApplyLabel() {
     }
 
   
-    function extractEducationNameFromText(rawText) {
-      const text = String(rawText || "").trim();
-      if (!text) return { name: "", rest: "" };
-
-      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      if (!lines.length) return { name: "", rest: text };
-
-      const first = (lines[0] || "").replace(/^[-•\u2022]+\s*/, "").trim();
-      const firstNorm = normLite(first);
-
-      const banned = ["utbildning", "utbildningar", "education"];
-      if (!first || banned.includes(firstNorm)) return { name: "", rest: text };
-
-      if (first.length <= 80) {
-        const rest = lines.slice(1).join("\n").trim();
-        return { name: first, rest };
-      }
-
-      return { name: "", rest: text };
-    }
-
     for (const block of documentBlocksState) {
       const id   = String(block.blockId || "");
       const type = String(block.type || "block");
@@ -1172,7 +1152,7 @@ function setApplyLabel() {
         if (!experienceHeadingRendered) {
           htmlParts.push(`
 <section class="cv-section cv-section--experience">
-  <h2 class="cv-section-heading">${escapeHtml(t("experience"))}</h2>
+  <h2 class="cv-section-heading">${escapeHtml(experienceHeading)}</h2>
 </section>`.trim());
           experienceHeadingRendered = true;
         }
@@ -1188,7 +1168,9 @@ function setApplyLabel() {
         if (employer) metaPieces.push(`<span class="cv-exp-company">${escapeHtml(employer)}</span>`);
 
         if (startDate || endDate) {
-          const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
+          const period = (startDate && endDate)
+            ? `${startDate} – ${endDate}`
+            : (startDate || endDate);
           metaPieces.push(`<span class="cv-exp-period">(${escapeHtml(period)})</span>`);
         }
 
@@ -1214,7 +1196,7 @@ if (type === "education") {
   if (!educationHeadingRendered) {
     htmlParts.push(`
 <section class="cv-section cv-section--education">
-  <h2 class="cv-section-heading">${escapeHtml(t("education"))}</h2>
+  <h2 class="cv-section-heading">${escapeHtml(educationHeading)}</h2>
 </section>`.trim());
     educationHeadingRendered = true;
   }
@@ -1230,13 +1212,13 @@ if (type === "education") {
   (degree && program) ? `${degree}, ${program}` :
   (degree || program);
 
-  const debugLine = `DEBUG: [${degree}] + [${program}] => [${nameLine}]`;
-  
   // Line 2: Institution + Period
   let metaPieces = [];
   if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
   if (startDate || endDate) {
-    const period = `${startDate || ""}${(startDate || endDate) ? " – " : ""}${endDate || ""}`;
+    const period = (startDate && endDate)
+      ? `${startDate} – ${endDate}`
+      : (startDate || endDate);
     metaPieces.push(`<span class="cv-edu-period">(${escapeHtml(period)})</span>`);
   }
   const metaLine = metaPieces.length
@@ -1268,9 +1250,10 @@ if (type === "education") {
 
         htmlParts.push(`
 <section class="cv-block cv-block--skills" data-block-id="${escapeHtml(id)}">
-  <h2 class="cv-block-heading">Kompetenser</h2>
+  ${!skillsHeadingRendered ? `<h2 class="cv-block-heading">${escapeHtml(skillsHeading)}</h2>` : ""}
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
+        skillsHeadingRendered = true;
         continue;
       }
 
@@ -1281,9 +1264,24 @@ if (type === "education") {
 
         htmlParts.push(`
 <section class="cv-block cv-block--languages" data-block-id="${escapeHtml(id)}">
-  <h2 class="cv-block-heading">Språk</h2>
+  ${!languagesHeadingRendered ? `<h2 class="cv-block-heading">${escapeHtml(languagesHeading)}</h2>` : ""}
   <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
 </section>`.trim());
+        languagesHeadingRendered = true;
+        continue;
+      }
+
+      // ===== CERTIFICATIONS =====
+      if (type === "certifications") {
+        const text = stripLeakedFields(rawText);
+        if (!text) continue;
+
+        htmlParts.push(`
+<section class="cv-block cv-block--certifications" data-block-id="${escapeHtml(id)}">
+  ${!certificationsHeadingRendered ? `<h2 class="cv-block-heading">${escapeHtml(certificationsHeading)}</h2>` : ""}
+  <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
+</section>`.trim());
+        certificationsHeadingRendered = true;
         continue;
       }
 
