@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-01-31-1557 */
+/* drafted-editor.css | build=2026-01-31-1626 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -99,7 +99,69 @@ html {
     overflow-wrap: anywhere;
   }
 
-  
+ /* --- CV preview spacing fixes (scoped, safer) --- */
+#editor-preview-text{
+  line-height: 1.35;
+}
+
+#editor-preview-text h1,
+#editor-preview-text h2,
+#editor-preview-text h3,
+#editor-preview-text p{
+  margin: 0;
+}
+
+#editor-preview-text .cv-block-body{
+  padding: 4px 6px;
+}
+
+#editor-preview-text .cv-block{
+  margin-bottom: 10px;
+}
+
+#editor-preview-text .cv-block--experience,
+#editor-preview-text .cv-block--education{
+  margin-bottom: 12px;
+}
+
+#editor-preview-text .cv-block--title{
+  margin-bottom: 8px;
+}
+
+#editor-preview-text .cv-block--summary{
+  margin-bottom: 14px;
+}
+
+#editor-preview-text .cv-section{
+  margin: 14px 15px 6px;
+}
+
+#editor-preview-text .cv-section-heading{
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+#editor-preview-text .cv-title{
+  margin-bottom: 6px;
+  line-height: 1.15;
+}
+
+#editor-preview-text .cv-exp-title,
+#editor-preview-text .cv-edu-degree{
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+#editor-preview-text .cv-exp-meta,
+#editor-preview-text .cv-edu-meta{
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+/* avoid extra whitespace at the very end */
+#editor-preview-text > .cv-block:last-of-type{
+  margin-bottom: 0;
+}
 /* --- end import: ./components/editor-preview.css --- */
 
 
