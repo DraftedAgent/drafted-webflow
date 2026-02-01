@@ -1,34 +1,9 @@
-/* Scroll behavior belongs to the page feature, not global layout */
-
 html, body{
     height: 100%;
     overflow: hidden !important;
   }
   
-  
-  .page-scroll{
-    height: 100svh;
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-    scroll-behavior: auto;
-    -webkit-overflow-scrolling: touch;
-  
-    scroll-padding-top: var(--nav-h, 0px);
-    overscroll-behavior-y: none;
-  }
-  
-  .page-scroll .snap-section{
-    height: 100svh;
-    min-height: 100svh;
-    overflow: hidden;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  
-    /* push content below fixed nav */
-    padding-top: var(--nav-h, 0px);
-  }
-  
-  
+  /* Navbar overlay */
   .navbar.w-nav{
     position: fixed;
     top: 0;
@@ -36,6 +11,47 @@ html, body{
     right: 0;
     width: 100%;
     z-index: 1000;
+  }
+  
+  /* The only scroll container */
+  .page-scroll{
+    height: 100svh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: auto;
+    -webkit-overflow-scrolling: touch;
+  
+    /* IMPORTANT: offset snapping for fixed navbar */
+    scroll-padding-top: var(--nav-h, 0px);
+  
+    /* stop chaining to body */
+    overscroll-behavior-y: none;
+  }
+  
+  /* Snap pages */
+  .page-scroll .snap-section{
+    height: 100svh;
+    min-height: 100svh;
+  
+    /* IMPORTANT: make padding not increase height */
+    box-sizing: border-box;
+  
+    /* Push section content below fixed navbar */
+    padding-top: var(--nav-h, 0px);
+  
+    overflow: hidden;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  
+
+  .section-cta{
+    min-height: 100svh;
+    box-sizing: border-box;
+  
+    /* matcha layoutlogiken: content under fixed nav */
+    padding-top: calc(var(--nav-h, 0px) + 80px);
+    padding-bottom: 80px;
   }
   
   
