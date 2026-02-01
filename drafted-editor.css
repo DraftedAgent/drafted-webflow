@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-02-01-1046 */
+/* drafted-editor.css | build=2026-02-01-1058 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -16,66 +16,70 @@
 
 
 /* --- import: ./components/editor-layout.css (from index.css) --- */
-/* Ensure the editor section consumes the full snap-section height */
+/* Editor section must fill its snap-section height */
 .section-editor{
     height: 100%;
-  }
-  
-  /* Container becomes a vertical layout: header + flexible content */
-  .section-editor .layout-container.editor-container{
-    height: 100%;
+    min-height: 0 !important;
     display: flex;
     flex-direction: column;
-    min-height: 0; /* CRITICAL */
   }
   
-  /* Header takes only its natural height */
+  /* Container: header + remaining height */
+  .section-editor .layout-container.editor-container{
+    height: 100%;
+    min-height: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Header: natural height */
   .editor-header{
     flex: 0 0 auto;
   }
   
-  /* Two-column layout fills remaining height */
+  /* Two-column layout fills the rest */
   .editor-layout{
-    flex: 1 1 auto;
-    min-height: 0; /* CRITICAL */
-    display: flex;
-    align-items: stretch; /* do not allow weird shrinking */
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    align-items: stretch;
   }
   
-  /* Columns must be allowed to shrink */
+  /* Columns must be shrinkable */
   .editor-left,
   .editor-right{
     flex: 1 1 0;
-    min-height: 0; /* CRITICAL */
-    display: flex;
+    min-height: 0 !important;
+    display: flex !important;
   }
   
-  /* Cards become vertical stacks */
+  /* Cards are vertical stacks */
   .chat-card,
   .cv-card{
     flex: 1 1 auto;
-    min-height: 0; /* CRITICAL */
-    display: flex;
+    min-height: 0 !important;
+    display: flex !important;
     flex-direction: column;
   }
   
-  /* Chat: messages scroll, input stays pinned */
+  /* Chat: scroll only inside messages */
   .chat-messages{
-    flex: 1 1 auto;
-    min-height: 0; /* CRITICAL */
-    overflow: auto;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
   }
   
-  /* CV: document scrolls, tools/header stay pinned */
+  /* CV: scroll only inside document */
   .cv-document{
-    flex: 1 1 auto;
-    min-height: 0; /* CRITICAL */
-    overflow: auto;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
   }
   
-  /* Prevent placeholder/processing overlays from forcing height weirdness */
+  /* Inner: support absolute overlays without collapsing */
   .cv-document-inner{
     min-height: 100%;
+    position: relative;
   }
   
 /* --- end import: ./components/editor-layout.css --- */
@@ -87,10 +91,9 @@
 
 html, body{
     height: 100%;
-    overflow: hidden; /* only .page-scroll scrolls */
+    overflow: hidden;
   }
   
-  /* Scroll container */
   .page-scroll{
     height: 100svh;
     overflow-y: auto;
@@ -98,21 +101,19 @@ html, body{
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
   
-    /* snapping should respect fixed/sticky navbar if present */
+    /* behåll denna bara om navbar är fixed/sticky overlay */
     scroll-padding-top: var(--nav-h, 0px);
   }
   
-  /* Each snap section is exactly one viewport "page" */
-  .snap-section{
-    box-sizing: border-box;
-  
-    height: calc(100svh - var(--nav-h, 0px));
-    min-height: calc(100svh - var(--nav-h, 0px));
-    overflow: hidden; /* critical: content must not grow page */
-  
+  /* SNAP-SEKTIONER SKA VARA EXAKT VIEWPORT-HÖGA */
+  .page-scroll .snap-section{
+    height: 100svh !important;
+    min-height: 100svh !important;
+    overflow: hidden !important;
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
+  
   
   @media (prefers-reduced-motion: reduce){
     .page-scroll{ scroll-behavior: auto; }

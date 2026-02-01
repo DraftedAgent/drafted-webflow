@@ -2,10 +2,9 @@
 
 html, body{
     height: 100%;
-    overflow: hidden; /* only .page-scroll scrolls */
+    overflow: hidden;
   }
   
-  /* Scroll container */
   .page-scroll{
     height: 100svh;
     overflow-y: auto;
@@ -13,21 +12,19 @@ html, body{
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
   
-    /* snapping should respect fixed/sticky navbar if present */
+    /* behåll denna bara om navbar är fixed/sticky overlay */
     scroll-padding-top: var(--nav-h, 0px);
   }
   
-  /* Each snap section is exactly one viewport "page" */
-  .snap-section{
-    box-sizing: border-box;
-  
-    height: calc(100svh - var(--nav-h, 0px));
-    min-height: calc(100svh - var(--nav-h, 0px));
-    overflow: hidden; /* critical: content must not grow page */
-  
+  /* SNAP-SEKTIONER SKA VARA EXAKT VIEWPORT-HÖGA */
+  .page-scroll .snap-section{
+    height: 100svh !important;
+    min-height: 100svh !important;
+    overflow: hidden !important;
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
+  
   
   @media (prefers-reduced-motion: reduce){
     .page-scroll{ scroll-behavior: auto; }
