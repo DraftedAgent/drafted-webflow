@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-02-01-1939 */
+/* drafted-editor.css | build=2026-02-01-1947 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -102,45 +102,51 @@ html, body{
     z-index: 1000;
   }
   
-  /* The only scroll container */
+  /* The only scroll container: snapport is BELOW nav */
   .page-scroll{
-    height: 100svh;
+    position: fixed;
+    left: 0;
+    right: 0;
+  
+    /* snapport starts under the fixed nav */
+    top: var(--nav-h, 0px);
+  
+    /* snapport height excludes nav */
+    height: calc(100svh - var(--nav-h, 0px));
+  
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
   
-    /* snap offset for fixed nav */
-    scroll-padding-top: var(--nav-h, 0px);
-  
-    /* stop chaining to body */
+    /* stop chaining */
     overscroll-behavior-y: none;
+  
+    /* IMPORTANT: remove snap offset mechanism completely */
+    scroll-padding-top: 0px !important;
   }
   
-  /* Snap pages: geometry only, NO nav padding here */
+  /* Snap pages are 100% of the snapport, not 100svh */
   .page-scroll .snap-section{
-    height: 100svh;
-    min-height: 100svh;
+    height: 100%;
+    min-height: 100%;
     box-sizing: border-box;
-  
-    padding-top: 0 !important;
   
     overflow: hidden;
     scroll-snap-align: start;
     scroll-snap-stop: always;
+  
+    /* IMPORTANT: no nav padding here */
+    padding-top: 0 !important;
   }
   
-  /* Put nav offset on the shared inner wrapper */
-  .page-scroll .snap-section > .layout-container.w-container.w-layout-blockcontainer{
-    box-sizing: border-box;
-    padding-top: var(--nav-h, 0px);
-  }
-  
-  /* CTA is NOT a snap section, but still needs to sit below fixed nav */
+  /* CTA is not a snap section, but should still fill the snapport */
   .section-cta{
-    min-height: 100svh;
+    min-height: 100%;
     box-sizing: border-box;
-    padding-top: calc(var(--nav-h, 0px) + 80px);
+  
+    /* your design spacing inside CTA */
+    padding-top: 80px;
     padding-bottom: 80px;
   }
   
