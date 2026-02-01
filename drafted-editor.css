@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-02-01-1932 */
+/* drafted-editor.css | build=2026-02-01-1939 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -110,38 +110,39 @@ html, body{
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
   
-    /* IMPORTANT: offset snapping for fixed navbar */
+    /* snap offset for fixed nav */
     scroll-padding-top: var(--nav-h, 0px);
   
     /* stop chaining to body */
     overscroll-behavior-y: none;
   }
   
-  /* Snap pages */
+  /* Snap pages: geometry only, NO nav padding here */
   .page-scroll .snap-section{
     height: 100svh;
     min-height: 100svh;
-  
-    /* IMPORTANT: make padding not increase height */
     box-sizing: border-box;
   
-    padding-top: 0;
+    padding-top: 0 !important;
   
     overflow: hidden;
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
   
-
+  /* Put nav offset on the shared inner wrapper */
+  .page-scroll .snap-section > .layout-container.w-container.w-layout-blockcontainer{
+    box-sizing: border-box;
+    padding-top: var(--nav-h, 0px);
+  }
+  
+  /* CTA is NOT a snap section, but still needs to sit below fixed nav */
   .section-cta{
     min-height: 100svh;
     box-sizing: border-box;
-  
-    /* matcha layoutlogiken: content under fixed nav */
     padding-top: calc(var(--nav-h, 0px) + 80px);
     padding-bottom: 80px;
   }
-  
   
   @media (prefers-reduced-motion: reduce){
     .page-scroll{ scroll-behavior: auto; }
