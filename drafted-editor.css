@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-02-01-1923 */
+/* drafted-editor.css | build=2026-02-01-1932 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -125,8 +125,7 @@ html, body{
     /* IMPORTANT: make padding not increase height */
     box-sizing: border-box;
   
-    /* Push section content below fixed navbar */
-    padding-top: var(--nav-h, 0px);
+    padding-top: 0;
   
     overflow: hidden;
     scroll-snap-align: start;
