@@ -1,32 +1,35 @@
 /* Scroll behavior belongs to the page feature, not global layout */
 
-html, body {
+html, body{
     height: 100%;
     overflow: hidden; /* only .page-scroll scrolls */
   }
   
-  /* Use viewport height but allow safe viewport on mobile */
-  .page-scroll {
+  /* Scroll container */
+  .page-scroll{
     height: 100svh;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
-    scroll-behavior: auto; /* smooth causes weirdness with snap */
+    scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
   
-    /* If you have a sticky/fixed navbar, set this var globally */
+    /* snapping should respect fixed/sticky navbar if present */
     scroll-padding-top: var(--nav-h, 0px);
   }
   
-  .snap-section {
-    height: auto;
-    min-height: 100svh;
+  /* Each snap section is exactly one viewport "page" */
+  .snap-section{
     box-sizing: border-box;
   
-    scroll-snap-align: start; /* not center */
+    height: calc(100svh - var(--nav-h, 0px));
+    min-height: calc(100svh - var(--nav-h, 0px));
+    overflow: hidden; /* critical: content must not grow page */
+  
+    scroll-snap-align: start;
     scroll-snap-stop: always;
   }
   
-  @media (prefers-reduced-motion: reduce) {
-    .page-scroll { scroll-behavior: auto; }
+  @media (prefers-reduced-motion: reduce){
+    .page-scroll{ scroll-behavior: auto; }
   }
   
