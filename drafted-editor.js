@@ -10,7 +10,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-02-01-1058");
+console.log("DRAFTED_JS_SOURCE", "2026-02-01-1116");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -218,13 +218,58 @@ function setEditorProcessing(isOn) {
     throw new Error("Missing required Drafted editor DOM elements");
   }
 
-console.log("✅ Drafted editor loaded");
+  console.log("✅ Drafted editor loaded");
 
-// Initial UI state — safe to run now
-setEditorProcessing(false);
-setEditorPlaceholder(true);
-forceButtonsActiveLook();
+  // ✅ NAV HEIGHT VAR (must run before snap layout is evaluated)
+  (function setupNavHeightVar(){
+    const root = document.documentElement;
+  
+    let last = 0;
+  function setVar(px){
+    const v = Math.max(0, Math.round(px));
+
+    // Ignore insane jumps (mobile menu opening, etc)
+    if (last && v > last * 1.8) return;
+
+    last = v;
+    root.style.setProperty("--nav-h", v + "px");
+  }
+  
+    function findNavbar(){
+      // Webflow navbar wrapper (recommended)
+      return document.querySelector(".w-nav") 
+        // fallback: your nav element
+        || document.querySelector("nav[role='navigation']")
+        || document.querySelector("nav");
+    }
+    
+  
+    const nav = findNavbar();
+    console.log("setupNavHeightVar: nav found", nav);
+
+    if (!nav) { setVar(0); return; }
+  
+    const measure = () => setVar(nav.getBoundingClientRect().height);
+  
+    measure();
+  
+    const ro = new ResizeObserver(measure);
+    ro.observe(nav);
+  
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(measure);
+    }
+  
+    window.addEventListener("resize", measure, { passive: true });
+  })();
+  
+  // Initial UI state — safe to run now
+  setEditorProcessing(false);
+  setEditorPlaceholder(true);
+  forceButtonsActiveLook();
   editorPreviewEl.setAttribute("tabindex", "0");
+  
+
 
 
   function forceButtonsActiveLook() {
