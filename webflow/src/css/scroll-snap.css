@@ -2,8 +2,9 @@
 
 html, body{
     height: 100%;
-    overflow: hidden;
+    overflow: hidden !important;
   }
+  
   
   .page-scroll{
     height: 100svh;
@@ -11,16 +12,31 @@ html, body{
     scroll-snap-type: y mandatory;
     scroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
+  
+    scroll-padding-top: var(--nav-h, 0px);
+    overscroll-behavior-y: none;
   }
   
   .page-scroll .snap-section{
-    height: calc(100svh - var(--nav-h, 0px)) !important;
-    min-height: calc(100svh - var(--nav-h, 0px)) !important;
-    overflow: hidden !important;
+    height: 100svh;
+    min-height: 100svh;
+    overflow: hidden;
     scroll-snap-align: start;
     scroll-snap-stop: always;
+  
+    /* push content below fixed nav */
+    padding-top: var(--nav-h, 0px);
   }
   
+  
+  .navbar.w-nav{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+  }
   
   
   @media (prefers-reduced-motion: reduce){

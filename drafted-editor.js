@@ -10,7 +10,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-02-01-1116");
+console.log("DRAFTED_JS_SOURCE", "2026-02-01-1903");
 
 console.log("🚀 drafted-editor.js executing");
 
