@@ -1,27 +1,32 @@
 /* Scroll behavior belongs to the page feature, not global layout */
 
 html, body {
-  height: 100%;
-  overflow: hidden; /* only .page-scroll scrolls */
-}
-
-.page-scroll {
-  height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-.snap-section {
-  height: 100vh;
-  box-sizing: border-box;
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page-scroll {
-    scroll-behavior: auto;
+    height: 100%;
+    overflow: hidden; /* only .page-scroll scrolls */
   }
-}
+  
+  /* Use viewport height but allow safe viewport on mobile */
+  .page-scroll {
+    height: 100svh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: auto; /* smooth causes weirdness with snap */
+    -webkit-overflow-scrolling: touch;
+  
+    /* If you have a sticky/fixed navbar, set this var globally */
+    scroll-padding-top: var(--nav-h, 0px);
+  }
+  
+  .snap-section {
+    height: auto;
+    min-height: 100svh;
+    box-sizing: border-box;
+  
+    scroll-snap-align: start; /* not center */
+    scroll-snap-stop: always;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .page-scroll { scroll-behavior: auto; }
+  }
+  

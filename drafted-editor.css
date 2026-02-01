@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-01-31-1717 */
+/* drafted-editor.css | build=2026-02-01-1035 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -14,37 +14,100 @@
 /* --- end import: ./layout.css --- */
 
 
+
+/* --- import: ./components/editor-layout.css (from index.css) --- */
+/* Editor section layout must be header + fill-rest, with internal scrolling areas */
+
+.section-editor {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .section-editor .layout-container.editor-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  
+  .editor-header {
+    flex: 0 0 auto;
+  }
+  
+  .editor-layout {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+  }
+  
+  .editor-left,
+  .editor-right {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+  }
+  
+  .chat-card,
+  .cv-card {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Make chat messages scroll inside the card */
+  .chat-messages {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  
+  /* Make CV document scroll inside the card */
+  .cv-document {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  
+/* --- end import: ./components/editor-layout.css --- */
+
 /* page behavior */
 
 /* --- import: ./scroll-snap.css (from index.css) --- */
 /* Scroll behavior belongs to the page feature, not global layout */
 
 html, body {
-  height: 100%;
-  overflow: hidden; /* only .page-scroll scrolls */
-}
-
-.page-scroll {
-  height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-.snap-section {
-  height: 100vh;
-  box-sizing: border-box;
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page-scroll {
-    scroll-behavior: auto;
+    height: 100%;
+    overflow: hidden; /* only .page-scroll scrolls */
   }
-}
+  
+  /* Use viewport height but allow safe viewport on mobile */
+  .page-scroll {
+    height: 100svh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: auto; /* smooth causes weirdness with snap */
+    -webkit-overflow-scrolling: touch;
+  
+    /* If you have a sticky/fixed navbar, set this var globally */
+    scroll-padding-top: var(--nav-h, 0px);
+  }
+  
+  .snap-section {
+    height: auto;
+    min-height: 100svh;
+    box-sizing: border-box;
+  
+    scroll-snap-align: start; /* not center */
+    scroll-snap-stop: always;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .page-scroll { scroll-behavior: auto; }
+  }
+  
 /* --- end import: ./scroll-snap.css --- */
+
 
 
 /* components */

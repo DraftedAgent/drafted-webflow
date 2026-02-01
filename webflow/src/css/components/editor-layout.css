@@ -1,0 +1,53 @@
+/* Editor section layout must be header + fill-rest, with internal scrolling areas */
+
+.section-editor {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .section-editor .layout-container.editor-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  
+  .editor-header {
+    flex: 0 0 auto;
+  }
+  
+  .editor-layout {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+  }
+  
+  .editor-left,
+  .editor-right {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+  }
+  
+  .chat-card,
+  .cv-card {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Make chat messages scroll inside the card */
+  .chat-messages {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  
+  /* Make CV document scroll inside the card */
+  .cv-document {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  

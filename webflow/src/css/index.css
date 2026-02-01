@@ -3,8 +3,10 @@
 @import url("./base.css");
 @import url("./layout.css");
 
+@import url("./components/editor-layout.css");
 /* page behavior */
 @import url("./scroll-snap.css");
+
 
 /* components */
 @import url("./components/cv-preview.css");
