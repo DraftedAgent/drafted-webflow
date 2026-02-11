@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-02-11-1938 */
+/* drafted-editor.css | build=2026-02-11-1945 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -154,6 +154,13 @@ html, body{
     .page-scroll{ scroll-behavior: auto; }
   }
   
+  /* Override Webflow editor rule: keep editor locked to snapport */
+.page-scroll > .section-editor.snap-section.drafted-app{
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+}
 /* --- end import: ./scroll-snap.css --- */
 
 
