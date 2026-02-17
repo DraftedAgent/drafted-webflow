@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-02-17-2008 */
+/* drafted-editor.css | build=2026-02-17-2033 */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -828,6 +828,52 @@ html, body{
 /* --- end import: ./components/tooltips.css --- */
 
 
+/* --- import: ./components/jobcontext-status.css (from index.css) --- */
+#jobcontext-status{
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.2;
+    margin-top: 6px;
+  }
+  
+  #jobcontext-status[data-state="loading"]{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,0,0,0.04);
+    color: #111;
+  }
+  
+  #jobcontext-status[data-state="ready"]{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(16,185,129,0.10);
+    color: #111;
+  }
+  
+  #jobcontext-status[data-state="error"]{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(239,68,68,0.10);
+    color: #111;
+  }
+  
+  #jobcontext-status-icon{
+    width: 16px;
+    text-align: center;
+    opacity: 0.9;
+  }
+  
+/* --- end import: ./components/jobcontext-status.css --- */
+
+
+
 /* states */
 
 /* --- import: ./states/buttons.css (from index.css) --- */
@@ -1124,4 +1170,6 @@ html, body{
     padding: 0 2px;
   }
 /* --- end import: ./utilities/helpers.css --- */
+
+
 

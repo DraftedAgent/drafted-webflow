@@ -16,6 +16,8 @@
 @import url("./components/proposal-card.css");
 @import url("./components/chat.css");
 @import url("./components/tooltips.css");
+@import url("./components/jobcontext-status.css");
+
 
 /* states */
 @import url("./states/buttons.css");
@@ -25,3 +27,5 @@
 
 /* utilities (last word) */
 @import url("./utilities/helpers.css");
+
+
