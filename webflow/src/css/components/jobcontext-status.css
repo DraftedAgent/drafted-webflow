@@ -1,16 +1,41 @@
-#jobcontext-status {
-    transition: opacity 0.2s ease;
+#jobcontext-status{
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.2;
+    margin-top: 6px;
   }
   
-  #jobcontext-status[data-state="loading"] {
-    color: #666;
-  }
-  
-  #jobcontext-status[data-state="ready"] {
+  #jobcontext-status[data-state="loading"]{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,0,0,0.04);
     color: #111;
   }
   
-  #jobcontext-status[data-state="error"] {
-    color: #c00;
+  #jobcontext-status[data-state="ready"]{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(16,185,129,0.10);
+    color: #111;
+  }
+  
+  #jobcontext-status[data-state="error"]{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(239,68,68,0.10);
+    color: #111;
+  }
+  
+  #jobcontext-status-icon{
+    width: 16px;
+    text-align: center;
+    opacity: 0.9;
   }
   
