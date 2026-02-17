@@ -10,7 +10,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-02-15-1949");
+console.log("DRAFTED_JS_SOURCE", "2026-02-17-1956");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -21,6 +21,8 @@ const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv"
 const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
 const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
 const N8N_EXPORT_PDF_URL = "https://drafted.app.n8n.cloud/webhook/webflow-export-pdf";
+const N8N_JOBCONTEXT_URL = "https://drafted.app.n8n.cloud/webhook/webflow-jobcontext-extract";
+
 
 
 

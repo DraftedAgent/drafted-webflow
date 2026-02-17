@@ -1,0 +1,16 @@
+#jobcontext-status {
+    transition: opacity 0.2s ease;
+  }
+  
+  #jobcontext-status[data-state="loading"] {
+    color: #666;
+  }
+  
+  #jobcontext-status[data-state="ready"] {
+    color: #111;
+  }
+  
+  #jobcontext-status[data-state="error"] {
+    color: #c00;
+  }
+  
