@@ -10,7 +10,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-02-17-2033");
+console.log("DRAFTED_JS_SOURCE", "2026-02-17-2134");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -175,6 +175,10 @@ function setEditorProcessing(isOn) {
   const editorChatBtn  = document.getElementById("editor-chat-send");   
   const contextChipEl  = document.getElementById("context-chip");
   const chatMessagesEl = document.querySelector(".chat-messages");
+  const jobAdInputEl = document.getElementById("job-ad-input");
+  const jobContextStatusEl = document.getElementById("jobcontext-status");
+  const jobContextStatusIconEl = document.getElementById("jobcontext-status-icon");
+  const jobContextStatusTextEl = document.getElementById("jobcontext-status-text");
 
   // Hide these when a CV is loaded (add class "hide-when-cv-loaded" to both texts in Webflow)
   const hideWhenCvLoadedEls = document.querySelectorAll(".hide-when-cv-loaded");
@@ -208,14 +212,29 @@ function setEditorProcessing(isOn) {
 
 
   const hasFileInput = !!getFileInput();
-  if (!hasFileInput || !uploadBtn || !editorPreviewEl || !editorInput || !editorApplyBtn || !contextChipEl) {
+  if (
+    !hasFileInput ||
+    !uploadBtn ||
+    !editorPreviewEl ||
+    !editorInput ||
+    !editorApplyBtn ||
+    !contextChipEl ||
+    !jobAdInputEl ||
+    !jobContextStatusEl ||
+    !jobContextStatusIconEl ||
+    !jobContextStatusTextEl
+  ) {
     console.error("❌ Missing required DOM elements", {
       fileInput: hasFileInput,
       uploadBtn: !!uploadBtn,
       editorPreviewEl: !!editorPreviewEl,
       editorInput: !!editorInput,
       editorApplyBtn: !!editorApplyBtn,
-      contextChipEl: !!contextChipEl
+      contextChipEl: !!contextChipEl,
+      jobAdInputEl: !!jobAdInputEl,
+      jobContextStatusEl: !!jobContextStatusEl,
+      jobContextStatusIconEl: !!jobContextStatusIconEl,
+      jobContextStatusTextEl: !!jobContextStatusTextEl
     });
     throw new Error("Missing required Drafted editor DOM elements");
   }
@@ -357,6 +376,143 @@ function setEditorProcessing(isOn) {
       }
     }
   }
+
+  /* ===============================
+     JOBCONTEXT AUTO-EXTRACT
+     =============================== */
+  let jobContextDebounceTimer = null;
+  let jobContextReqSeq = 0;
+
+  window.__DRAFTED_JOBCONTEXT__ = null;
+
+  function jobContextDebugLog(...args) {
+    if (window.__DRAFTED_DEBUG__ === true) {
+      console.log("[jobcontext]", ...args);
+    }
+  }
+
+  function setJobContextStatus(state, icon, text) {
+    if (!jobContextStatusEl || !jobContextStatusIconEl || !jobContextStatusTextEl) return;
+  
+    const nextState = String(state || "idle");
+    jobContextStatusEl.dataset.state = nextState;
+  
+    if (nextState === "idle") {
+      jobContextStatusIconEl.textContent = "";
+      jobContextStatusTextEl.textContent = "";
+      return;
+    }
+  
+    jobContextStatusIconEl.textContent = String(icon || "");
+    jobContextStatusTextEl.textContent = String(text || "");
+  }
+  
+
+  function clearJobContextDebounce() {
+    if (jobContextDebounceTimer) {
+      clearTimeout(jobContextDebounceTimer);
+      jobContextDebounceTimer = null;
+    }
+  }
+
+  async function runJobContextExtract() {
+    if (!jobAdInputEl) return;
+
+    const jobAdText = String(jobAdInputEl.value || "").trim();
+    if (jobAdText.length < 200) {
+      // Invalidate any in-flight request and clear stale context/status.
+      jobContextReqSeq += 1;
+      window.__DRAFTED_JOBCONTEXT__ = null;
+      setJobContextStatus("idle", "", "");
+      return;
+    }
+
+    const seq = ++jobContextReqSeq;
+    setJobContextStatus("loading", "…", "Extracting role signals…");
+    jobContextDebugLog("request:start", { seq, chars: jobAdText.length });
+
+    try {
+      const res = await fetch(N8N_JOBCONTEXT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobAdText })
+      });
+
+      const raw = await res.text();
+      let data = null;
+      try {
+        data = JSON.parse(raw);
+      } catch (_e) {
+        throw new Error("invalid-json");
+      }
+
+      if (!res.ok) throw new Error("http-not-ok");
+if (!data || data.ok !== true) throw new Error("ok-false");
+
+// NEW: require jobContext exists
+if (!data.jobContext || typeof data.jobContext !== "object") {
+  throw new Error("missing-jobContext");
+}
+
+if (seq !== jobContextReqSeq) {
+  jobContextDebugLog("request:stale-success-ignored", { seq, latest: jobContextReqSeq });
+  return;
+}
+
+window.__DRAFTED_JOBCONTEXT__ = data.jobContext;
+setJobContextStatus("ready", "✓", "Signals ready");
+
+      jobContextDebugLog("request:ready", { seq });
+    } catch (err) {
+      if (seq !== jobContextReqSeq) {
+        jobContextDebugLog("request:stale-error-ignored", { seq, latest: jobContextReqSeq });
+        return;
+      }
+
+      window.__DRAFTED_JOBCONTEXT__ = null;
+      setJobContextStatus("error", "⚠", "Could not extract signals");
+      jobContextDebugLog("request:error", {
+        seq,
+        reason: String(err && err.message ? err.message : err)
+      });
+    }
+  }
+
+  function handleJobAdInput() {
+    if (!jobAdInputEl) return;
+
+    const jobAdText = String(jobAdInputEl.value || "").trim();
+    if (jobAdText.length < 200) {
+      clearJobContextDebounce();
+      // Invalidate any in-flight request and clear stale context/status.
+      jobContextReqSeq += 1;
+      window.__DRAFTED_JOBCONTEXT__ = null;
+      setJobContextStatus("idle", "", "");
+      return;
+    }
+
+    clearJobContextDebounce();
+    jobContextDebounceTimer = setTimeout(() => {
+      runJobContextExtract();
+    }, 800);
+  }
+
+  setJobContextStatus("idle", "", "");
+
+  if (
+    jobAdInputEl &&
+    jobContextStatusEl &&
+    jobContextStatusIconEl &&
+    jobContextStatusTextEl
+  ) {
+    if (jobAdInputEl.dataset.jobContextBound !== "1") {
+      jobAdInputEl.dataset.jobContextBound = "1";
+      jobAdInputEl.addEventListener("input", handleJobAdInput);
+    }
+  } else {
+    jobContextDebugLog("disabled: missing jobcontext DOM elements");
+  }
+  
   
   let currentUrl = null;
 
