@@ -10,7 +10,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-02-20-1333");
+console.log("DRAFTED_JS_SOURCE", "2026-02-20-1454");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -22,6 +22,7 @@ const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rew
 const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
 const N8N_EXPORT_PDF_URL = "https://drafted.app.n8n.cloud/webhook/webflow-export-pdf";
 const N8N_JOBCONTEXT_URL = "https://drafted.app.n8n.cloud/webhook/webflow-jobcontext-extract";
+const N8N_TAILOR_URL = "https://drafted.app.n8n.cloud/webhook/tailor-cv";
 
 
 
@@ -507,6 +508,77 @@ maybeShowTailor();
      TAILOR HIGHLIGHT CARD UI
      =============================== */
 
+     async function runTailor() {
+      const btn = document.getElementById("tailor-btn");
+      if (!btn) return;
+    
+      // Guards (Tailor kräver jobContext + blocks)
+      const jobContext = window.__DRAFTED_JOBCONTEXT__;
+      const hasJobContext = !!(jobContext && typeof jobContext === "object" && !Array.isArray(jobContext));
+      const hasBlocks = !!(Array.isArray(documentBlocksState) && documentBlocksState.length);
+    
+      if (!hasJobContext || !hasBlocks) {
+        setTailorMinimized("Tailoring failed");
+        btn.disabled = false;
+        return;
+      }
+    
+      // UI
+      setTailorMinimized("Tailoring in progress…");
+      btn.disabled = true;
+    
+      const payload = {
+        cvVersionId: cvVersionId || null,
+        cvTitle: documentTitle || "",
+        targetRole: targetRoleInput?.value?.trim() || "",
+        language: documentLanguage || "sv",
+        blocksSchemaVersion: "1.0",
+        blocks: documentBlocksState,
+        jobContextSchemaVersion: "1.0",
+        jobContext: jobContext
+      };
+    
+      try {
+        const data = await draftedFetchJson(
+          N8N_TAILOR_URL,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          },
+          "cv"
+        );
+    
+        // Update state from canonical blocks[]
+        const nextTitle = String(data.cvTitle || "").trim();
+        if (nextTitle) documentTitle = nextTitle;
+    
+        const nextCvVersionId = String(data.cvVersionId || "").trim();
+        cvVersionId = nextCvVersionId || cvVersionId || null;
+    
+        buildStateFromBlocks(data.blocks);
+    
+        renderDocument(documentTextState);
+        applySelectedBlocksUI();
+        updateContextChip();
+    
+        // Tailor UI
+        setTailorMinimized("Tailored ✓");
+    
+        // Optional: show/hide card states consistent
+        // (minibar stays, which matches your intended flow)
+      } catch (err) {
+        if (err && err.name === "DraftedContractError") {
+          console.error("DraftedContractError", err.code, err.details, err);
+        } else {
+          console.error(err);
+        }
+    
+        setTailorMinimized("Tailoring failed");
+        btn.disabled = false;
+      }
+    }
+
      function setTailorHidden() {
       const card = document.getElementById("tailor-card");
       const content = document.getElementById("tailor-content");
@@ -574,17 +646,16 @@ maybeShowTailor();
     if (btn.dataset.draftedTailorBound === "1") return;
     btn.dataset.draftedTailorBound = "1";
 
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", async (e) => {
       e.preventDefault();
       if (btn.disabled) return;
-
+    
       const minibar = document.getElementById("tailor-minibar");
       if (minibar && minibar.classList.contains("is-minimized")) {
         return;
       }
-
-      setTailorMinimized("Tailoring in progress…");
-      btn.disabled = true;
+    
+      await runTailor();
     });
   })();
 
@@ -2200,7 +2271,7 @@ async function sendChat() {
     cvVersionId: cvVersionId || null,
     cvTitle: documentTitle || "",
     targetRole: targetRoleInput?.value?.trim() || "",
-    language: documentLanguage || "sv",
+    language: documentLanguage || "en",
     mode,
     selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
     blocks: documentBlocksState,
@@ -2499,7 +2570,7 @@ function buildPdfExportPayload() {
     payload: {
       cvVersionId,
       cvTitle: documentTitle || "CV",
-      language: "sv",
+      language: documentLanguage || "en",
       templateId: "classic_v1",
       blocks: documentBlocksState
     }
