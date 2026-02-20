@@ -10,7 +10,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-02-20-1454");
+console.log("DRAFTED_JS_SOURCE", "2026-02-20-1512");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -531,7 +531,7 @@ maybeShowTailor();
         cvVersionId: cvVersionId || null,
         cvTitle: documentTitle || "",
         targetRole: targetRoleInput?.value?.trim() || "",
-        language: documentLanguage || "sv",
+        language: documentLanguage || "en",
         blocksSchemaVersion: "1.0",
         blocks: documentBlocksState,
         jobContextSchemaVersion: "1.0",
@@ -1330,7 +1330,7 @@ function setApplyLabel() {
   }
 
   let activeContext = "chat"; // "chat" | "blocks" | "full"
-  let documentLanguage = "sv"; // "sv" | "en"
+  let documentLanguage = "en"; // "sv" | "en"
 
 
   
