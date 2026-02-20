@@ -424,6 +424,7 @@ function setEditorProcessing(isOn) {
       jobContextReqSeq += 1;
       window.__DRAFTED_JOBCONTEXT__ = null;
       setJobContextStatus("idle", "", "");
+      maybeShowTailor();
       return;
     }
 
@@ -461,6 +462,7 @@ if (seq !== jobContextReqSeq) {
 
 window.__DRAFTED_JOBCONTEXT__ = data.jobContext;
 setJobContextStatus("ready", "✓", "Signals ready");
+maybeShowTailor();
 
       jobContextDebugLog("request:ready", { seq });
     } catch (err) {
@@ -471,6 +473,7 @@ setJobContextStatus("ready", "✓", "Signals ready");
 
       window.__DRAFTED_JOBCONTEXT__ = null;
       setJobContextStatus("error", "⚠", "Could not extract signals");
+      maybeShowTailor();
       jobContextDebugLog("request:error", {
         seq,
         reason: String(err && err.message ? err.message : err)
@@ -488,6 +491,7 @@ setJobContextStatus("ready", "✓", "Signals ready");
       jobContextReqSeq += 1;
       window.__DRAFTED_JOBCONTEXT__ = null;
       setJobContextStatus("idle", "", "");
+      maybeShowTailor();
       return;
     }
 
@@ -498,6 +502,91 @@ setJobContextStatus("ready", "✓", "Signals ready");
   }
 
   setJobContextStatus("idle", "", "");
+
+  /* ===============================
+     TAILOR HIGHLIGHT CARD UI
+     =============================== */
+
+     function setTailorHidden() {
+      const card = document.getElementById("tailor-card");
+      const content = document.getElementById("tailor-content");
+      const minibar = document.getElementById("tailor-minibar");
+      const btn = document.getElementById("tailor-btn");
+    
+      if (card) card.classList.remove("is-visible");
+      if (content) content.classList.remove("is-ready");
+      if (minibar) minibar.classList.remove("is-minimized");
+    
+      // reset button so it works next time
+      if (btn) btn.disabled = false;
+    }
+    
+    function setTailorReady() {
+      const card = document.getElementById("tailor-card");
+      const content = document.getElementById("tailor-content");
+      const minibar = document.getElementById("tailor-minibar");
+      const btn = document.getElementById("tailor-btn");
+    
+      if (card) card.classList.add("is-visible");
+      if (content) content.classList.add("is-ready");
+      if (minibar) minibar.classList.remove("is-minimized");
+    
+      // ensure CTA is clickable when we re-enter ready state
+      if (btn) btn.disabled = false;
+    }
+  function setTailorMinimized(statusText) {
+    const card = document.getElementById("tailor-card");
+    const content = document.getElementById("tailor-content");
+    const minibar = document.getElementById("tailor-minibar");
+    const miniTextEl = document.getElementById("tailor-mini-text");
+
+    if (card) card.classList.add("is-visible");
+    if (content) content.classList.remove("is-ready");
+    if (minibar) minibar.classList.add("is-minimized");
+
+    if (miniTextEl && typeof statusText === "string") {
+      const trimmed = statusText.trim();
+      if (trimmed) {
+        miniTextEl.textContent = trimmed;
+      }
+    }
+  }
+
+  function maybeShowTailor() {
+    const hasJobContext =
+      !!(window.__DRAFTED_JOBCONTEXT__ &&
+        typeof window.__DRAFTED_JOBCONTEXT__ === "object" &&
+        !Array.isArray(window.__DRAFTED_JOBCONTEXT__));
+
+    const hasBlocks =
+      !!(Array.isArray(documentBlocksState) && documentBlocksState.length);
+
+    if (hasJobContext && hasBlocks) {
+      setTailorReady();
+    } else {
+      setTailorHidden();
+    }
+  }
+
+  (function bindTailorButtonOnce() {
+    const btn = document.getElementById("tailor-btn");
+    if (!btn) return;
+    if (btn.dataset.draftedTailorBound === "1") return;
+    btn.dataset.draftedTailorBound = "1";
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (btn.disabled) return;
+
+      const minibar = document.getElementById("tailor-minibar");
+      if (minibar && minibar.classList.contains("is-minimized")) {
+        return;
+      }
+
+      setTailorMinimized("Tailoring in progress…");
+      btn.disabled = true;
+    });
+  })();
 
   if (
     jobAdInputEl &&
@@ -1894,6 +1983,7 @@ function updateContextChip() {
     previewSnapshot = null;
     clearAllProposalCards();
     setApplyLabel();
+    maybeShowTailor();
 
     const greeting =
       "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
