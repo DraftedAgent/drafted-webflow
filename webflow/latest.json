@@ -1,6 +1,6 @@
 {
-  "build": "2026-02-20-1512",
-  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-02-20-1512",
-  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-02-20-1512",
-  "ts": "2026-02-20T14:12:42Z"
+  "build": "2026-10-07-editor-demo",
+  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-07-editor-demo",
+  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-07-editor-demo",
+  "ts": "2026-10-07T08:33:41Z"
 }

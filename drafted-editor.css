@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-02-20-1512 */
+/* drafted-editor.css | build=2026-10-07-editor-demo */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -756,6 +756,59 @@ html, body{
      CHAT LAYOUT
      =============================== */
   
+     /* Keep the example visibly separate from the user's real conversation. */
+     .drafted-chat-demo {
+       flex: 0 0 auto;
+       padding: 18px;
+       border: 1px dashed #c5cbd0;
+       border-radius: 16px;
+       background: #f8f9fa;
+       text-align: left;
+     }
+
+     .drafted-chat-demo__heading {
+       display: inline-block;
+       padding: 4px 10px;
+       border-radius: 6px;
+       background: #e6eaee;
+       color: #333;
+       font-size: 12px;
+       font-weight: 600;
+       letter-spacing: 0.03em;
+     }
+
+     .drafted-chat-demo__note {
+       margin: 10px 0 16px;
+       color: #50565c;
+       font-size: 14px;
+       line-height: 1.5;
+     }
+
+     .drafted-chat-demo__messages {
+       display: flex;
+       flex-direction: column;
+       gap: 12px;
+     }
+
+     .drafted-chat-demo .chat-message-ai {
+       max-width: 90%;
+       margin: 0;
+       padding: 12px 14px;
+       background: #fff;
+       border: 1px solid #e0e3e6;
+       border-radius: 12px;
+       box-shadow: none;
+       color: #50565c;
+       font-size: 14px;
+       line-height: 1.5;
+       text-align: left;
+     }
+
+     .drafted-chat-demo .chat-message-user {
+       align-self: flex-end;
+       background: #eef0f2;
+     }
+
      .chat-messages {
         display: flex;
         flex-direction: column;

@@ -176,6 +176,29 @@ function setEditorProcessing(isOn) {
   const editorChatBtn  = document.getElementById("editor-chat-send");   
   const contextChipEl  = document.getElementById("context-chip");
   const chatMessagesEl = document.querySelector(".chat-messages");
+  // Webflow's initial conversation is an example, never real chat history.
+  (function labelEditorDemo() {
+    if (!chatMessagesEl || chatMessagesEl.querySelector(".drafted-chat-demo")) return;
+    const examples = Array.from(chatMessagesEl.children).filter(el =>
+      el.matches(".chat-message-ai, .chat-message-user")
+    );
+    if (!examples.length) return;
+
+    const demo = document.createElement("section");
+    demo.className = "drafted-chat-demo";
+    demo.setAttribute("aria-label", "Example conversation — demo");
+    const heading = document.createElement("div");
+    heading.className = "drafted-chat-demo__heading";
+    heading.textContent = "Example conversation";
+    const note = document.createElement("p");
+    note.className = "drafted-chat-demo__note";
+    note.textContent = "This is a demo. Upload your CV to start your own conversation.";
+    const messages = document.createElement("div");
+    messages.className = "drafted-chat-demo__messages";
+    examples.forEach(el => messages.appendChild(el));
+    demo.append(heading, note, messages);
+    chatMessagesEl.prepend(demo);
+  })();
   const jobAdInputEl = document.getElementById("job-ad-input");
   const jobContextStatusEl = document.getElementById("jobcontext-status");
   const jobContextStatusIconEl = document.getElementById("jobcontext-status-icon");
@@ -184,6 +207,7 @@ function setEditorProcessing(isOn) {
   // Hide these when a CV is loaded (add class "hide-when-cv-loaded" to both texts in Webflow)
   const hideWhenCvLoadedEls = document.querySelectorAll(".hide-when-cv-loaded");
   function setCvLoadedUI(isLoaded) {
+    if (isLoaded) chatMessagesEl?.querySelector(".drafted-chat-demo")?.remove();
     hideWhenCvLoadedEls.forEach(el => {
       el.style.display = isLoaded ? "none" : "";
     });
@@ -2056,9 +2080,6 @@ function updateContextChip() {
     setApplyLabel();
     maybeShowTailor();
 
-    const greeting =
-      "Here’s your first rewritten draft. What would you like to refine? For example: stronger achievement metrics, tighter structure, or clearer positioning for your target role.";
-    appendChat("assistant", greeting);
   } catch (err) {
     if (err && err.name === "DraftedContractError") {
       console.error("DraftedContractError", err.code, err.details, err);
