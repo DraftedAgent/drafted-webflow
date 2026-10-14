@@ -2,6 +2,8 @@
 
 ## Planerat erfarenhetsfrågeflöde (DEV-011; inte implementerat)
 
+DEV-013 uppdaterar planen med räknad frågekö (antalet verkliga relevanta ämnen, t.ex. sju), synligt i/N-framsteg, korta frågor/långa svar och en separat revisions-/källspårbar erfarenhetsmodell inför framtida professionell profil/RAG. Ämnena gäller vad som inte framgår tydligt i CV:t, inte konstaterade kompetensbrister. Ingen ny profil-, databas-, API- eller retrievalfunktion har implementerats; detaljkontrakt och lagringsval återstår.
+
 Se [EXPERIENCE-DISCOVERY-FLOW.md](EXPERIENCE-DISCOVERY-FLOW.md). Nuvarande jobContext kommer från annonsen; CV och jobContext kombineras först i Tailor. Frontend sendChat skickar inte strukturerat jobContext eller separat bekräftat erfarenhetsunderlag. Ny dokumentation beskriver neutrala frågor där CV-underlaget är oklart, naturligt samtalsspråk, separat faktabekräftelse och godkänd CV-ändring. Aktuella n8n-promptar behöver granskas före implementation; dokumentet är ingen verifiering av ny backendfunktion eller bestående profil. Befintliga CDQ-beslut och API-kontrakt kvarstår.
 
 ## Editor demo change (DEV-009; deployed DEV-010, 2026-10-14)

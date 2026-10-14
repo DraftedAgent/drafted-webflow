@@ -1,5 +1,7 @@
 # Drafted development control
 
+Senaste planeringsuppdatering DEV-013: erfarenhetsfrågeflödet visar faktiskt antal relevanta ämnen och framsteg (t.ex. 1/7 till 7/7), ställer korta frågor och accepterar långa svar. Separat källspårbart erfarenhetsunderlag förbereds för senare professionell profil/RAG; permanent lagring/retrieval är inte implementerat. Detta ersätter DEV-011:s tidigare rekommendation om högst tre ämnen. Dokumentationsleverans finns i PR #2; ingen main-merge godkänd ännu i denna sidokonversation.
+
 ## Fortsätt från ett annat konto eller en annan dator (DEV-012)
 
 Repositoryt är den gemensamma källan för kod, kontrakt, systemkarta, planerade flöden och utvecklingslogg. Chatthistorik behövs inte som canonical state. Root README och AGENTS.md ska hänvisa hit. Senaste genomförda produktleverans: DEV-010, PR #1, main merge e2793a5a9871fda288fa29ca7afca6212d0b75b2, publicerad demoändring. Senaste planerade produktarbete: DEV-011 erfarenhetsfrågor före Tailor; dokumenterat men inte implementerat. Läs nyare DEV-poster innan arbete, eftersom denna sammanfattning är en daterad utgångspunkt.

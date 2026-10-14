@@ -1,6 +1,6 @@
 # Validation strategy
 
-DEV-011 tillägg: [EXPERIENCE-DISCOVERY-FLOW.md](EXPERIENCE-DISCOVERY-FLOW.md) innehåller åtta ännu inte körda acceptansscenarier för frågeval, enkelt samtalsspråk, bekräftade fakta, hoppa över, rättelser, kontextbyte, historikgränser och icke-destruktiv CV-hantering. Använd dessa vid senare implementation; kontraktsberoende assertions behåller CDQ-gaterna och får inte rapporteras som passerade nu.
+DEV-011/013 tillägg: [EXPERIENCE-DISCOVERY-FLOW.md](EXPERIENCE-DISCOVERY-FLOW.md) innehåller elva ännu inte körda acceptansscenarier för frågeval, enkelt samtalsspråk, räknad frågekö/progress, långa svar, bekräftade källspårbara erfarenheter, framtida profil/RAG, hoppa över, rättelser, kontextbyte och icke-destruktiv CV-hantering. Använd dessa vid senare implementation; kontraktsberoende assertions behåller CDQ-gaterna och får inte rapporteras som passerade nu. Framtida bestående profil/retrieval kräver egen integrationstestning och dataåtkomstgräns, inte ett påstående om redan fungerande RAG.
 
 DEV-008 capability correction: the existing encrypted full-access n8n key is owner-authorized for development; no separate write key or test-environment setup is a readiness prerequisite. Test isolation, supported listener/session access, synthetic fixture execution and mandatory rollback snapshots are checked for the concrete task. Do not perform production execution or activation/deactivation without explicit applicable approval. No workflows were modified/executed to establish this state.
 
