@@ -1,0 +1,66 @@
+/* Run with Playwright available via NODE_PATH; default Chromium, optional PLAYWRIGHT_CHANNEL. */
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const os = require('node:os');
+const { pathToFileURL } = require('node:url');
+(async () => {
+  const browser = await chromium.launch({headless:true, ...(process.env.PLAYWRIGHT_CHANNEL ? {channel:process.env.PLAYWRIGHT_CHANNEL} : {})});
+  try {
+    const page = await browser.newPage({viewport:{width:1000,height:900}});
+    const errors=[], network=[];
+    page.on('pageerror',e=>errors.push(e.message));
+    await page.route('**/*',route=>{
+      if(route.request().url().startsWith('file:')) return route.continue();
+      network.push(route.request().url()); return route.abort();
+    });
+    await page.goto(pathToFileURL(path.resolve(__dirname,'../webflow/preview/experience-discovery.html')).href);
+    await page.getByRole('button',{name:'Börja frågorna',exact:true}).click();
+    assert.equal(await page.locator('.discovery-progress').innerText(),'1/7');
+    await page.screenshot({path:path.join(os.tmpdir(),'drafted-experience-question.png')});
+    await page.getByRole('textbox').fill('Ja, lite');
+    await page.getByRole('button',{name:'Skicka svar',exact:true}).click();
+    assert.equal(await page.locator('.discovery-progress').innerText(),'1/7');
+    assert.match(await page.locator('#discovery h2').innerText(),/Vad gjorde du själv/);
+    const long='Jag prioriterade arbetet tillsammans med utvecklarna.\n\n'+ 'Jag höll ihop planeringen. '.repeat(900);
+    await page.getByRole('textbox').fill(long);
+    await page.getByRole('button',{name:'Skicka svar',exact:true}).click();
+    assert.equal(await page.evaluate(()=>session.snapshot().answers[0].revisions.at(-1).text),long);
+    assert.equal(await page.evaluate(()=>session.confirmed().length),0);
+    await page.getByRole('button',{name:'Det stämmer',exact:true}).click();
+    await page.getByRole('button',{name:'Nästa fråga',exact:true}).click();
+    assert.equal(await page.locator('.discovery-progress').innerText(),'2/7');
+    const tooLong='x'.repeat(50001);
+    await page.getByRole('textbox').fill(tooLong);
+    await page.getByRole('button',{name:'Skicka svar',exact:true}).click();
+    assert.match(await page.getByRole('alert').innerText(),/Texten är för lång/);
+    assert.equal(await page.getByRole('textbox').inputValue(),tooLong);
+    await page.getByRole('button',{name:'Hoppa över',exact:true}).click();
+    assert.equal(await page.locator('.discovery-progress').innerText(),'3/7');
+    await page.getByRole('button',{name:'Nej',exact:true}).click();
+    assert.equal(await page.locator('.discovery-progress').innerText(),'4/7');
+    await page.getByRole('button',{name:'Jag vet inte',exact:true}).click();
+    assert.equal(await page.locator('.discovery-progress').innerText(),'5/7');
+    await page.getByRole('button',{name:'Avsluta frågorna',exact:true}).click();
+    assert.match(await page.locator('#discovery').innerText(),/3 kvar av 7/);
+    await page.getByRole('button',{name:'Rätta svar 1',exact:true}).click();
+    assert.equal(await page.getByRole('textbox').inputValue(),long);
+    assert.equal(await page.evaluate(()=>session.confirmed().length),0);
+    await page.getByRole('textbox').fill('Jag hjälpte till med planeringen.');
+    await page.getByRole('button',{name:'Skicka svar',exact:true}).click();
+    await page.getByRole('button',{name:'Det stämmer',exact:true}).click();
+    await page.getByRole('button',{name:'Nästa fråga',exact:true}).click();
+    assert.equal(await page.locator('.discovery-progress').innerText(),'5/7');
+    await page.selectOption('#language','en');
+    await page.getByRole('button',{name:'Start the questions',exact:true}).click();
+    assert.equal(await page.locator('.discovery-progress').innerText(),'1/7');
+    assert.equal(await page.evaluate(()=>session.confirmed().length),1);
+    assert.equal(await page.evaluate(()=>session.confirmedForRound().length),0);
+    await page.setViewportSize({width:390,height:844});
+    const box=await page.getByRole('textbox').boundingBox();
+    assert.ok(box.width>250 && box.x+box.width<=390,'long answer field fits mobile');
+    await page.screenshot({path:path.join(os.tmpdir(),'drafted-experience-mobile.png')});
+    assert.deepEqual(errors,[]);assert.deepEqual(network,[]);
+    console.log('Browser checks passed: 1/7 followup, long answer/source, explicit confirmation, oversize preservation, skip/no/unknown, early finish, correction/revision, language/context reset, mobile layout; no external requests.');
+  } finally {await browser.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

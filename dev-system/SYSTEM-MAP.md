@@ -1,5 +1,13 @@
 # Current system map
 
+## Discovery backend – DEV-015, inaktiv / lokalt verifierad
+
+Godkänt discovery 1.0: plan/interpret använder befintligt jobContext separat från CV och fulla sourceAnswer. Delad strict validator, Node-handler, HTTP-klient och embeddable UI. Plan count/referenser valideras; interpret bär round/question/answer ID+revision, individuella källciterade kandidater; sena svar avvisas och fel bevarar källan utan fallbacksuccess. `backend/n8n-discovery-definition.cjs` bygger sju noder: Webhook -> Validate request -> IF (error direkt response, success -> Build prompt -> model -> Validate model response -> response). Inga bypasses. Befintliga chat/Tailor/jobcontext ej modifierade. Ny definition zeIzzxPwD2Y91OyD, version bea078b2-f83e-4c25-b640-b3b56bde7bdd, active=false/activeVersionId=null; krypterad skapa-prestate=absent och full postdefinition/hash verifierade utanför Git. n8n-modelkonfiguration återanvänd via credentialreferens, ingen credentialvärdesåtkomst. Kodgater körda med fixtures i VM och HTTP/browser isolerat; verklig n8n- och AI-runtime fortfarande inte körd. CV-state/profil/RAG berörs inte.
+
+## Erfarenhetsfrågor – lokal etapp DEV-014 (inte driftsatt)
+
+Från main c67ce5c finns nu separat lokal sessionsmodell och embeddable DOM-komponent i webflow/src/experience-discovery{,-ui}.js samt syntetisk preview i webflow/preview/experience-discovery.html. Återanvänder befintliga jobContext-prioriterings-/mustHave-referenser från en mockad backendbedömning; validerar blockcitat och fryser faktiskt frågeantal. Ingen semantisk frontend-gissning, ingen transport eller integration med befintlig chat/Tailor, ingen bestående lagring/profil/RAG. Fråga/källsvar/faktum har egna identiteter och revisionsspår, individuella bekräftelser, rättelse/inaktivering och explicit samtalsspråk. CV-block/versionsidentitet förblir read-only. Tolv modelltester plus isolerade desktop/mobil-browserkontroller passerade. Aktuella GET-versioner och kontraktsförslag finns i EXPERIENCE-DISCOVERY-FLOW.md; tidigare observationer nedan är historik. Ägaren godkände discovery-riktning men CV-användning/CDQ-01 och slutlig transport återstår.
+
 ## Planerat erfarenhetsfrågeflöde (DEV-011; inte implementerat)
 
 DEV-013 uppdaterar planen med räknad frågekö (antalet verkliga relevanta ämnen, t.ex. sju), synligt i/N-framsteg, korta frågor/långa svar och en separat revisions-/källspårbar erfarenhetsmodell inför framtida professionell profil/RAG. Ämnena gäller vad som inte framgår tydligt i CV:t, inte konstaterade kompetensbrister. Ingen ny profil-, databas-, API- eller retrievalfunktion har implementerats; detaljkontrakt och lagringsval återstår.
