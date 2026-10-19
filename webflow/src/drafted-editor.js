@@ -17,12 +17,15 @@ console.log("🚀 drafted-editor.js executing");
 // ===============================
 // n8n endpoints (GLOBAL CONFIG)
 // ===============================
-const N8N_UPLOAD_URL = "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
-const N8N_EDITOR_URL = "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
-const N8N_CHAT_URL   = "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
-const N8N_EXPORT_PDF_URL = "https://drafted.app.n8n.cloud/webhook/webflow-export-pdf";
-const N8N_JOBCONTEXT_URL = "https://drafted.app.n8n.cloud/webhook/webflow-jobcontext-extract";
-const N8N_TAILOR_URL = "https://drafted.app.n8n.cloud/webhook/tailor-cv";
+const draftedEndpoints = window.__DRAFTED_PREVIEW_ENDPOINTS__ || {};
+const N8N_UPLOAD_URL = draftedEndpoints.upload || "https://drafted.app.n8n.cloud/webhook/webflow-upload-cv";
+const N8N_EDITOR_URL = draftedEndpoints.rewrite || "https://drafted.app.n8n.cloud/webhook/webflow-editor-rewrite";
+const N8N_CHAT_URL = draftedEndpoints.chat || "https://drafted.app.n8n.cloud/webhook/webflow-chat-cv";
+const N8N_EXPORT_PDF_URL = draftedEndpoints.export || "https://drafted.app.n8n.cloud/webhook/webflow-export-pdf";
+const N8N_JOBCONTEXT_URL = draftedEndpoints.jobcontext || "https://drafted.app.n8n.cloud/webhook/webflow-jobcontext-extract";
+const N8N_TAILOR_URL = draftedEndpoints.tailor || "https://drafted.app.n8n.cloud/webhook/tailor-cv";
+const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n.cloud/webhook/webflow-experience-discovery";
+let discoveryController = null;
 
 
 
@@ -508,6 +511,9 @@ maybeShowTailor();
 
   function handleJobAdInput() {
     if (!jobAdInputEl) return;
+    discoveryController?.invalidate();
+    window.__DRAFTED_JOBCONTEXT__ = null;
+    maybeShowTailor();
 
     const jobAdText = String(jobAdInputEl.value || "").trim();
     if (jobAdText.length < 200) {
@@ -649,6 +655,7 @@ maybeShowTailor();
   }
 
   function maybeShowTailor() {
+    discoveryController?.sync();
     const hasJobContext =
       !!(window.__DRAFTED_JOBCONTEXT__ &&
         typeof window.__DRAFTED_JOBCONTEXT__ === "object" &&
@@ -1314,6 +1321,16 @@ function setApplyLabel() {
   let isPreviewingProposal = false;
   let previewSnapshot = null;
 
+  if (window.DraftedDiscoveryEditor && chatMessagesEl) {
+    discoveryController = window.DraftedDiscoveryEditor.create({
+      host: chatMessagesEl,
+      endpoint: N8N_DISCOVERY_URL,
+      getContext: () => !isPreviewingProposal && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
+        ? { cvVersionId, blocks: deepClone(documentBlocksState), jobContext: deepClone(window.__DRAFTED_JOBCONTEXT__) }
+        : null
+    });
+  }
+
   
   function deepClone(obj) {
     try { return JSON.parse(JSON.stringify(obj)); } catch { return obj; }
@@ -1426,6 +1443,7 @@ function setApplyLabel() {
      BUILD STATE FROM BLOCKS
      =============================== */
   function buildStateFromBlocks(blocks) {
+    queueMicrotask(() => discoveryController?.sync());
     if (!Array.isArray(blocks) || !blocks.length) {
       documentBlocksState = null;
       blockRangesById = {};
@@ -2070,7 +2088,7 @@ function updateContextChip() {
     clearNativeSelection();
     updateContextChip();
 
-    if (chatMessagesEl) chatMessagesEl.innerHTML = "";
+    if (chatMessagesEl) Array.from(chatMessagesEl.children).filter(el => !el.classList.contains('drafted-discovery')).forEach(el => el.remove());
     chatHistory = [];
     pendingProposal = null;
     pendingProposalMeta = null;

@@ -1,108 +1,23 @@
-/* Embeddable local UI; caller supplies a Session, never a live endpoint. */
-(function (root) {
+(function(root){
   'use strict';
-  function mount(container, session, { onContinue = () => {}, onAnswer=text=>session.submit(text), onRetry=null } = {}) {
-    let draft = '', error = '', busy = false;
-    const sv = () => session.round().language === 'sv';
-    const text = (a, b) => sv() ? a : b;
-    const element = (tag, content, className) => {
-      const el = document.createElement(tag);
-      if (content) el.textContent = content;
-      if (className) el.className = className;
-      return el;
-    };
-    const action = (label, fn) => {
-      const button = element('button', label);
-      button.type = 'button';
-      button.disabled=busy;
-      button.addEventListener('click', async () => {
-        try { error = ''; const pending=fn();if(pending&&typeof pending.then==='function'){busy=true;render();await pending;busy=false;} render(); }
-        catch (e) {
-          busy=false;
-          error = e.message === 'ANSWER_TOO_LONG'
-            ? text('Texten är för lång. Behåll den och dela upp svaret i flera delar.', 'The text is too long. Keep it and split the answer into parts.')
-            : text('Det gick inte. Ditt svar är kvar. Försök igen.', 'That did not work. Your answer is still here. Try again.');
-          render();
-        }
-      });
-      return button;
-    };
-    function render() {
-      const r = session.round();
-      container.replaceChildren();
-      container.classList.add('experience-discovery');
-      container.append(element('p', text('Det du berättar sparas bara i den här öppna sessionen. CV:t ändras inte.',
-        'Your account stays in this open session only. Your CV is unchanged.'), 'discovery-note'));
-      if (r.phase === 'offer') {
-        const n = r.total;
-        container.append(element('h2', n
-          ? text(`Jag hittade ${n} saker som är viktiga för rollen men inte syns tydligt i ditt CV.`, `I found ${n} things that matter for the role but are not clear in your CV.`)
-          : text('Vi kan gå vidare med det som finns.', 'We can continue with what is already there.')));
-        if (n) container.append(element('p', text('Vi kan gå igenom dem en i taget.', 'We can go through them one at a time.')),
-          action(text('Börja frågorna', 'Start the questions'), () => session.start()));
-        container.append(action(text('Fortsätt med det som finns', 'Continue with what is available'), () => {session.finish(); onContinue(session.confirmedForRound());}));
-      } else if (r.phase === 'complete') {
-        const s = session.summary();
-        container.append(element('h2', text('Här är det vi gick igenom', 'Here is what we went through')),
-          element('p', text(`${s.confirmed} frågor med bekräftade svar, ${s.covered} täckta av andra svar, ${s.skipped} överhoppade, ${s.no} nej, ${s.unknown} osäkra och ${s.remaining} kvar av ${s.total}.`,
-            `${s.confirmed} questions with confirmed answers, ${s.covered} covered by other answers, ${s.skipped} skipped, ${s.no} no, ${s.unknown} unsure and ${s.remaining} remaining out of ${s.total}.`)));
-        for (const q of r.queue.filter(q => q.answerId)) {
-          container.append(action(text(`Rätta svar ${r.queue.indexOf(q)+1}`, `Correct answer ${r.queue.indexOf(q)+1}`), () => {
-            const a = session.snapshot().answers.find(a => a.id === q.answerId);
-            draft = a.revisions.at(-1).text; session.correct(q.id);
-          }));
-        }
-        container.append(action(text('Fortsätt med befintligt underlag', 'Continue with existing material'), () => onContinue(session.confirmedForRound())));
-      } else {
-        const progress = element('p', `${r.index+1}/${r.total}`, 'discovery-progress');
-        progress.setAttribute('aria-label', text(`Fråga ${r.index+1} av ${r.total}`, `Question ${r.index+1} of ${r.total}`));
-        container.append(progress);
-        if (r.notice) container.append(element('p', r.notice));
-        const q = session.current();
-        container.append(element('h2', r.phase === 'followup'
-          ? text('Vad gjorde du själv i det arbetet? Ett exempel räcker.', 'What did you do yourself? One example is enough.')
-          : q.question));
-        if (r.phase === 'interpreting') {
-          container.append(element('p',text('Jag läser ditt svar…','I am reading your answer…')));
-        } else if (r.phase === 'confirm') {
-          const a = session.snapshot().answers.find(a => a.id === q.answerId);
-          container.append(element('p', text('Har jag förstått dig rätt? Bekräfta varje uppgift eller rätta svaret.',
-            'Have I understood you correctly? Confirm each item or correct your answer.')));
-          a.drafts.forEach((d, index) => {
-            container.append(element('p', d.proposedText, 'discovery-answer'));
-            const details = element('details');
-            details.append(element('summary', text('Ditt fullständiga svar', 'Your full account')),
-              element('p', a.revisions.at(-1).text, 'discovery-answer'));
-            container.append(details);
-            if (!d.confirmed) container.append(action(text('Det stämmer', 'That is correct'), () => session.confirmDraft(index)));
-            else container.append(element('p', text('Bekräftat av dig', 'Confirmed by you')));
-          });
-          container.append(action(text('Rätta mitt svar', 'Correct my answer'), () => {
-            draft = a.revisions.at(-1).text; session.correct(q.id);
-          }));
-          if (a.drafts.every(d => d.confirmed)) container.append(action(text('Nästa fråga', 'Next question'), () => { draft=''; session.next(); }));
-        } else {
-          const label = element('label', text('Svara kort eller berätta mer – båda funkar.', 'A short answer or a longer story — both work.'));
-          const input = element('textarea');
-          input.rows = 8;
-          input.value = draft;
-          input.setAttribute('aria-label', label.textContent);
-          input.addEventListener('input', () => { draft = input.value; });
-          label.append(input);
-          container.append(label, element('p', text('Upp till 50 000 tecken per svar. Längre berättelser kan delas upp. Inget kapas automatiskt.',
-            'Up to 50,000 characters per answer. Longer accounts can be split. Nothing is automatically cut.'), 'discovery-note'),
-            action(text('Skicka svar', 'Send answer'), async () => { await onAnswer(draft); draft=''; }));
-          if(r.phase==='error'&&onRetry)container.append(action(text('Försök igen','Try again'),()=>onRetry()));
-          container.append(action(text('Nej', 'No'), () => {session.submit(text('Nej','No'));draft='';}),
-            action(text('Jag vet inte', 'I don’t know'), () => {session.submit(text('Jag vet inte',"I don't know"));draft='';}));
-        }
-        container.append(action(text('Hoppa över', 'Skip'), () => {session.skip();draft='';}),
-          action(text('Avsluta frågorna', 'Finish the questions'), () => session.finish()));
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null}={}){
+    let draft='',error='',busy=false,disposed=false;const mountedRound=session.round().id;
+    const text=(a,b)=>session.round().language==='sv'?a:b;
+    const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
+    const button=(label,fn)=>{const b=el('button',label);b.type='button';b.disabled=busy;b.addEventListener('click',async()=>{try{error='';const result=fn();if(result&&typeof result.then==='function'){busy=true;render();await result;busy=false;}render();}catch(e){busy=false;error=e.message==='ANSWER_TOO_LONG'?text('Svaret är för långt. Texten är kvar. Dela gärna upp det.','Your answer is too long. Your text is kept. Please split it.'):text('Det gick inte att läsa svaret. Texten är kvar. Försök igen eller hoppa över.','Your answer could not be read. Your text is kept. Retry or skip.');render();}});return b;};
+    function history(){const r=session.round(),answers=session.snapshot().answers.filter(a=>a.roundId===r.id);if(!answers.length)return;const details=el('details');details.append(el('summary',text('Dina svar – visa eller rätta','Your answers – view or correct')));for(const a of answers){const q=r.queue.find(q=>q.id===a.questionId);details.append(el('p',q.question,'discovery-history-question'),el('p',a.revisions.at(-1).text,'discovery-answer'),button(text(`Rätta svar ${r.queue.indexOf(q)+1}`,`Correct answer ${r.queue.indexOf(q)+1}`),()=>{draft=a.revisions.at(-1).text;session.correct(q.id);}));}container.append(details);}
+    const continueToEditor=()=>{disposed=true;onContinue(session.accountsForRound());};
+    function render(){let r;try{r=session.round();if(disposed||r.id!==mountedRound||!container.isConnected)return;}catch{return;}container.replaceChildren();container.classList.add('experience-discovery');container.append(el('p',text('Dina svar finns kvar så länge sidan är öppen. Frågorna ändrar inte ditt CV.','Your answers stay while this page is open. The questions do not change your CV.'),'discovery-note'));
+      if(r.phase==='offer'){container.append(el('h2',r.total?text(r.total===1?'En erfarenhet som är viktig för rollen syns inte tydligt i ditt CV.':`${r.total} erfarenheter som är viktiga för rollen syns inte tydligt i ditt CV.`,`${r.total} relevant experience ${r.total===1?'topic is':'topics are'} not clear in your CV.`):text('Vi kan gå vidare med det som finns.','We can continue with what is available.')));if(r.total)container.append(button(text('Börja frågorna','Start the questions'),()=>session.start()));container.append(button(text('Fortsätt med det som finns','Continue with what is available'),()=>{session.finish();continueToEditor();}));}
+      else if(r.phase==='complete'){const s=session.summary();container.append(el('h2',text('Tack, nu har vi gått igenom frågorna.','Thank you, we have gone through the questions.')),el('p',text(`${s.answered} besvarade, ${s.covered} täckta av andra svar och ${s.skipped+s.no+s.unknown} överhoppade eller utan exempel. ${s.remaining} kvar av ${s.total}.`,`${s.answered} answered, ${s.covered} covered by other answers, ${s.skipped+s.no+s.unknown} skipped or without examples. ${s.remaining} remaining out of ${s.total}.`)),button(text('Tillbaka till editorn','Back to the editor'),continueToEditor));}
+      else{const progress=el('p',`${r.index+1}/${r.total}`,'discovery-progress');progress.setAttribute('aria-label',text(`Fråga ${r.index+1} av ${r.total}`,`Question ${r.index+1} of ${r.total}`));container.append(progress,el('h2',r.phase==='followup'?r.notice:session.current().question));if(r.notice&&r.phase!=='followup')container.append(el('p',r.notice));
+        if(busy||r.phase==='interpreting')container.append(el('p',text('Jag läser ditt svar…','I am reading your answer…')));
+        else{const label=el('label',text('Svara kort eller berätta mer – båda funkar.','A short answer or a longer story — both work.')),input=el('textarea');input.rows=4;input.value=draft;input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>{draft=input.value;});label.append(input);container.append(label,el('p',text('Upp till 50 000 tecken. Inget kapas automatiskt.','Up to 50,000 characters. Nothing is automatically cut.'),'discovery-note'),button(text(r.phase==='correct'?'Spara rättelsen':'Skicka svar',r.phase==='correct'?'Save correction':'Send answer'),async()=>{await onAnswer(draft);draft='';}));if(r.phase==='error'&&onRetry)container.append(button(text('Försök igen','Try again'),async()=>{await onRetry();draft='';}));container.append(button(text('Nej','No'),()=>{session.submit(text('Nej','No'));draft='';}),button(text('Jag vet inte','I don’t know'),()=>{session.submit(text('Jag vet inte',"I don't know"));draft='';}),button(text('Hoppa över','Skip'),()=>{session.skip();draft='';}));}
+        container.append(button(text('Avsluta frågorna','Finish the questions'),()=>session.finish()));
       }
-      if (error) { const alert=element('p',error);alert.setAttribute('role','alert');container.append(alert); }
+      history();if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}
     }
-    render();
-    return { render };
+    render();return {render};
   }
-  root.DraftedExperienceDiscoveryUI = { mount };
+  root.DraftedExperienceDiscoveryUI={mount};
 })(globalThis);

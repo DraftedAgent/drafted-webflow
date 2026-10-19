@@ -1,5 +1,7 @@
 # Erfarenhetsfrågor före CV-anpassning
 
+DEV-025, 2026-10-19: Ägaren har ändrat riktningen för användartest i hela editorn. Tydliga konkreta svar tas emot direkt och kön går vidare; ingen individuell faktabekräftelse. Följdfråga endast vid saknat viktigt underlag, högst en per ämne. Tidigare svar kan rättas och original/revisioner behålls. Svaren är användarlämnade källor, inte bekräftelser av AI-fakta eller CV-ändringar. JSON-kontraktets strikta referens-/citatkontroller är kvar. Den lokala helhetsförhandsversionen och leveransgaten beskrivs i EXPERIENCE-EDITOR-USER-TEST.md. Äldre individuella bekräftelsekrav i detta dokument är supersederade av detta ägarbeslut. CV-förslag/Apply, profil/RAG och driftsättning är fortsatt separata.
+
 Datum: 2026-10-14. DEV-011, uppdaterat DEV-013. Underlag: ägarens önskemål om befintliga annonssignaler, enkelt samtalsspråk, en räknad frågeomgång och förberedelse för en framtida professionell profil/RAG.
 
 Status: dokumenterat produktflöde inför implementation, inte driftsatt funktion eller nytt API-kontrakt. Ägaren har godkänt dokumentationsarbetet och riktningen. Exakta transportfält, lagring och koppling till Apply/versionering är ännu inte beslutade. Inga befintliga schema-/webhookkontrakt ändras av detta dokument.

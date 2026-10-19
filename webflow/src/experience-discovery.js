@@ -1,221 +1,55 @@
-/* Local preparation only. No transport, persistence or CV mutation. */
-(function (root, factory) {
-  const api = factory();
-  if (typeof module === 'object' && module.exports) module.exports = api;
-  else root.DraftedExperienceDiscovery = api;
-})(typeof globalThis === 'object' ? globalThis : this, function () {
+/* Session-only source answers. Interpretation is advisory, never confirmation or a CV edit. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedExperienceDiscovery=api;})(globalThis,function(){
   'use strict';
-  const MAX_ANSWER_LENGTH = 50000;
-  const copy = value => JSON.parse(JSON.stringify(value));
-  const requireText = value => {
-    if (typeof value !== 'string' || !value.trim()) throw new Error('INVALID_TEXT');
-    return value;
-  };
-  class Session {
-    constructor({ id = () => globalThis.crypto.randomUUID() } = {}) {
-      this.id = id;
-      this.state = { modelVersion: 'local-draft-1', revision: 0, context: null,
-        round: null, answers: [], experiences: [], proposals: [] };
-    }
-    snapshot() { return copy(this.state); }
-    // Context revision is caller-owned and must change for any CV/ad input change.
-    setContext(context) {
-      requireText(context.revision);
-      requireText(context.cvVersionId);
-      if (!Array.isArray(context.blocks) || !context.jobContext) throw new Error('INVALID_CONTEXT');
-      if (this.state.context?.revision === context.revision && JSON.stringify(this.state.context) !== JSON.stringify(context)) throw new Error('CONTEXT_REVISION_REQUIRED');
-      this.state.context = copy(context);
-      this.state.round = null;
-      this.state.proposals.forEach(p => { p.stale = true; });
-      this.state.revision++;
-    }
-    plan(assessment, language) {
-      const s = this.state;
-      if (!s.context || assessment.contextRevision !== s.context.revision) throw new Error('STALE_CONTEXT');
-      if (!['sv', 'en'].includes(language)) throw new Error('CHOOSE_CONVERSATION_LANGUAGE');
-      if (!Array.isArray(assessment.topics)) throw new Error('INVALID_PLAN');
-      if (s.round && s.round.phase !== 'complete') throw new Error('ROUND_ALREADY_PLANNED');
-      const keys = new Set(), refs = new Set();
-      const queue = [];
-      for (const topic of assessment.topics) {
-        requireText(topic.key);
-        if (keys.has(topic.key)) throw new Error('DUPLICATE_TOPIC');
-        keys.add(topic.key);
-        if (!Array.isArray(topic.signalRefs) || !topic.signalRefs.length) throw new Error('MISSING_SIGNAL');
-        for (const ref of topic.signalRefs) {
-          if (!['topPriorities', 'mustHave'].includes(ref.field) || !Number.isInteger(ref.index)) throw new Error('INVALID_SIGNAL');
-          const signal = s.context.jobContext[ref.field]?.[ref.index];
-          if (!signal) throw new Error('UNKNOWN_SIGNAL');
-          const key = `${ref.field}:${ref.index}`;
-          if (refs.has(key)) throw new Error('REPEATED_SIGNAL');
-          refs.add(key);
-        }
-        if (topic.support === 'clear') {
-          if (!Array.isArray(topic.evidence) || !topic.evidence.length) throw new Error('MISSING_CV_EVIDENCE');
-          for (const e of topic.evidence) {
-            requireText(e.quote);
-            const block = s.context.blocks.find(b => b.blockId === e.blockId);
-            if (!block || !block.text.includes(e.quote)) throw new Error('INVALID_CV_EVIDENCE');
-          }
-          continue;
-        }
-        if (topic.support !== 'unclear') throw new Error('INVALID_SUPPORT');
-        requireText(topic.question);
-        queue.push({ id: this.id(), topicKey: topic.key, signalRefs: copy(topic.signalRefs),
-          question: topic.question, status: 'unanswered', followupUsed: false, answerId: null });
+  const MAX_ANSWER_LENGTH=50000,copy=x=>JSON.parse(JSON.stringify(x));
+  const requireText=x=>{if(typeof x!=='string'||!x.trim())throw Error('INVALID_TEXT');};
+  class Session{
+    constructor({id=()=>globalThis.crypto.randomUUID()}={}){this.id=id;this.state={modelVersion:'source-answers-2',revision:0,context:null,round:null,answers:[]};}
+    snapshot(){return copy(this.state);}
+    setContext(c){requireText(c.revision);requireText(c.cvVersionId);if(!Array.isArray(c.blocks)||!c.jobContext)throw Error('INVALID_CONTEXT');if(this.state.context?.revision===c.revision&&JSON.stringify(this.state.context)!==JSON.stringify(c))throw Error('CONTEXT_REVISION_REQUIRED');this.state.context=copy(c);this.state.round=null;this.state.revision++;}
+    plan(p,language){
+      const c=this.state.context;if(!c||p.contextRevision!==c.revision)throw Error('STALE_CONTEXT');if(!['sv','en'].includes(language))throw Error('CHOOSE_CONVERSATION_LANGUAGE');if(!Array.isArray(p.topics))throw Error('INVALID_PLAN');if(this.state.round&&this.round().phase!=='complete')throw Error('ROUND_ALREADY_PLANNED');
+      const keys=new Set(),refs=new Set(),queue=[];
+      for(const t of p.topics){requireText(t.key);if(keys.has(t.key))throw Error('DUPLICATE_TOPIC');keys.add(t.key);if(!Array.isArray(t.signalRefs)||!t.signalRefs.length)throw Error('MISSING_SIGNAL');
+        for(const ref of t.signalRefs){if(!['topPriorities','mustHave'].includes(ref.field)||!Number.isInteger(ref.index)||ref.index<0)throw Error('INVALID_SIGNAL');if(!c.jobContext[ref.field]?.[ref.index])throw Error('UNKNOWN_SIGNAL');const key=ref.field+':'+ref.index;if(refs.has(key))throw Error('REPEATED_SIGNAL');refs.add(key);}
+        if(t.support==='clear'){if(!t.evidence?.length)throw Error('MISSING_CV_EVIDENCE');for(const e of t.evidence){requireText(e.quote);if(!c.blocks.some(b=>b.blockId===e.blockId&&b.text.includes(e.quote)))throw Error('INVALID_CV_EVIDENCE');}continue;}
+        if(t.support!=='unclear')throw Error('INVALID_SUPPORT');requireText(t.question);queue.push({id:this.id(),topicKey:t.key,signalRefs:copy(t.signalRefs),question:t.question,status:'unanswered',followupUsed:false,answerId:null});
       }
-      s.round = { id: this.id(), contextRevision: s.context.revision, language,
-        phase: 'offer', total: queue.length, index: 0, queue, notice: '' };
-      s.revision++;
+      this.state.round={id:this.id(),contextRevision:c.revision,language,phase:'offer',total:queue.length,index:0,queue,notice:''};this.state.revision++;
     }
-    round() {
-      if (!this.state.round || this.state.round.contextRevision !== this.state.context?.revision) throw new Error('NO_CURRENT_ROUND');
-      return this.state.round;
+    round(){if(!this.state.round||this.state.round.contextRevision!==this.state.context?.revision)throw Error('NO_CURRENT_ROUND');return this.state.round;}
+    current(){return this.round().queue[this.round().index]||null;}
+    start(){const r=this.round();if(r.phase!=='offer')throw Error('INVALID_PHASE');r.phase=r.total?'question':'complete';}
+    submit(text,{defer=false}={}){
+      const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');requireText(text);if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
+      let a=this.state.answers.find(a=>a.id===q.answerId);if(!a){a={id:this.id(),questionId:q.id,topicKey:q.topicKey,roundId:r.id,context:copy(this.state.context),revisions:[],currentRevision:0,drafts:[],status:'pending'};this.state.answers.push(a);q.answerId=a.id;}
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
+      if(/^\s*(nej|no)[.!]?\s*$/i.test(text)){a.status=q.status='no';this.advance();return;}
+      if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
+      if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(text)){this.askFollowup();return;}
+      r.phase='ready';if(!defer)this.reviewDrafts(this.token(),[{proposedText:text,sourceQuote:text,coveredQuestionIds:[]}]);
     }
-    start() {
-      const r = this.round();
-      if (r.phase !== 'offer') throw new Error('INVALID_PHASE');
-      r.phase = r.total ? 'question' : 'complete';
+    token(){const q=this.current(),a=this.state.answers.find(a=>a.id===q?.answerId);return {contextRevision:this.state.context?.revision,roundId:this.round().id,answerId:a?.id,answerRevision:a?.currentRevision};}
+    beginInterpret(){if(!['ready','error'].includes(this.round().phase))throw Error('INVALID_PHASE');this.round().phase='interpreting';}
+    interpretFailed(token){try{if(JSON.stringify(this.token())===JSON.stringify(token))this.round().phase='error';}catch{}}
+    reviewDrafts(token,drafts){
+      const r=this.round(),q=this.current(),a=this.state.answers.find(a=>a.id===q?.answerId);if(!a||!['ready','interpreting'].includes(r.phase)||JSON.stringify(this.token())!==JSON.stringify(token))throw Error('STALE_ANSWER');if(!Array.isArray(drafts))throw Error('INVALID_DRAFTS');
+      for(const d of drafts){requireText(d.proposedText);requireText(d.sourceQuote);if(!a.revisions.at(-1).text.includes(d.sourceQuote))throw Error('INVALID_SOURCE_QUOTE');if(!Array.isArray(d.coveredQuestionIds)||d.coveredQuestionIds.some(id=>!r.queue.some(q=>q.id===id)))throw Error('UNKNOWN_QUESTION');}
+      if(!drafts.length){this.askFollowup();return;}
+      a.drafts=copy(drafts);a.status=q.status='recorded';this.state.revision++;this.advance();
     }
-    current() { return this.round().queue[this.round().index] || null; }
-    submit(text) {
-      const r = this.round(), q = this.current();
-      if (!q || !['question', 'followup', 'correct', 'error'].includes(r.phase)) throw new Error('INVALID_PHASE');
-      requireText(text);
-      if (text.length > MAX_ANSWER_LENGTH) throw new Error('ANSWER_TOO_LONG');
-      let answer = this.state.answers.find(a => a.id === q.answerId);
-      if (!answer) {
-        answer = { id: this.id(), questionId: q.id, topicKey: q.topicKey,
-          roundId: r.id, context: copy(this.state.context), revisions: [], currentRevision: 0, drafts: [], factIds: [] };
-        this.state.answers.push(answer);
-        q.answerId = answer.id;
-      }
-      this.invalidate(answer.id);
-      answer.currentRevision++;
-      // Exact original text is retained separately from any model summary.
-      answer.revisions.push({ revision: answer.currentRevision, text });
-      answer.drafts = [];
-      q.status = 'answered';
-      this.state.revision++;
-      if (/^\s*(nej|no)\s*[.!]?\s*$/i.test(text)) { q.status = 'no'; this.advance(); return; }
-      if (/^\s*(jag vet inte|vet inte|i don.?t know)\s*[.!]?\s*$/i.test(text)) { q.status = 'unknown'; this.advance(); return; }
-      if (/^\s*(ja|yes|ja,? lite|yes,? a little)\s*[.!]?\s*$/i.test(text)) {
-        if (!q.followupUsed) { q.followupUsed = true; r.phase = 'followup'; }
-        else {
-          r.phase = 'question';
-          r.notice = r.language === 'sv'
-            ? 'Ett ja räcker inte som erfarenhetsunderlag. Berätta gärna vad du gjorde, eller hoppa över.'
-            : 'A yes alone is not an account of experience. You can share what you did, or skip.';
-        }
-        return;
-      }
-      // Preview default uses the verbatim account, with no invented extraction.
-      answer.drafts = [{ proposedText: text, sourceQuote: text, coveredQuestionIds: [] }];
-      r.phase = 'confirm';
+    askFollowup(){const r=this.round(),q=this.current();if(!q.followupUsed){q.followupUsed=true;r.phase='followup';r.notice=r.language==='sv'?'Vad gjorde du själv i det arbetet? Ett kort exempel räcker.':'What did you do yourself? A short example is enough.';}else{const a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='unknown';q.status='unknown';this.advance();}}
+    advance(){const r=this.round(),covered=new Set(this.state.answers.filter(a=>a.roundId===r.id&&a.status==='recorded').flatMap(a=>a.drafts.flatMap(d=>d.coveredQuestionIds)));r.index++;let n=0;
+      while(r.index<r.total){const q=r.queue[r.index];if(covered.has(q.id)&&q.status==='unanswered'){q.status='covered';n++;}if(!['recorded','covered','skipped','no','unknown'].includes(q.status))break;r.index++;}
+      r.notice=n?(r.language==='sv'?'Ditt svar besvarade också en senare fråga.':'Your answer also covered a later question.'):'';r.phase=r.index>=r.total?'complete':'question';
     }
-    token() {
-      const q = this.current(), a = this.state.answers.find(a => a.id === q?.answerId);
-      return { contextRevision: this.state.context?.revision, roundId: this.round().id,
-        answerId: a?.id, answerRevision: a?.currentRevision };
-    }
-    beginInterpret() {
-      const r=this.round(), a=this.state.answers.find(a=>a.id===this.current()?.answerId);
-      if (!a || !['confirm','error'].includes(r.phase)) throw new Error('INVALID_PHASE');
-      a.drafts=[]; r.phase='interpreting';
-    }
-    interpretFailed(token) {
-      if (JSON.stringify(this.token())===JSON.stringify(token)) this.round().phase='error';
-    }
-    // Candidate extraction adapter: no API is implemented or called here.
-    reviewDrafts(token, drafts) {
-      const r = this.round(), q = this.current(), a = this.state.answers.find(a => a.id === q?.answerId);
-      if (!a || !['confirm','interpreting'].includes(r.phase) || token.contextRevision !== r.contextRevision || token.roundId !== r.id ||
-        token.answerId !== a.id || token.answerRevision !== a.currentRevision) throw new Error('STALE_ANSWER');
-      if (a.drafts.some(d => d.confirmed)) throw new Error('ALREADY_CONFIRMED');
-      if (!Array.isArray(drafts)) throw new Error('INVALID_DRAFTS');
-      const text = a.revisions.at(-1).text;
-      for (const draft of drafts) {
-        requireText(draft.proposedText); requireText(draft.sourceQuote);
-        if (!text.includes(draft.sourceQuote)) throw new Error('INVALID_SOURCE_QUOTE');
-        if (!Array.isArray(draft.coveredQuestionIds) || draft.coveredQuestionIds.some(id => !r.queue.some(x => x.id === id))) throw new Error('UNKNOWN_QUESTION');
-      }
-      a.drafts = copy(drafts);
-      r.phase=drafts.length?'confirm':'question';
-      if (!drafts.length) r.notice=r.language==='sv'?'Jag fick inget konkret exempel ur svaret. Du kan berätta mer eller hoppa över.':'I did not find a concrete example in the answer. You can share more, or skip.';
-    }
-    confirmDraft(index) {
-      const r = this.round(), q = this.current(), a = this.state.answers.find(a => a.id === q?.answerId);
-      if (r.phase !== 'confirm' || !a?.drafts[index]) throw new Error('INVALID_PHASE');
-      const draft = a.drafts[index];
-      if (draft.confirmed) return;
-      const factId = a.factIds[index] || this.id();
-      a.factIds[index] = factId;
-      const previousRevision = Math.max(0, ...this.state.experiences.filter(e => e.id === factId).map(e => e.revision));
-      const fact = { id: factId, revision: previousRevision + 1, status: 'confirmed', confirmation: 'user',
-        text: draft.proposedText, source: { kind: 'user_answer', answerId: a.id,
-          answerRevision: a.currentRevision, quote: draft.sourceQuote },
-        topicKey: q.topicKey, coveredQuestionIds: [...new Set(draft.coveredQuestionIds)] };
-      this.state.experiences.push(fact);
-      draft.confirmed = true;
-      q.status = 'confirmed';
-      this.state.revision++;
-    }
-    next() {
-      const r = this.round(), a = this.state.answers.find(a => a.id === this.current()?.answerId);
-      if (r.phase !== 'confirm' || !a?.drafts.length || !a.drafts.every(d => d.confirmed)) throw new Error('CONFIRM_EACH_FACT');
-      this.advance();
-    }
-    advance() {
-      const r = this.round();
-      const covered = new Set(this.state.experiences.filter(e => e.status === 'confirmed').flatMap(e => e.coveredQuestionIds));
-      let skippedCovered = 0;
-      r.index++;
-      while (r.index < r.total) {
-        const next = r.queue[r.index];
-        if (covered.has(next.id) && next.status === 'unanswered') {
-          next.status = 'covered'; skippedCovered++;
-        }
-        if (!['confirmed','covered','skipped','no','unknown'].includes(next.status)) break;
-        r.index++;
-      }
-      r.notice = skippedCovered ? (r.language === 'sv' ? 'Ditt bekräftade svar täckte också senare frågor.' : 'Your confirmed answer also covered later questions.') : '';
-      r.phase = r.index >= r.total ? 'complete' : 'question';
-    }
-    skip() {
-      const r = this.round(), q = this.current();
-      if (!q || !['question','followup','confirm','correct','error'].includes(r.phase)) throw new Error('INVALID_PHASE');
-      if (q.answerId) this.invalidate(q.answerId);
-      q.status = 'skipped'; this.advance();
-    }
-    finish() { this.round().phase = 'complete'; }
-    correct(questionId) {
-      const r = this.round(), index = r.queue.findIndex(q => q.id === questionId);
-      if (index < 0) throw new Error('UNKNOWN_QUESTION');
-      const q = r.queue[index];
-      if (q.answerId) this.invalidate(q.answerId);
-      q.status = 'answered'; r.index = index; r.phase = 'correct';
-    }
-    invalidate(answerId) {
-      for (const fact of this.state.experiences) if (fact.source.answerId === answerId && fact.status === 'confirmed') {
-        fact.status = 'superseded';
-        for (const q of this.state.round?.queue || []) if (q.status === 'covered' && fact.coveredQuestionIds.includes(q.id)) q.status = 'unanswered';
-      }
-      this.state.proposals.forEach(p => { if (p.answerIds.includes(answerId)) p.stale = true; });
-    }
-    confirmed() { return copy(this.state.experiences.filter(e => e.status === 'confirmed')); }
-    confirmedForRound() {
-      const answerIds = new Set(this.state.answers.filter(a => a.roundId === this.round().id).map(a => a.id));
-      return this.confirmed().filter(e => answerIds.has(e.source.answerId));
-    }
-    summary() {
-      const r = this.round();
-      return { total: r.total, confirmed: r.queue.filter(q => q.status === 'confirmed').length,
-        covered: r.queue.filter(q => q.status === 'covered').length,
-        skipped: r.queue.filter(q => q.status === 'skipped').length,
-        no: r.queue.filter(q => q.status === 'no').length,
-        unknown: r.queue.filter(q => q.status === 'unknown').length,
-        remaining: r.queue.filter(q => ['unanswered','answered'].includes(q.status)).length };
-    }
+    invalidate(answerId){const a=this.state.answers.find(a=>a.id===answerId);if(!a)return;a.status='pending';for(const q of this.state.round?.queue||[])if(q.status==='covered'&&a.drafts.some(d=>d.coveredQuestionIds.includes(q.id)))q.status='unanswered';}
+    correct(id){const r=this.round(),index=r.queue.findIndex(q=>q.id===id);if(index<0)throw Error('UNKNOWN_QUESTION');r.index=index;r.phase='correct';r.notice='';}
+    skip(){const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');if(q.answerId){this.invalidate(q.answerId);this.state.answers.find(a=>a.id===q.answerId).status='skipped';}q.status='skipped';this.advance();}
+    finish(){this.round().phase='complete';}
+    accounts(){return copy(this.state.answers.filter(a=>a.status==='recorded').map(a=>({...a,sourceText:a.revisions.at(-1).text,verification:'user_submitted',interpretationsAreAdvisory:true})));}
+    accountsForRound(){return this.accounts().filter(a=>a.roundId===this.round().id);}
+    summary(){const r=this.round(),count=s=>r.queue.filter(q=>q.status===s).length;return {total:r.total,answered:count('recorded'),covered:count('covered'),skipped:count('skipped'),no:count('no'),unknown:count('unknown'),remaining:r.queue.filter(q=>['unanswered','answered'].includes(q.status)).length};}
   }
-  return { Session, MAX_ANSWER_LENGTH };
+  return {Session,MAX_ANSWER_LENGTH};
 });

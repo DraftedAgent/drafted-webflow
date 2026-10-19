@@ -12,6 +12,10 @@ Implementation: delad strict validator `webflow/src/experience-discovery-contrac
 
 ## Gemensam request (exakta fält)
 
+### Uppdaterad användarlivscykel – ägargodkänd 2026-10-19, DEV-025
+
+Ägaren har ersatt individuell faktabekräftelse med direkt mottagning av konkreta källsvar i editorn. Ett begripligt svar registreras med originaltext/ID/revision och flödet går vidare. AI-tolkningar är fortsatt rådgivande kandidater, aldrig bekräftade fakta. Endast viktigt saknat underlag ger en följdfråga; användaren kan rätta tidigare svar. Ingen CV-ändring eller bestående profil följer av att lämna ett svar. CV-användning kräver separat godkännande och är inte kopplad till Tailor av denna ändring. Detta ersätter äldre krav nedan på individuell bekräftelse; JSON-request/response, strikta gates och källcitat är oförändrade. Ingen extern workflowändring krävs för klientens nya livscykel.
+
 `schemaVersion: "1.0"`, `operation: "plan" | "interpret"`, `requestId: string`, `contextRevision: string`, `conversationLanguage: "sv" | "en"`, `cvVersionId: string`, `blocksSchemaVersion: "1.0"`, `blocks: canonical blocks[]`, `jobContextSchemaVersion: "1.0"`, `jobContext: existing 1.0 object`.
 
 Plan har inga ytterligare fält. Återanvändning av gamla erfarenheter förutsätter en senare uttrycklig selection-operation; inget gammalt underlag transporteras automatiskt i v1. Befintligt strukturerat jobContext återanvänds utan ny annonsanalys. Annonskrav blir aldrig användarfakta. Keywords ensamma får inte skapa ett ämne.
@@ -24,7 +28,7 @@ Gemensamt: `ok:true`, `schemaVersion:"1.0"`, `operation`, `requestId`, `contextR
 
 Plan result: `{topics:[{key, question, signalRefs, support:"clear"|"unclear", evidence:[{blockId,quote}]}]}`. Alla nämnda signaler ska vara relevanta prioriteter/mustHave; överlapp grupperas och varje signalreferens förekommer högst en gång. Topic keys är unika inom en plan. Vid clear krävs minst ett exakt blockcitat; vid unclear är evidence tom. Tom topics ger noll frågor, inte 0/0. Klienten väljer endast unclear och räknar faktisk kö. Backend semantisk jämförelse är rådgivande, aldrig ett kompetensbetyg. Ingen ifyllnad för att nå sju.
 
-Interpret result: `{roundId,questionId,answerId,answerRevision,drafts:[{proposedText,sourceQuote,coveredQuestionIds}]}`. Varje sourceQuote är ett exakt sammanhängande utdrag ur full sourceAnswer.text; inget får hänvisa till modelltext/annons som personkälla. coveredQuestionIds ska finnas i fryst questions. Drafts är obevisade kandidater, aldrig bekräftade fakta. Tom drafts betyder att svaret inte gav konkret underlag; klienten erbjuder mer information eller skip, inte ett påhittat svar. Deluppgifter bekräftas individuellt. Faktabekräftelse ändrar inte CV.
+Interpret result: `{roundId,questionId,answerId,answerRevision,drafts:[{proposedText,sourceQuote,coveredQuestionIds}]}`. Varje sourceQuote är ett exakt sammanhängande utdrag ur full sourceAnswer.text; inget får hänvisa till modelltext/annons som personkälla. coveredQuestionIds ska finnas i fryst questions. Drafts är rådgivande tolkningar, aldrig bekräftade fakta. Konkret underlag registreras med det oförändrade källsvaret och kön går vidare direkt. Tom drafts ger högst en följdfråga om saknat underlag och därefter möjlighet att gå vidare utan påhittade uppgifter. Ingen individuell faktabekräftelse eller CV-mutation.
 
 ## Failure (exakta fält)
 

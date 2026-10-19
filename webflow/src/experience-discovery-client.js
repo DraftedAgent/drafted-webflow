@@ -19,7 +19,7 @@
       const request={schemaVersion:'1.0',operation:'plan',requestId:this.id(),contextRevision:c.revision,conversationLanguage:language,cvVersionId:c.cvVersionId,blocksSchemaVersion:'1.0',blocks:c.blocks,jobContextSchemaVersion:'1.0',jobContext:c.jobContext};
       try{const result=await this.call(request);if(session.snapshot().context.revision!==request.contextRevision)return {stale:true};session.plan({contextRevision:request.contextRevision,topics:result.topics},language);return result;}catch(e){if(session.snapshot().context.revision!==request.contextRevision)return {stale:true};throw e;}
     }
-    async submit(session,text){session.submit(text);if(session.round().phase==='confirm')return this.interpret(session);}
+    async submit(session,text){session.submit(text,{defer:true});if(session.round().phase==='ready')return this.interpret(session);}
     async retry(session){return this.interpret(session);}
     async interpret(session){
       const token=session.token(),snap=session.snapshot(),answer=snap.answers.find(a=>a.id===token.answerId);

@@ -1,5 +1,7 @@
 # Experience discovery — överlämning till nytt konto
 
+Senare läge DEV-025, 2026-10-19: utgå nu från `EXPERIENCE-EDITOR-USER-TEST.md` och senaste DEV-logg. Ägaren har tagit bort individuell faktabekräftelse och beställt lokal integration i HELA editorn, med direkta källsvar, rättelser och separat CV-godkännande. Nytt browserkommando är `node tests/editor-discovery.browser.cjs`; de två äldre fristående browserfilerna är ersatta. `node tools/serve-editor-preview.cjs` startar den lokala hela editorn på 8771 med alla backendvägar isolerade. Stresstester avvaktar. Nuvarande befintliga n8n-version efter DEV-023 är 18c94502-2224-4f92-956e-c5fa6d5f2758 (inaktiv vid senaste GET); nytt GET krävs inför leverans. Handoffen nedan är daterad historik.
+
 Verifierad 2026-10-17, DEV-016. Arbetet finns på `codex/experience-discovery`, utgående från main `c67ce5c134016e1f835c4874ead546eaa4d24bc5`. Detta är en utvecklingsbranch för granskning, inte en produktionsleverans. Läs AGENTS.md och startupdokumenten, sedan denna fil och det aktuella discovery-kontraktet. GitHub-branchens innehåll är överlämningen; gamla temporära filer/chattminne krävs inte.
 
 ## Klart och säkrat
