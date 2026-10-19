@@ -4,6 +4,8 @@
 
 DEV-026: Ägaren svarade uttryckligen ja på det samlade leveranspaketet: commit/push/PR #3, main-merge/Pages, aktivering av samma workflow/version efter verifierad snapshot samt en syntetisk webbverifiering med högst två modellanrop utan retries. Genomförandet och faktiskt verifierat utfall redovisas i senaste CHANGE-LOG; förberedelsens väntande status nedan är historisk.
 
+Levererat/verifierat DEV-026: merge f43d9e406f307169713628761097002f34973750, samtliga nedanstående frysta filhashar verifierade över HTTP, hemsidans loader använder rätt build. Workflowet är aktivt på exakt godkänd version; krypterade för-/efter-snapshots verifierade. Den enda syntetiska webbgenomgången passerade med två HTTP 200 (plan/interpret), inga retries, direkt avslut efter konkret svar som täckte två frågor, synligt original/rättelse och oförändrat CV. Ingen Webflow-publicering eller annan produktionskörning. Detta avslutar den godkända automatiska verifieringen, inte ett generellt godkännande för fler modelltester.
+
 ## Vad användaren kan testa
 
 - Ladda CV och annons i samma Drafted-editor som hemsidan använder. När båda finns erbjuds erfarenhetsfrågor i chattkortet, med synligt val av samtalsspråk och möjlighet att avstå.
