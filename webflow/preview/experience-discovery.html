@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="sv"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Drafted – lokalt erfarenhetsflöde</title>
+<style>
+body{font:16px/1.6 system-ui,sans-serif;margin:0;background:#f5f6f7;color:#202326}main{max-width:760px;margin:40px auto;padding:24px;background:white;border-radius:16px}h1{font-size:24px}h2{font-size:21px;line-height:1.45}.preview-label{font-size:14px;border-bottom:1px solid #ddd;padding-bottom:16px}.discovery-note{font-size:14px;color:#545b62}.discovery-progress{font-weight:700}textarea{display:block;width:100%;box-sizing:border-box;resize:vertical;margin:12px 0;padding:14px;border:1px solid #9ca4ac;border-radius:8px;font:inherit;min-height:180px}button{font:inherit;padding:10px 16px;margin:8px 8px 0 0;background:white;border:1px solid #7b838b;border-radius:8px;cursor:pointer}button:focus-visible,textarea:focus-visible{outline:3px solid #3359a5;outline-offset:3px}.discovery-answer{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f6f7;padding:14px;border-radius:8px}[role=alert]{color:#8a1d1d}@media(max-width:600px){main{margin:0;padding:20px;border-radius:0}}
+</style>
+<main><h1>Berätta om din erfarenhet</h1><p class="preview-label">Lokal förhandsvisning · Syntetisk annons och mockad analys · Ingen CV-ändring eller API-trafik</p>
+<label>Samtalsspråk <select id="language"><option value="sv">Svenska</option><option value="en">English</option></select></label>
+<section id="discovery"></section><p id="handoff" aria-live="polite"></p></main>
+<script src="../src/experience-discovery.js"></script><script src="../src/experience-discovery-ui.js"></script>
+<script src="../src/experience-discovery-contract.js"></script><script src="../src/experience-discovery-client.js"></script>
+<script>
+// Fixture only. Backend semantic analysis is pending an approved operation contract.
+const topics = [
+ ['planning','Prioritize roadmap and backlog','Har du varit med och bestämt vad ett produktteam ska bygga härnäst?','Have you helped decide what a product team builds next?'],
+ ['customers','Learn from customers','Har du pratat med användare för att förstå vad de behöver?','Have you talked with users to understand what they need?'],
+ ['collaboration','Work with design and engineering','Har du arbetat tillsammans med designers och utvecklare?','Have you worked with designers and developers?'],
+ ['measurement','Measure outcomes','Har du följt upp om en förändring gjorde något bättre?','Have you checked whether a change made something better?'],
+ ['delivery','Plan delivery','Har du hjälpt till att hålla ihop ett arbete fram till leverans?','Have you helped keep work on track through delivery?'],
+ ['communication','Explain decisions','Har du förklarat ett beslut för personer med olika perspektiv?','Have you explained a decision to people with different perspectives?'],
+ ['improvement','Improve onboarding','Har du förenklat hur någon kommer igång med en tjänst?','Have you made it easier for someone to get started with a service?']
+];
+const session = new DraftedExperienceDiscovery.Session();
+const transportMode=new URLSearchParams(location.search).has('backend');
+const client=transportMode?new DraftedDiscoveryClient.Client({endpoint:'/webflow-experience-discovery'}):null;
+async function prepare(){const language=document.querySelector('#language').value;session.setContext({revision:crypto.randomUUID(),cvVersionId:'fixture-cv-1',blocks:[{blockId:'summary_1',type:'summary',label:'Summary',order:1,text:'Arbetade i ett digitalt produktteam.'}],jobContext:{roleTitle:'Product specialist',seniority:'mid',surfaces:['app'],tone:'balanced',topPriorities:topics.map(t=>({signal:t[1],weight:5})),mustHave:[],successMetrics:[],keywords:['product','planning','customers','design','engineering','metrics','delivery','communication','onboarding','improvement']}});
+const revision=session.snapshot().context.revision;
+if(client){document.querySelector('#discovery').textContent='Förbereder frågor…';try{const result=await client.plan(session,language);if(result.stale)return;}catch{if(session.snapshot().context.revision!==revision)return;document.querySelector('#discovery').textContent='Det gick inte att hämta frågor. Byt språkvalet för att försöka igen.';return;}}
+else session.plan({contextRevision:revision,topics:topics.map((t,i)=>({key:t[0],question:t[language==='sv'?2:3],signalRefs:[{field:'topPriorities',index:i}],support:'unclear'}))},language);
+DraftedExperienceDiscoveryUI.mount(document.querySelector('#discovery'),session,{...(client?{onAnswer:text=>client.submit(session,text),onRetry:()=>client.retry(session)}:{}),onContinue:facts=>{document.querySelector('#handoff').textContent=language==='sv'?`Du har ${facts.length} sparade källsvar. Ditt CV har inte ändrats.`:`You have ${facts.length} source answers. Your CV is unchanged.`;}});}
+document.querySelector('#language').addEventListener('change',()=>{document.querySelector('#handoff').textContent='';prepare();});prepare();
+</script></html>

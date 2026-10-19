@@ -17,7 +17,7 @@ Then read relevant product contracts and implementation. For planned experience 
 
 Drafted represents a person's career; a CV is one selected representation. blocks[] is canonical, flat text is derived, IDs remain stable. Missing CV evidence does not prove missing experience. AI is advisory; meaningful changes require explicit user intent. Keep confirmed user facts, selected CV and derived artifacts separate.
 
-Use short, natural conversational language. Ask one clear question at a time; avoid judging competence or inventing facts. Follow the documented experience-question flow when implementing it; it is not already shipped.
+Use short, natural conversational language. Ask one clear question at a time; avoid judging competence or inventing facts. The owner-approved editor user-test flow (2026-10-19) records concrete source answers and moves on without individual fact confirmation; only genuinely missing information triggers one followup. Keep corrections/revisions and separate approval for CV changes. Submitted sources and advisory AI interpretations are not user-confirmed AI facts. This editor integration is local until the explicit deployment approval bundle.
 
 Never develop material changes directly on main. Use codex/<task>. Inspect diff and validation before delivery. Never merge to main without explicit owner approval; production-affecting delivery remains gated. No force push or history rewriting on main. GitHub protection is procedural, not assumed technically enforced.
 

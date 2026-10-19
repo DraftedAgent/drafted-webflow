@@ -76,7 +76,12 @@ JS_OUT="$DIST_DIR/drafted-editor.js"
 
 if [[ -f "$JS_SRC" ]]; then
   # If your JS contains the placeholder __DRAFTED_BUILD_ID__, replace it.
-  sed "s/__DRAFTED_BUILD_ID__/$BUILD_ID/g" "$JS_SRC" > "$JS_OUT"
+  : > "$JS_OUT"
+  for module in experience-discovery.js experience-discovery-ui.js experience-discovery-contract.js experience-discovery-client.js experience-discovery-editor.js; do
+    cat "$SRC_DIR/$module" >> "$JS_OUT"
+    printf '\n;\n' >> "$JS_OUT"
+  done
+  sed "s/__DRAFTED_BUILD_ID__/$BUILD_ID/g" "$JS_SRC" >> "$JS_OUT"
 else
   echo "WARN: Missing $JS_SRC (skipping JS build)."
 fi
