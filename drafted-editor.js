@@ -3,6 +3,12 @@
   'use strict';
   const MAX_ANSWER_LENGTH=50000,copy=x=>JSON.parse(JSON.stringify(x));
   const requireText=x=>{if(typeof x!=='string'||!x.trim())throw Error('INVALID_TEXT');};
+  // Whole-answer patterns only: a negated clause must never swallow a positive account.
+  function isNegativeAnswer(text,question){
+    const answer=text.trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g,' ').replace(/[.!]+$/,'');
+    if(/^(no|nej)$/.test(answer)||/^(?:no,? )?i (?:haven't|have not|have never) done (?:that|this)(?: yet)?$/.test(answer))return true;
+    return answer==='not externally'&&/\b(customers?|clients?|external(?:ly)?)\b/i.test(question)&&!/\b(internal|colleagues?)\b/i.test(question);
+  }
   class Session{
     constructor({id=()=>globalThis.crypto.randomUUID()}={}){this.id=id;this.state={modelVersion:'source-answers-2',revision:0,context:null,round:null,answers:[]};}
     snapshot(){return copy(this.state);}
@@ -24,12 +30,13 @@
     start(){const r=this.round();if(r.phase!=='offer')throw Error('INVALID_PHASE');r.phase=r.total?'question':'complete';}
     submit(text,{defer=false}={}){
       const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');requireText(text);if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
+      const negative=isNegativeAnswer(text,q.question);
       let a=this.state.answers.find(a=>a.id===q.answerId);if(!a){a={id:this.id(),questionId:q.id,topicKey:q.topicKey,roundId:r.id,context:copy(this.state.context),revisions:[],currentRevision:0,drafts:[],status:'pending'};this.state.answers.push(a);q.answerId=a.id;}
       const isFollowup=r.phase==='followup',reply=text,previous=a.revisions.at(-1)?.text;
-      if(isFollowup&&previous&&!/^\s*(no|nej|i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
+      if(isFollowup&&previous&&!negative&&!/^\s*(i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
       if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
-      if(/^\s*(nej|no)[.!]?\s*$/i.test(text)){a.status=q.status='no';this.advance();return;}
+      if(negative){a.status=q.status='no';this.advance();return;}
       if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
       if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(reply)){this.askFollowup();return;}
       r.phase='ready';if(!defer)this.reviewDrafts(this.token(),[{proposedText:text,sourceQuote:text,coveredQuestionIds:[]}]);
@@ -108,7 +115,8 @@
           card.append(el('p','Potential support for the requirement above; not a finding that every part is met.','discovery-note'),el('p','Still unverified: whether your example covers all activities, audiences and settings in this requirement. An example in one setting does not establish experience in another.'));
           card.append(el('p','How it is used: saved here for your review only. It is not used by CV suggestions.','discovery-note'));
         }else{
-          const message={no:'You answered “No” to this question. This records your answer, not a judgement about other experience.',unknown:'You said you do not know. Whether you have this experience is still unclear.',needs_detail:'We could not identify a concrete example from your answer. This does not mean you lack the experience. You can clarify it below.',skipped:'You skipped this topic. No example was provided; this does not mean you lack the experience.',error:'Your answer is saved, but could not be checked. You can retry it below.',processing:'Your answer is saved and is still being checked.',unanswered:'You have not answered this topic. No conclusion about your experience has been drawn.'};
+          if(q.status==='no'&&own){card.append(el('p','Your answer','discovery-result-label'));sourceExcerpt(card,own.revisions.at(-1).text);}
+          const message={no:'You answered “No” within the scope of your answer. This does not rule out experience in other settings.',unknown:'You said you do not know. Whether you have this experience is still unclear.',needs_detail:'We could not identify a concrete example from your answer. This does not mean you lack the experience. You can clarify it below.',skipped:'You skipped this topic. No example was provided; this does not mean you lack the experience.',error:'Your answer is saved, but could not be checked. You can retry it below.',processing:'Your answer is saved and is still being checked.',unanswered:'You have not answered this topic. No conclusion about your experience has been drawn.'};
           card.append(el('p',message[q.status]||'No example is ready for review. No conclusion about your experience has been drawn.'),el('p','How it is used: no experience from this topic is used in your CV or CV suggestions.','discovery-note'));
         }
         if(!own||q.status==='skipped')card.append(button(`Answer question ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,own?.revisions.at(-1).text||'');session.correct(q.id);}));
@@ -131,9 +139,9 @@
           const answer=session.snapshot().answers.find(a=>a.id===q.answerId),context=el('div',null,'discovery-followup-context');
           context.append(el('p','Topic from the job ad','discovery-result-label'));requirementList(q,context);
           context.append(el('p','Original question','discovery-result-label'),el('p',q.question),el('p','Your answer','discovery-result-label'));sourceExcerpt(context,answer.revisions.at(-1).text);
-          const brief=/^\s*(yes|ja|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(answer.revisions.at(-1).text);
-          context.append(el('p',brief?'This answer does not yet describe an example. One specific situation will help show how your experience relates to the original question.':'I could not pick out a specific example to use. You can point to a situation you already described, add a short example, or skip.'));
-          container.append(context,el('h2',brief?'What is one situation you have in mind when answering the question above?':'Which situation in your answer should we focus on?'));
+          const brief=/^\s*(yes|ja|ja,? lite|yes,? a little)[.!]?\s*$/i.test(answer.revisions.at(-1).text);
+          context.append(el('p',brief?'This answer does not yet describe an example. One specific situation will help show how your experience relates to the original question.':'I could not tell what experience this answer describes. You can clarify what you mean, give an example if you have one, or skip.'));
+          container.append(context,el('h2',brief?'What is one situation you have in mind when answering the question above?':'What do you mean in relation to the original question?'));
         }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
@@ -324,7 +332,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-22-discovery-context-results");
+console.log("DRAFTED_JS_SOURCE", "2026-10-22-negative-answer-scope");
 
 console.log("🚀 drafted-editor.js executing");
 
