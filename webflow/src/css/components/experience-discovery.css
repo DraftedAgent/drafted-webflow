@@ -6,13 +6,16 @@
 /* The actual chat pane must remain scrollable as discovery grows. */
 .chat-messages{min-height:0;overflow-y:auto}.drafted-discovery .discovery-history-question{font-weight:600}
 .local-preview-banner{position:fixed;top:0;left:0;right:0;z-index:100000;padding:8px;background:#fff4d6;color:#342800;text-align:center;font:13px/1.4 system-ui}#load-preview-scenario{margin:48px 16px 16px}
-.page-scroll>.section-editor.snap-section.drafted-app.discovery-enabled{height:auto!important;min-height:100%!important;max-height:none!important;overflow:visible}
-.section-editor.discovery-enabled .layout-container.editor-container{height:auto;min-height:0!important}
-.section-editor.discovery-enabled .editor-layout{flex:0 0 auto!important;min-height:620px!important}
-.section-editor.discovery-enabled .editor-left,.section-editor.discovery-enabled .editor-right{min-width:0}
-.section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{min-height:620px!important;height:auto!important}
-.section-editor.discovery-enabled .chat-messages{min-height:400px!important;max-height:780px}
-.section-editor.discovery-enabled .cv-document{min-height:480px!important;max-height:780px}
-@media(max-width:991px){.section-editor.discovery-enabled .editor-layout{flex-direction:column!important;gap:24px}.section-editor.discovery-enabled .editor-left,.section-editor.discovery-enabled .editor-right{flex:0 0 auto!important;width:100%}.section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{min-height:580px!important;width:100%}.section-editor.discovery-enabled .chat-messages{max-height:none}}
-@media(max-width:600px){.section-editor.discovery-enabled .layout-container{padding-left:16px!important;padding-right:16px!important;width:100%!important;max-width:100%!important;box-sizing:border-box}.section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{padding:16px!important;box-sizing:border-box}.section-editor.discovery-enabled .drafted-discovery{padding:12px}.section-editor.discovery-enabled .editor-header{padding:0 4px}.section-editor.discovery-enabled .editor-layout{width:100%!important}.drafted-discovery h2{font-size:18px}}
-@media(max-width:600px){.section-editor.discovery-enabled{padding-left:0!important;padding-right:0!important}.section-editor.discovery-enabled .editor-layout{padding:0!important}.section-editor.discovery-enabled .chat-messages{padding:0!important}}
+
+/* One editor card, two views. Chat nodes and its draft stay mounted while paused. */
+.section-editor.discovery-enabled .chat-card{position:relative}
+.discovery-launcher{position:absolute;top:16px;right:18px;border:1px solid #d5dadd;border-radius:20px;background:#f6f8fa;color:#35434d;padding:7px 12px;font:500 12px/1.4 system-ui;cursor:pointer;max-width:calc(100% - 36px)}
+.discovery-launcher::before{content:'';display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:#50786a;vertical-align:middle}
+.discovery-launcher[hidden],.drafted-discovery[hidden]{display:none!important}
+.discovery-launcher:focus-visible,.discovery-back:focus-visible{outline:3px solid #416fbc;outline-offset:2px}
+.chat-card.discovery-mode .chat-messages>:not(.drafted-discovery),.chat-card.discovery-mode .chat-input-row,.chat-card.discovery-mode #tailor-card,.chat-card.discovery-mode .context-chip-row{display:none!important}
+.chat-card.discovery-mode .chat-messages{display:flex!important}
+.chat-card.discovery-mode .drafted-discovery{margin:0;padding:0;border:0;border-radius:0;background:transparent}
+.drafted-discovery .discovery-back{border:0;background:transparent;padding:4px 0;margin:0 0 20px;color:#52616c;font-size:13px}
+.drafted-discovery .discovery-back::before{content:'←';margin-right:8px}
+@media(max-width:600px){.discovery-launcher{right:12px;top:12px;font-size:11px}}

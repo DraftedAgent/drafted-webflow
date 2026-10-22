@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-22-editor-english */
+/* drafted-editor.css | build=2026-10-22-editor-workspace-release */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -16,72 +16,131 @@
 
 
 /* --- import: ./components/editor-layout.css (from index.css) --- */
-/* Editor section must fill its snap-section height */
-.section-editor{
-    height: 100%;
-    min-height: 0 !important;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Container: header + remaining height */
-  .section-editor .layout-container.editor-container{
-    height: 100%;
-    min-height: 0 !important;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Header: natural height */
-  .editor-header{
-    flex: 0 0 auto;
-  }
-  
-  /* Two-column layout fills the rest */
-  .editor-layout{
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    display: flex !important;
-    align-items: stretch;
-  }
-  
-  /* Columns must be shrinkable */
-  .editor-left,
-  .editor-right{
-    flex: 1 1 0;
-    min-height: 0 !important;
-    display: flex !important;
-  }
-  
-  /* Cards are vertical stacks */
-  .chat-card,
-  .cv-card{
-    flex: 1 1 auto;
-    min-height: 0 !important;
-    display: flex !important;
-    flex-direction: column;
-  }
-  
-  /* Chat: scroll only inside messages */
-  .chat-messages{
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    overflow: auto !important;
-  }
-  
-  /* CV: scroll only inside document */
-  .cv-document{
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    overflow: auto !important;
-  }
-  
-  /* Inner: support absolute overlays without collapsing */
-  .cv-document-inner{
-    min-height: 100%;
-    position: relative;
-  }
-  
+/* The editor is a viewport-sized workspace below the measured site navigation. */
+.page-scroll>.section-editor.snap-section.drafted-app.discovery-enabled{
+  height:100%!important;min-height:0!important;max-height:100%!important;
+  padding:0!important;overflow:hidden;background:#eaf0f3;
+}
+.section-editor.discovery-enabled .layout-container.editor-container{
+  width:100%!important;max-width:none!important;height:100%;min-height:0!important;
+  padding:clamp(8px,1.3vw,24px)!important;margin:0;box-sizing:border-box;
+  display:flex;flex-direction:column;gap:0;
+}
+/* Webflow clearfix pseudo-elements would otherwise consume two flex gaps. */
+.section-editor.discovery-enabled .editor-container::before,.section-editor.discovery-enabled .editor-container::after{display:none}
+.section-editor.discovery-enabled .editor-layout{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(10px,1.2vw,20px);width:100%;height:100%;min-height:0!important;
+  flex:1 1 0!important;padding:0!important;margin:0;
+}
+.section-editor.discovery-enabled .editor-left,.section-editor.discovery-enabled .editor-right{
+  display:flex!important;width:auto!important;height:100%;min-width:0;min-height:0!important;overflow:hidden;
+}
+.section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{
+  display:flex!important;flex-direction:column;flex:1 1 0;height:100%;min-height:0!important;
+  min-width:0;width:100%;padding:18px!important;gap:12px;box-sizing:border-box;overflow:hidden;
+  border:1px solid #d4dfe5;border-radius:14px;background:#fff;box-shadow:0 4px 18px #2439440a;
+}
+.section-editor.discovery-enabled .chat-title{
+  flex:0 0 auto;min-height:30px;margin:0;padding:3px 168px 3px 0;text-align:left;font-size:16px;line-height:1.4;
+}
+.section-editor.discovery-enabled .chat-messages{
+  flex:1 1 0!important;min-height:0!important;max-height:none;padding:8px 2px!important;
+  overflow:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable;
+}
+.section-editor.discovery-enabled .chat-input-row{flex:0 0 auto;padding:0;margin:0}
+.section-editor.discovery-enabled .form-block,.section-editor.discovery-enabled .form-2{width:100%;min-width:0;margin:0}
+.section-editor.discovery-enabled .chat-command-bar{width:100%;gap:8px;padding:8px;box-sizing:border-box}
+.section-editor.discovery-enabled .chat-send-button{padding:10px 14px;height:42px;line-height:22px}
+.section-editor.discovery-enabled .context-chip-row{flex:0 0 auto;margin:0}
+.section-editor.discovery-enabled .context-chip{padding:6px 10px;box-shadow:none}
+.section-editor.discovery-enabled #tailor-card{flex:0 0 auto;margin:0;padding:0}
+.section-editor.discovery-enabled #tailor-content.is-ready{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0}
+.section-editor.discovery-enabled .tailor-title{font-size:13px;line-height:1.3;margin:0;text-align:left}
+.section-editor.discovery-enabled .tailor-btn{padding:9px 12px;font-size:12px;line-height:1.3;border-radius:8px;white-space:nowrap}
+.section-editor.discovery-enabled .cv-card{position:relative;padding-top:50px!important;background:#f8fafb}
+.section-editor.discovery-enabled .cv-tools{top:10px;right:12px;display:flex;flex-direction:row;gap:6px}
+.section-editor.discovery-enabled .cv-tools .tool-btn{width:30px;height:30px}
+.section-editor.discovery-enabled .cv-document{
+  flex:1 1 0!important;min-height:0!important;max-height:none;margin:0;padding:clamp(8px,1.2vw,18px);
+  overflow:auto!important;overscroll-behavior:contain;background:#e8edef;border-radius:8px;scrollbar-gutter:stable;
+}
+.section-editor.discovery-enabled .cv-document-inner{flex:0 0 auto;width:100%;height:auto;min-height:100%;padding:20px;box-sizing:border-box;overflow:visible}
+.section-editor.discovery-enabled .drafted-discovery{padding:0}
+.section-editor.discovery-enabled .discovery-back{position:sticky;top:0;z-index:2;width:100%;text-align:left;background:#fff;margin-bottom:12px}
+@media(max-width:700px) and (min-height:600px){
+  .section-editor.discovery-enabled .editor-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.15fr) minmax(0,1fr);gap:8px}
+}
+@media(max-width:700px){
+  .section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{padding:12px!important;gap:8px;border-radius:10px}
+  .section-editor.discovery-enabled .chat-title{font-size:14px;padding-right:142px;min-height:32px}
+  .section-editor.discovery-enabled .cv-card{padding-top:42px!important}
+  .section-editor.discovery-enabled .cv-document-inner{padding:12px}
+  .section-editor.discovery-enabled .chip-sub{display:none}
+  .section-editor.discovery-enabled .context-chip{padding:4px 6px;gap:4px}
+  .section-editor.discovery-enabled .chip-label{gap:5px}
+  .section-editor.discovery-enabled .chat-command-bar{padding:5px;gap:5px}
+  .section-editor.discovery-enabled .chat-send-button{padding:8px 10px;height:38px;line-height:22px;font-size:12px}
+  .section-editor.discovery-enabled .chat-input{font-size:14px;padding:8px;height:38px;min-height:38px}
+  .section-editor.discovery-enabled .tailor-title{font-size:11px}
+  .section-editor.discovery-enabled .tailor-btn{font-size:11px;padding:7px 9px}
+}
+
+/* A single application frame contains document actions and the two working panes. */
+.section-editor.discovery-enabled .editor-container{gap:0;border:1px solid #cbd7dd;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 8px 32px #263f4d0d}
+.section-editor.discovery-enabled .layout-container.editor-container{padding:0!important;width:calc(100% - 24px)!important;height:calc(100% - 24px);margin:12px;flex:1 1 0;min-height:0}
+.workspace-topbar{width:100%;align-self:stretch;display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;min-height:54px;padding:8px 18px;border-bottom:1px solid #dce4e8;background:#f7f9fa;box-sizing:border-box}
+.workspace-identity{display:flex;align-items:center;gap:16px;min-width:0;text-align:left}
+.workspace-brand{font-size:16px;font-weight:700;letter-spacing:-.5px;color:#243a43;flex:0 0 auto}
+.workspace-document-title{border-left:1px solid #cbd6dc;padding-left:16px;font-size:13px;color:#53636b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.section-editor.discovery-enabled .workspace-topbar .cv-tools{position:static;flex:0 0 auto;gap:6px}
+.workspace-topbar .tool-tip{display:none}
+.section-editor.discovery-enabled .workspace-topbar .cv-tools .tool-btn{display:flex;align-items:center;gap:6px;width:auto;height:32px;padding:5px 9px;background:#fff;border:1px solid #d4dfe5;border-radius:7px;cursor:pointer;box-sizing:border-box;color:#344b57}
+.workspace-topbar .tool-btn svg{width:16px;height:16px}
+.workspace-tool-label{font-size:12px;font-weight:500;white-space:nowrap}
+.workspace-topbar .tool-btn:focus-visible{outline:3px solid #416fbc;outline-offset:2px}
+.section-editor.discovery-enabled .editor-layout{height:auto;gap:0}
+.section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{border:0;border-radius:0;box-shadow:none;padding:16px!important;gap:10px}
+.section-editor.discovery-enabled .editor-left{border-right:1px solid #dce4e8}
+.section-editor.discovery-enabled .chat-title,.workspace-preview-title{font-size:14px;line-height:20px;font-weight:600;color:#243a43;margin:0;padding:0;min-height:20px;text-align:left;flex:0 0 auto}
+.workspace-editor-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:0 0 auto;padding-bottom:10px;border-bottom:1px solid #e8edef}
+.workspace-editor-toolbar button,.section-editor.discovery-enabled .workspace-editor-toolbar .tailor-btn{border:1px solid transparent;border-radius:6px;background:transparent;color:#52656e;padding:7px 9px;font:500 12px/1.25 system-ui;cursor:pointer;margin:0;max-width:100%}
+.workspace-editor-toolbar button[aria-pressed=true]{background:#e8efed;color:#234b40;border-color:#d0dfd8}
+.workspace-editor-toolbar button:hover,.section-editor.discovery-enabled .workspace-editor-toolbar .tailor-btn:hover{background:#eef2f4}
+.workspace-editor-toolbar .discovery-launcher{position:static;max-width:100%}
+.workspace-editor-toolbar .discovery-launcher::before{display:none}
+.section-editor.discovery-enabled .workspace-editor-toolbar #tailor-card{margin-left:auto}
+.workspace-editor-toolbar .tailor-title{display:none}
+.section-editor.discovery-enabled .cv-card{background:#f3f6f8}
+.workspace-preview-title{padding-bottom:10px;border-bottom:1px solid #dfe7eb}
+.section-editor.discovery-enabled .cv-document{background:#e6ecef}
+@media(max-width:700px){
+  .section-editor.discovery-enabled .layout-container.editor-container{width:calc(100% - 12px)!important;height:calc(100% - 12px);margin:6px;border-radius:10px}
+  .workspace-topbar{padding:6px 10px;min-height:44px;gap:6px}
+  .workspace-identity{gap:8px}.workspace-brand{font-size:14px}.workspace-document-title{padding-left:8px;font-size:12px}
+  .workspace-tool-label{display:none}
+  .section-editor.discovery-enabled .workspace-topbar .cv-tools .tool-btn{padding:5px;width:28px;height:28px}
+  .section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{padding:10px!important;gap:6px}
+  .workspace-editor-toolbar{gap:3px;padding-bottom:6px}
+  .workspace-editor-toolbar button,.section-editor.discovery-enabled .workspace-editor-toolbar .tailor-btn{font-size:11px;padding:6px}
+}
+@media(max-width:700px) and (min-height:600px){
+  .section-editor.discovery-enabled .editor-layout{gap:0;grid-template-rows:minmax(0,1.3fr) minmax(0,1fr)}
+  .section-editor.discovery-enabled .editor-left{border-right:0;border-bottom:1px solid #dce4e8}
+}
+.section-editor.discovery-enabled .workspace-editor-toolbar .tailor-btn{width:auto;min-width:0}
+@media(max-height:500px){
+  .workspace-topbar{min-height:38px;padding:4px 12px}
+  .section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{padding:8px!important;gap:5px}
+  .workspace-editor-toolbar{padding-bottom:5px;gap:3px}
+  .workspace-editor-toolbar button,.section-editor.discovery-enabled .workspace-editor-toolbar .tailor-btn{font-size:11px;padding:5px 7px}
+  .section-editor.discovery-enabled .chat-command-bar{padding:4px;gap:4px}
+  .section-editor.discovery-enabled .chat-send-button{height:32px;padding:5px 10px;line-height:22px;font-size:12px}
+  .section-editor.discovery-enabled .chat-input{height:32px;min-height:32px;padding:5px 8px;font-size:14px}
+  .section-editor.discovery-enabled .context-chip{padding:3px 6px;font-size:11px}
+  .section-editor.discovery-enabled .chip-badge,.section-editor.discovery-enabled .chip-btn{padding:4px 6px;font-size:11px}
+  .section-editor.discovery-enabled .chip-sub{display:none}
+}
 /* --- end import: ./components/editor-layout.css --- */
 
 /* page behavior */
@@ -858,16 +917,19 @@ html, body{
 /* The actual chat pane must remain scrollable as discovery grows. */
 .chat-messages{min-height:0;overflow-y:auto}.drafted-discovery .discovery-history-question{font-weight:600}
 .local-preview-banner{position:fixed;top:0;left:0;right:0;z-index:100000;padding:8px;background:#fff4d6;color:#342800;text-align:center;font:13px/1.4 system-ui}#load-preview-scenario{margin:48px 16px 16px}
-.page-scroll>.section-editor.snap-section.drafted-app.discovery-enabled{height:auto!important;min-height:100%!important;max-height:none!important;overflow:visible}
-.section-editor.discovery-enabled .layout-container.editor-container{height:auto;min-height:0!important}
-.section-editor.discovery-enabled .editor-layout{flex:0 0 auto!important;min-height:620px!important}
-.section-editor.discovery-enabled .editor-left,.section-editor.discovery-enabled .editor-right{min-width:0}
-.section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{min-height:620px!important;height:auto!important}
-.section-editor.discovery-enabled .chat-messages{min-height:400px!important;max-height:780px}
-.section-editor.discovery-enabled .cv-document{min-height:480px!important;max-height:780px}
-@media(max-width:991px){.section-editor.discovery-enabled .editor-layout{flex-direction:column!important;gap:24px}.section-editor.discovery-enabled .editor-left,.section-editor.discovery-enabled .editor-right{flex:0 0 auto!important;width:100%}.section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{min-height:580px!important;width:100%}.section-editor.discovery-enabled .chat-messages{max-height:none}}
-@media(max-width:600px){.section-editor.discovery-enabled .layout-container{padding-left:16px!important;padding-right:16px!important;width:100%!important;max-width:100%!important;box-sizing:border-box}.section-editor.discovery-enabled .chat-card,.section-editor.discovery-enabled .cv-card{padding:16px!important;box-sizing:border-box}.section-editor.discovery-enabled .drafted-discovery{padding:12px}.section-editor.discovery-enabled .editor-header{padding:0 4px}.section-editor.discovery-enabled .editor-layout{width:100%!important}.drafted-discovery h2{font-size:18px}}
-@media(max-width:600px){.section-editor.discovery-enabled{padding-left:0!important;padding-right:0!important}.section-editor.discovery-enabled .editor-layout{padding:0!important}.section-editor.discovery-enabled .chat-messages{padding:0!important}}
+
+/* One editor card, two views. Chat nodes and its draft stay mounted while paused. */
+.section-editor.discovery-enabled .chat-card{position:relative}
+.discovery-launcher{position:absolute;top:16px;right:18px;border:1px solid #d5dadd;border-radius:20px;background:#f6f8fa;color:#35434d;padding:7px 12px;font:500 12px/1.4 system-ui;cursor:pointer;max-width:calc(100% - 36px)}
+.discovery-launcher::before{content:'';display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:#50786a;vertical-align:middle}
+.discovery-launcher[hidden],.drafted-discovery[hidden]{display:none!important}
+.discovery-launcher:focus-visible,.discovery-back:focus-visible{outline:3px solid #416fbc;outline-offset:2px}
+.chat-card.discovery-mode .chat-messages>:not(.drafted-discovery),.chat-card.discovery-mode .chat-input-row,.chat-card.discovery-mode #tailor-card,.chat-card.discovery-mode .context-chip-row{display:none!important}
+.chat-card.discovery-mode .chat-messages{display:flex!important}
+.chat-card.discovery-mode .drafted-discovery{margin:0;padding:0;border:0;border-radius:0;background:transparent}
+.drafted-discovery .discovery-back{border:0;background:transparent;padding:4px 0;margin:0 0 20px;color:#52616c;font-size:13px}
+.drafted-discovery .discovery-back::before{content:'←';margin-right:8px}
+@media(max-width:600px){.discovery-launcher{right:12px;top:12px;font-size:11px}}
 /* --- end import: ./components/experience-discovery.css --- */
 
 

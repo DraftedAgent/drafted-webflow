@@ -247,24 +247,33 @@
 });
 
 ;
-/* Editor adapter for the existing discovery session/client/UI. No CV mutation path. */
+/* Experience questions are an optional mode inside the existing editor. */
 (function(root){
   'use strict';
   function create({host,getContext,endpoint}){
     const session=new root.DraftedExperienceDiscovery.Session(),client=new root.DraftedDiscoveryClient.Client({endpoint,background:true});
+    const card=host.closest('.chat-card');
     host.closest('.section-editor')?.classList.add('discovery-enabled');
-    const panel=document.createElement('section');panel.className='drafted-discovery';panel.setAttribute('aria-label','Questions about your experience');panel.hidden=true;host.append(panel);
-    let fingerprint='',generation=0,closed=false;
     const el=(tag,text)=>{const e=document.createElement(tag);if(text)e.textContent=text;return e;};
     const button=(label,fn)=>{const b=el('button',label);b.type='button';b.addEventListener('click',fn);return b;};
-    function showRound(){root.DraftedExperienceDiscoveryUI.mount(panel,session,{onAnswer:t=>client.submit(session,t),onRetry:id=>client.retry(session,id),onContinue:()=>{closed=true;showOffer(true);}});}
-    async function start(){const epoch=generation;panel.replaceChildren(el('p','Preparing your questions…'));try{const result=await client.plan(session,'en');if(result.stale||epoch!==generation)return;session.start();showRound();}catch{if(epoch!==generation)return;showOffer(false,true);}}
-    function showOffer(resume=false,error=false){panel.replaceChildren();panel.append(el('h2',resume?'Your experience answers':'Would you like to share more about your experience?'));if(resume){panel.append(el('p','Your answers are still here. Your CV has not changed.'),button('View or correct your answers',()=>showRound()));return;}
-      panel.append(el('p',error?'The questions could not be loaded. You can try again or continue with your CV.':'We can explore what matters for this role but is not clear in your CV. One question at a time.'));
-      panel.append(button(error?'Try loading the questions again':'Explore your experience',start),button('Not now',()=>{closed=true;panel.replaceChildren(button('Open experience questions',()=>{closed=false;showOffer();}));}));
+    const panel=el('section');panel.className='drafted-discovery';panel.id='drafted-experience-questions';panel.setAttribute('aria-label','Questions about your experience');panel.hidden=true;
+    const back=button('Back to editor',()=>close(true)),body=el('div');back.className='discovery-back';back.setAttribute('aria-label','Back to editor');panel.append(back,body);host.append(panel);
+    const toolbar=el('div');toolbar.className='workspace-editor-toolbar';toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Editor tools');
+    const chatMode=button('Chat',()=>close(true));chatMode.className='workspace-chat-mode';chatMode.setAttribute('aria-pressed','true');toolbar.append(chatMode);
+    const launcher=button('Experience questions',open);launcher.className='discovery-launcher';launcher.hidden=true;launcher.setAttribute('aria-controls',panel.id);launcher.setAttribute('aria-expanded','false');launcher.title='Explore relevant experience that is not clear in your CV';launcher.setAttribute('aria-pressed','false');toolbar.append(launcher);card.querySelector('.chat-title').after(toolbar);
+    const tailor=card.querySelector('#tailor-card');if(tailor){toolbar.append(tailor);const action=tailor.querySelector('#tailor-btn');if(action)action.textContent='Tailor to job';}
+    let fingerprint='',generation=0,opened=false,prepared=false,pending=false,savedScroll=0;
+    function close(focus=false){opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
+    function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
+    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>client.submit(session,t),onRetry:id=>client.retry(session,id),onContinue:()=>{prepared=false;launcher.textContent='Review your answers';close(true);}});prepared=true;focusQuestion();}
+    async function start(){if(pending)return;const epoch=generation;pending=true;body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en');if(result.stale||epoch!==generation)return;session.start();showRound();}catch{if(epoch!==generation)return;body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){pending=false;body.removeAttribute('aria-busy');}}}
+    function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
+      if(!body.childNodes.length)start();else if(!prepared&&!pending){try{session.round();showRound();}catch{/* Keep an existing load error until an explicit retry. */}}else focusQuestion();
     }
-    function invalidate(){generation++;fingerprint='';closed=false;panel.hidden=true;const c=session.snapshot().context;if(c)session.setContext({...c,revision:crypto.randomUUID()});}
-    function sync(){const context=getContext();if(!context){if(fingerprint)invalidate();return;}const key=JSON.stringify(context);if(key===fingerprint)return;generation++;fingerprint=key;closed=false;session.setContext({...context,revision:crypto.randomUUID()});panel.hidden=false;showOffer();}
+    // Escape pauses questions, retaining the mounted answer form and any draft.
+    panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close(true);}});
+    function invalidate(){generation++;fingerprint='';prepared=false;pending=false;close();launcher.hidden=true;launcher.textContent='Experience questions';body.replaceChildren();body.removeAttribute('aria-busy');const c=session.snapshot().context;if(c)session.setContext({...c,revision:crypto.randomUUID()});}
+    function sync(){const context=getContext();if(!context){if(fingerprint)invalidate();return;}const key=JSON.stringify(context);if(key===fingerprint)return;invalidate();fingerprint=key;session.setContext({...context,revision:crypto.randomUUID()});launcher.hidden=false;}
     return {sync,invalidate};
   }
   root.DraftedDiscoveryEditor={create};
@@ -283,7 +292,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-22-discovery-background");
+console.log("DRAFTED_JS_SOURCE", "2026-10-22-editor-workspace-release");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -299,6 +308,12 @@ const N8N_JOBCONTEXT_URL = draftedEndpoints.jobcontext || "https://drafted.app.n
 const N8N_TAILOR_URL = draftedEndpoints.tailor || "https://drafted.app.n8n.cloud/webhook/tailor-cv";
 const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n.cloud/webhook/webflow-experience-discovery";
 let discoveryController = null;
+
+// The editor is a workspace; remove the legacy Webflow section introduction.
+onReady(() => {
+  document.querySelectorAll(".section-editor > .editor-container > .editor-header").forEach(header => header.remove());
+  document.querySelectorAll(".section-editor .chat-card > .paragraph-2.hide-when-cv-loaded").forEach(intro => intro.remove());
+});
 
 
 
@@ -1594,6 +1609,38 @@ function setApplyLabel() {
   let isPreviewingProposal = false;
   let previewSnapshot = null;
 
+  // Enhance the existing editor DOM; preserve its controls and event bindings.
+  (function mountWorkspaceChrome() {
+    const section=chatMessagesEl?.closest('.section-editor'),container=section?.querySelector('.editor-container');
+    if(!container||container.querySelector('.workspace-topbar'))return;
+    const topbar=document.createElement('header');topbar.className='workspace-topbar';
+    const identity=document.createElement('div');identity.className='workspace-identity';
+    const brand=document.createElement('span');brand.className='workspace-brand';brand.textContent='Drafted';
+    const title=document.createElement('span');title.className='workspace-document-title';title.textContent='Untitled CV';
+    identity.append(brand,title);topbar.append(identity);
+    const tools=section.querySelector('.cv-tools');
+    if(tools){
+      tools.setAttribute('role','toolbar');tools.setAttribute('aria-label','Document actions');
+      for(const [icon,label]of [['download','Export PDF'],['copy','Copy text']]){
+        const control=tools.querySelector('svg.feather-'+icon)?.closest('.tool-btn');if(!control)continue;
+        control.setAttribute('role','button');control.setAttribute('aria-label',label);control.tabIndex=0;
+        const text=document.createElement('span');text.className='workspace-tool-label';text.textContent=label;control.append(text);
+        control.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();control.click();}});
+        if(icon==='copy')control.addEventListener('click',async()=>{
+          if(!documentBlocksState?.length)return;
+          try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));text.textContent='Copied';}
+          catch{text.textContent='Copy unavailable';}
+          setTimeout(()=>{text.textContent=label;},2000);
+        });
+      }
+      topbar.append(tools);
+    }
+    container.prepend(topbar);
+    const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
+    const previewTitle=document.createElement('h2');previewTitle.className='workspace-preview-title';previewTitle.textContent='CV preview';
+    section.querySelector('.cv-card')?.prepend(previewTitle);
+  })();
+
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
     discoveryController = window.DraftedDiscoveryEditor.create({
       host: chatMessagesEl,
@@ -1994,6 +2041,8 @@ if (type === "certifications") {
   }
 
   function renderDocument(text) {
+    const workspaceTitle=document.querySelector(".workspace-document-title");
+    if(workspaceTitle){workspaceTitle.textContent=documentTitle||"Untitled CV";workspaceTitle.title=documentTitle||"Untitled CV";}
     const safeText = String(text || "");
     editorPreviewEl.style.whiteSpace = "pre-wrap";
 
@@ -2896,7 +2945,7 @@ function bindPdfDownloadButton() {
 
   // robust: hittar ikonen och går upp till närmaste klickbara wrapper
   const icon = toolsEl.querySelector("svg.feather.feather-download");
-  const clickable = icon?.closest("button, a, [role='button'], .tool-btn, .tool-item, div");
+  const clickable = icon?.closest(".tool-btn") || icon?.closest("button, a, [role='button']");
   if (!clickable) return;
 
   // undvik dubbelbindningar
@@ -2937,14 +2986,14 @@ function bindPdfDownloadButton() {
       if (contentType.includes("application/json")) {
         const err = await res.json().catch(() => null);
         console.error("Export JSON error:", err);
-        alert(err?.message || err?.contractError || "Export misslyckades.");
+        alert(err?.message || err?.contractError || "PDF export failed.");
         return;
       }
 
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
         console.error("Export HTTP error:", res.status, txt);
-        alert("Export misslyckades (HTTP " + res.status + ").");
+        alert("PDF export failed (HTTP " + res.status + ").");
         return;
       }
 
@@ -2971,7 +3020,7 @@ function bindPdfDownloadButton() {
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (err) {
       console.error("Export exception:", err);
-      alert("Export misslyckades (exception). Se console.");
+      alert("PDF export failed. Please try again.");
     } finally {
       if (window.__DRAFTED_EXPORT__) window.__DRAFTED_EXPORT__.inFlight = false;
     }

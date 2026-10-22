@@ -27,6 +27,12 @@ const N8N_TAILOR_URL = draftedEndpoints.tailor || "https://drafted.app.n8n.cloud
 const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n.cloud/webhook/webflow-experience-discovery";
 let discoveryController = null;
 
+// The editor is a workspace; remove the legacy Webflow section introduction.
+onReady(() => {
+  document.querySelectorAll(".section-editor > .editor-container > .editor-header").forEach(header => header.remove());
+  document.querySelectorAll(".section-editor .chat-card > .paragraph-2.hide-when-cv-loaded").forEach(intro => intro.remove());
+});
+
 
 
 
@@ -1321,6 +1327,38 @@ function setApplyLabel() {
   let isPreviewingProposal = false;
   let previewSnapshot = null;
 
+  // Enhance the existing editor DOM; preserve its controls and event bindings.
+  (function mountWorkspaceChrome() {
+    const section=chatMessagesEl?.closest('.section-editor'),container=section?.querySelector('.editor-container');
+    if(!container||container.querySelector('.workspace-topbar'))return;
+    const topbar=document.createElement('header');topbar.className='workspace-topbar';
+    const identity=document.createElement('div');identity.className='workspace-identity';
+    const brand=document.createElement('span');brand.className='workspace-brand';brand.textContent='Drafted';
+    const title=document.createElement('span');title.className='workspace-document-title';title.textContent='Untitled CV';
+    identity.append(brand,title);topbar.append(identity);
+    const tools=section.querySelector('.cv-tools');
+    if(tools){
+      tools.setAttribute('role','toolbar');tools.setAttribute('aria-label','Document actions');
+      for(const [icon,label]of [['download','Export PDF'],['copy','Copy text']]){
+        const control=tools.querySelector('svg.feather-'+icon)?.closest('.tool-btn');if(!control)continue;
+        control.setAttribute('role','button');control.setAttribute('aria-label',label);control.tabIndex=0;
+        const text=document.createElement('span');text.className='workspace-tool-label';text.textContent=label;control.append(text);
+        control.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();control.click();}});
+        if(icon==='copy')control.addEventListener('click',async()=>{
+          if(!documentBlocksState?.length)return;
+          try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));text.textContent='Copied';}
+          catch{text.textContent='Copy unavailable';}
+          setTimeout(()=>{text.textContent=label;},2000);
+        });
+      }
+      topbar.append(tools);
+    }
+    container.prepend(topbar);
+    const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
+    const previewTitle=document.createElement('h2');previewTitle.className='workspace-preview-title';previewTitle.textContent='CV preview';
+    section.querySelector('.cv-card')?.prepend(previewTitle);
+  })();
+
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
     discoveryController = window.DraftedDiscoveryEditor.create({
       host: chatMessagesEl,
@@ -1721,6 +1759,8 @@ if (type === "certifications") {
   }
 
   function renderDocument(text) {
+    const workspaceTitle=document.querySelector(".workspace-document-title");
+    if(workspaceTitle){workspaceTitle.textContent=documentTitle||"Untitled CV";workspaceTitle.title=documentTitle||"Untitled CV";}
     const safeText = String(text || "");
     editorPreviewEl.style.whiteSpace = "pre-wrap";
 
@@ -2623,7 +2663,7 @@ function bindPdfDownloadButton() {
 
   // robust: hittar ikonen och går upp till närmaste klickbara wrapper
   const icon = toolsEl.querySelector("svg.feather.feather-download");
-  const clickable = icon?.closest("button, a, [role='button'], .tool-btn, .tool-item, div");
+  const clickable = icon?.closest(".tool-btn") || icon?.closest("button, a, [role='button']");
   if (!clickable) return;
 
   // undvik dubbelbindningar
@@ -2664,14 +2704,14 @@ function bindPdfDownloadButton() {
       if (contentType.includes("application/json")) {
         const err = await res.json().catch(() => null);
         console.error("Export JSON error:", err);
-        alert(err?.message || err?.contractError || "Export misslyckades.");
+        alert(err?.message || err?.contractError || "PDF export failed.");
         return;
       }
 
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
         console.error("Export HTTP error:", res.status, txt);
-        alert("Export misslyckades (HTTP " + res.status + ").");
+        alert("PDF export failed (HTTP " + res.status + ").");
         return;
       }
 
@@ -2698,7 +2738,7 @@ function bindPdfDownloadButton() {
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (err) {
       console.error("Export exception:", err);
-      alert("Export misslyckades (exception). Se console.");
+      alert("PDF export failed. Please try again.");
     } finally {
       if (window.__DRAFTED_EXPORT__) window.__DRAFTED_EXPORT__.inFlight = false;
     }
