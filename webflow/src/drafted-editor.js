@@ -2043,7 +2043,7 @@ function updateContextChip() {
   const file = fileInput?.files?.[0];
 
   if (!file) {
-    alert("Välj en PDF först.");
+    alert("Choose a PDF first.");
     return;
   }
 
@@ -2310,7 +2310,7 @@ async function sendChat() {
     cvVersionId: cvVersionId || null,
     cvTitle: documentTitle || "",
     targetRole: targetRoleInput?.value?.trim() || "",
-    language: documentLanguage || "en",
+    language: "en",
     mode,
     selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
     blocks: documentBlocksState,
@@ -2484,13 +2484,13 @@ async function sendApply() {
   // Default: use editor input as instruction and call rewrite flow
   const instruction = editorInput.value.trim();
   if (!instruction) {
-    alert("Skriv en instruktion först.");
+    alert("Enter an instruction first.");
     return;
   }
 
   const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
   if (!hasBlocks) {
-    alert("Ladda upp ett CV först (block saknas).");
+    alert("Upload a CV first.");
     return;
   }
 
@@ -2641,7 +2641,7 @@ function bindPdfDownloadButton() {
     if (!built.ok) {
       console.warn("PDF export blocked:", built.reason);
       // här kan du återanvända din befintliga UI toast/appendChatMessage om du vill
-      alert("Kan inte ladda ner ännu: CV-data saknas.");
+      alert("Your CV cannot be downloaded yet. Upload a CV first.");
       return;
     }
 
