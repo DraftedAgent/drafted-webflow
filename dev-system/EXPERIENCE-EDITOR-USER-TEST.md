@@ -1,5 +1,11 @@
 # Erfarenhetsfrågor i hela editorn – användartestkandidat
 
+DEV-039 (2026-10-22), lokal programram: gemensam toppbar med dokumentnamn och Export PDF/Copy text, panelrubriker Editor och CV preview, samlad verktygsrad Chat/Experience questions/Tailor to job och markerat arbetsläge. Samma editor och backend återanvänds; CV-förslag och godkännande behåller befintligt beteende. Bygg `2026-10-22-editor-app-frame` på localhost:8773. Åtta skärmstorlekar och lokalt simulerad export/kopiering verifierade. Ingen publicering eller extern modellkörning.
+
+DEV-037 (2026-10-22), lokal arbetsyta: introduktionstexten är dold, editor/CV-paneler fyller skärmen under navigationen på en gemensam ljusgrå bakgrund. Panelinnehåll rullar internt och skrivfält/verktyg hålls inom skärmen. Smal stående skärm visar båda panelerna ovanför varandra. Åtta skärmstorlekar verifierade. Befintlig preview på 8773, bygg `2026-10-22-editor-workspace`. Inte publicerat; inga n8n-/modellkörningar.
+
+DEV-036 (2026-10-22), ny lokal kandidat: chatten är standard efter uppladdning. En liten **Experience questions**-knapp i editorns hörn öppnar befintliga frågor i samma kort. **Back to editor**/Escape pausar med kvarvarande utkast; avslut återgår direkt till chatten och **Review your answers** öppnar historik/rättelser. Ingen modell körs före användarens klick. UI och samtal är engelska utan språkval. Bygg `2026-10-22-editor-question-mode`; befintlig hel editor-preview och browserkontroll återanvänds. Ännu inte publicerat; äldre beskrivningar nedan är daterad historik. Inga n8n-/prompt-/kontraktsändringar ingår.
+
 2026-10-19, DEV-025. Lokal kandidat på `codex/experience-discovery`, utgående från `25d7e538b2edd097a1d2efe2b9dacfe6a240fc8d`. Inget i denna fil är ett produktionsgodkännande. Ingen publicering, aktivering eller produktionskörning har utförts för integrationen.
 
 DEV-026: Ägaren svarade uttryckligen ja på det samlade leveranspaketet: commit/push/PR #3, main-merge/Pages, aktivering av samma workflow/version efter verifierad snapshot samt en syntetisk webbverifiering med högst två modellanrop utan retries. Genomförandet och faktiskt verifierat utfall redovisas i senaste CHANGE-LOG; förberedelsens väntande status nedan är historisk.
