@@ -2,7 +2,7 @@
 (function(root){
   'use strict';
   function create({host,getContext,endpoint}){
-    const session=new root.DraftedExperienceDiscovery.Session(),client=new root.DraftedDiscoveryClient.Client({endpoint});
+    const session=new root.DraftedExperienceDiscovery.Session(),client=new root.DraftedDiscoveryClient.Client({endpoint,background:true});
     const card=host.closest('.chat-card');
     host.closest('.section-editor')?.classList.add('discovery-enabled');
     const el=(tag,text)=>{const e=document.createElement(tag);if(text)e.textContent=text;return e;};
@@ -16,7 +16,7 @@
     let fingerprint='',generation=0,opened=false,prepared=false,pending=false,savedScroll=0;
     function close(focus=false){opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
     function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
-    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>client.submit(session,t),onRetry:()=>client.retry(session),onContinue:()=>{prepared=false;launcher.textContent='Review your answers';close(true);}});prepared=true;focusQuestion();}
+    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>client.submit(session,t),onRetry:id=>client.retry(session,id),onContinue:()=>{prepared=false;launcher.textContent='Review your answers';close(true);}});prepared=true;focusQuestion();}
     async function start(){if(pending)return;const epoch=generation;pending=true;body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en');if(result.stale||epoch!==generation)return;session.start();showRound();}catch{if(epoch!==generation)return;body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){pending=false;body.removeAttribute('aria-busy');}}}
     function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
       if(!body.childNodes.length)start();else if(!prepared&&!pending){try{session.round();showRound();}catch{/* Keep an existing load error until an explicit retry. */}}else focusQuestion();

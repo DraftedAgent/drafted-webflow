@@ -1,6 +1,6 @@
 {
-  "build": "2026-10-22-editor-clean-copy",
-  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-22-editor-clean-copy",
-  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-22-editor-clean-copy",
-  "ts": "2026-10-22T13:31:48Z"
+  "build": "2026-10-22-editor-workspace-release",
+  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-22-editor-workspace-release",
+  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-22-editor-workspace-release",
+  "ts": "2026-10-22T13:34:46Z"
 }
