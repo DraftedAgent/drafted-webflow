@@ -292,7 +292,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-22-editor-workspace-release");
+console.log("DRAFTED_JS_SOURCE", "2026-10-22-preview-wheel-fix");
 
 console.log("🚀 drafted-editor.js executing");
 
