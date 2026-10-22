@@ -1435,8 +1435,7 @@ function setApplyLabel() {
     if (!selectedBlockIds || selectedBlockIds.size === 0) return;
 
     for (const id of selectedBlockIds) {
-      const el = editorPreviewEl.querySelector(`.cv-block[data-block-id="${CSS.escape(id)}"]`);
-      if (el) el.classList.add("is-selected");
+      editorPreviewEl.querySelectorAll(`.cv-block[data-block-id="${CSS.escape(id)}"]`).forEach(el => el.classList.add("is-selected"));
     }
   }
 
@@ -1453,7 +1452,7 @@ function setApplyLabel() {
     if (!anchorId || !clickedId) return;
 
     const blocks = getAllBlockElements();
-    const ids = blocks.map(b => b.getAttribute("data-block-id")).filter(Boolean);
+    const ids = [...new Set(blocks.map(b => b.getAttribute("data-block-id")).filter(Boolean))];
     const a = ids.indexOf(anchorId);
     const c = ids.indexOf(clickedId);
     if (a === -1 || c === -1) {
@@ -1542,237 +1541,30 @@ function setApplyLabel() {
   /* ===============================
      RENDER BLOCK HTML
      =============================== */
-  function renderBlocksHtml(fullText) {
-    if (!documentBlocksState || !documentBlocksState.length) {
-      return escapeHtml(String(fullText || ""));
-    }
-
-    const htmlParts = [];
-    let educationHeadingRendered = false;
-    let experienceHeadingRendered = false;
-    let skillsHeadingRendered = false;
-    let languagesHeadingRendered = false;
-    let certificationsHeadingRendered = false;
-
-    function getHeadingFromBlocks(type, fallback) {
-      if (!documentBlocksState || !documentBlocksState.length) return fallback;
-      const match = documentBlocksState.find(block => String(block.type || "") === type);
-      const label = match && match.label ? String(match.label).trim() : "";
-      return label || fallback;
-    }
-
-    const experienceHeading = getHeadingFromBlocks("experience", "Experience");
-    const educationHeading = getHeadingFromBlocks("education", "Education");
-    const skillsHeading = getHeadingFromBlocks("skills", "Skills");
-    const languagesHeading = getHeadingFromBlocks("languages", "Languages");
-    const certificationsHeading = getHeadingFromBlocks("certifications", "Certifications");
-
-    function pushSectionHeading(sectionType, headingText) {
-      htmlParts.push(`
-    <section class="cv-section cv-section--${escapeHtml(sectionType)}">
-      <h2 class="cv-section-heading">${escapeHtml(headingText)}</h2>
-    </section>`.trim());
-    }
-    
-    
-
-    if (documentTitle) {
-      htmlParts.push(`
-<section class="cv-block cv-block--title">
-  <h1 class="cv-title">${escapeHtml(documentTitle)}</h1>
-</section>`.trim());
-    }
-
-  
-    for (const block of documentBlocksState) {
-      const id   = String(block.blockId || "");
-      const type = String(block.type || "block");
-      const rawText = String(block.text || "").trim();
-
-      // ===== SUMMARY =====
-      if (type === "summary") {
-        const text = stripLeakedFields(rawText);
-        if (!text) continue;
-
-        htmlParts.push(`
-<section class="cv-block cv-block--summary" data-block-id="${escapeHtml(id)}">
-  <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
-</section>`.trim());
-        continue;
-      }
-
-      // ===== EXPERIENCE =====
-      if (type === "experience") {
-        if (!experienceHeadingRendered) {
-          pushSectionHeading("experience", experienceHeading);
-          experienceHeadingRendered = true;
-        }
-        
-
-        const title     = String(block.title || "").trim();
-        const employer  = String(block.employer || "").trim();
-        const startDate = String(block.startDate || "").trim();
-        const endDate   = String(block.endDate || "").trim();
-
-        const cleanText = stripFirstLineIfDuplicate(rawText, title, employer, startDate, endDate);
-
-        let metaPieces = [];
-        if (employer) metaPieces.push(`<span class="cv-exp-company">${escapeHtml(employer)}</span>`);
-
-        if (startDate || endDate) {
-          const period = (startDate && endDate)
-            ? `${startDate} – ${endDate}`
-            : (startDate || endDate);
-          metaPieces.push(`<span class="cv-exp-period">(${escapeHtml(period)})</span>`);
-        }
-
-        const metaLine = metaPieces.length
-          ? `<div class="cv-exp-meta">${metaPieces.join(" ")}</div>`
-          : "";
-
-        const bodyHtml = cleanText
-          ? escapeHtml(cleanText).replace(/\n/g, "<br>")
-          : "";
-
-        htmlParts.push(`
-<section class="cv-block cv-block--experience" data-block-id="${escapeHtml(id)}">
-  ${title ? `<div class="cv-exp-title">${escapeHtml(title)}</div>` : ""}
-  ${metaLine}
-  ${bodyHtml ? `<div class="cv-block-body">${bodyHtml}</div>` : ""}
-</section>`.trim());
-        continue;
-      }
-
-      // ===== EDUCATION =====
-if (type === "education") {
-  if (!educationHeadingRendered) {
-    pushSectionHeading("education", educationHeading);
-    educationHeadingRendered = true;
-  }
-  
-
-  const degree      = String(block.degree || "").trim();
-  const program     = String(block.program || "").trim();
-  const institution = String(block.institution || "").trim();
-  const startDate   = String(block.startDate || "").trim();
-  const endDate     = String(block.endDate || "").trim();
-
-  // Line 1: Degree + Program (or whichever exists)
-  const nameLine =
-  (degree && program) ? `${degree}, ${program}` :
-  (degree || program);
-
-  // Line 2: Institution + Period
-  let metaPieces = [];
-  if (institution) metaPieces.push(`<span class="cv-edu-inst">${escapeHtml(institution)}</span>`);
-  if (startDate || endDate) {
-    const period = (startDate && endDate)
-      ? `${startDate} – ${endDate}`
-      : (startDate || endDate);
-    metaPieces.push(`<span class="cv-edu-period">(${escapeHtml(period)})</span>`);
-  }
-  const metaLine = metaPieces.length
-    ? `<div class="cv-edu-meta">${metaPieces.join(" ")}</div>`
-    : "";
-
-  // Line 3: Description text
-  const cleanText = stripFirstLineIfDuplicate(rawText, nameLine, institution, startDate, endDate);
-  const bodyHtml = cleanText
-    ? `<div class="cv-block-body">${escapeHtml(cleanText).replace(/\n/g, "<br>")}</div>`
-    : "";
-
-  // Skip only if truly empty
-  if (!nameLine && !institution && !cleanText) continue;
-
-  htmlParts.push(`
-<section class="cv-block cv-block--education" data-block-id="${escapeHtml(id)}">
-  ${nameLine ? `<div class="cv-edu-degree">${escapeHtml(nameLine)}</div>` : ""}
-  ${metaLine}
-  ${bodyHtml}
-</section>`.trim());
-  continue;
-}
-
-      // ===== SKILLS =====
-if (type === "skills") {
-  const text = stripLeakedFields(rawText);
-  if (!text) continue;
-
-  if (!skillsHeadingRendered) {
-    pushSectionHeading("skills", skillsHeading);
-    skillsHeadingRendered = true;
-  }
-
-  htmlParts.push(`
-<section class="cv-block cv-block--skills" data-block-id="${escapeHtml(id)}">
-  <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
-</section>`.trim());
-  continue;
-}
-
-
-      // ===== LANGUAGES =====
-if (type === "languages") {
-  const text = stripLeakedFields(rawText);
-  if (!text) continue;
-
-  if (!languagesHeadingRendered) {
-    pushSectionHeading("languages", languagesHeading);
-    languagesHeadingRendered = true;
-  }
-
-  htmlParts.push(`
-<section class="cv-block cv-block--languages" data-block-id="${escapeHtml(id)}">
-  <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
-</section>`.trim());
-  continue;
-}
-
-
-      // ===== CERTIFICATIONS =====
-if (type === "certifications") {
-  const text = stripLeakedFields(rawText);
-  if (!text) continue;
-
-  if (!certificationsHeadingRendered) {
-    pushSectionHeading("certifications", certificationsHeading);
-    certificationsHeadingRendered = true;
-  }
-
-  htmlParts.push(`
-<section class="cv-block cv-block--certifications" data-block-id="${escapeHtml(id)}">
-  <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
-</section>`.trim());
-  continue;
-}
-
-
-      // ===== Fallback =====
-      const text = stripLeakedFields(rawText);
-      if (!text) continue;
-
-      htmlParts.push(`
-<section class="cv-block" data-block-id="${escapeHtml(id)}">
-  <div class="cv-block-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
-</section>`.trim());
-    }
-
-    return htmlParts.join("\n");
-  }
-
   function renderDocument(text) {
-    const workspaceTitle=document.querySelector(".workspace-document-title");
-    if(workspaceTitle){workspaceTitle.textContent=documentTitle||"Untitled CV";workspaceTitle.title=documentTitle||"Untitled CV";}
-    const safeText = String(text || "");
-    editorPreviewEl.style.whiteSpace = "pre-wrap";
-
-    if (documentBlocksState && documentBlocksState.length) {
-      editorPreviewEl.innerHTML = renderBlocksHtml(safeText);
-      applySelectedBlocksUI();
-      return;
+    const workspaceTitle = document.querySelector('.workspace-document-title');
+    if (workspaceTitle) {
+      workspaceTitle.textContent = documentTitle || 'Untitled CV';
+      workspaceTitle.title = documentTitle || 'Untitled CV';
     }
-
-    editorPreviewEl.innerHTML = escapeHtml(safeText);
+    DraftedCvLayout.render(editorPreviewEl, {
+      blocks: documentBlocksState || [], title: documentTitle || '',
+      onLayout(count) {
+        const heading = document.querySelector('.workspace-preview-title');
+        if (heading) {
+          let counter = heading.querySelector('.workspace-page-count');
+          if (!counter) {
+            counter = document.createElement('span');
+            counter.className = 'workspace-page-count';
+            counter.setAttribute('role', 'status');
+            counter.setAttribute('aria-live', 'polite');
+            heading.append(counter);
+          }
+          counter.textContent = count ? `${count} ${count === 1 ? 'page' : 'pages'}` : '';
+        }
+        applySelectedBlocksUI();
+      }
+    });
   }
 
 
