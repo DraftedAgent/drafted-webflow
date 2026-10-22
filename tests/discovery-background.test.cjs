@@ -61,3 +61,15 @@ test('a clarification over the combined source limit leaves the original answer 
  const {s,client,respond}=setup(1),work=client.submit(s,'x'.repeat(49999));respond(0,[]);await work;
  const before=JSON.stringify(s.snapshot());assert.throws(()=>client.submit(s,'More details.'),/ANSWER_TOO_LONG/);assert.equal(JSON.stringify(s.snapshot()),before);
 });
+
+test('proposal sources contain raw answers and statuses, never advisory text; revisions and context invalidate them',async()=>{
+ const {s,client,respond}=setup(3),first=s.current().id,raw='I ran internal workshops, not customer workshops.';
+ const work=client.submit(s,raw);respond(0,[{proposedText:'Led customer executive sessions.',sourceQuote:raw,coveredQuestionIds:[]}]);await work;s.skip();s.submit('No');
+ const source=s.proposalSources();assert.equal(source.answers.length,1);assert.equal(source.answers[0].text,raw);assert.equal(source.questions[1].status,'skipped');assert.equal(source.questions[2].status,'no');assert.equal(JSON.stringify(source).includes('Led customer executive sessions.'),false);assert.equal(s.sourcesCurrent(source),true);
+ s.correct(first);s.submit('I prepared materials for internal workshops.');assert.equal(s.sourcesCurrent(source),false);const updated=s.proposalSources();assert.equal(updated.answers[0].revision,2);assert.equal(s.sourcesCurrent(updated),true);s.setContext({...s.snapshot().context,revision:'replacement'});assert.equal(s.sourcesCurrent(updated),false);
+});
+
+test('explicitly adopted approved CV retains correctable sources without silently reusing old proposal tokens',()=>{
+ const {s}=setup(1);s.submit('I prepared slides for an internal workshop.');const source=s.proposalSources(),before=s.accounts()[0],context=s.snapshot().context;
+ s.adoptApprovedCV({...context,revision:'approved-context',cvVersionId:'approved-cv',blocks:context.blocks.map(b=>({...b,text:b.text+' Approved source text.'}))});assert.equal(s.round().id,source.roundId);assert.equal(s.sourcesCurrent(source),false);assert.equal(s.accounts()[0].context.cvVersionId,before.context.cvVersionId);assert.equal(s.accounts()[0].sourceText,before.sourceText);s.correct(before.questionId);s.submit('I only prepared the title slide.');assert.equal(s.proposalSources().cvVersionId,'approved-cv');assert.equal(s.proposalSources().answers[0].revision,2);
+});

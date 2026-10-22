@@ -1,0 +1,616 @@
+
+// NODE Webhook
+{
+  "httpMethod": "POST",
+  "path": "webflow-editor-rewrite",
+  "responseMode": "responseNode",
+  "options": {}
+}
+// retryOnFail: null
+
+// NODE SV-EditorRewriteModel
+{
+  "modelId": {
+    "__rl": true,
+    "value": "gpt-4.1-mini",
+    "mode": "list",
+    "cachedResultName": "GPT-4.1-MINI"
+  },
+  "responses": {
+    "values": [
+      {
+        "role": "system",
+        "content": "Du är en professionell CV-redaktör för svenska CV:n.\n\nInput är JSON med:\n- mode: \"blocks\" eller \"full\"\n- instruction: användarens önskemål\n- targetRole: målroll (kan vara tom)\n- blocks: lista av block som ska skrivas om (vid mode=\"blocks\" är detta endast valda block; vid mode=\"full\" är det alla)\nVarje block har: blockId, type, label, order, text (+ ev metadatafält)\n\nRegler:\n- Du får inte hitta på nya fakta, siffror, företag, datum, titlar, verktyg, utbildningar eller certifieringar.\n- Behåll språk, person, tempus och övergripande stil.\n- Ändra endast textfältet i de block du får.\n- Returnera endast ändringar för block som faktiskt behöver ändras.\n\nOutput (ENDAST giltig JSON, ingen annan text):\n{\n  \"updates\": [\n    { \"blockId\": \"…\", \"replacementText\": \"…\" }\n  ]\n}\n\nKrav:\n- updates får bara innehålla blockId som finns i input.blocks\n- replacementText ersätter hela block.text\n- Behåll radbrytningar i replacementText\n"
+      },
+      {
+        "content": "=Här är input (JSON):\n{{ JSON.stringify($json) }}"
+      }
+    ]
+  },
+  "builtInTools": {},
+  "options": {}
+}
+// retryOnFail: null
+
+// NODE Normalize output
+// Normalize model response -> expects { updates: [...] }
+// Run once for each item
+
+const src = $json;
+
+function first(x) { return Array.isArray(x) ? x[0] : x; }
+
+const root = first(src.output ?? src);
+
+let rawText =
+  root?.content?.[0]?.text ??
+  root?.content?.[0]?.output_text ??
+  root?.text ??
+  "";
+
+// clean
+rawText = String(rawText)
+  .replace(/^\uFEFF/, "")
+  .replace(/^=+/, "")
+  .trim();
+
+if (!rawText) {
+  return { json: { ok: false, error: "Empty response from model" } };
+}
+
+let parsed;
+try {
+  parsed = JSON.parse(rawText);
+} catch (e) {
+  return { json: { ok: false, error: "Model output is not valid JSON", raw: rawText } };
+}
+
+if (!Array.isArray(parsed.updates)) {
+  return { json: { ok: false, error: "Missing updates[] in model output", parsed } };
+}
+
+const updates = parsed.updates
+  .map(u => ({
+    blockId: String(u?.blockId ?? "").trim(),
+    replacementText: String(u?.replacementText ?? "")
+  }))
+  .filter(u => u.blockId && u.replacementText.length > 0);
+
+if (!updates.length) {
+  // Det är OK att modellen inte vill ändra något, men Webflow vill fortfarande få blocks[] tillbaka.
+  return { json: { ok: true, updates: [] } };
+}
+
+return { json: { ok: true, updates } };
+
+// retryOnFail: null
+
+// NODE Respond to Webhook
+{
+  "respondWith": "json",
+  "responseBody": "={{$json}}",
+  "options": {
+    "responseHeaders": {
+      "entries": [
+        {
+          "name": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    }
+  }
+}
+// retryOnFail: null
+
+// NODE Validation + Normalization
+// Code node - Run once for all items
+// BLOCK-ONLY: mode = "blocks" | "full"
+// Expects: instruction, blocks[], (optional) selectedBlockIds[], targetRole, cvTitle, cvVersionId
+
+const items = $input.all();
+
+function bad(msg, extra = {}) {
+  return [{ json: { ok: false, error: String(msg), ...extra } }];
+}
+
+const first = items[0]?.json ?? {};
+const body = first.body ?? first.data ?? first;
+
+const modeRaw = String(body.mode ?? "").trim().toLowerCase();
+const mode = (modeRaw === "blocks" || modeRaw === "full") ? modeRaw : "blocks";
+
+// Required
+const instruction = String(body.instruction ?? "").trim();
+if (!instruction) return bad("Instruction is empty");
+
+// Common optional fields (pass-through)
+const targetRole  = String(body.targetRole ?? "").trim();
+const cvTitle     = String(body.cvTitle ?? "").trim();
+const cvVersionId = String(body.cvVersionId ?? "").trim() || null;
+
+// Blocks required
+const blocksIn = Array.isArray(body.blocks) ? body.blocks : null;
+if (!blocksIn || blocksIn.length === 0) return bad("Missing field: blocks[]");
+
+// Normalize blocks minimally + validate blockId
+const blocks = blocksIn.map((b, idx) => ({
+  blockId: String(b?.blockId ?? "").trim(),
+  type: String(b?.type ?? "").trim(),
+  label: String(b?.label ?? "").trim(),
+  order: Number.isFinite(Number(b?.order)) ? Number(b.order) : idx * 10,
+  text: String(b?.text ?? ""),
+  employer: b?.employer ?? undefined,
+  title: b?.title ?? undefined,
+  startDate: b?.startDate ?? undefined,
+  endDate: b?.endDate ?? undefined,
+  institution: b?.institution ?? undefined,
+  degree: b?.degree ?? undefined,
+  program: b?.program ?? undefined
+}));
+
+const missingId = blocks.find(b => !b.blockId);
+if (missingId) return bad("One or more blocks missing blockId");
+
+// Selection for blocks-mode
+let selectedBlockIds = Array.isArray(body.selectedBlockIds)
+  ? body.selectedBlockIds.map(x => String(x).trim()).filter(Boolean)
+  : [];
+
+if (mode === "blocks") {
+  if (!selectedBlockIds.length) return bad("Missing field: selectedBlockIds[] for mode=blocks");
+
+  const selectedSet = new Set(selectedBlockIds);
+
+  // Ensure all selected exist
+  const existing = new Set(blocks.map(b => b.blockId));
+  const unknown = selectedBlockIds.filter(id => !existing.has(id));
+  if (unknown.length) {
+    return bad("selectedBlockIds contains unknown blockId(s)", { unknown });
+  }
+
+  // Filter down to selected only (cheaper for model)
+  const selectedBlocks = blocks.filter(b => selectedSet.has(b.blockId));
+  if (!selectedBlocks.length) return bad("No blocks matched selectedBlockIds");
+
+  return [{
+    json: {
+      ok: true,
+      mode: "blocks",
+      instruction,
+      targetRole,
+      cvTitle,
+      cvVersionId,
+      selectedBlockIds: Array.from(selectedSet),
+      blocks: selectedBlocks,
+      // IMPORTANT: also keep originalBlocks so we can merge updates later in n8n
+      originalBlocks: blocks
+    }
+  }];
+}
+
+// full-mode: rewrite whole CV (still blocks)
+return [{
+  json: {
+    ok: true,
+    mode: "full",
+    instruction,
+    targetRole,
+    cvTitle,
+    cvVersionId,
+    selectedBlockIds: [],
+    blocks,           // send all
+    originalBlocks: blocks
+  }
+}];
+
+// retryOnFail: null
+
+// NODE Apply updates + Return main-format
+// Apply updates onto originalBlocks (FULL LIST) and return main-format response
+
+const base = $node["Validation + Normalization"].json;
+
+// FULL base list must be originalBlocks
+const originalBlocks = Array.isArray(base.originalBlocks) ? base.originalBlocks : [];
+
+// updates from Normalize output
+const updates = Array.isArray($json.updates) ? $json.updates : [];
+
+// build map: blockId -> replacementText
+const byId = new Map(
+  updates
+    .filter(u => u && typeof u === "object")
+    .map(u => [String(u.blockId || "").trim(), String(u.replacementText ?? "")])
+    .filter(([id]) => !!id)
+);
+
+// apply (keep every block)
+const nextBlocks = originalBlocks.map(b => {
+  const id = String(b?.blockId || "").trim();
+  if (!id) return b;
+
+  if (!byId.has(id)) return b;
+
+  return {
+    ...b,
+    text: byId.get(id)
+  };
+});
+
+// Build rewrittenCv from blocks (single source of truth)
+// IMPORTANT: do NOT mutate nextBlocks order (sort mutates), so copy first.
+function joinBlocksToText(blocks) {
+  const list = Array.isArray(blocks) ? blocks.slice() : [];
+  list.sort((a, b) => (a?.order ?? 0) - (b?.order ?? 0));
+  return list
+    .map(b => String(b?.text ?? ""))
+    .join("\n\n")
+    .trim();
+}
+
+const rewrittenCv = joinBlocksToText(nextBlocks);
+
+return {
+  json: {
+    ok: true,
+    blocksSchemaVersion: "1.0",
+    cvVersionId: base.cvVersionId || null,
+    cvTitle: base.cvTitle || "",
+    summaryOfChanges: "",
+    blocks: nextBlocks,
+    rewrittenCv,
+    rewrittenCvLegacy: rewrittenCv
+  }
+};
+
+// retryOnFail: null
+
+// NODE LanguageDetectionModel
+{
+  "modelId": {
+    "__rl": true,
+    "value": "gpt-4.1-mini",
+    "mode": "list",
+    "cachedResultName": "GPT-4.1-MINI"
+  },
+  "responses": {
+    "values": [
+      {
+        "role": "system",
+        "content": "You detect the main language of the given CV text.\n\nRules:\n- If the text is mostly Swedish, output exactly: sv\n- If the text is mostly English, output exactly: en\n- Otherwise, output: unknown\n\nOutput only the language code (sv, en, or unknown) and nothing else.\n"
+      },
+      {
+        "content": "={{ ($json.blocks || []).map(b => b.text).join('\\n\\n') }}\n"
+      }
+    ]
+  },
+  "builtInTools": {},
+  "options": {}
+}
+// retryOnFail: null
+
+// NODE If
+{
+  "conditions": {
+    "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "strict",
+      "version": 2
+    },
+    "conditions": [
+      {
+        "id": "689de260-189e-44f4-b899-84c74c95084c",
+        "leftValue": "={{ $('LanguageDetectionModel').item.json.output[0].content[0].text }}",
+        "rightValue": "sv",
+        "operator": {
+          "type": "string",
+          "operation": "equals",
+          "name": "filter.operator.equals"
+        }
+      }
+    ],
+    "combinator": "and"
+  },
+  "options": {}
+}
+// retryOnFail: null
+
+// NODE Normalize output1
+// Normalize model response -> expects { updates: [...] }
+// Run once for each item
+
+const src = $json;
+
+function first(x) { return Array.isArray(x) ? x[0] : x; }
+
+const root = first(src.output ?? src);
+
+let rawText =
+  root?.content?.[0]?.text ??
+  root?.content?.[0]?.output_text ??
+  root?.text ??
+  "";
+
+// clean
+rawText = String(rawText)
+  .replace(/^\uFEFF/, "")
+  .replace(/^=+/, "")
+  .trim();
+
+if (!rawText) {
+  return { json: { ok: false, error: "Empty response from model" } };
+}
+
+let parsed;
+try {
+  parsed = JSON.parse(rawText);
+} catch (e) {
+  return { json: { ok: false, error: "Model output is not valid JSON", raw: rawText } };
+}
+
+if (!Array.isArray(parsed.updates)) {
+  return { json: { ok: false, error: "Missing updates[] in model output", parsed } };
+}
+
+const updates = parsed.updates
+  .map(u => ({
+    blockId: String(u?.blockId ?? "").trim(),
+    replacementText: String(u?.replacementText ?? "")
+  }))
+  .filter(u => u.blockId && u.replacementText.length > 0);
+
+if (!updates.length) {
+  // Det är OK att modellen inte vill ändra något, men Webflow vill fortfarande få blocks[] tillbaka.
+  return { json: { ok: true, updates: [] } };
+}
+
+return { json: { ok: true, updates } };
+
+// retryOnFail: null
+
+// NODE Respond to Webhook1
+{
+  "respondWith": "json",
+  "responseBody": "={{$json}}",
+  "options": {
+    "responseHeaders": {
+      "entries": [
+        {
+          "name": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    }
+  }
+}
+// retryOnFail: null
+
+// NODE Apply updates + Return main-format1
+// Apply updates onto originalBlocks (FULL LIST) and return main-format response
+
+const base = $node["Validation + Normalization"].json;
+
+// FULL base list must be originalBlocks
+const originalBlocks = Array.isArray(base.originalBlocks) ? base.originalBlocks : [];
+
+// updates from Normalize output
+const updates = Array.isArray($json.updates) ? $json.updates : [];
+
+// build map: blockId -> replacementText
+const byId = new Map(
+  updates
+    .filter(u => u && typeof u === "object")
+    .map(u => [String(u.blockId || "").trim(), String(u.replacementText ?? "")])
+    .filter(([id]) => !!id)
+);
+
+// apply (keep every block)
+const nextBlocks = originalBlocks.map(b => {
+  const id = String(b?.blockId || "").trim();
+  if (!id) return b;
+
+  if (!byId.has(id)) return b;
+
+  return {
+    ...b,
+    text: byId.get(id)
+  };
+});
+
+// Build rewrittenCv from blocks (single source of truth)
+// IMPORTANT: do NOT mutate nextBlocks order (sort mutates), so copy first.
+function joinBlocksToText(blocks) {
+  const list = Array.isArray(blocks) ? blocks.slice() : [];
+  list.sort((a, b) => (a?.order ?? 0) - (b?.order ?? 0));
+  return list
+    .map(b => String(b?.text ?? ""))
+    .join("\n\n")
+    .trim();
+}
+
+const rewrittenCv = joinBlocksToText(nextBlocks);
+
+return {
+  json: {
+    ok: true,
+    blocksSchemaVersion: "1.0",
+    cvVersionId: base.cvVersionId || null,
+    cvTitle: base.cvTitle || "",
+    summaryOfChanges: "",
+    blocks: nextBlocks,
+    rewrittenCv,
+    rewrittenCvLegacy: rewrittenCv
+  }
+};
+
+// retryOnFail: null
+
+// NODE EN-EditorRewriteModel
+{
+  "modelId": {
+    "__rl": true,
+    "value": "gpt-4.1-mini",
+    "mode": "list",
+    "cachedResultName": "GPT-4.1-MINI"
+  },
+  "responses": {
+    "values": [
+      {
+        "role": "system",
+        "content": "You are a professional CV editor for English CVs.\n\nInput is JSON containing:\n- mode: \"blocks\" or \"full\"\n- instruction: the user’s request\n- targetRole: target role (may be empty)\n- blocks: list of blocks to be rewritten (for mode=\"blocks\" this contains only selected blocks; for mode=\"full\" it contains all blocks)\nEach block includes: blockId, type, label, order, text (+ any metadata fields)\n\nRules:\n- You MUST NOT invent new facts, numbers, employers, dates, titles, tools, educations, or certifications.\n- Preserve language, person, tense, and overall style.\n- Modify ONLY the text field of the blocks you are given.\n- Return updates ONLY for blocks that actually need to change.\n\nOutput (VALID JSON ONLY, no other text):\n{\n  \"updates\": [\n    { \"blockId\": \"…\", \"replacementText\": \"…\" }\n  ]\n}\n\nRequirements:\n- updates may ONLY contain blockIds that exist in input.blocks\n- replacementText replaces the entire block.text\n- Preserve line breaks in replacementText\n"
+      },
+      {
+        "content": "=Here is the input (JSON):\n{{ JSON.stringify($json) }}"
+      }
+    ]
+  },
+  "builtInTools": {},
+  "options": {}
+}
+// retryOnFail: null
+
+// NODE Merge
+{
+  "mode": "combine",
+  "combineBy": "combineByPosition",
+  "options": {}
+}
+// retryOnFail: null
+
+// CONNECTIONS
+{
+  "Webhook": {
+    "main": [
+      [
+        {
+          "node": "Validation + Normalization",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "SV-EditorRewriteModel": {
+    "main": [
+      [
+        {
+          "node": "Normalize output",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "Normalize output": {
+    "main": [
+      [
+        {
+          "node": "Apply updates + Return main-format",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "Validation + Normalization": {
+    "main": [
+      [
+        {
+          "node": "LanguageDetectionModel",
+          "type": "main",
+          "index": 0
+        },
+        {
+          "node": "Merge",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "Apply updates + Return main-format": {
+    "main": [
+      [
+        {
+          "node": "Respond to Webhook",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "LanguageDetectionModel": {
+    "main": [
+      [
+        {
+          "node": "Merge",
+          "type": "main",
+          "index": 1
+        }
+      ]
+    ]
+  },
+  "Normalize output1": {
+    "main": [
+      [
+        {
+          "node": "Apply updates + Return main-format1",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "Apply updates + Return main-format1": {
+    "main": [
+      [
+        {
+          "node": "Respond to Webhook1",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "EN-EditorRewriteModel": {
+    "main": [
+      [
+        {
+          "node": "Normalize output1",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "If": {
+    "main": [
+      [
+        {
+          "node": "SV-EditorRewriteModel",
+          "type": "main",
+          "index": 0
+        }
+      ],
+      [
+        {
+          "node": "EN-EditorRewriteModel",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  },
+  "Merge": {
+    "main": [
+      [
+        {
+          "node": "If",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    ]
+  }
+}

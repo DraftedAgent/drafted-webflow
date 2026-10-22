@@ -1,0 +1,23 @@
+{
+  "workflowId": "3fy8qAJngSRWzP35",
+  "baseVersionId": "fb91e3d1-44a6-4224-a5c5-9ba08b8d1ba4",
+  "activeVersionId": "fb91e3d1-44a6-4224-a5c5-9ba08b8d1ba4",
+  "patchSha256": "81918529e898b11168401d4d34811fb531926e1095d83da2f12b1f419db453ab",
+  "changedPaths": [
+    "/nodes/Respond to Webhook/parameters",
+    "/nodes/Validation + Normalization/parameters",
+    "/nodes/Apply updates + Return main-format/parameters",
+    "/nodes/Normalize output1/parameters",
+    "/nodes/Respond to Webhook1/parameters",
+    "/nodes/Apply updates + Return main-format1/parameters",
+    "/nodes/EN-EditorRewriteModel/parameters",
+    "/nodes/EN-EditorRewriteModel/retryOnFail",
+    "/nodes/Rewrite input valid?",
+    "/nodes/Rewrite has answer sources?",
+    "/connections/Validation + Normalization",
+    "/connections/Rewrite input valid?",
+    "/connections/Rewrite has answer sources?"
+  ],
+  "status": "PREPARED_ONLY_NOT_APPROVED",
+  "testData": "rewrite-sources.test-data.json"
+}

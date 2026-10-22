@@ -3,6 +3,12 @@
   'use strict';
   const MAX_ANSWER_LENGTH=50000,copy=x=>JSON.parse(JSON.stringify(x));
   const requireText=x=>{if(typeof x!=='string'||!x.trim())throw Error('INVALID_TEXT');};
+  // Whole-answer patterns only: a negated clause must never swallow a positive account.
+  function isNegativeAnswer(text,question){
+    const answer=text.trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g,' ').replace(/[.!]+$/,'');
+    if(/^(no|nej)$/.test(answer)||/^(?:no,? )?i (?:haven't|have not|have never) done (?:that|this)(?: yet)?$/.test(answer))return true;
+    return answer==='not externally'&&/\b(customers?|clients?|external(?:ly)?)\b/i.test(question)&&!/\b(internal|colleagues?)\b/i.test(question);
+  }
   class Session{
     constructor({id=()=>globalThis.crypto.randomUUID()}={}){this.id=id;this.state={modelVersion:'source-answers-2',revision:0,context:null,round:null,answers:[]};}
     snapshot(){return copy(this.state);}
@@ -24,12 +30,13 @@
     start(){const r=this.round();if(r.phase!=='offer')throw Error('INVALID_PHASE');r.phase=r.total?'question':'complete';}
     submit(text,{defer=false}={}){
       const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');requireText(text);if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
+      const negative=isNegativeAnswer(text,q.question);
       let a=this.state.answers.find(a=>a.id===q.answerId);if(!a){a={id:this.id(),questionId:q.id,topicKey:q.topicKey,roundId:r.id,context:copy(this.state.context),revisions:[],currentRevision:0,drafts:[],status:'pending'};this.state.answers.push(a);q.answerId=a.id;}
       const isFollowup=r.phase==='followup',reply=text,previous=a.revisions.at(-1)?.text;
-      if(isFollowup&&previous&&!/^\s*(no|nej|i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
+      if(isFollowup&&previous&&!negative&&!/^\s*(i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
       if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
-      if(/^\s*(nej|no)[.!]?\s*$/i.test(text)){a.status=q.status='no';this.advance();return;}
+      if(negative){a.status=q.status='no';this.advance();return;}
       if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
       if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(reply)){this.askFollowup();return;}
       r.phase='ready';if(!defer)this.reviewDrafts(this.token(),[{proposedText:text,sourceQuote:text,coveredQuestionIds:[]}]);
@@ -57,6 +64,9 @@
     finish(){this.round().finishedEarly=true;this.round().phase='complete';}
     accounts(){return copy(this.state.answers.filter(a=>a.status==='recorded').map(a=>({...a,sourceText:a.revisions.at(-1).text,verification:'user_submitted',interpretationsAreAdvisory:true})));}
     accountsForRound(){return this.accounts().filter(a=>a.roundId===this.round().id);}
+    proposalSources(){const r=this.round(),c=this.state.context;if(r.phase!=='complete'||this.results().pending)throw Error('ANSWERS_NOT_READY');return copy({contextRevision:c.revision,roundId:r.id,cvVersionId:c.cvVersionId,blocks:c.blocks,jobContext:c.jobContext,questions:r.queue.map(q=>({id:q.id,question:q.question,signalRefs:q.signalRefs,status:q.status})),answers:this.accountsForRound().map(a=>({id:a.id,questionId:a.questionId,revision:a.currentRevision,text:a.sourceText}))});}
+    sourcesCurrent(source){try{const r=this.round();return r.phase==='complete'&&!this.results().pending&&source.contextRevision===this.state.context.revision&&source.roundId===r.id&&source.questions.length===r.queue.length&&source.questions.every(s=>r.queue.some(q=>q.id===s.id&&q.status===s.status))&&source.answers.every(s=>this.state.answers.some(a=>a.roundId===r.id&&a.id===s.id&&a.questionId===s.questionId&&a.status==='recorded'&&a.currentRevision===s.revision&&a.revisions.at(-1).text===s.text));}catch{return false;}}
+    adoptApprovedCV(c){const r=this.round();if(r.phase!=='complete'||this.results().pending||c.revision===this.state.context.revision||JSON.stringify(c.jobContext)!==JSON.stringify(this.state.context.jobContext))throw Error('CANNOT_REBASE_ANSWERS');requireText(c.revision);requireText(c.cvVersionId);if(!Array.isArray(c.blocks)||!c.blocks.length)throw Error('INVALID_CONTEXT');this.state.context=copy(c);r.contextRevision=c.revision;this.state.revision++;}
     summary(){const r=this.round(),count=s=>r.queue.filter(q=>q.status===s).length;return {total:r.total,answered:count('recorded'),covered:count('covered'),skipped:count('skipped'),no:count('no'),unknown:count('unknown'),remaining:r.queue.filter(q=>['unanswered','answered'].includes(q.status)).length};}
     results(){const r=this.round(),answers=this.state.answers.filter(a=>a.roundId===r.id);return {pending:answers.filter(a=>a.status==='processing').length,failed:answers.filter(a=>a.status==='error').length,needsDetail:answers.filter(a=>a.status==='needs_detail').length,examples:this.accountsForRound().map(a=>({answerId:a.id,questionId:a.questionId,texts:a.drafts.map(d=>d.proposedText)}))};}
   }

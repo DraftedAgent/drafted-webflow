@@ -1,6 +1,6 @@
 /* Explicit local-only fixture configuration. Never included in the production bundle. */
 if(!['127.0.0.1','localhost'].includes(location.hostname))throw Error('Local preview only');
-window.__DRAFTED_PREVIEW_ENDPOINTS__={upload:'/preview-api/upload',rewrite:'/preview-api/rewrite',chat:'/preview-api/chat',export:'/preview-api/export',jobcontext:'/preview-api/jobcontext',tailor:'/preview-api/tailor',discovery:'/webflow-experience-discovery'};
+window.__DRAFTED_PREVIEW_ENDPOINTS__={upload:'/preview-api/upload',rewrite:'/preview-api/rewrite',chat:'/preview-api/chat',export:'/preview-api/export',jobcontext:'/preview-api/jobcontext',tailor:'/preview-api/tailor',discovery:'/webflow-experience-discovery',discoveryProposals:true};
 document.addEventListener('DOMContentLoaded',()=>{
   const banner=document.createElement('div');banner.className='local-preview-banner';banner.textContent='Local preview · Synthetic CV and job ad · No external AI or publishing';document.body.prepend(banner);
   const inputSection=document.querySelector('#section-input');

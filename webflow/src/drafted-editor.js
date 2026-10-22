@@ -27,6 +27,8 @@ const N8N_TAILOR_URL = draftedEndpoints.tailor || "https://drafted.app.n8n.cloud
 const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n.cloud/webhook/webflow-experience-discovery";
 let discoveryController = null;
 let discoveryCvFile = null;
+// This bridge is local/mock-only until the separately documented backend gate is approved.
+const discoveryDraftPreviewEnabled = ['127.0.0.1','localhost'].includes(location.hostname) && draftedEndpoints.discoveryProposals === true && N8N_EDITOR_URL === '/preview-api/rewrite';
 
 // The editor is a workspace; remove the legacy Webflow section introduction.
 onReady(() => {
@@ -1042,6 +1044,10 @@ function assertDraftedChatResponse(data) {
  * kind must be: "cv" | "chat"
  */
 function assertDraftedResponse(data, kind) {
+  if (kind === 'cv-sources-candidate' && discoveryDraftPreviewEnabled) {
+    const cv=assertDraftedCvResponse(DraftedRewriteSources.withoutReceipt(data));
+    return {...cv,...Object.fromEntries(DraftedRewriteSources.RECEIPT.filter(k=>Object.hasOwn(data,k)).map(k=>[k,data[k]]))};
+  }
   if (kind === "cv") return assertDraftedCvResponse(data);
   if (kind === "chat") return assertDraftedChatResponse(data);
   throw new DraftedContractError("CONTRACT_INTERNAL", "Unknown assert kind", { kind });
@@ -1182,6 +1188,7 @@ let isGeneratingSuggestionPreview = false;
   
 function appendProposalCard(meta) {
   if (!chatMessagesEl) return;
+  const discoverySource=meta?.discoverySource;
 
   const hasProposal = !!(pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length);
   const hasSuggestion = !!(pendingSuggestion && pendingSuggestion.instruction);
@@ -1192,12 +1199,14 @@ function appendProposalCard(meta) {
   const summary = Array.isArray(meta?.summaryOfChanges) ? meta.summaryOfChanges : [];
   const wrap = document.createElement("div");
   wrap.className = "chat-message ai drafted-proposal-card";
+  if(discoverySource)wrap.dataset.source='experience-answers';
   wrap.style.textAlign = "left";
   const title = document.createElement("div");
   title.style.fontWeight = "600";
   title.textContent = hasProposal
     ? `Suggestion ready (${changedCount} block${changedCount === 1 ? "" : "s"})`
     : "Suggestion ready";
+  if(discoverySource)title.textContent=hasProposal?'Review changes from your answers':'Preparing a suggestion from your answers…';
 
   const sub = document.createElement("div");
   sub.style.opacity = "0.85";
@@ -1205,9 +1214,17 @@ function appendProposalCard(meta) {
   sub.textContent = hasProposal
     ? "Preview it first, then Apply to make changes. Or Dismiss."
     : "Preview will generate a draft. Then Apply or Dismiss.";
+  if(discoverySource)sub.textContent='Your CV is unchanged. Review the proposed wording and its source answers, then Apply or Dismiss.';
 
   wrap.appendChild(title);
   wrap.appendChild(sub);
+  if(discoverySource&&hasProposal&&meta.showDiff){
+    const review=document.createElement('div');review.className='discovery-proposal-review';
+    const paragraph=(label,text)=>{const heading=document.createElement('h3'),body=document.createElement('p');heading.textContent=label;body.textContent=text;body.className='discovery-answer';review.append(heading,body);};
+    for(const block of pendingProposal.blocks){const before=discoverySource.blocks.find(b=>b.blockId===block.blockId);if(before&&before.text!==block.text){paragraph('Current CV · '+block.label,before.text);paragraph('Proposed text · '+block.label,block.text);}}
+    for(const answer of discoverySource.answers){const q=discoverySource.questions.find(q=>q.id===answer.questionId);paragraph((answer.revision>1?'Your corrected answer':'Your answer')+' · Question '+(discoverySource.questions.indexOf(q)+1),answer.text);const uses=pendingProposal.sourceUsage.filter(u=>u.answerId===answer.id&&u.answerRevision===answer.revision);if(!uses.length)paragraph('Not included in this suggestion','This answer has not been added to the proposed CV.');for(const use of uses){paragraph('Proposed wording from this answer',use.proposedQuote);paragraph('Supporting words in your answer',use.sourceQuote);}for(const ref of q.signalRefs){const value=discoverySource.jobContext[ref.field][ref.index],note=document.createElement('p');note.textContent='Relevant requirement: '+(typeof value==='string'?value:value.signal)+'. Partial support does not establish the entire requirement.';review.append(note);}}
+    wrap.append(review);
+  }
 
   if (summary.length) {
     const ul = document.createElement("ul");
@@ -1227,6 +1244,7 @@ function appendProposalCard(meta) {
   btnRow.style.display = "flex";
   btnRow.style.gap = "10px";
   btnRow.style.marginTop = "12px";
+  if(discoverySource)btnRow.style.flexWrap='wrap';
 
   
   function makeBtn(label, { busy = false } = {}) {
@@ -1248,7 +1266,7 @@ function appendProposalCard(meta) {
     return { btn, spinner, txt };
   }
 
-  const previewLabel = isPreviewingProposal
+  const previewLabel = discoverySource ? (meta.showDiff?'Hide proposed text':'Show proposed text') : isPreviewingProposal
     ? "Exit preview"
     : (isGeneratingSuggestionPreview ? "Generating preview…" : "Preview");
 
@@ -1328,6 +1346,8 @@ function setApplyLabel() {
   let pendingSuggestion = null;    // { mode:"blocks|full", selectedBlockIds:[], instruction:"..." }
   let isPreviewingProposal = false;
   let previewSnapshot = null;
+  let discoveryProposalBinding = null;
+  let discoveryAppliedSource = null;
 
   // Enhance the existing editor DOM; preserve its controls and event bindings.
   (function mountWorkspaceChrome() {
@@ -1365,6 +1385,8 @@ function setApplyLabel() {
     discoveryController = window.DraftedDiscoveryEditor.create({
       host: chatMessagesEl,
       endpoint: N8N_DISCOVERY_URL,
+      onUseAnswers: discoveryDraftPreviewEnabled ? requestDiscoveryProposal : null,
+      onInvalidateSources: invalidateDiscoveryProposal,
       getContext: () => !isPreviewingProposal && discoveryCvFile && getFileInput()?.files?.[0] === discoveryCvFile && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
         ? { cvVersionId, blocks: deepClone(documentBlocksState), jobContext: deepClone(window.__DRAFTED_JOBCONTEXT__) }
         : null
@@ -1810,7 +1832,8 @@ function computeChangedBlockIds(oldBlocks, newBlocks) {
 /* ===============================
    FETCH PROPOSAL FROM SUGGESTION (WITH LOADING)
    =============================== */
-async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
+async function fetchProposalFromSuggestion({ commitImmediately = false, discoverySource = null } = {}) {
+  if (pendingSuggestion?.discovery && (!discoverySource || commitImmediately)) return {ok:false,error:'Review the answer-based suggestion before applying it.'};
   if (!pendingSuggestion || !pendingSuggestion.instruction) {
     return { ok: false, error: "No pendingSuggestion" };
   }
@@ -1839,6 +1862,10 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     selectedBlockIds: selectedIds,
     blocks: documentBlocksState // ALWAYS send full list
   };
+  if (discoverySource) {
+    payload.language='en';payload.sourcesSchemaVersion='1.0';payload.sourceContext=discoveryProposalBinding.sourceContext;
+    discoveryProposalBinding.request=deepClone(payload);
+  }
 
   isGeneratingSuggestionPreview = true;
   clearAllProposalCards();
@@ -1846,6 +1873,7 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
   setApplyLabel();
 
   try {
+    if(discoverySource)DraftedRewriteSources.validateRequest(payload);
     setBusy(true);
 
     const data = await draftedFetchJson(
@@ -1855,10 +1883,14 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       },
-      "cv"
+      discoverySource ? 'cv-sources-candidate' : 'cv'
     );
 
     const nextBlocks = data.blocks;
+    if (discoverySource) {
+      if (!isDiscoveryProposalCurrent(discoverySource)) return {ok:false,error:'The source answers or CV have changed.'};
+      assertDiscoveryCandidate(data, discoverySource);
+    }
     if (!nextBlocks || !nextBlocks.length) {
       return { ok: false, error: "Rewrite flow returned no blocks" };
     }
@@ -1867,11 +1899,12 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     const nextCvVersionId = String(data.cvVersionId || "").trim() || (cvVersionId || null);
     const changedBlockIds = computeChangedBlockIds(documentBlocksState, nextBlocks);
 
-    const summary = Array.isArray(data.summaryOfChanges)
+    const summary = discoverySource ? ['Source answers remain separate until you approve this change.'] : Array.isArray(data.summaryOfChanges)
       ? data.summaryOfChanges
       : (instruction ? [instruction] : []);
 
     pendingProposal = {
+      ...(discoverySource ? data : {}),
       cvVersionId: nextCvVersionId,
       cvTitle: nextTitle,
       blocks: nextBlocks,
@@ -1880,7 +1913,8 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
 
     pendingProposalMeta = {
       changedBlockIds,
-      summaryOfChanges: summary
+      summaryOfChanges: summary,
+      ...(discoverySource ? {discoverySource, showDiff:true} : {})
     };
 
     if (commitImmediately) {
@@ -1890,6 +1924,7 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     return { ok: true };
 
   } catch (e) {
+    if(discoverySource)return {ok:false,error:'The answer-based draft could not be validated.'};
     if (e && e.name === "DraftedContractError") {
       console.error("DraftedContractError", e.code, e.details, e);
     } else {
@@ -1905,6 +1940,38 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     appendProposalCard(pendingProposalMeta);
     setApplyLabel();
   }
+}
+
+function discoveryBaseKey(){return JSON.stringify({cvVersionId,cvTitle:documentTitle,language:documentLanguage,targetRole:targetRoleInput?.value||'',blocks:documentBlocksState,jobContext:window.__DRAFTED_JOBCONTEXT__});}
+function isDiscoveryProposalCurrent(source){return !!(discoveryProposalBinding?.source===source&&discoveryProposalBinding.state!=='stale'&&discoveryProposalBinding.baseKey===discoveryBaseKey()&&discoveryController?.sourcesCurrent(source));}
+function setDiscoveryProposalState(state){if(!discoveryProposalBinding)return;discoveryProposalBinding.state=state;discoveryController?.setProposalState({state,answerIds:[...new Set((discoveryProposalBinding.receipt||[]).map(u=>u.answerId))],appliedAnswers:discoveryAppliedSource?.usedAnswers||[]});}
+function invalidateDiscoveryProposal(questionId,keepApplied=false){
+  if(!questionId&&!keepApplied)discoveryAppliedSource=null;
+  const binding=discoveryProposalBinding;if(!binding||!['loading','ready','dismissed','unchanged','error','applied','applied-stale'].includes(binding.state)||questionId&&!binding.source.questions.some(q=>q.id===questionId))return;
+  if(binding.state==='applied'||binding.state==='applied-stale'){setDiscoveryProposalState('applied-stale');return;}
+  if(pendingProposalMeta?.discoverySource===binding.source){pendingProposal=null;pendingSuggestion=null;pendingProposalMeta=null;clearAllProposalCards();setApplyLabel();}
+  setDiscoveryProposalState('stale');
+}
+function assertDiscoveryCandidate(data,source){
+  DraftedRewriteSources.validateCandidate(discoveryProposalBinding.request,data);
+  discoveryProposalBinding.receipt=deepClone(data.sourceUsage);
+}
+async function requestDiscoveryProposal(source){
+  if(!discoveryDraftPreviewEnabled)return;
+  if(pendingProposal||pendingSuggestion||isGeneratingSuggestionPreview||isPreviewingProposal||window.__DRAFTED_CHAT__?.inFlight){discoveryController.setProposalState({state:'blocked',answerIds:[],appliedAnswers:discoveryAppliedSource?.usedAnswers||[]});return;}
+  if(!discoveryController.sourcesCurrent(source)||JSON.stringify(source.blocks)!==JSON.stringify(documentBlocksState)||source.cvVersionId!==cvVersionId)return;
+  const previousApplication=discoveryAppliedSource?.baseKey===discoveryBaseKey()?discoveryAppliedSource.application:null;
+  if(!source.answers.length&&!previousApplication)return;
+  discoveryProposalBinding={source,baseKey:discoveryBaseKey(),state:'loading',previousApplication};
+  discoveryProposalBinding.sourceContext={contextRevision:source.contextRevision,roundId:source.roundId,jobContext:source.jobContext,questions:source.questions,answers:source.answers,...(previousApplication?{previousApplication}:{})};
+  pendingSuggestion={mode:'full',selectedBlockIds:[],discovery:true,instruction:'Use my current source answers to propose a concise, factual summary addition for review. Keep scope and qualifications. Do not apply changes.'};
+  pendingProposalMeta={changedBlockIds:[],summaryOfChanges:[],discoverySource:source};setDiscoveryProposalState('loading');
+  const result=await fetchProposalFromSuggestion({commitImmediately:false,discoverySource:source});
+  if(discoveryProposalBinding?.source!==source||discoveryProposalBinding.state==='stale')return;
+  if(!result.ok){pendingSuggestion=null;pendingProposal=null;pendingProposalMeta=null;clearAllProposalCards();setApplyLabel();setDiscoveryProposalState('error');return;}
+  pendingSuggestion=null;
+  if(!pendingProposalMeta.changedBlockIds.length){pendingProposal=null;pendingProposalMeta=null;clearAllProposalCards();setApplyLabel();setDiscoveryProposalState('unchanged');return;}
+  setDiscoveryProposalState('ready');clearAllProposalCards();appendProposalCard(pendingProposalMeta);setApplyLabel();
 }
   
 
@@ -2176,6 +2243,10 @@ function updateContextChip() {
    =============================== */
   function previewProposal() {
   if (!pendingProposal?.blocks?.length) return;
+  if(pendingProposalMeta?.discoverySource){
+    if(!isDiscoveryProposalCurrent(pendingProposalMeta.discoverySource)){invalidateDiscoveryProposal();return;}
+    pendingProposalMeta.showDiff=!pendingProposalMeta.showDiff;clearAllProposalCards();appendProposalCard(pendingProposalMeta);return;
+  }
 
   if (!isPreviewingProposal) {
     previewSnapshot = snapshotCurrentState();
@@ -2190,6 +2261,7 @@ function updateContextChip() {
   if (nextCvVersionId) cvVersionId = nextCvVersionId;
 
   buildStateFromBlocks(nextBlocks);
+
   renderDocument(documentTextState);
   applySelectedBlocksUI();
   updateContextChip();
@@ -2214,6 +2286,9 @@ function updateContextChip() {
 
   function applyProposal() {
   if (!pendingProposal?.blocks?.length) return;
+  const source=pendingProposalMeta?.discoverySource,preservedDraft=editorInput.value;
+  if(source&&!isDiscoveryProposalCurrent(source)){invalidateDiscoveryProposal();appendChat('assistant','That suggestion is out of date. Create a new one from your current answers.');return;}
+  if(source)assertDiscoveryCandidate(pendingProposal,source);
 
   const nextBlocks = deepClone(pendingProposal.blocks);
 
@@ -2226,6 +2301,11 @@ function updateContextChip() {
   buildStateFromBlocks(nextBlocks);
 
   // clear preview state + proposal + suggestion
+  if(source){
+    const receipt=discoveryProposalBinding.receipt||[],usedAnswers=source.answers.filter(a=>receipt.some(u=>u.answerId===a.id&&u.answerRevision===a.revision));
+    discoveryAppliedSource={source,usedAnswers,baseKey:discoveryBaseKey(),application:receipt.length?{blockId:receipt[0].blockId,additionText:receipt.map(u=>u.proposedQuote).join('\n'),answers:usedAnswers}:null};
+    discoveryController.acceptAppliedCV();
+  }
   isPreviewingProposal = false;
   previewSnapshot = null;
 
@@ -2238,13 +2318,15 @@ function updateContextChip() {
   updateContextChip();
 
   clearNativeSelection();
-  editorInput.value = "";
+  editorInput.value = source ? preservedDraft : "";
 
   clearAllProposalCards();
   setApplyLabel();
+  if(source){setDiscoveryProposalState('applied');appendChat('assistant','Your CV was updated after your approval.');}
 }
 
   function dismissProposal() {
+  const source=pendingProposalMeta?.discoverySource;
   // If previewing, revert
   if (isPreviewingProposal) {
     isPreviewingProposal = false;
@@ -2259,6 +2341,7 @@ function updateContextChip() {
 
   clearAllProposalCards();
   setApplyLabel();
+  if(source&&discoveryProposalBinding?.source===source)setDiscoveryProposalState('dismissed');
 }
 
   /* ===============================
@@ -2337,6 +2420,7 @@ async function sendChat() {
     appendChat("assistant", "Upload a CV first so I can suggest improvements.");
     return;
   }
+  if(pendingProposalMeta?.discoverySource)invalidateDiscoveryProposal(null,true);
 
   // Lock immediately BEFORE any async work
   window.__DRAFTED_CHAT__.inFlight = true;

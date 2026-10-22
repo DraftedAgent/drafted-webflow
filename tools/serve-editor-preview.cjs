@@ -1,6 +1,10 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {createHandler}=require('../backend/experience-discovery.cjs'),{fixtureModel}=require('../backend/discovery-fixture-provider.cjs');
+const rewriteSources=require('../webflow/src/rewrite-sources-candidate.js');
+// Deliberate test-only exception, UNARMED by default. Never accepts a production URL.
+const listenerTestApproved=process.env.DRAFTED_REWRITE_TEST_APPROVAL==='two-synthetic-requests-no-retries';
+let externalRewriteRequests=0;
 const repo=path.resolve(__dirname,'..'),calls=[];
 const blocks=[{blockId:'summary-1',type:'summary',label:'Profil',order:1,text:'Jag har arbetat i ett digitalt produktteam.'},{blockId:'experience-1',type:'experience',label:'Erfarenhet',order:10,text:'Intervjuade fem användare och sammanställde deras synpunkter.',employer:'Exempelstudion',title:'Produktspecialist',startDate:'2022',endDate:'2024'}];
 const jobContext={roleTitle:'Produktspecialist',seniority:'mid',surfaces:['app'],tone:'balanced',topPriorities:[{signal:'Prioritera arbetet och planera nästa leverans med utvecklare',weight:5},{signal:'Förstå användarnas behov genom intervjuer',weight:4},{signal:'Arbeta tillsammans med designers och utvecklare',weight:3}],mustHave:[],successMetrics:[],keywords:['product','planning','priority','delivery','research','interviews','collaboration','team','development','communication']};
@@ -12,13 +16,23 @@ const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,'http://localhost'),pathname=url.pathname;
  res.setHeader('Content-Security-Policy',"default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'");res.setHeader('Cache-Control','no-store');
  const json=(status,data)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
- if(req.method==='GET'&&pathname==='/preview-status')return json(200,{synthetic:true,externalModelCalls:0,calls});
+ if(req.method==='GET'&&pathname==='/preview-status')return json(200,{synthetic:true,externalModelCalls:externalRewriteRequests?null:0,externalRewriteRequests,calls});
  if(req.method==='POST'){
   let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>1000000)return json(413,{error:'Preview input too large'});}
   if(pathname==='/webflow-experience-discovery'){let r;try{r=JSON.parse(body);}catch{return json(400,{error:'invalid JSON'});}const result=await (outcomeDiscovery||discovery)(r);return json(result.status,result.body);}
   calls.push({operation:pathname,synthetic:true});
   if(pathname==='/preview-api/upload')return json(200,outcomeFixture?{...envelope(outcomeFixture.blocks),cvTitle:'Sara Example'}:envelope());
   if(pathname==='/preview-api/jobcontext')return json(200,{ok:true,jobContextSchemaVersion:'1.0',jobContext:outcomeFixture?.jobContext||jobContext});
+  if(pathname==='/preview-api/rewrite'){
+   if(listenerTestApproved){
+    try{rewriteSources.validateRequest(JSON.parse(body));}catch{return json(400,{error:'Invalid test source request'});}
+    if(externalRewriteRequests>=2)return json(409,{error:'The two-request test budget is exhausted. No retry was sent.'});
+    externalRewriteRequests++; // An uncertain/failed response consumes the attempt too.
+    try{const response=await fetch('https://drafted.app.n8n.cloud/webhook-test/webflow-editor-rewrite',{method:'POST',headers:{'Content-Type':'application/json'},body,signal:AbortSignal.timeout(90000)});const data=await response.json();return json(response.status,data);}catch{return json(502,{error:'The isolated test did not return a usable response. No retry was sent.'});}
+   }
+   // Deterministic synthetic paraphrases, using the SAME candidate validation as prepared n8n.
+   try{const r=JSON.parse(body);rewriteSources.validateRequest(r);const additions=r.sourceContext.answers.map(a=>({text:a.text.replace(/^I /,'').replace(/^only /,'').replace(/^./,c=>c.toUpperCase()),answerId:a.id,answerRevision:a.revision,sourceQuote:a.text}));return json(200,rewriteSources.candidate(r,{updates:additions.length?[{blockId:r.blocks.find(b=>b.type==='summary').blockId,additions}]:[]}));}catch{return json(422,{ok:false,blocksSchemaVersion:'1.0',blocks:[],contractError:{code:'INVALID_MODEL_OUTPUT',message:'A safe draft suggestion could not be created.'}});}
+  }
   // Unrelated external operations are safely blocked in the preview rather than faked as success.
   return json(503,{ok:false,contractError:{code:'LOCAL_PREVIEW_ONLY',message:'This action is outside the local discovery preview.'}});
  }

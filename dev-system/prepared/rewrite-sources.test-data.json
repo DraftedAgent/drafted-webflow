@@ -1,0 +1,367 @@
+{
+  "synthetic": true,
+  "requests": [
+    {
+      "mode": "full",
+      "instruction": "Use my current source answers to propose a concise, factual summary addition for review. Keep scope and qualifications. Do not apply changes.",
+      "targetRole": "",
+      "cvVersionId": "synthetic-source-cv-1",
+      "cvTitle": "Sara Example",
+      "selectedBlockIds": [],
+      "blocks": [
+        {
+          "blockId": "summary-1",
+          "type": "summary",
+          "label": "Summary",
+          "order": 1,
+          "text": "Product specialist working with digital teams."
+        },
+        {
+          "blockId": "experience-1",
+          "type": "experience",
+          "label": "Experience",
+          "order": 10,
+          "text": "Interviewed five users and shared their feedback with the product team.",
+          "employer": "Example Studio",
+          "title": "Product Specialist",
+          "startDate": "2022",
+          "endDate": "2024"
+        }
+      ],
+      "language": "en",
+      "sourcesSchemaVersion": "1.0",
+      "sourceContext": {
+        "contextRevision": "synthetic-context-1",
+        "roundId": "synthetic-round-1",
+        "jobContext": {
+          "roleTitle": "Synthetic product lead",
+          "seniority": "lead",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan and deliver releases with developers",
+              "weight": 5
+            },
+            {
+              "signal": "Facilitate customer workshops and executive sessions",
+              "weight": 5
+            },
+            {
+              "signal": "Measure product outcomes",
+              "weight": 5
+            },
+            {
+              "signal": "Lead procurement",
+              "weight": 5
+            },
+            {
+              "signal": "Manage a budget",
+              "weight": 5
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "release",
+            "delivery",
+            "developer",
+            "workshop",
+            "customer",
+            "executive",
+            "measurement",
+            "procurement",
+            "budget"
+          ]
+        },
+        "questions": [
+          {
+            "id": "q1",
+            "question": "Have you planned and delivered a release with developers?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ],
+            "status": "recorded"
+          },
+          {
+            "id": "q2",
+            "question": "Have you facilitated customer workshops or executive sessions?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ],
+            "status": "recorded"
+          },
+          {
+            "id": "q3",
+            "question": "Have you measured the outcome of a product change?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 2
+              }
+            ],
+            "status": "skipped"
+          },
+          {
+            "id": "q4",
+            "question": "Have you led procurement?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 3
+              }
+            ],
+            "status": "no"
+          },
+          {
+            "id": "q5",
+            "question": "Have you managed a budget?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 4
+              }
+            ],
+            "status": "unknown"
+          }
+        ],
+        "answers": [
+          {
+            "id": "a1",
+            "questionId": "q1",
+            "revision": 1,
+            "text": "I coordinated one product release with two developers."
+          },
+          {
+            "id": "a2",
+            "questionId": "q2",
+            "revision": 1,
+            "text": "I designed and facilitated two internal AI workshops for colleagues in our design team. I have not facilitated customer workshops or executive sessions."
+          }
+        ]
+      }
+    },
+    {
+      "mode": "full",
+      "instruction": "Use my current source answers to propose a concise, factual summary addition for review. Keep scope and qualifications. Do not apply changes.",
+      "targetRole": "",
+      "cvVersionId": "synthetic-source-cv-1",
+      "cvTitle": "Sara Example",
+      "selectedBlockIds": [],
+      "blocks": [
+        {
+          "blockId": "summary-1",
+          "type": "summary",
+          "label": "Summary",
+          "order": 1,
+          "text": "Product specialist working with digital teams."
+        },
+        {
+          "blockId": "experience-1",
+          "type": "experience",
+          "label": "Experience",
+          "order": 10,
+          "text": "Interviewed five users and shared their feedback with the product team.",
+          "employer": "Example Studio",
+          "title": "Product Specialist",
+          "startDate": "2022",
+          "endDate": "2024"
+        }
+      ],
+      "language": "en",
+      "sourcesSchemaVersion": "1.0",
+      "sourceContext": {
+        "contextRevision": "synthetic-context-2",
+        "roundId": "synthetic-round-1",
+        "jobContext": {
+          "roleTitle": "Synthetic product lead",
+          "seniority": "lead",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan and deliver releases with developers",
+              "weight": 5
+            },
+            {
+              "signal": "Facilitate customer workshops and executive sessions",
+              "weight": 5
+            },
+            {
+              "signal": "Measure product outcomes",
+              "weight": 5
+            },
+            {
+              "signal": "Lead procurement",
+              "weight": 5
+            },
+            {
+              "signal": "Manage a budget",
+              "weight": 5
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "release",
+            "delivery",
+            "developer",
+            "workshop",
+            "customer",
+            "executive",
+            "measurement",
+            "procurement",
+            "budget"
+          ]
+        },
+        "questions": [
+          {
+            "id": "q1",
+            "question": "Have you planned and delivered a release with developers?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ],
+            "status": "recorded"
+          },
+          {
+            "id": "q2",
+            "question": "Have you facilitated customer workshops or executive sessions?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ],
+            "status": "recorded"
+          },
+          {
+            "id": "q3",
+            "question": "Have you measured the outcome of a product change?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 2
+              }
+            ],
+            "status": "skipped"
+          },
+          {
+            "id": "q4",
+            "question": "Have you led procurement?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 3
+              }
+            ],
+            "status": "no"
+          },
+          {
+            "id": "q5",
+            "question": "Have you managed a budget?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 4
+              }
+            ],
+            "status": "unknown"
+          }
+        ],
+        "answers": [
+          {
+            "id": "a1",
+            "questionId": "q1",
+            "revision": 1,
+            "text": "I coordinated one product release with two developers."
+          },
+          {
+            "id": "a2",
+            "questionId": "q2",
+            "revision": 2,
+            "text": "I prepared the slides for two internal AI workshops; a colleague facilitated them. I have not facilitated customer workshops or executive sessions."
+          }
+        ]
+      }
+    }
+  ],
+  "expectedSemanticExamples": [
+    {
+      "updates": [
+        {
+          "blockId": "summary-1",
+          "additions": [
+            {
+              "text": "Coordinated a product release with two developers.",
+              "answerId": "a1",
+              "answerRevision": 1,
+              "sourceQuote": "I coordinated one product release with two developers."
+            },
+            {
+              "text": "Designed and facilitated two internal AI workshops for design colleagues.",
+              "answerId": "a2",
+              "answerRevision": 1,
+              "sourceQuote": "I designed and facilitated two internal AI workshops for colleagues in our design team."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "updates": [
+        {
+          "blockId": "summary-1",
+          "additions": [
+            {
+              "text": "Coordinated a product release with two developers.",
+              "answerId": "a1",
+              "answerRevision": 1,
+              "sourceQuote": "I coordinated one product release with two developers."
+            },
+            {
+              "text": "Prepared slides for two internal AI workshops facilitated by a colleague.",
+              "answerId": "a2",
+              "answerRevision": 2,
+              "sourceQuote": "I prepared the slides for two internal AI workshops; a colleague facilitated them."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "model": "gpt-4.1-mini",
+  "requestsMaximum": 2,
+  "modelCallsMaximum": 2,
+  "automaticRetries": 0,
+  "tokenEstimates": [
+    {
+      "inputUtf8Bytes": 3388,
+      "estimatedInputTokens": 2000,
+      "budgetInputTokens": 6000,
+      "maxOutputTokens": 1600
+    },
+    {
+      "inputUtf8Bytes": 3383,
+      "estimatedInputTokens": 2000,
+      "budgetInputTokens": 6000,
+      "maxOutputTokens": 1600
+    }
+  ],
+  "estimatedCostUsd": 0.005,
+  "conservativeBudgetUsd": 0.02
+}

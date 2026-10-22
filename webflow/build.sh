@@ -77,7 +77,7 @@ JS_OUT="$DIST_DIR/drafted-editor.js"
 if [[ -f "$JS_SRC" ]]; then
   # If your JS contains the placeholder __DRAFTED_BUILD_ID__, replace it.
   : > "$JS_OUT"
-  for module in experience-discovery.js experience-discovery-ui.js experience-discovery-contract.js experience-discovery-client.js experience-discovery-editor.js; do
+  for module in experience-discovery.js experience-discovery-ui.js experience-discovery-contract.js experience-discovery-client.js experience-discovery-editor.js rewrite-sources-candidate.js; do
     cat "$SRC_DIR/$module" >> "$JS_OUT"
     printf '\n;\n' >> "$JS_OUT"
   done
