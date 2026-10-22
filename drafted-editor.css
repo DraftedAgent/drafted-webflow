@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-22-preview-wheel-fix */
+/* drafted-editor.css | build=2026-10-22-question-reset-title-fit */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -446,10 +446,11 @@ html, body{
      Typography helpers
      =============================== */
   .cv-title{
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
     max-width: 100%;
     display: block;
-    font-size: clamp(18px, 2.4vw, 26px);
+    font-size: clamp(18px, 1.6vw, 24px);
     line-height: 1.15;
     letter-spacing: normal;
     text-transform: none;
@@ -931,6 +932,14 @@ html, body{
 .drafted-discovery .discovery-back{border:0;background:transparent;padding:4px 0;margin:0 0 20px;color:#52616c;font-size:13px}
 .drafted-discovery .discovery-back::before{content:'←';margin-right:8px}
 @media(max-width:600px){.discovery-launcher{right:12px;top:12px;font-size:11px}}
+
+/* Planning is proactive; a count is shown only after the validated plan exists. */
+.discovery-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin-left:6px;padding:0 4px;border-radius:9px;background:#dce9e4;color:#234b40;font-size:11px;font-weight:600;box-sizing:border-box}
+.discovery-count[hidden]{display:none}
+.workspace-editor-toolbar .discovery-launcher[data-plan-state=loading]::after{content:'';display:inline-block;width:10px;height:10px;margin-left:7px;border:2px solid #cedad6;border-top-color:#385f51;border-radius:50%;vertical-align:middle;animation:discovery-planning-spin .8s linear infinite}
+.workspace-editor-toolbar .discovery-launcher[data-plan-state=error]::after{content:'!';margin-left:6px;color:#865b25;font-weight:700}
+@keyframes discovery-planning-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.workspace-editor-toolbar .discovery-launcher[data-plan-state=loading]::after{animation:none}}
 /* --- end import: ./components/experience-discovery.css --- */
 
 

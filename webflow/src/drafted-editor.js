@@ -26,6 +26,7 @@ const N8N_JOBCONTEXT_URL = draftedEndpoints.jobcontext || "https://drafted.app.n
 const N8N_TAILOR_URL = draftedEndpoints.tailor || "https://drafted.app.n8n.cloud/webhook/tailor-cv";
 const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n.cloud/webhook/webflow-experience-discovery";
 let discoveryController = null;
+let discoveryCvFile = null;
 
 // The editor is a workspace; remove the legacy Webflow section introduction.
 onReady(() => {
@@ -736,6 +737,7 @@ function setupFilePicker() {
   fileInput.dataset.bound = "1";
 
   fileInput.addEventListener("change", () => {
+    discoveryController?.invalidate();
     const file = fileInput.files?.[0] || null;
 
     if (fileName) fileName.textContent = file ? file.name : "No file selected";
@@ -1363,7 +1365,7 @@ function setApplyLabel() {
     discoveryController = window.DraftedDiscoveryEditor.create({
       host: chatMessagesEl,
       endpoint: N8N_DISCOVERY_URL,
-      getContext: () => !isPreviewingProposal && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
+      getContext: () => !isPreviewingProposal && discoveryCvFile && getFileInput()?.files?.[0] === discoveryCvFile && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
         ? { cvVersionId, blocks: deepClone(documentBlocksState), jobContext: deepClone(window.__DRAFTED_JOBCONTEXT__) }
         : null
     });
@@ -2100,6 +2102,10 @@ function updateContextChip() {
       { method: "POST", body: formData },
       "cv"
     );
+
+    // A response for a file replaced during upload must not restore its CV/questions.
+    if (getFileInput()?.files?.[0] !== file) return;
+    discoveryCvFile = file;
 
     const blocks = data.blocks;
 

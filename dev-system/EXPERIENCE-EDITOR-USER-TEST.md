@@ -1,5 +1,7 @@
 # Erfarenhetsfrågor i hela editorn – användartestkandidat
 
+DEV-044 (2026-10-22), lokal kandidat: Experience questions förbereds nu automatiskt i bakgrunden när CV och annons finns. Knappen visar spinner och sedan det validerade frågeantalet (inklusive 0); Chat ligger kvar. Klick under laddning/efter färdig plan ger inget extra anrop. Fel kräver manuellt omförsök. Bygg `2026-10-22-background-question-plan`, befintlig localhost:8773-preview. Ännu inte publicerat; inga externa modellanrop. Senare webbverifiering måste mocka/blockera discovery före uppladdning, eftersom planen då kan starta utan klick. Äldre uppgifter om klickstyrd plan nedan är historik.
+
 DEV-039 (2026-10-22), lokal programram: gemensam toppbar med dokumentnamn och Export PDF/Copy text, panelrubriker Editor och CV preview, samlad verktygsrad Chat/Experience questions/Tailor to job och markerat arbetsläge. Samma editor och backend återanvänds; CV-förslag och godkännande behåller befintligt beteende. Bygg `2026-10-22-editor-app-frame` på localhost:8773. Åtta skärmstorlekar och lokalt simulerad export/kopiering verifierade. Ingen publicering eller extern modellkörning.
 
 DEV-037 (2026-10-22), lokal arbetsyta: introduktionstexten är dold, editor/CV-paneler fyller skärmen under navigationen på en gemensam ljusgrå bakgrund. Panelinnehåll rullar internt och skrivfält/verktyg hålls inom skärmen. Smal stående skärm visar båda panelerna ovanför varandra. Åtta skärmstorlekar verifierade. Befintlig preview på 8773, bygg `2026-10-22-editor-workspace`. Inte publicerat; inga n8n-/modellkörningar.
