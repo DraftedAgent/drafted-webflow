@@ -42,7 +42,8 @@
           card.append(el('p','Potential support for the requirement above; not a finding that every part is met.','discovery-note'),el('p','Still unverified: whether your example covers all activities, audiences and settings in this requirement. An example in one setting does not establish experience in another.'));
           card.append(el('p','How it is used: saved here for your review only. It is not used by CV suggestions.','discovery-note'));
         }else{
-          const message={no:'You answered “No” to this question. This records your answer, not a judgement about other experience.',unknown:'You said you do not know. Whether you have this experience is still unclear.',needs_detail:'We could not identify a concrete example from your answer. This does not mean you lack the experience. You can clarify it below.',skipped:'You skipped this topic. No example was provided; this does not mean you lack the experience.',error:'Your answer is saved, but could not be checked. You can retry it below.',processing:'Your answer is saved and is still being checked.',unanswered:'You have not answered this topic. No conclusion about your experience has been drawn.'};
+          if(q.status==='no'&&own){card.append(el('p','Your answer','discovery-result-label'));sourceExcerpt(card,own.revisions.at(-1).text);}
+          const message={no:'You answered “No” within the scope of your answer. This does not rule out experience in other settings.',unknown:'You said you do not know. Whether you have this experience is still unclear.',needs_detail:'We could not identify a concrete example from your answer. This does not mean you lack the experience. You can clarify it below.',skipped:'You skipped this topic. No example was provided; this does not mean you lack the experience.',error:'Your answer is saved, but could not be checked. You can retry it below.',processing:'Your answer is saved and is still being checked.',unanswered:'You have not answered this topic. No conclusion about your experience has been drawn.'};
           card.append(el('p',message[q.status]||'No example is ready for review. No conclusion about your experience has been drawn.'),el('p','How it is used: no experience from this topic is used in your CV or CV suggestions.','discovery-note'));
         }
         if(!own||q.status==='skipped')card.append(button(`Answer question ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,own?.revisions.at(-1).text||'');session.correct(q.id);}));
@@ -65,9 +66,9 @@
           const answer=session.snapshot().answers.find(a=>a.id===q.answerId),context=el('div',null,'discovery-followup-context');
           context.append(el('p','Topic from the job ad','discovery-result-label'));requirementList(q,context);
           context.append(el('p','Original question','discovery-result-label'),el('p',q.question),el('p','Your answer','discovery-result-label'));sourceExcerpt(context,answer.revisions.at(-1).text);
-          const brief=/^\s*(yes|ja|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(answer.revisions.at(-1).text);
-          context.append(el('p',brief?'This answer does not yet describe an example. One specific situation will help show how your experience relates to the original question.':'I could not pick out a specific example to use. You can point to a situation you already described, add a short example, or skip.'));
-          container.append(context,el('h2',brief?'What is one situation you have in mind when answering the question above?':'Which situation in your answer should we focus on?'));
+          const brief=/^\s*(yes|ja|ja,? lite|yes,? a little)[.!]?\s*$/i.test(answer.revisions.at(-1).text);
+          context.append(el('p',brief?'This answer does not yet describe an example. One specific situation will help show how your experience relates to the original question.':'I could not tell what experience this answer describes. You can clarify what you mean, give an example if you have one, or skip.'));
+          container.append(context,el('h2',brief?'What is one situation you have in mind when answering the question above?':'What do you mean in relation to the original question?'));
         }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{

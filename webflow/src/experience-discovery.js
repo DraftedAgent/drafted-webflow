@@ -3,6 +3,12 @@
   'use strict';
   const MAX_ANSWER_LENGTH=50000,copy=x=>JSON.parse(JSON.stringify(x));
   const requireText=x=>{if(typeof x!=='string'||!x.trim())throw Error('INVALID_TEXT');};
+  // Whole-answer patterns only: a negated clause must never swallow a positive account.
+  function isNegativeAnswer(text,question){
+    const answer=text.trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g,' ').replace(/[.!]+$/,'');
+    if(/^(no|nej)$/.test(answer)||/^(?:no,? )?i (?:haven't|have not|have never) done (?:that|this)(?: yet)?$/.test(answer))return true;
+    return answer==='not externally'&&/\b(customers?|clients?|external(?:ly)?)\b/i.test(question)&&!/\b(internal|colleagues?)\b/i.test(question);
+  }
   class Session{
     constructor({id=()=>globalThis.crypto.randomUUID()}={}){this.id=id;this.state={modelVersion:'source-answers-2',revision:0,context:null,round:null,answers:[]};}
     snapshot(){return copy(this.state);}
@@ -24,12 +30,13 @@
     start(){const r=this.round();if(r.phase!=='offer')throw Error('INVALID_PHASE');r.phase=r.total?'question':'complete';}
     submit(text,{defer=false}={}){
       const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');requireText(text);if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
+      const negative=isNegativeAnswer(text,q.question);
       let a=this.state.answers.find(a=>a.id===q.answerId);if(!a){a={id:this.id(),questionId:q.id,topicKey:q.topicKey,roundId:r.id,context:copy(this.state.context),revisions:[],currentRevision:0,drafts:[],status:'pending'};this.state.answers.push(a);q.answerId=a.id;}
       const isFollowup=r.phase==='followup',reply=text,previous=a.revisions.at(-1)?.text;
-      if(isFollowup&&previous&&!/^\s*(no|nej|i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
+      if(isFollowup&&previous&&!negative&&!/^\s*(i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
       if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
-      if(/^\s*(nej|no)[.!]?\s*$/i.test(text)){a.status=q.status='no';this.advance();return;}
+      if(negative){a.status=q.status='no';this.advance();return;}
       if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
       if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(reply)){this.askFollowup();return;}
       r.phase='ready';if(!defer)this.reviewDrafts(this.token(),[{proposedText:text,sourceQuote:text,coveredQuestionIds:[]}]);
