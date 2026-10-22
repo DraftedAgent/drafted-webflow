@@ -62,19 +62,24 @@ async function checkAnswerFocusRing(input){
     for(const [name,r]of Object.entries(geometry.nodes)){assert.ok(r.top>=geometry.navBottom-2&&r.bottom<=viewport.height+2&&r.left>=-1&&r.right<=viewport.width+1&&r.height>0,name+' outside viewport at '+JSON.stringify(viewport)+': '+JSON.stringify(r));}
     assert.equal(geometry.titleFits,true);assert.equal(geometry.titleUnchanged,true);assert.equal(geometry.headerAbsent,true);assert.equal(geometry.topbarFillsFrame,true);assert.ok(geometry.sectionOverflow<=2);assert.equal(geometry.previewScrolls,true);assert.equal(geometry.chatScrolls,true);
     if(viewport.width===1366||viewport.width===390){
-      await layoutPage.locator('.cv-document').evaluate(el=>el.scrollTop=0);
+      await layoutPage.locator('.cv-document').evaluate(el=>el.scrollTo({top:0,behavior:'instant'}));
+      await layoutPage.waitForTimeout(200);
       const pageScroll=await layoutPage.locator('.page-scroll').evaluate(el=>el.scrollTop),doc=await layoutPage.locator('.cv-document').boundingBox(),body=await layoutPage.locator('#editor-preview-text .cv-block-body').first().boundingBox();
       const point={x:body.x+body.width/2,y:Math.max(doc.y+20,body.y+12)};
       assert.equal(await layoutPage.evaluate(({x,y})=>!!document.elementFromPoint(x,y)?.closest('#editor-preview-text'),point),true);
       await layoutPage.mouse.move(point.x,point.y);await layoutPage.mouse.wheel(0,240);
       await layoutPage.waitForFunction(()=>document.querySelector('.cv-document').scrollTop>0,{},{timeout:2000});
       assert.equal(await layoutPage.locator('.page-scroll').evaluate(el=>el.scrollTop),pageScroll);
-      await layoutPage.locator('.cv-document').evaluate(el=>el.scrollTop=0);
-      const source=layoutPage.locator('#editor-preview-text .cv-block-body').first(),bounds=await source.boundingBox(),selectionY=bounds.y+9;
-      await layoutPage.mouse.move(bounds.x+8,selectionY);await layoutPage.mouse.down();await layoutPage.mouse.move(bounds.x+130,selectionY,{steps:8});
+      await layoutPage.locator('.cv-document').evaluate(el=>el.scrollTo({top:0,behavior:'instant'}));
+      await layoutPage.waitForTimeout(200);
+      const source=layoutPage.locator('#editor-preview-text .cv-block-body').first();
+      const line=await source.evaluate(el=>{const range=document.createRange();range.setStart(el.firstChild,0);range.setEnd(el.firstChild,Math.min(100,el.firstChild.length));const r=range.getClientRects()[0];return {x:r.x,y:r.y,width:r.width,height:r.height};});
+      const selectionY=line.y+line.height/2;
+      await layoutPage.evaluate(()=>getSelection().removeAllRanges());
+      await layoutPage.mouse.move(line.x+20,selectionY);await layoutPage.mouse.down();await layoutPage.mouse.move(line.x+Math.min(180,line.width-2),selectionY,{steps:8});
       assert.ok(await layoutPage.evaluate(()=>getSelection().toString().length>0));await layoutPage.mouse.up();
       // Existing mouse-up click selects the CV block and clears native selection.
-      assert.equal(await layoutPage.locator('#editor-preview-text .cv-block.is-selected').count(),1);
+      assert.deepEqual(await layoutPage.locator('#editor-preview-text .cv-block.is-selected').evaluateAll(els=>[...new Set(els.map(el=>el.dataset.blockId))]),['summary-1']);
       await source.click({position:{x:40,y:10}});assert.equal(await layoutPage.locator('#editor-preview-text .cv-block.is-selected').count(),0);
     }
     if(viewport.width===1366||viewport.width===390)await layoutPage.screenshot({path:path.join(os.tmpdir(),'drafted-workspace-'+viewport.width+'.png')});
