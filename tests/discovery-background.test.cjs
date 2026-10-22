@@ -36,7 +36,7 @@ test('background failure is attached to its own source; manual retry is deduplic
 test('empty extraction queues one followup after original questions; no positive result is invented',async()=>{
  const {s,client,respond}=setup(2);const work=client.submit(s,'It depends on the situation.');respond(0,[]);await work;
  assert.equal(s.round().index,1);assert.equal(s.round().phase,'question');s.submit('No');assert.equal(s.round().index,0);assert.equal(s.round().phase,'followup');assert.equal(s.accounts().length,0);
- const followup=client.submit(s,'There is no example.');respond(1,[]);await followup;assert.equal(s.round().phase,'complete');assert.equal(s.results().examples.length,0);assert.equal(s.summary().unknown,1);
+ const followup=client.submit(s,'There is no example.');respond(1,[]);await followup;assert.equal(s.round().phase,'complete');assert.equal(s.results().examples.length,0);assert.equal(s.results().needsDetail,1);assert.equal(s.summary().unknown,0);
 });
 test('completion distinguishes pending and failed interpretation from no new examples; finishing early stays finished',async()=>{
  const {s,client,respond}=setup(1);let updates=0;s.observe(()=>updates++);
@@ -45,4 +45,19 @@ test('completion distinguishes pending and failed interpretation from no new exa
 });
 test('late background response after context change cannot populate the new round',async()=>{
  const {s,client,respond}=setup();const work=client.submit(s,'I led a workshop.');s.setContext({...s.snapshot().context,revision:'new'});s.plan({contextRevision:'new',topics:[]},'en');s.start();respond(0);assert.deepEqual(await work,{stale:true});assert.equal(s.accountsForRound().length,0);assert.equal(s.results().pending,0);
+});
+
+test('clarification retains the original source and full combined source is validated and sent once',async()=>{
+ const {s,client,pending,respond}=setup(1),first='I ran internal AI workshops for colleagues.';
+ const work=client.submit(s,first);respond(0,[]);await work;assert.equal(s.round().phase,'followup');
+ const token=s.token(),reply='I prepared the exercises and facilitated two sessions for our design team.';
+ const next=client.submit(s,reply);assert.equal(pending.length,2);assert.equal(pending[1].request.sourceAnswer.text,first+'\n\n'+reply);
+ assert.equal(s.snapshot().answers[0].revisions[0].text,first);assert.equal(s.snapshot().answers[0].revisions[1].followupReply,reply);
+ respond(1,[{proposedText:'Internal workshops.',sourceQuote:first,coveredQuestionIds:[]}]);await next;
+ assert.equal(s.accounts()[0].sourceText,first+'\n\n'+reply);assert.throws(()=>s.answerForToken(token),/STALE_ANSWER/);assert.equal(s.round().phase,'complete');
+});
+
+test('a clarification over the combined source limit leaves the original answer untouched',async()=>{
+ const {s,client,respond}=setup(1),work=client.submit(s,'x'.repeat(49999));respond(0,[]);await work;
+ const before=JSON.stringify(s.snapshot());assert.throws(()=>client.submit(s,'More details.'),/ANSWER_TOO_LONG/);assert.equal(JSON.stringify(s.snapshot()),before);
 });

@@ -25,10 +25,13 @@
     submit(text,{defer=false}={}){
       const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');requireText(text);if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       let a=this.state.answers.find(a=>a.id===q.answerId);if(!a){a={id:this.id(),questionId:q.id,topicKey:q.topicKey,roundId:r.id,context:copy(this.state.context),revisions:[],currentRevision:0,drafts:[],status:'pending'};this.state.answers.push(a);q.answerId=a.id;}
-      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
+      const isFollowup=r.phase==='followup',reply=text,previous=a.revisions.at(-1)?.text;
+      if(isFollowup&&previous&&!/^\s*(no|nej|i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
+      if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
       if(/^\s*(nej|no)[.!]?\s*$/i.test(text)){a.status=q.status='no';this.advance();return;}
       if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
-      if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(text)){this.askFollowup();return;}
+      if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(reply)){this.askFollowup();return;}
       r.phase='ready';if(!defer)this.reviewDrafts(this.token(),[{proposedText:text,sourceQuote:text,coveredQuestionIds:[]}]);
     }
     token(questionId=this.current()?.id){const q=this.round().queue.find(q=>q.id===questionId),a=this.state.answers.find(a=>a.id===q?.answerId);return {contextRevision:this.state.context?.revision,roundId:this.round().id,answerId:a?.id,answerRevision:a?.currentRevision};}
@@ -38,11 +41,11 @@
     reviewDrafts(token,drafts,{background=false}={}){
       const r=this.round(),a=background?this.answerForToken(token):this.state.answers.find(a=>a.id===this.current()?.answerId),q=r.queue.find(q=>q.id===a?.questionId);if(!a||!background&&(!['ready','interpreting'].includes(r.phase)||JSON.stringify(this.token())!==JSON.stringify(token)))throw Error('STALE_ANSWER');if(!Array.isArray(drafts))throw Error('INVALID_DRAFTS');
       for(const d of drafts){requireText(d.proposedText);requireText(d.sourceQuote);if(!a.revisions.at(-1).text.includes(d.sourceQuote))throw Error('INVALID_SOURCE_QUOTE');if(!Array.isArray(d.coveredQuestionIds)||d.coveredQuestionIds.some(id=>!r.queue.some(q=>q.id===id)))throw Error('UNKNOWN_QUESTION');}
-      if(!drafts.length){if(!background){this.askFollowup();return;}a.status=q.status=q.followupUsed?'unknown':'needs_detail';this.settleBackground();this.notify();return;}
+      if(!drafts.length){if(!background){this.askFollowup();return;}a.status=q.status='needs_detail';this.settleBackground();this.notify();return;}
       a.drafts=copy(drafts);a.status=q.status='recorded';this.state.revision++;if(background){for(const later of r.queue){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
     }
-    settleBackground(){const r=this.round();if(r.phase!=='complete'||r.finishedEarly)return;const index=r.queue.findIndex(q=>q.status==='needs_detail');if(index>=0){r.index=index;r.queue[index].followupUsed=true;r.phase='followup';r.notice=r.language==='sv'?'Vad gjorde du själv i det arbetet? Ett kort exempel räcker.':'What did you do yourself? A short example is enough.';}}
-    askFollowup(){const r=this.round(),q=this.current();if(!q.followupUsed){q.followupUsed=true;r.phase='followup';r.notice=r.language==='sv'?'Vad gjorde du själv i det arbetet? Ett kort exempel räcker.':'What did you do yourself? A short example is enough.';}else{const a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='unknown';q.status='unknown';this.advance();}}
+    settleBackground(){const r=this.round();if(r.phase!=='complete'||r.finishedEarly)return;const index=r.queue.findIndex(q=>q.status==='needs_detail'&&!q.followupUsed);if(index>=0){r.index=index;this.askFollowup();}}
+    askFollowup(){const r=this.round(),q=this.current(),a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='needs_detail';q.status='needs_detail';if(!q.followupUsed){q.followupUsed=true;r.phase='followup';r.notice='Can you give one specific example in response to the original question?';}else this.advance();}
     advance(){const r=this.round(),covered=new Set(this.state.answers.filter(a=>a.roundId===r.id&&a.status==='recorded').flatMap(a=>a.drafts.flatMap(d=>d.coveredQuestionIds)));r.index++;let n=0;
       while(r.index<r.total){const q=r.queue[r.index];if(covered.has(q.id)&&q.status==='unanswered'){q.status='covered';n++;}if(!['recorded','covered','skipped','no','unknown','processing','error','needs_detail'].includes(q.status))break;r.index++;}
       r.notice=n?(r.language==='sv'?'Ditt svar besvarade också en senare fråga.':'Your answer also covered a later question.'):'';r.phase=r.index>=r.total?'complete':'question';
@@ -78,24 +81,40 @@
     });return b;};
     function history(){
       const r=session.round(),answers=session.snapshot().answers.filter(a=>a.roundId===r.id);if(!answers.length)return;
-      const details=el('details');details.className='discovery-history';details.append(el('summary','Your answers – view or correct'));
-      for(const a of answers){const q=r.queue.find(q=>q.id===a.questionId);details.append(el('p',q.question,'discovery-history-question'),el('p',a.revisions.at(-1).text,'discovery-answer'));
+      const details=el('details');details.className='discovery-history';details.append(el('summary','View or correct your answers'));
+      for(const a of answers){const q=r.queue.find(q=>q.id===a.questionId),latest=a.revisions.at(-1);details.append(el('p',q.question,'discovery-history-question'));
+        if(latest.followupReply!==undefined){details.append(el('p',a.revisions.at(-2).text,'discovery-answer'),el('p','Your clarification','discovery-result-label'),el('p',latest.followupReply,'discovery-answer'));}else details.append(el('p',latest.text,'discovery-answer'));
         if(a.status==='processing')details.append(el('p','Answer saved. Checking it in the background.','discovery-note'));
         if(a.status==='error'){details.append(el('p','Your answer is saved. We could not check it.','discovery-note'));if(onRetry)details.append(button(`Retry answer ${r.queue.indexOf(q)+1}`,()=>onRetry(a.id)));}
         details.append(button(`Correct answer ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,a.revisions.at(-1).text);session.correct(q.id);}));
       }container.append(details);
     }
+    function requirements(q){const c=session.snapshot().context;return q.signalRefs.map(ref=>{const value=c.jobContext[ref.field][ref.index];return typeof value==='string'?value:value.signal;});}
+    function requirementList(q,host){const list=el('ul');for(const text of requirements(q))list.append(el('li',text));host.append(list);}
+    function sourceExcerpt(host,text){host.append(el('blockquote',text.length>360?text.slice(0,360)+'…':text,'discovery-answer'));if(text.length>360)host.append(el('p','Excerpt shown. Your full answer is under “View or correct your answers”.','discovery-note'));}
     function outcome(){
-      const s=session.summary(),result=session.results();
+      const result=session.results(),snap=session.snapshot(),r=session.round();
       container.append(el('h2',result.pending?'Your answers are saved.':'What your answers added'));
       if(result.pending){const status=el('p',`Checking ${result.pending===1?'your last answer':result.pending+' answers'} in the background. You can review your answers or go back to the editor.`);status.setAttribute('role','status');container.append(status);}
-      const examples=result.examples;
-      if(examples.length){container.append(el('p',`You shared ${examples.length===1?'an example':examples.length+' examples'} to consider for this role.`));
-        for(const example of examples){const q=session.round().queue.find(q=>q.id===example.questionId);container.append(el('h3',q.question));for(const text of new Set(example.texts))container.append(el('p',text,'discovery-answer'));}
-      }else if(!result.pending&&!result.failed&&!result.needsDetail)container.append(el('p',s.remaining?'No new examples are ready yet.':'No new examples were found to suggest adding to this CV. You can still continue with your existing CV.'));
-      if(result.failed)container.append(el('p',`${result.failed===1?'One answer could':'Some answers could'} not be checked. Your text is saved; you can retry below.`));
-      if(result.needsDetail)container.append(el('p','An answer still needs a concrete example. You can add it by correcting your answer below.'));
-      container.append(el('p','Your CV has not changed. These answers are not yet included in CV suggestions.','discovery-note'),el('p',`${s.answered} answered, ${s.covered} covered by other answers, ${s.skipped+s.no+s.unknown} skipped or without examples. ${s.remaining} remaining out of ${s.total}.`),button('Back to the editor',continueToEditor));
+      container.append(el('p','These answers have not been added to your CV or used in CV suggestions. Earlier tailoring does not include them.','discovery-cv-status'));
+      for(const q of r.queue){
+        const card=el('section',null,'discovery-result'),own=snap.answers.find(a=>a.id===q.answerId&&a.roundId===r.id);
+        const sources=own?.status==='recorded'?[own]:q.status==='covered'?snap.answers.filter(a=>a.roundId===r.id&&a.status==='recorded'&&a.drafts.some(d=>d.coveredQuestionIds.includes(q.id))):[];
+        card.append(el('h3',`Question ${r.queue.indexOf(q)+1} · ${sources.length?'Answer saved':q.status==='no'?'You answered no':['needs_detail','unknown'].includes(q.status)?'Needs clarification':q.status==='error'?'Could not check answer':q.status==='processing'?'Checking answer':'No example provided'}`));
+        requirementList(q,card);
+        if(sources.length){
+          card.append(el('p','What you described','discovery-result-label'));
+          for(const a of sources){const drafts=q.status==='covered'?a.drafts.filter(d=>d.coveredQuestionIds.includes(q.id)):a.drafts;for(const quote of new Set(drafts.map(d=>d.sourceQuote)))sourceExcerpt(card,quote);}
+          card.append(el('p','Potential support for the requirement above; not a finding that every part is met.','discovery-note'),el('p','Still unverified: whether your example covers all activities, audiences and settings in this requirement. An example in one setting does not establish experience in another.'));
+          card.append(el('p','How it is used: saved here for your review only. It is not used by CV suggestions.','discovery-note'));
+        }else{
+          const message={no:'You answered “No” to this question. This records your answer, not a judgement about other experience.',unknown:'You said you do not know. Whether you have this experience is still unclear.',needs_detail:'We could not identify a concrete example from your answer. This does not mean you lack the experience. You can clarify it below.',skipped:'You skipped this topic. No example was provided; this does not mean you lack the experience.',error:'Your answer is saved, but could not be checked. You can retry it below.',processing:'Your answer is saved and is still being checked.',unanswered:'You have not answered this topic. No conclusion about your experience has been drawn.'};
+          card.append(el('p',message[q.status]||'No example is ready for review. No conclusion about your experience has been drawn.'),el('p','How it is used: no experience from this topic is used in your CV or CV suggestions.','discovery-note'));
+        }
+        if(!own||q.status==='skipped')card.append(button(`Answer question ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,own?.revisions.at(-1).text||'');session.correct(q.id);}));
+        container.append(card);
+      }
+      container.append(button('Back to the editor',continueToEditor));
     }
     const continueToEditor=()=>{disposed=true;stopObserving();onContinue(session.accountsForRound());};
     function render(){
@@ -107,7 +126,15 @@
       if(r.phase==='offer'){container.append(el('h2',r.total?`${r.total} relevant experience ${r.total===1?'topic is':'topics are'} not clear in your CV.`:'We can continue with what is available.'));if(r.total)container.append(button('Start the questions',()=>session.start()));container.append(button('Continue with what is available',()=>{session.finish();continueToEditor();}));}
       else if(r.phase==='complete')outcome();
       else{
-        const q=session.current(),progress=el('p',`${r.index+1}/${r.total}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index+1} of ${r.total}`);container.append(progress,el('h2',r.phase==='followup'?r.notice:q.question));if(r.notice&&r.phase!=='followup')container.append(el('p',r.notice));
+        const q=session.current(),followup=r.phase==='followup',progress=el('p',followup?`Follow-up · Question ${r.index+1} of ${r.total}`:`${r.index+1}/${r.total}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index+1} of ${r.total}`);container.append(progress);
+        if(followup){
+          const answer=session.snapshot().answers.find(a=>a.id===q.answerId),context=el('div',null,'discovery-followup-context');
+          context.append(el('p','Topic from the job ad','discovery-result-label'));requirementList(q,context);
+          context.append(el('p','Original question','discovery-result-label'),el('p',q.question),el('p','Your answer','discovery-result-label'));sourceExcerpt(context,answer.revisions.at(-1).text);
+          const brief=/^\s*(yes|ja|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(answer.revisions.at(-1).text);
+          context.append(el('p',brief?'This answer does not yet describe an example. One specific situation will help show how your experience relates to the original question.':'I could not pick out a specific example to use. You can point to a situation you already described, add a short example, or skip.'));
+          container.append(context,el('h2',brief?'What is one situation you have in mind when answering the question above?':'Which situation in your answer should we focus on?'));
+        }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
           const label=el('label','A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
@@ -297,7 +324,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-22-question-reset-title-fit");
+console.log("DRAFTED_JS_SOURCE", "2026-10-22-discovery-context-results");
 
 console.log("🚀 drafted-editor.js executing");
 
