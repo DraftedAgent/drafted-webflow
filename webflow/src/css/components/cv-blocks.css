@@ -70,10 +70,11 @@
      Typography helpers
      =============================== */
   .cv-title{
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
     max-width: 100%;
     display: block;
-    font-size: clamp(18px, 2.4vw, 26px);
+    font-size: clamp(18px, 1.6vw, 24px);
     line-height: 1.15;
     letter-spacing: normal;
     text-transform: none;

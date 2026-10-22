@@ -77,3 +77,17 @@ test('generated n8n gates execute same contract/prompt/result code with no bypas
     assert.equal(d.connections['Input valid?'].main[1][0].node,'Respond discovery');assert.equal(d.connections['Validate request'].main[0].length,1);
   })();
 });
+
+test('an invalidated plan aborts its fetch and a new context can plan without retry',async()=>{
+ const s=session();let activeSignal,calls=0;
+ const client=new Client({endpoint:'http://fixture.invalid',fetch:(_url,options)=>{calls++;activeSignal=options.signal;if(calls===2){const r=JSON.parse(options.body);return Promise.resolve(new Response(JSON.stringify(c.modelResult(r,plan())),{status:200}));}return new Promise((_resolve,reject)=>options.signal.addEventListener('abort',()=>reject(new DOMException('Aborted','AbortError')),{once:true}));}});
+ const cancel=new AbortController(),work=client.plan(s,'en',{signal:cancel.signal});cancel.abort();s.setContext({...s.snapshot().context,revision:'replacement'});assert.equal(activeSignal.aborted,true);assert.deepEqual(await work,{stale:true});assert.equal(s.snapshot().round,null);
+ await client.plan(s,'en');assert.equal(s.round().contextRevision,'replacement');assert.equal(calls,2);
+});
+
+test('a provider that completes an aborted old plan cannot overwrite the replacement plan',async()=>{
+ const s=session(),pending=[];const client=new Client({endpoint:'http://fixture.invalid',fetch:(_url,options)=>new Promise(resolve=>pending.push({request:JSON.parse(options.body),resolve,signal:options.signal}))});
+ const cancel=new AbortController(),old=client.plan(s,'en',{signal:cancel.signal});cancel.abort();s.setContext({...s.snapshot().context,revision:'new-context'});const current=client.plan(s,'en');
+ const replacement=plan();replacement.topics=replacement.topics.slice(0,1);pending[1].resolve(new Response(JSON.stringify(c.modelResult(pending[1].request,replacement)),{status:200}));await current;assert.equal(s.round().total,1);
+ pending[0].resolve(new Response(JSON.stringify(c.modelResult(pending[0].request,plan())),{status:200}));assert.deepEqual(await old,{stale:true});assert.equal(s.round().total,1);assert.equal(s.round().contextRevision,'new-context');assert.equal(pending.length,2);
+});
