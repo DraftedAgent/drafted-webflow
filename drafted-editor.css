@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-22-editor-workspace-release */
+/* drafted-editor.css | build=2026-10-22-preview-wheel-fix */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -269,8 +269,9 @@ html, body{
     -webkit-user-select: text;
     outline: none;
     cursor: text;
-    overflow-x: hidden;
-    overscroll-behavior: contain;
+    /* Clip horizontally without creating a nested scroll container that traps the wheel. */
+    overflow-x: clip;
+    overscroll-behavior: auto;
     padding: 0 !important;
     width: 100%;
     box-sizing: border-box;
