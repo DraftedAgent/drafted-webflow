@@ -32,22 +32,19 @@
     if(nav)new ResizeObserver(measure).observe(nav);
     settleViewport=schedule;document.fonts?.ready.then(measure);measure();schedule();
   }
-  function actions(topbar,tools){
-    if(!tools)return;
-    const wrapper=document.createElement('div');wrapper.className='workspace-more-actions';
-    const toggle=document.createElement('button');toggle.type='button';toggle.className='workspace-preview-action workspace-more-toggle';
-    toggle.setAttribute('aria-label','More actions');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls','workspace-secondary-actions');
-    const label=document.createElement('span');label.className='workspace-more-label';label.textContent='More actions';
-    const icon=document.createElement('span');icon.className='workspace-more-icon';icon.textContent='⋯';icon.setAttribute('aria-hidden','true');toggle.append(label,icon);
-    tools.id='workspace-secondary-actions';tools.replaceWith(wrapper);wrapper.append(toggle,tools);
-    function close(focus=false){wrapper.classList.remove('is-open');toggle.setAttribute('aria-expanded','false');if(focus)toggle.focus({preventScroll:true});}
-    const availability=()=>{toggle.disabled=tools.style.display==='none';if(toggle.disabled)close();};
-    new MutationObserver(availability).observe(tools,{attributes:true,attributeFilter:['style']});availability();
-    toggle.addEventListener('click',()=>{if(wrapper.classList.contains('is-open'))close(true);else{wrapper.classList.add('is-open');toggle.setAttribute('aria-expanded','true');tools.querySelector('[role="button"]')?.focus({preventScroll:true});}});
-    wrapper.addEventListener('keydown',event=>{if(event.key==='Escape'&&wrapper.classList.contains('is-open')){event.preventDefault();event.stopPropagation();close(true);}});
-    wrapper.addEventListener('focusout',event=>{if(!wrapper.contains(event.relatedTarget))close();});
-    document.addEventListener('pointerdown',event=>{if(!wrapper.contains(event.target))close();});
-    matchMedia('(max-width:1280px)').addEventListener('change',()=>close());
+  let tooltipId=0;
+  function iconButton(label,className,paths){
+    const button=document.createElement('button');button.type='button';button.className='workspace-icon-button '+className;button.setAttribute('aria-label',label);
+    button.innerHTML='<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+paths+'</svg>';
+    const tooltip=document.createElement('span');tooltip.id='cv-tool-tip-'+(++tooltipId);tooltip.className='workspace-tooltip';tooltip.setAttribute('role','tooltip');tooltip.textContent=label;tooltip.hidden=true;
+    button.setAttribute('aria-describedby',tooltip.id);button.append(tooltip);
+    let hovering=false;
+    button.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch'){hovering=true;tooltip.hidden=false;}});
+    button.addEventListener('pointerleave',()=>{hovering=false;if(document.activeElement!==button)tooltip.hidden=true;});
+    button.addEventListener('focus',()=>{tooltip.hidden=false;});button.addEventListener('blur',()=>{if(!hovering)tooltip.hidden=true;});
+    button.addEventListener('click',()=>{tooltip.hidden=true;});
+    button.addEventListener('keydown',event=>{if(event.key==='Escape')tooltip.hidden=true;});
+    return button;
   }
-  global.DraftedWorkspaceView={viewport,actions,lock(){locked++;return ()=>{locked--;settleViewport();};}};
+  global.DraftedWorkspaceView={viewport,iconButton,lock(){locked++;return ()=>{locked--;settleViewport();};}};
 })(window);

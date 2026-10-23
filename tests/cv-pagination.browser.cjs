@@ -19,6 +19,7 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
     if(url.endsWith('/preview-api/export')) {exportPayload=req.postDataJSON();return route.fulfill({contentType:'application/pdf',body:Buffer.from('%PDF-1.4\n% locally mocked export regression\n%%EOF')});}
     return route.continue();
    });
+   await page.addInitScript(()=>{window.print=()=>{window.parent.__paginationPrint={pages:window.frameElement.dataset.pageCount,design:window.frameElement.dataset.cvDesign,text:[...document.querySelectorAll('.cv-page-content')].map(el=>el.textContent)};window.dispatchEvent(new Event('afterprint'));};});
    await page.goto(base);await page.getByRole('button',{name:'Try a synthetic CV and job ad',exact:true}).click();
    await page.waitForFunction(()=>Number(document.querySelector('#editor-preview-text').dataset.pageCount)>0);
    await page.evaluate(()=>document.fonts.ready);await page.locator('.section-editor').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
@@ -72,9 +73,9 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
     await fragments.first().click();await page.locator('.cv-block[data-block-id="education-1"]').first().click({modifiers:['Shift']});assert.ok(await page.locator('#context-chip').innerText().then(t=>t.includes('blocks')));await page.getByRole('button',{name:'Clear',exact:true}).click();
     const body=page.locator('.cv-block-body').first();await body.scrollIntoViewIfNeeded();const r=await body.boundingBox(),pane=await page.locator('.cv-document').boundingBox();await page.mouse.move(r.x+20,Math.max(pane.y+10,r.y+5));const before=await page.locator('.cv-document').evaluate(el=>el.scrollTop);await page.mouse.wheel(0,350);await page.waitForFunction(before=>document.querySelector('.cv-document').scrollTop>before,before);
    }
-   // Export still receives canonical blocks and the legacy template, not page fragments.
-   const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export PDF (Classic)',exact:true}).click();await download;
-   assert.deepEqual(exportPayload.blocks,fixture.blocks);assert.equal(exportPayload.templateId,'classic_v1');assert.equal(exportPayload.cvTitle,fixture.title);
+   // The only UI export prepares the existing pages; no legacy server request.
+   await page.getByRole('button',{name:'Export PDF',exact:true}).click();await page.waitForFunction(()=>!!window.__paginationPrint&&!document.querySelector('iframe[data-cv-print]'));
+   const printed=await page.evaluate(()=>window.__paginationPrint);assert.equal(printed.design,'classic_v1');assert.equal(Number(printed.pages),initial.count);assert.deepEqual(printed.text,initial.signature);assert.equal(exportPayload,undefined);
    await page.locator('.cv-document').evaluate(el=>el.scrollTo({top:0,behavior:'instant'}));await page.waitForTimeout(200);
    await page.screenshot({path:path.join(os.tmpdir(),`drafted-a4-${name}.png`)});
    await page.setViewportSize({width:390,height:844});await page.waitForTimeout(100);await page.screenshot({path:path.join(os.tmpdir(),`drafted-a4-${name}-mobile.png`)});await page.setViewportSize({width:1440,height:1000});
@@ -84,7 +85,7 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
     await audit({...fixture,blocks:[{...fixture.blocks[0],text:'Edited synthetic profile.'}]});
     await page.locator('#editor-input').fill('Restore the longer synthetic fixture.');await page.locator('#editor-send').click();await page.waitForFunction(count=>Number(document.querySelector('#editor-preview-text').dataset.pageCount)===count,initial.count);await audit(fixture);
    }
-   results.push({fixture:name,pages:initial.count,viewports:8,sourceComplete:true,exportPayloadUnchanged:true});await page.close();
+   results.push({fixture:name,pages:initial.count,viewports:8,sourceComplete:true,sharedPrintPages:true});await page.close();
   }
   assert.deepEqual(errors,[]);assert.deepEqual(outside,[]);
   fs.writeFileSync(path.join(os.tmpdir(),'drafted-a4-results.json'),JSON.stringify({results,outsideRequests:outside.length,pageErrors:errors},null,2));

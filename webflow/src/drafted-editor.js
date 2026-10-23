@@ -1301,23 +1301,8 @@ function setApplyLabel() {
     const brand=document.createElement('span');brand.className='workspace-brand';brand.textContent='Drafted';
     const title=document.createElement('span');title.className='workspace-document-title';title.textContent='Untitled CV';
     identity.append(brand,title);topbar.append(identity);
-    const tools=section.querySelector('.cv-tools');
-    if(tools){
-      tools.setAttribute('role','toolbar');tools.setAttribute('aria-label','Document actions');
-      for(const [icon,label]of [['download','Export PDF (Classic)'],['copy','Copy text']]){
-        const control=tools.querySelector('svg.feather-'+icon)?.closest('.tool-btn');if(!control)continue;
-        control.setAttribute('role','button');control.setAttribute('aria-label',label);control.tabIndex=0;
-        const text=document.createElement('span');text.className='workspace-tool-label';text.textContent=label;control.append(text);
-        control.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();control.click();}});
-        if(icon==='copy')control.addEventListener('click',async()=>{
-          if(!documentBlocksState?.length)return;
-          try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));text.textContent='Copied';}
-          catch{text.textContent='Copy unavailable';}
-          setTimeout(()=>{text.textContent=label;},2000);
-        });
-      }
-      topbar.append(tools);
-    }
+    // Retire legacy server-export controls; the one export action uses browser print.
+    section.querySelector('.cv-tools')?.remove();
     container.prepend(topbar);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
     const previewTitle=document.createElement('div');previewTitle.className='workspace-preview-title';
@@ -1330,15 +1315,26 @@ function setApplyLabel() {
     const designSelect=document.createElement('select');designSelect.id='cv-design';designSelect.setAttribute('aria-label','CV design');
     for(const design of DraftedCvDesigns){const option=document.createElement('option');option.value=design.id;option.textContent=design.name;designSelect.append(option);}
     designSelect.value=selectedCvDesign;
+    // Native selects can match :focus-visible after a pointer click in Chromium.
+    designSelect.addEventListener('pointerdown',()=>{designSelect.dataset.pointerFocus='true';});
+    designSelect.addEventListener('blur',()=>{delete designSelect.dataset.pointerFocus;});
+    document.addEventListener('keydown',()=>{delete designSelect.dataset.pointerFocus;},true);
     designSelect.addEventListener('change',()=>{
       selectedCvDesign=designSelect.value;
       renderDocument(documentTextState);
     });
-    designControls.append(designLabel,designSelect);topbar.insertBefore(previewTitle,tools||null);topbar.insertBefore(designControls,tools||null);
-    DraftedWorkspaceView.actions(topbar,tools);
+    designControls.append(designLabel,designSelect);previewTitle.append(designControls);
     const previewCard=editorPreviewEl.closest('.cv-card');
-    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle,controls:designControls});
-    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:designControls,getTitle:()=>documentTitle});
+    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
+    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getTitle:()=>documentTitle});
+    const copy=DraftedWorkspaceView.iconButton('Copy text','workspace-copy-button','<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
+    copy.disabled=true;
+    const copyStatus=document.createElement('span');copyStatus.className='workspace-sr-only';copyStatus.setAttribute('role','status');
+    copy.addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));copyStatus.textContent='Copied';}
+      catch{copyStatus.textContent='Copy unavailable';}
+    });
+    previewTitle.insertBefore(copy,previewTitle.querySelector('.workspace-close-preview'));previewTitle.append(copyStatus);
   })();
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
@@ -1532,6 +1528,7 @@ function setApplyLabel() {
       onState(state) {
         previewView?.setState(state);
         browserPrint?.setState(state);
+        const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready';
         const counter=document.querySelector('.workspace-page-count');
         if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
       },

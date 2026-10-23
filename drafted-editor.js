@@ -32,24 +32,21 @@
     if(nav)new ResizeObserver(measure).observe(nav);
     settleViewport=schedule;document.fonts?.ready.then(measure);measure();schedule();
   }
-  function actions(topbar,tools){
-    if(!tools)return;
-    const wrapper=document.createElement('div');wrapper.className='workspace-more-actions';
-    const toggle=document.createElement('button');toggle.type='button';toggle.className='workspace-preview-action workspace-more-toggle';
-    toggle.setAttribute('aria-label','More actions');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls','workspace-secondary-actions');
-    const label=document.createElement('span');label.className='workspace-more-label';label.textContent='More actions';
-    const icon=document.createElement('span');icon.className='workspace-more-icon';icon.textContent='⋯';icon.setAttribute('aria-hidden','true');toggle.append(label,icon);
-    tools.id='workspace-secondary-actions';tools.replaceWith(wrapper);wrapper.append(toggle,tools);
-    function close(focus=false){wrapper.classList.remove('is-open');toggle.setAttribute('aria-expanded','false');if(focus)toggle.focus({preventScroll:true});}
-    const availability=()=>{toggle.disabled=tools.style.display==='none';if(toggle.disabled)close();};
-    new MutationObserver(availability).observe(tools,{attributes:true,attributeFilter:['style']});availability();
-    toggle.addEventListener('click',()=>{if(wrapper.classList.contains('is-open'))close(true);else{wrapper.classList.add('is-open');toggle.setAttribute('aria-expanded','true');tools.querySelector('[role="button"]')?.focus({preventScroll:true});}});
-    wrapper.addEventListener('keydown',event=>{if(event.key==='Escape'&&wrapper.classList.contains('is-open')){event.preventDefault();event.stopPropagation();close(true);}});
-    wrapper.addEventListener('focusout',event=>{if(!wrapper.contains(event.relatedTarget))close();});
-    document.addEventListener('pointerdown',event=>{if(!wrapper.contains(event.target))close();});
-    matchMedia('(max-width:1280px)').addEventListener('change',()=>close());
+  let tooltipId=0;
+  function iconButton(label,className,paths){
+    const button=document.createElement('button');button.type='button';button.className='workspace-icon-button '+className;button.setAttribute('aria-label',label);
+    button.innerHTML='<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+paths+'</svg>';
+    const tooltip=document.createElement('span');tooltip.id='cv-tool-tip-'+(++tooltipId);tooltip.className='workspace-tooltip';tooltip.setAttribute('role','tooltip');tooltip.textContent=label;tooltip.hidden=true;
+    button.setAttribute('aria-describedby',tooltip.id);button.append(tooltip);
+    let hovering=false;
+    button.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch'){hovering=true;tooltip.hidden=false;}});
+    button.addEventListener('pointerleave',()=>{hovering=false;if(document.activeElement!==button)tooltip.hidden=true;});
+    button.addEventListener('focus',()=>{tooltip.hidden=false;});button.addEventListener('blur',()=>{if(!hovering)tooltip.hidden=true;});
+    button.addEventListener('click',()=>{tooltip.hidden=true;});
+    button.addEventListener('keydown',event=>{if(event.key==='Escape')tooltip.hidden=true;});
+    return button;
   }
-  global.DraftedWorkspaceView={viewport,actions,lock(){locked++;return ()=>{locked--;settleViewport();};}};
+  global.DraftedWorkspaceView={viewport,iconButton,lock(){locked++;return ()=>{locked--;settleViewport();};}};
 })(window);
 
 ;
@@ -346,11 +343,12 @@
 /* Viewer interaction only: move the live preview, never clone or paginate it. */
 (function(global){
   'use strict';
-  function create({section,card,host,heading,controls}){
+  function create({section,card,host,heading}){
     const pane=card.querySelector('.cv-document');
     const workspaceScroll=section.closest('.page-scroll');
-    const expand=document.createElement('button');expand.type='button';expand.className='workspace-preview-action workspace-expand-preview';expand.textContent='Expand preview';expand.disabled=true;const expandLabel=document.createElement('span');expandLabel.className='workspace-expand-label';expandLabel.textContent='Expand preview';const expandIcon=document.createElement('span');expandIcon.className='workspace-expand-icon';expandIcon.setAttribute('aria-hidden','true');expandIcon.textContent='⛶';expand.replaceChildren(expandIcon,expandLabel);expand.setAttribute('aria-label','Expand preview');expand.setAttribute('aria-haspopup','dialog');expand.setAttribute('aria-controls','cv-preview-dialog');
-    const close=document.createElement('button');close.type='button';close.className='workspace-preview-action workspace-close-preview';close.textContent='Close';close.hidden=true;
+    const expand=global.DraftedWorkspaceView.iconButton('Expand preview','workspace-preview-action workspace-expand-preview','<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>');
+    expand.disabled=true;expand.setAttribute('aria-haspopup','dialog');expand.setAttribute('aria-controls','cv-preview-dialog');
+    const close=global.DraftedWorkspaceView.iconButton('Close','workspace-preview-action workspace-close-preview','<path d="m6 6 12 12M18 6 6 18"/>');close.hidden=true;
     heading.append(expand,close);
     const dialog=document.createElement('dialog');dialog.id='cv-preview-dialog';dialog.className='cv-preview-dialog';dialog.setAttribute('aria-labelledby','cv-preview-heading');
     section.append(dialog);
@@ -364,8 +362,6 @@
       const rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
       saved={release:global.DraftedWorkspaceView.lock(),snap:workspaceScroll?.style.scrollSnapType,placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
-      saved.headingSlot=document.createComment('Preview toolbar position');heading.replaceWith(saved.headingSlot);card.prepend(heading);
-      if(controls){saved.controlsSlot=document.createComment('CV toolbar position');controls.replaceWith(saved.controlsSlot);heading.insertBefore(controls,heading.querySelector('.workspace-page-count'));}
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
       if(workspaceScroll){workspaceScroll.style.overflow='hidden';workspaceScroll.style.scrollSnapType='none';}
@@ -377,8 +373,6 @@
     function restore(){
       if(!saved)return;
       const previous=saved;saved=null;
-      if(previous.controlsSlot)previous.controlsSlot.replaceWith(controls);
-      previous.headingSlot.replaceWith(heading);
       previous.placeholder.replaceWith(card);expand.hidden=false;close.hidden=true;
       document.body.style.overflow=previous.overflow;
       if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;workspaceScroll.scrollTop=previous.workspace.top;workspaceScroll.scrollLeft=previous.workspace.left;}
@@ -442,10 +436,9 @@
   }
   function create({host,controls,getTitle}){
     const stylesheet=document.querySelector('link[href*="drafted-editor.css"]')?.href;
-    const button=document.createElement('button');button.type='button';button.className='workspace-print-button';button.setAttribute('aria-label','Print / Save as PDF');button.title='Print / Save as PDF';button.disabled=true;
-    button.innerHTML='<svg class="workspace-print-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg><span class="workspace-print-label">Print / Save as PDF</span>';
+    const button=global.DraftedWorkspaceView.iconButton('Export PDF','workspace-print-button','<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>');button.disabled=true;
     const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
-    controls.append(button,status);
+    controls.insertBefore(button,controls.querySelector('.workspace-close-preview'));controls.append(status);
     let state='loading',busy=false;
     const refresh=()=>{button.disabled=busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.setAttribute('aria-busy',String(busy));};
     button.addEventListener('click',async()=>{
@@ -797,7 +790,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-23-cv-person-header");
+console.log("DRAFTED_JS_SOURCE", "2026-10-23-preview-toolbar");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -2088,23 +2081,8 @@ function setApplyLabel() {
     const brand=document.createElement('span');brand.className='workspace-brand';brand.textContent='Drafted';
     const title=document.createElement('span');title.className='workspace-document-title';title.textContent='Untitled CV';
     identity.append(brand,title);topbar.append(identity);
-    const tools=section.querySelector('.cv-tools');
-    if(tools){
-      tools.setAttribute('role','toolbar');tools.setAttribute('aria-label','Document actions');
-      for(const [icon,label]of [['download','Export PDF (Classic)'],['copy','Copy text']]){
-        const control=tools.querySelector('svg.feather-'+icon)?.closest('.tool-btn');if(!control)continue;
-        control.setAttribute('role','button');control.setAttribute('aria-label',label);control.tabIndex=0;
-        const text=document.createElement('span');text.className='workspace-tool-label';text.textContent=label;control.append(text);
-        control.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();control.click();}});
-        if(icon==='copy')control.addEventListener('click',async()=>{
-          if(!documentBlocksState?.length)return;
-          try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));text.textContent='Copied';}
-          catch{text.textContent='Copy unavailable';}
-          setTimeout(()=>{text.textContent=label;},2000);
-        });
-      }
-      topbar.append(tools);
-    }
+    // Retire legacy server-export controls; the one export action uses browser print.
+    section.querySelector('.cv-tools')?.remove();
     container.prepend(topbar);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
     const previewTitle=document.createElement('div');previewTitle.className='workspace-preview-title';
@@ -2117,15 +2095,26 @@ function setApplyLabel() {
     const designSelect=document.createElement('select');designSelect.id='cv-design';designSelect.setAttribute('aria-label','CV design');
     for(const design of DraftedCvDesigns){const option=document.createElement('option');option.value=design.id;option.textContent=design.name;designSelect.append(option);}
     designSelect.value=selectedCvDesign;
+    // Native selects can match :focus-visible after a pointer click in Chromium.
+    designSelect.addEventListener('pointerdown',()=>{designSelect.dataset.pointerFocus='true';});
+    designSelect.addEventListener('blur',()=>{delete designSelect.dataset.pointerFocus;});
+    document.addEventListener('keydown',()=>{delete designSelect.dataset.pointerFocus;},true);
     designSelect.addEventListener('change',()=>{
       selectedCvDesign=designSelect.value;
       renderDocument(documentTextState);
     });
-    designControls.append(designLabel,designSelect);topbar.insertBefore(previewTitle,tools||null);topbar.insertBefore(designControls,tools||null);
-    DraftedWorkspaceView.actions(topbar,tools);
+    designControls.append(designLabel,designSelect);previewTitle.append(designControls);
     const previewCard=editorPreviewEl.closest('.cv-card');
-    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle,controls:designControls});
-    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:designControls,getTitle:()=>documentTitle});
+    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
+    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getTitle:()=>documentTitle});
+    const copy=DraftedWorkspaceView.iconButton('Copy text','workspace-copy-button','<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
+    copy.disabled=true;
+    const copyStatus=document.createElement('span');copyStatus.className='workspace-sr-only';copyStatus.setAttribute('role','status');
+    copy.addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));copyStatus.textContent='Copied';}
+      catch{copyStatus.textContent='Copy unavailable';}
+    });
+    previewTitle.insertBefore(copy,previewTitle.querySelector('.workspace-close-preview'));previewTitle.append(copyStatus);
   })();
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
@@ -2319,6 +2308,7 @@ function setApplyLabel() {
       onState(state) {
         previewView?.setState(state);
         browserPrint?.setState(state);
+        const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready';
         const counter=document.querySelector('.workspace-page-count');
         if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
       },
