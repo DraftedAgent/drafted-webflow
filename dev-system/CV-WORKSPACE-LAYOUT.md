@@ -34,3 +34,16 @@ Reproduce: node tests/cv-preview-toolbar.browser.cjs; node tests/cv-pagination.b
 Publication scope is this workspace chrome change through a feature PR and main/Pages release. No Webflow settings/publish, backend, n8n, subscription, payment or model operation. Reuse the passing seven-size toolbar and eight-size A4 tests; exact committed assets are additionally exercised against actual published Webflow DOM with all backend requests fulfilled synthetically before navigation. No new PDF generation/parity claim.
 
 Rollback baseline: c0cec3e. Restore only this release's changed files through a new reviewed revert commit, respecting intervening changes; never reset or force-push main. Final PR/head/merge/Pages/public-hash and served-behavior receipt follows verification.
+
+
+## Verified final deployment
+
+- PR #16 candidate 7f4e732cb4d989dc0b6b73c82156db5004d4cbeb merged at c1a39cd247c7f536ceedc21379986e0df6e4f1ed; Pages run 39943335759 succeeded. Its post-release fast-navigation check exposed the discarded-event race recorded in DEV-070.
+- Bounded follow-up PR #17 candidate 1ab10567b3574b6e05beaa06d0edc061203d144b inspected clean/mergeable against exact main c1a39cd, no configured PR checks/status contexts. Expected-head/base merge succeeded at 423cddd871d57535ae0e93d79702c58d26076ccc. Pages run 39943797220 completed successfully. Final build 2026-10-23-editor-workspace-nav.
+- Final actual https://drafted-cad750.webflow.io/ passes short/multi/long Classic 1/5/4 at 1440/1024/390, header/full-height/aligned preview, keyboard secondary menu hidden/open/closed, identical live page nodes and overlay Close/Escape/focus/scroll restoration, block selection and wheel scrolling. Each fixture also passes five immediate upload/editor navigation returns. All three selected-design print copies retain identical current page text/count/fonts with no UI, and the intercepted legacy export still sends classic_v1 and full canonical content after Editorial selection. Four mocked backend requests per fixture, zero actual backend/model calls or page errors.
+- Reused final local toolbar suite also passes three designs/seven sizes, repeated section transitions, 21 print preparation/cleanup calls and unchanged drafts/pages. Existing A4 results remain 1/5/4 at eight sizes. No native PDF file or parity rerun for this chrome fix.
+- Public JS/CSS/latest exactly match the committed final candidate SHA-256 below. Final published desktop/mobile screenshots visually inspected. No full Webflow publication/settings change, n8n read/write/execution, billing/subscription or external model run. Main publication is complete; this later receipt-only feature commit does not trigger another asset release.
+
+- drafted-editor.js: c22392e0df302afceb9c70445de7b06583e14f455711dfd0d69a62493033ed06
+- drafted-editor.css: 64b45be93e3b79c4d267a33547bc56228a4db5df8068f3350c67ba7aa33d2070
+- latest.json: 15cee06154ae34f04e3ff602b4bdc53ae462d9a0b1c2b421f831f07d72ae16c0
