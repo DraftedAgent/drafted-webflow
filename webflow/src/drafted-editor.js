@@ -1318,6 +1318,7 @@ function setApplyLabel() {
   let documentBlocksState = null;
   let blockRangesById = {}; 
   let documentTitle = "";
+  let previewView = null;
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
@@ -1357,8 +1358,11 @@ function setApplyLabel() {
     }
     container.prepend(topbar);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
-    const previewTitle=document.createElement('h2');previewTitle.className='workspace-preview-title';previewTitle.textContent='CV preview';
+    const previewTitle=document.createElement('div');previewTitle.className='workspace-preview-title';
+    const label=document.createElement('h2');label.id='cv-preview-heading';label.className='workspace-preview-label';label.textContent='CV preview';
+    const counter=document.createElement('span');counter.className='workspace-page-count';counter.setAttribute('role','status');counter.setAttribute('aria-live','polite');previewTitle.append(label,counter);
     section.querySelector('.cv-card')?.prepend(previewTitle);
+    const card=editorPreviewEl.closest('.cv-card');if(card)previewView=DraftedCvPreviewOverlay.create({section,card,host:editorPreviewEl,heading:previewTitle});
   })();
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
@@ -1562,6 +1566,7 @@ function setApplyLabel() {
           }
           counter.textContent = count ? `${count} ${count === 1 ? 'page' : 'pages'}` : '';
         }
+        previewView?.setState(count ? 'ready' : 'loading');
         applySelectedBlocksUI();
       }
     });
