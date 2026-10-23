@@ -520,3 +520,9 @@ DEV-###: date; task; request/source; systems touched; files/workflows/pages affe
 - Reused focused toolbar whole-editor check passes 3 designs x7 sizes, 46 prepared print contexts, desktop/mobile/touch, design switching inside overlay, exact page text/count/order versus production baseline, node identity/selection/scroll/unsent draft/focus, tooltips and stale-export rejection. Zero external calls/page errors. Existing broader test selectors adapted; full A4/native PDF suites not rerun for UI-only change. Local preview 8786; report/images/diff in CV-PREVIEW-TOOLBAR.md. No commit/push/PR/publication/n8n/model/subscription operation.
 
 - DEV-072 owner approves publication with publicera. Main rechecked 7948411; release build 2026-10-23-preview-toolbar (marker-only from local proof). GitHub Pages assets only, no Webflow/n8n/backend/subscription/model action. Actual-site mocked preflight and published checks plus exact commit/Pages/hash receipt follow.
+
+
+## DEV-073 - natural header flow, local only
+
+- 2026-10-23. Owner requests normal-flow header, retained Drafted editor branding and desktop/mobile checks; no publication. Separate codex/natural-header-scroll from production d4df536; other worktrees preserved. Live navbar moved into shared scroll flow, no fixed/sticky/header reservation or visibility-toggle logic. Mandatory snapping removed; resize/overlay restore preserve reading position without changing header visibility.
+- Focused page-scroll checks pass four sizes, bidirectional increments without delayed shifts, navigation/upload, full-height editor, branding/selection/draft/scroll/focus and modal rotation. Existing toolbar suite passes three designs/seven sizes/46 print preparations. Zero external calls; document renderer/designs/print module unchanged. Preview 8787; report NATURAL-HEADER-SCROLL.md. No commit/push/PR/merge/publication/backend/n8n/model/subscription operation.

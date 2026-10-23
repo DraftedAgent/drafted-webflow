@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-23-preview-toolbar */
+/* drafted-editor.css | build=2026-10-23-natural-header */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -16,9 +16,7 @@
 
 
 /* --- import: ./components/editor-layout.css (from index.css) --- */
-/* The editor is a viewport-sized workspace below the measured site navigation. */
-.drafted-editor-active .navbar.w-nav{display:none!important}
-.drafted-editor-active .page-scroll{top:0;height:100dvh}
+/* The editor fills the viewport within the natural page scroll flow. */
 .page-scroll>.section-editor.snap-section.drafted-app.discovery-enabled{
   height:100%!important;min-height:0!important;max-height:100%!important;
   padding:0!important;overflow:hidden;background:#eaf0f3;
@@ -140,79 +138,23 @@
 /* page behavior */
 
 /* --- import: ./scroll-snap.css (from index.css) --- */
-html, body{
-    height: 100%;
-    overflow: hidden !important;
-  }
-  
-  /* Navbar overlay */
-  .navbar.w-nav{
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    z-index: 1000;
-  }
-  
-  /* The only scroll container: snapport is BELOW nav */
-  .page-scroll{
-    position: fixed;
-    left: 0;
-    right: 0;
-  
-    /* snapport starts under the fixed nav */
-    top: var(--nav-h, 0px);
-  
-    /* snapport height excludes nav */
-    height: calc(100svh - var(--nav-h, 0px));
-  
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-    scroll-behavior: auto;
-    -webkit-overflow-scrolling: touch;
-  
-    /* stop chaining */
-    overscroll-behavior-y: none;
-  
-    /* IMPORTANT: remove snap offset mechanism completely */
-    scroll-padding-top: 0px !important;
-  }
-  
-  /* Snap pages are 100% of the snapport, not 100svh */
-  .page-scroll .snap-section{
-    height: 100%;
-    min-height: 100%;
-    box-sizing: border-box;
-  
-    overflow: hidden;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  
-    /* IMPORTANT: no nav padding here */
-    padding-top: 0 !important;
-  }
-  
-  /* CTA is not a snap section, but should still fill the snapport */
-  .section-cta{
-    min-height: 100%;
-    box-sizing: border-box;
-  
-    /* your design spacing inside CTA */
-    padding-top: 80px;
-    padding-bottom: 80px;
-  }
-  
-  @media (prefers-reduced-motion: reduce){
-    .page-scroll{ scroll-behavior: auto; }
-  }
-  
-  /* Override Webflow editor rule: keep editor locked to snapport */
-.page-scroll > .section-editor.snap-section.drafted-app{
-  height: 100% !important;
-  min-height: 100% !important;
-  max-height: 100% !important;
-  margin: 0 !important;
+html,body {height:100%;overflow:hidden!important;}
+/* The header is an ordinary first child of the shared scroll container. */
+.navbar.w-nav {position:relative;inset:auto;width:100%;z-index:10;box-sizing:border-box;}
+.page-scroll {
+  position:fixed;inset:0;height:100dvh;
+  overflow-y:auto;overflow-anchor:none;scroll-snap-type:none;scroll-behavior:auto;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-y:none;
+  scroll-padding-top:0!important;
+}
+/* Full-height workspaces no longer depend on a changing header reservation. */
+.page-scroll .snap-section {
+  height:100%;min-height:100%;box-sizing:border-box;overflow:hidden;
+  scroll-snap-align:none;scroll-snap-stop:normal;padding-top:0!important;
+}
+.section-cta {min-height:100%;box-sizing:border-box;padding-top:80px;padding-bottom:80px;}
+.page-scroll>.section-editor.snap-section.drafted-app {
+  height:100%!important;min-height:100%!important;max-height:100%!important;margin:0!important;
 }
 /* --- end import: ./scroll-snap.css --- */
 
