@@ -6,7 +6,9 @@ const blocks=[{blockId:'summary-1',type:'summary',label:'Profil',order:1,text:'J
 const jobContext={roleTitle:'Produktspecialist',seniority:'mid',surfaces:['app'],tone:'balanced',topPriorities:[{signal:'Prioritera arbetet och planera nästa leverans med utvecklare',weight:5},{signal:'Förstå användarnas behov genom intervjuer',weight:4},{signal:'Arbeta tillsammans med designers och utvecklare',weight:3}],mustHave:[],successMetrics:[],keywords:['product','planning','priority','delivery','research','interviews','collaboration','team','development','communication']};
 const envelope=(b=blocks)=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'preview-cv-1',cvTitle:'Alex Exempel',summaryOfChanges:'',blocks:b,rewrittenCv:b.map(b=>b.text).join('\n'),rewrittenCvLegacy:b.map(b=>b.text).join('\n')});
 const paginationFixtures=require('../tests/fixtures/cv-pagination.cjs');
-const paginationFixture=['short','multi','long'].includes(process.env.DRAFTED_PREVIEW_CV)?paginationFixtures[process.env.DRAFTED_PREVIEW_CV]:null;
+const pdfFixtures=require('../tests/fixtures/cv-pdf.cjs');
+const pdfFixture=pdfFixtures[process.env.DRAFTED_PREVIEW_PDF_CASE]||null;
+const paginationFixture=pdfFixture||(['short','multi','long'].includes(process.env.DRAFTED_PREVIEW_CV)?paginationFixtures[process.env.DRAFTED_PREVIEW_CV]:null);
 const paginationDiscovery=paginationFixture&&createHandler({model:async data=>data.operation==='plan'?{topics:[]}:fixtureModel(data)});
 const outcomeFixture=process.env.DRAFTED_PREVIEW_SCENARIO==='outcomes'?require('../tests/fixtures/discovery-outcomes.cjs'):null;
 const outcomeDiscovery=outcomeFixture&&createHandler({model:async data=>{calls.push({operation:data.operation,conversationLanguage:data.request.conversationLanguage,synthetic:true});return outcomeFixture.model(data);}});

@@ -36,7 +36,7 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
     assert.equal(data.bodySize,'14px');return data;
    }
    const initial=await audit(fixture);assert.ok(name==='short'?initial.count===1:initial.count>=2);
-   assert.equal(await page.locator('#cv-design').count(),0,'Overlay release excludes the design selector');
+   assert.equal(await page.locator('#cv-design').count(),1,'Shared designs are available with native PDF printing');
    for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
     await page.setViewportSize(viewport);await page.waitForTimeout(80);
     const pane=page.locator('.cv-document');await pane.evaluate(el=>el.scrollTop=Math.min(180,el.scrollHeight-el.clientHeight));const top=await pane.evaluate(el=>el.scrollTop);
@@ -59,9 +59,10 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
    await page.setViewportSize({width:390,height:844});await page.waitForTimeout(100);
    await page.locator('.cv-document').evaluate(el=>el.scrollTop=0);
    const firstText=page.locator('.cv-block-body').first();await firstText.scrollIntoViewIfNeeded();await page.waitForTimeout(200);
-   const line=await firstText.evaluate(el=>{const r=document.createRange();r.setStart(el.firstChild,0);r.setEnd(el.firstChild,Math.min(80,el.firstChild.length));const b=r.getClientRects()[0];return {x:b.x,y:b.y,w:b.width,h:b.height};});
-   await page.mouse.move(line.x+1,line.y+line.h/2);await page.mouse.down();await page.mouse.move(line.x+Math.min(80,line.w-2),line.y+line.h/2,{steps:10});
-   assert.ok(await page.evaluate(()=>getSelection().toString().length>0),'Native selection on narrow preview');await page.mouse.up();
+   // A paragraph can exceed the narrow pane height: drag a visible line rather than its clipped first line.
+   const line=await firstText.evaluate(el=>{const pane=el.closest('.cv-document').getBoundingClientRect(),walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let t;while(t=walker.nextNode()){for(let i=0;i<t.length;i++){const r=document.createRange();r.setStart(t,i);r.setEnd(t,Math.min(i+35,t.length));for(const b of r.getClientRects())if(b.y>pane.y+3&&b.bottom<pane.bottom-3&&b.width>35)return {x:b.x,y:b.y,w:b.width,h:b.height};}}throw Error('No visible text line');});
+   await page.mouse.move(line.x+1,line.y+line.h/2);await page.mouse.down();await page.mouse.move(line.x+Math.min(30,line.w-2),line.y+line.h/2,{steps:10});
+   assert.ok(await page.evaluate(()=>getSelection().toString().length>0),'Native selection on narrow preview: '+name);await page.mouse.up();
    await page.setViewportSize({width:1440,height:1000});await page.waitForTimeout(80);
    if(name!=='short') {
     const fragments=page.locator('.cv-block[data-block-id="experience-1"]');if(name==='long')assert.ok(await fragments.count()>1);
@@ -71,7 +72,7 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
     const body=page.locator('.cv-block-body').first();await body.scrollIntoViewIfNeeded();const r=await body.boundingBox(),pane=await page.locator('.cv-document').boundingBox();await page.mouse.move(r.x+20,Math.max(pane.y+10,r.y+5));const before=await page.locator('.cv-document').evaluate(el=>el.scrollTop);await page.mouse.wheel(0,350);await page.waitForFunction(before=>document.querySelector('.cv-document').scrollTop>before,before);
    }
    // Export still receives canonical blocks and the legacy template, not page fragments.
-   const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export PDF',exact:true}).click();await download;
+   const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export PDF (Classic)',exact:true}).click();await download;
    assert.deepEqual(exportPayload.blocks,fixture.blocks);assert.equal(exportPayload.templateId,'classic_v1');assert.equal(exportPayload.cvTitle,fixture.title);
    await page.locator('.cv-document').evaluate(el=>el.scrollTo({top:0,behavior:'instant'}));await page.waitForTimeout(200);
    await page.screenshot({path:path.join(os.tmpdir(),`drafted-a4-${name}.png`)});
