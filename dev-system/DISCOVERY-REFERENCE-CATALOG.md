@@ -1,0 +1,23 @@
+# Discovery reference catalog — DEV-088
+
+2026-10-23. Owner reports `REF_INDEX_OUT_OF_RANGE` at `$.topics[13].signalRefs[0].index`, then explicitly requests resolution of the errors in the described Discovery flow. Scope: the proposed per-request catalog of allowed references, local/backend verification and deployment to the existing Discovery workflow. No external model execution, public contract change, frontend publication, automatic output repair or unrelated workflow edit.
+
+## Observed issue and correction
+
+Fresh read-only GET confirms saved/active `3548a628-4767-4175-b46e-54652d384945` for `zeIzzxPwD2Y91OyD`. Model still uses JSON-object output. Existing plan instructions include a generic schema without an index upper bound and a static topPriorities[0] example even when that list might be empty. Actual failing private input/output is not retained by workflow settings; the reported headers establish an out-of-range reference, not why the model chose it. This is separate from the previous quote rejection.
+
+The prompt builder now generates a request-specific catalog. Every entry contains the exact allowed `{field,index}` pair and its signal text, clearly treated as untrusted job-ad data. It replaces the generic reference-schema/example passage with explicit copy-only choices, separate zero-based indices for each list, a schema enumerating valid indices per field, at-most-once allocation across all topics and a topic-count bound equal to the number of available pairs. No allowed pairs means `{topics:[]}`; empty fields are not offered. It does not cap meaningful question count to seven or infer experience from the ad.
+
+For eight priorities and six mustHave entries, the catalog offers topPriorities0..7 and mustHave0..5. The fourteenth topic may reference mustHave5; it must not invent mustHave13. The catalog cannot determine which pair supports a topic semantically; the model remains advisory.
+
+Only `Build discovery prompt.parameters.jsCode` changed externally. [Pure version-bound patch and catalog builder](../backend/n8n-discovery-reference-prompt.cjs) preserves the previous exact-evidence instruction. Interpret prompt/input, validators, response/error shapes, model/configuration, credentials, connections, retention, original sources and Apply behavior are unchanged. The local injected handler and inactive-definition generator use the same extension. Frozen shared browser/Tailor contracts and frontend assets are untouched.
+
+The enumerated schema is included in the prompt; it is **not** a new provider-enforced structured-output setting. n8n's current source was inspected for output-format support, but no unverified strict-output setting was deployed. Model noncompliance still returns422; there is no remapping, clamping, dropped topic, fallback success or automatic model retry. Stronger instructions and explicit choices improve input clarity, not a guarantee of error-free generation. No new public or internal model-output contract was introduced.
+
+## Verification and delivery
+
+59 relevant unit/session/transport/Code tests pass: empty/singleton/uneven/maximal lists, 14-topic allocation, valid last index, out-of-range/negative/non-integer/unknown-field/duplicate references, exact quotes, unchanged request/CV, Swedish/English prompt parity, original qualified negative answers and unchanged interpretation. Actual active prompt/validator Code rehearsed locally with synthetic data accepts valid14 topics and rejects the reported bad fourteenth reference. Full workflow comparison permits only the prompt-code string change. The browser regression reproduces the reported reference422 headers, verifies loading ends and explicit retry retains context/CV/sources without Tailor or external requests.
+
+Before each mutation, complete saved/published/candidate definitions were encrypted with DPAPI and restricted ACLs and verified by decrypt/hash/identity. PUT `publishIfActive=false` saved `95648c64-008f-4cc4-93e3-df61556d27ff` with the old active version retained. Explicit-version publication succeeded; GET confirms saved AND active definitions match that exact candidate, seven nodes and unchanged remaining projection. [Safe deployment receipt](prepared/discovery-reference.deployment.json). Rollback content `3548a628-4767-4175-b46e-54652d384945` remains in verified encrypted snapshots outside Git; any later rollback must preserve intervening changes and use fresh snapshot/drift checks.
+
+No webhook, execution retry, external model call, Webflow/Pages publication or Git push/merge initiated. Live model compliance is untested under the owner's no-external-model constraint. Local work reuses `codex/discovery-exact-evidence` and preserves the earlier evidence amendment and its delivery record.

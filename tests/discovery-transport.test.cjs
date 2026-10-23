@@ -9,9 +9,9 @@ function input(){return {schemaVersion:'1.0',operation:'plan',requestId:'req-1',
 function plan(){return {topics:Array.from({length:7},(_,i)=>({key:`topic-${i}`,question:['Har du planerat nästa leverans?','Har du pratat med användare?','Har du arbetat med designers?','Har du följt upp en förändring?','Har du hjälpt till med leveransen?','Har du förklarat beslut?','Har du förenklat starten för användare?'][i],support:'unclear',evidence:[],signalRefs:i===0?[{field:'topPriorities',index:0},{field:'topPriorities',index:1}]:[{field:'topPriorities',index:i+1}]}))};}
 function session(){let i=0;const s=new Session({id:()=>`id-${++i}`}),r=input();s.setContext({revision:r.contextRevision,cvVersionId:r.cvVersionId,blocks:r.blocks,jobContext:r.jobContext});return s;}
 async function server(model,fn){const h=createHandler({model}),s=createServer(h);await new Promise(resolve=>s.listen(0,'127.0.0.1',resolve));try{return await fn('http://127.0.0.1:'+s.address().port+'/webflow-experience-discovery');}finally{await new Promise(resolve=>s.close(resolve));}}
-test('HTTP backend and client use existing signals, group overlaps, freeze actual 7 questions and keep CV unchanged',async()=>{
+test('HTTP backend and client use existing signals, group overlaps, offer 5 questions and reserve 2 and keep CV unchanged',async()=>{
   await server(({request:r})=>r.operation==='plan'?plan():{drafts:[{proposedText:r.sourceAnswer.text,sourceQuote:r.sourceAnswer.text,coveredQuestionIds:[]}]},async endpoint=>{
-    const s=session(),before=JSON.stringify(s.snapshot().context),client=new Client({endpoint,id:()=>crypto.randomUUID()});await client.plan(s,'sv');assert.equal(s.round().total,7);assert.equal(s.current().signalRefs.length,2);s.start();
+    const s=session(),before=JSON.stringify(s.snapshot().context),client=new Client({endpoint,id:()=>crypto.randomUUID()});await client.plan(s,'sv');assert.equal(s.round().total,5);assert.equal(s.moreCount(),2);assert.equal(s.current().signalRefs.length,2);s.start();
     await client.submit(s,'Jag planerade nästa leverans.\n\n'+ 'Återkoppling från användare. '.repeat(1300));assert.equal(s.round().phase,'question');assert.equal(s.accounts().length,1);
     const original=s.snapshot().answers[0].revisions.at(-1).text;assert.equal(s.round().index,1);assert.equal(s.accounts()[0].sourceText,original);
     await client.submit(s,'Nej');s.skip();assert.equal(s.round().index,3);assert.equal(JSON.stringify(s.snapshot().context),before);
@@ -20,7 +20,7 @@ test('HTTP backend and client use existing signals, group overlaps, freeze actua
 });
 test('clear support excludes a question only with a valid source quote; keywords do not create questions',async()=>{
   const r=input(),p=plan();p.topics[0].support='clear';p.topics[0].evidence=[{blockId:'summary-1',quote:'Arbetade i ett produktteam.'}];c.validateResult(r,p);
-  const s=session();s.plan({contextRevision:r.contextRevision,topics:p.topics},'sv');assert.equal(s.round().total,6);
+  const s=session();s.plan({contextRevision:r.contextRevision,topics:p.topics},'sv');assert.equal(s.round().total,5);assert.equal(s.moreCount(),1);
   p.topics[0].evidence[0].quote='Owned product strategy';assert.throws(()=>c.validateResult(r,p));p.topics[0].signalRefs=[{field:'keywords',index:0}];assert.throws(()=>c.validateResult(r,p));
 });
 test('invalid input and oversize answers fail before any provider call',async()=>{
@@ -67,7 +67,7 @@ test('generated n8n gates execute same contract/prompt/result code with no bypas
   return (async()=>{const r=input();assert.equal((await run('Validate request',{body:r}))[0].json.ok,true);const invalid=await run('Validate request',{body:{...r,bogus:true}});assert.equal(invalid[0].json.httpStatus,400);
     for(const conversationLanguage of ['sv','en']){
       const request={...r,conversationLanguage},prompts=await run('Build discovery prompt',{request});
-      assert.equal(prompts[0].json.promptText,c.prompts(request).map(m=>m.role.toUpperCase()+':\n'+m.content).join('\n\n'));
+      assert.equal(prompts[0].json.promptText,require('../backend/n8n-discovery-reference-prompt.cjs').prompts(request).map(m=>m.role.toUpperCase()+':\n'+m.content).join('\n\n'));
     }
     const valid=await run('Validate model response',{output:[{content:[{text:JSON.stringify(plan())}]}]},r);assert.equal(valid[0].json.httpStatus,200);
     const strings=plan();strings.topics[0].signalRefs=['Roadmap','Backlog'];
