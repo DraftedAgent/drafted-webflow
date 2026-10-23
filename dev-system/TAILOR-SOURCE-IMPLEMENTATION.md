@@ -1,5 +1,7 @@
 # Source-aware Tailor — local implementation
 
+DEV-080 update: the existing-workflow connection is now [prepared locally for review](TAILOR-SOURCE-PRODUCTION-CANDIDATE.md). Source 1.0 is unchanged. The remote workflow and production frontend source gate remain unchanged; the new preview exercises prepared Code snippets with synthetic Responses output, without claiming live n8n/model verification.
+
 2026-10-23, DEV-078. Owner authorizes local implementation and necessary existing-block contract support with synthetic tests; explicitly excludes external workflow changes, publication and external model calls. Branch codex/questions-to-tailoring, managed worktree questions-to-tailoring. Earlier DEV-077 guidance/review work is retained. No other worktree was modified.
 
 ## Implemented

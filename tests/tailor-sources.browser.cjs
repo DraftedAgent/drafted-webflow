@@ -1,10 +1,11 @@
 'use strict';
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spawn}=require('node:child_process'),path=require('node:path'),os=require('node:os');
 (async()=>{
- const child=spawn(process.execPath,[path.resolve(__dirname,'../tools/serve-editor-preview.cjs')],{env:{...process.env,PORT:'0',DRAFTED_PREVIEW_SCENARIO:'sources'},stdio:['ignore','pipe','pipe']});
+ const child=spawn(process.execPath,[path.resolve(__dirname,'../tools/serve-editor-preview.cjs')],{env:{...process.env,PORT:'0',DRAFTED_PREVIEW_SCENARIO:process.env.DRAFTED_PREVIEW_SCENARIO||'sources'},stdio:['ignore','pipe','pipe']});
  const base=await new Promise((resolve,reject)=>{let output='';child.stdout.on('data',s=>{output+=s;const m=output.match(/http:\/\/127\.0\.0\.1:\d+\//);if(m)resolve(m[0]);});child.on('error',reject);});
- const browser=await chromium.launch({headless:true,channel:'msedge'});
+ let browser;
  try{
+  browser=await chromium.launch({headless:true,channel:'msedge'});
   const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],outside=[],requests=[];let release,hold=false;
   page.on('pageerror',e=>errors.push(e.message));await page.route('**/*',async route=>{if(!route.request().url().startsWith(base)){outside.push(route.request().url());return route.abort();}if(route.request().url().endsWith('/preview-api/tailor')){requests.push(route.request().postDataJSON());if(hold)await new Promise(r=>release=r);}return route.continue();});
   await page.goto(base+'?sample=1');const guide=page.locator('#drafted-discovery-guidance'),panel=page.locator('.drafted-discovery'),cv=page.locator('.cv-document-inner'),suggestion=page.getByRole('region',{name:'Tailoring suggestion',exact:true});
@@ -31,5 +32,5 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
   await page.waitForFunction(()=>document.querySelector('.discovery-launcher').dataset.planState==='ready');const manual=await cv.innerText();await page.getByRole('link',{name:'Tailor to job',exact:true}).click();await suggestion.waitFor();assert.ok((await suggestion.innerText()).includes('Earlier wording needs review'));assert.equal(await cv.innerText(),manual);assert.equal(await suggestion.getByRole('button',{name:'Apply tailored CV',exact:true}).isDisabled(),true);
   await page.setViewportSize({width:390,height:844});await page.locator('.section-editor').evaluate(e=>e.scrollIntoView({block:'start'}));await page.screenshot({path:path.join(os.tmpdir(),'drafted-sources-mobile.png')});assert.deepEqual(errors,[]);assert.deepEqual(outside,[]);assert.equal((await (await page.request.get(base+'preview-status')).json()).externalModelCalls,0);
   console.log('PASS: full source-driven editor flow, context clarification, employment/project placement, original/revisions, detached Dismiss/Apply, several Apply rounds, correction to No, stale request, new-block deferral, uncertain earlier text and mobile; no external traffic.');
- }finally{await browser.close();child.kill();}
+ }finally{await browser?.close();child.kill();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

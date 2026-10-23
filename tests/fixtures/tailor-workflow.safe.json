@@ -1,0 +1,305 @@
+{
+  "purpose": "Inspection-only code fixture. Not deployable or a rollback snapshot.",
+  "id": "H8oAioy58R1v3PvRe3YUa",
+  "name": "webflow-tailor-CV",
+  "versionId": "f399ee97-764b-44e0-bc42-5c7517499890",
+  "activeVersionId": "f399ee97-764b-44e0-bc42-5c7517499890",
+  "active": true,
+  "updatedAt": "2026-02-20T15:42:43.114Z",
+  "nodes": [
+    {
+      "id": "528ab262-8a1b-4e44-9ee1-782c4218bbaa",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tailor-cv",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "b770f40e-b1a0-49fe-94e6-e003c3f42b41",
+      "name": "Validate + Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Validate + Normalize (Tailor CV)\n// Mode: Run once for all items\n// Language: JavaScript\n\nfunction fail(code, message) {\n  return [{\n    json: {\n      ok: false,\n      blocksSchemaVersion: \"1.0\",\n      contractError: { code, message },\n      // Keep these for downstream nodes to pass through safely\n      cvVersionId: null,\n      cvTitle: \"\",\n      summaryOfChanges: \"\",\n      blocks: [],\n      rewrittenCv: \"\",\n      rewrittenCvLegacy: \"\"\n    }\n  }];\n}\n\nconst root = $input.first().json || {};\nconst input = (root.body && typeof root.body === \"object\") ? root.body : root;\n\n// Required fields\nconst cvVersionId = (input.cvVersionId === null || input.cvVersionId === undefined)\n  ? null\n  : String(input.cvVersionId);\n\nconst cvTitle = (input.cvTitle === null || input.cvTitle === undefined)\n  ? \"\"\n  : String(input.cvTitle);\n\nconst language = (input.language === \"sv\" || input.language === \"en\")\n  ? input.language\n  : null;\n\nconst blocksSchemaVersion = (input.blocksSchemaVersion === undefined || input.blocksSchemaVersion === null)\n  ? \"1.0\"\n  : String(input.blocksSchemaVersion);\n\nconst jobContextSchemaVersion = (input.jobContextSchemaVersion === undefined || input.jobContextSchemaVersion === null)\n  ? null\n  : String(input.jobContextSchemaVersion);\n\nconst blocks = input.blocks;\nconst jobContext = input.jobContext;\n\n// Validate schema versions\nif (blocksSchemaVersion !== \"1.0\") {\n  return fail(\"INVALID_BLOCKS_SCHEMA_VERSION\", \"blocksSchemaVersion must be '1.0'\");\n}\nif (jobContextSchemaVersion !== \"1.0\") {\n  return fail(\"INVALID_JOBCONTEXT_SCHEMA_VERSION\", \"jobContextSchemaVersion must be '1.0'\");\n}\n\n// Validate language\nif (!language) {\n  return fail(\"INVALID_LANGUAGE\", \"language must be 'sv' or 'en'\");\n}\n\n// Validate blocks\nif (!Array.isArray(blocks) || blocks.length === 0) {\n  return fail(\"INVALID_BLOCKS\", \"blocks must be a non-empty array\");\n}\n\n// Minimal per-block validation (don’t overfit, but catch the dangerous stuff)\nfor (let i = 0; i < blocks.length; i++) {\n  const b = blocks[i];\n  if (!b || typeof b !== \"object\") return fail(\"INVALID_BLOCK\", \"Each block must be an object\");\n\n  const blockId = (b.blockId === undefined || b.blockId === null) ? \"\" : String(b.blockId).trim();\n  const type = (b.type === undefined || b.type === null) ? \"\" : String(b.type).trim();\n  const hasOrder = (typeof b.order === \"number\" && Number.isFinite(b.order));\n  const textOk = (b.text === undefined || b.text === null || typeof b.text === \"string\");\n\n  if (!blockId) return fail(\"INVALID_BLOCK_ID\", \"Each block must have non-empty blockId\");\n  if (!type) return fail(\"INVALID_BLOCK_TYPE\", \"Each block must have non-empty type\");\n  if (!hasOrder) return fail(\"INVALID_BLOCK_ORDER\", \"Each block must have numeric order\");\n  if (!textOk) return fail(\"INVALID_BLOCK_TEXT\", \"Each block must have text as string (or empty)\");\n}\n\n// Tailor REQUIRES jobContext\nif (!jobContext || typeof jobContext !== \"object\") {\n  return fail(\"MISSING_JOB_CONTEXT\", \"Tailoring requires jobContext\");\n}\n\n// Optional targetRole\nconst targetRole = (input.targetRole === undefined || input.targetRole === null)\n  ? \"\"\n  : String(input.targetRole);\n\n// Output normalized payload for downstream nodes\nreturn [{\n  json: {\n    ok: true,\n    cvVersionId,\n    cvTitle,\n    language,\n    targetRole,\n    blocksSchemaVersion: \"1.0\",\n    blocks,\n    jobContextSchemaVersion: \"1.0\",\n    jobContext\n  }\n}];"
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "a100ac5d-a861-43fa-ae17-2f2d56f78354",
+      "name": "TailorModel",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        72
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "={{$json.llmMessages[0].content}}"
+            },
+            {
+              "content": "={{$json.llmMessages[1].content}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 1200,
+          "temperature": 0.2
+        }
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "bd5048a8-3d29-45b9-bc90-572e4863e4eb",
+      "name": "Build Tailor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Build Tailor (Tailor CV)\n// Mode: Run once for all items\n// Language: JavaScript\n\nconst input = $input.first().json || {};\n\n// Preserve upstream ok-state (never \"fix\" upstream errors here)\nconst ok = input.ok === true;\n\n// Hard default language guard\nconst language = (input.language === \"sv\" || input.language === \"en\") ? input.language : \"en\";\n\n// Always preserve these (pass-through)\nconst cvVersionId = (typeof input.cvVersionId === \"string\") ? input.cvVersionId : null;\nconst cvTitle = (typeof input.cvTitle === \"string\") ? input.cvTitle : \"\";\nconst targetRole = (typeof input.targetRole === \"string\") ? input.targetRole : \"\";\nconst blocksSchemaVersion = (typeof input.blocksSchemaVersion === \"string\") ? input.blocksSchemaVersion : \"1.0\";\nconst jobContextSchemaVersion = (typeof input.jobContextSchemaVersion === \"string\") ? input.jobContextSchemaVersion : \"1.0\";\n\n// CRITICAL: preserve blocks for downstream deterministic apply\nconst blocks = Array.isArray(input.blocks) ? input.blocks : [];\n\n// Preserve jobContext (optional but expected)\nconst jobContext = (input.jobContext && typeof input.jobContext === \"object\" && !Array.isArray(input.jobContext))\n  ? input.jobContext\n  : null;\n\nconst system = `\nYou are operating inside Drafted, a deterministic block-based CV system.\n\nHard rules (non-negotiable):\n- Do NOT add, remove, merge, split, or reorder blocks.\n- Do NOT modify blockId, type, label, or order.\n- Do NOT change employer/title/dates/institution/degree/program fields.\n- You may ONLY rephrase or reprioritize existing text.\n- Do NOT invent new responsibilities, projects, claims, metrics, tools, or achievements.\n- Do NOT introduce new capabilities (risk management, financial tracking, delivery governance, customer interface, etc.) unless they are already explicitly stated in that block.\n\nBullet integrity rules:\n- Do NOT add new bullet points.\n- Do NOT increase the number of bullets in any block.\n- Do NOT create new responsibilities that were not already present.\n- You may only rewrite or emphasize what already exists in that block’s text.\n\nPositioning rule:\n- You may adjust tone and emphasis to better match the job context.\n- You may not fabricate experience to fill gaps.\n\nLanguage rule:\n- Keep output language exactly: ${language}.\n\nOutput must be STRICT JSON ONLY:\n\n{\n  \"edits\": [\n    { \"blockId\": \"string\", \"text\": \"string\" }\n  ],\n  \"summaryOfChanges\": \"string\"\n}\n\nOnly include blocks that genuinely need rewriting.\nIf no safe alignment is possible: return {\"edits\":[],\"summaryOfChanges\":\"\"}.\n`.trim();\n\nlet user;\n\nif (!ok) {\n  user = `Return exactly: {\"edits\":[],\"summaryOfChanges\":\"\"}`;\n} else if (!jobContext) {\n  // If jobContext is missing, do nothing. No guessing.\n  user = `No jobContext was provided. Return exactly: {\"edits\":[],\"summaryOfChanges\":\"\"}`;\n} else if (!Array.isArray(blocks) || blocks.length === 0) {\n  // If blocks missing, do nothing. No hallucination.\n  user = `No CV blocks were provided. Return exactly: {\"edits\":[],\"summaryOfChanges\":\"\"}`;\n} else {\n  user = `\nTailor the CV to the provided job context.\n\nJobContext (schema ${jobContextSchemaVersion}):\n${JSON.stringify(jobContext, null, 2)}\n\nOptional target role text (may be empty):\n${targetRole ? JSON.stringify(targetRole) : '\"\"'}\n\nCV blocks (schema ${blocksSchemaVersion}):\n${JSON.stringify(blocks, null, 2)}\n\nRemember:\n- No structure changes.\n- No identity inflation.\n- Return JSON only.\n`.trim();\n}\n\n// IMPORTANT: return llmMessages + pass-through fields INCLUDING blocks + jobContext\nreturn [\n  {\n    json: {\n      llmMessages: [\n        { role: \"system\", content: system },\n        { role: \"user\", content: user }\n      ],\n      ok,\n      cvVersionId,\n      cvTitle,\n      language,\n      targetRole,\n      blocksSchemaVersion,\n      blocks,\n      jobContextSchemaVersion,\n      jobContext\n    }\n  }\n];"
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "e3c52e44-0d1a-4523-a6c2-c7aa4d44b030",
+      "name": "Normalize Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        72
+      ],
+      "parameters": {
+        "jsCode": "// Normalize Output (Tailor CV)\n// Mode: Run once for all items\n// Language: JavaScript\n\nfunction fail(code, message, rawText) {\n  return [{\n    json: {\n      ok: false,\n      blocksSchemaVersion: \"1.0\",\n      contractError: { code, message },\n      rawText: rawText || \"\"\n    }\n  }];\n}\n\nconst input = $input.first().json || {};\n\n// 1) Find raw model text\nlet raw = null;\n\n// Most common for your node (seen in screenshot)\nraw = input?.output?.[0]?.content?.[0]?.text ?? null;\n\n// Fallbacks\nif (!raw && typeof input?.output?.[0]?.content?.[0]?.output_text === \"string\") raw = input.output[0].content[0].output_text;\nif (!raw && typeof input?.text === \"string\") raw = input.text;\nif (!raw && typeof input?.response === \"string\") raw = input.response;\n\nif (!raw || typeof raw !== \"string\") {\n  return fail(\"MISSING_MODEL_OUTPUT\", \"Could not find model output text to parse\");\n}\n\n// 2) Parse JSON (trim once)\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  try {\n    parsed = JSON.parse(raw.trim());\n  } catch (e2) {\n    return fail(\"MODEL_OUTPUT_NOT_JSON\", \"Model output was not valid JSON\", raw);\n  }\n}\n\n// 3) Validate\nif (!Array.isArray(parsed.edits)) {\n  return fail(\"INVALID_MODEL_OUTPUT\", \"Model JSON must contain edits[] array\", raw);\n}\nif (typeof parsed.summaryOfChanges !== \"string\") {\n  return fail(\"INVALID_MODEL_OUTPUT\", \"Model JSON must contain summaryOfChanges string\", raw);\n}\n\n// 4) Minimal validation of edits\nfor (let i = 0; i < parsed.edits.length; i++) {\n  const e = parsed.edits[i];\n  if (!e || typeof e !== \"object\") return fail(\"INVALID_EDIT\", \"Each edit must be an object\", raw);\n  const blockId = (e.blockId == null) ? \"\" : String(e.blockId).trim();\n  if (!blockId) return fail(\"INVALID_EDIT\", \"Each edit must have non-empty blockId\", raw);\n  if (e.text != null && typeof e.text !== \"string\") return fail(\"INVALID_EDIT\", \"Edit.text must be a string\", raw);\n}\n\n// 5) Output normalized (keep original output for debugging)\nreturn [{\n  json: {\n    ...input,\n    edits: parsed.edits,\n    summaryOfChanges: parsed.summaryOfChanges\n  }\n}];"
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "80c84fa6-c494-4118-848b-631c2691301b",
+      "name": "Deterministic Apply + Canonicalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Deterministic Apply + Canonicalize (Tailor CV)\n// Mode: Run once for all items\n// Language: JavaScript\n\nfunction fail(code, message, input) {\n  return [{\n    json: {\n      ok: false,\n      blocksSchemaVersion: \"1.0\",\n      contractError: { code, message },\n      cvVersionId: input.cvVersionId ?? null,\n      cvTitle: input.cvTitle ?? \"\",\n      summaryOfChanges: \"\",\n      blocks: input.blocks ?? [],\n      rewrittenCv: \"\",\n      rewrittenCvLegacy: \"\"\n    }\n  }];\n}\n\nfunction safeString(v) {\n  if (v === null || v === undefined) return \"\";\n  return String(v);\n}\n\nfunction normalizeNewlines(s) {\n  return safeString(s).replace(/\\r\\n/g, \"\\n\").replace(/\\r/g, \"\\n\").trim();\n}\n\nfunction buildRewrittenCvFromBlocks(blocks) {\n  // Deterministic, minimal: each block text separated by blank line.\n  // blocks[] remains canonical; rewrittenCv is derived.\n  const parts = [];\n  for (const b of blocks) {\n    const t = normalizeNewlines(b.text || \"\");\n    if (t) parts.push(t);\n  }\n  return parts.join(\"\\n\\n\").trim();\n}\n\nfunction makeTailorCvVersionId(prev) {\n  // Deterministic-ish without libs: prev + timestamp if prev exists else timestamp only.\n  // This is acceptable because cvVersionId is allowed to change each run.\n  const ts = Date.now();\n  if (prev && typeof prev === \"string\" && prev.trim()) return `${prev.trim()}_tailor_${ts}`;\n  return `tailor_${ts}`;\n}\n\nconst input = $input.first().json || {};\n\n// Pass-through failures\nif (input.ok !== true) {\n  return [{ json: input }];\n}\n\n// Validate required fields\nif (input.blocksSchemaVersion !== \"1.0\") {\n  return fail(\"INVALID_BLOCKS_SCHEMA_VERSION\", \"blocksSchemaVersion must be '1.0'\", input);\n}\nif (!Array.isArray(input.blocks) || input.blocks.length === 0) {\n  return fail(\"INVALID_BLOCKS\", \"blocks must be a non-empty array\", input);\n}\nif (!Array.isArray(input.edits)) {\n  return fail(\"INVALID_EDITS\", \"edits must be an array\", input);\n}\n\n// Build edit map (blockId -> text)\nconst editMap = new Map();\nfor (const e of input.edits) {\n  if (!e || typeof e !== \"object\") continue;\n  const id = safeString(e.blockId).trim();\n  if (!id) continue;\n  // Only accept text edits; if missing text, treat as no-op\n  if (e.text === undefined || e.text === null) continue;\n  editMap.set(id, safeString(e.text));\n}\n\n// Apply edits deterministically\nconst nextBlocks = input.blocks.map((b) => {\n  // Defensive clone shallow\n  const nb = { ...b };\n\n  const id = safeString(nb.blockId).trim();\n  if (id && editMap.has(id)) {\n    // Only update text\n    nb.text = normalizeNewlines(editMap.get(id));\n  }\n\n  return nb;\n});\n\n// Canonical sort by order asc, stable tie-breaker by blockId\nnextBlocks.sort((a, b) => {\n  const oa = (typeof a.order === \"number\" ? a.order : 0);\n  const ob = (typeof b.order === \"number\" ? b.order : 0);\n  if (oa !== ob) return oa - ob;\n  const ida = safeString(a.blockId);\n  const idb = safeString(b.blockId);\n  return ida.localeCompare(idb);\n});\n\n// summaryOfChanges clamp\nlet summary = safeString(input.summaryOfChanges).trim();\nif (summary.length > 1200) summary = summary.slice(0, 1200).trim();\n\n// Derived fields\nconst rewrittenCv = buildRewrittenCvFromBlocks(nextBlocks);\n\n// Produce next payload for BuildResponse\nreturn [{\n  json: {\n    ok: true,\n    blocksSchemaVersion: \"1.0\",\n    cvVersionId: makeTailorCvVersionId(input.cvVersionId),\n    cvTitle: safeString(input.cvTitle).trim(),\n    summaryOfChanges: summary,\n    blocks: nextBlocks,\n    rewrittenCv,\n    rewrittenCvLegacy: rewrittenCv\n  }\n}];"
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "d8d8838b-0b1e-49e0-a130-a87088001b04",
+      "name": "BuildResponse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// BuildResponse (Tailor CV)\n// Mode: Run once for all items\n// Language: JavaScript\n\nconst input = $input.first().json || {};\n\n// If already failed upstream, return as-is but enforce schema shape\nif (input.ok !== true) {\n  return [{\n    json: {\n      ok: false,\n      blocksSchemaVersion: \"1.0\",\n      contractError: input.contractError || {\n        code: \"UNKNOWN_ERROR\",\n        message: \"Tailor failed\"\n      },\n      cvVersionId: input.cvVersionId ?? null,\n      cvTitle: input.cvTitle ?? \"\",\n      summaryOfChanges: \"\",\n      blocks: input.blocks ?? [],\n      rewrittenCv: \"\",\n      rewrittenCvLegacy: \"\"\n    }\n  }];\n}\n\n// Success path — emit ONLY contract fields\nreturn [{\n  json: {\n    ok: true,\n    blocksSchemaVersion: \"1.0\",\n    cvVersionId: input.cvVersionId,\n    cvTitle: input.cvTitle,\n    summaryOfChanges: input.summaryOfChanges || \"\",\n    blocks: input.blocks,\n    rewrittenCv: input.rewrittenCv,\n    rewrittenCvLegacy: input.rewrittenCvLegacy\n  }\n}];"
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "801bc6d0-acea-4b89-8f08-54e76113b5ef",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2144,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "2553edd9-5138-4eb0-9f57-4d9b729f492d",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1248,
+        0
+      ],
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    },
+    {
+      "id": "fd71780a-eb13-4f60-97bd-3e576ace260f",
+      "name": "Tailor Guard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        0
+      ],
+      "parameters": {
+        "jsCode": "/**\n * Tailor Guard (Drafted)\n *\n * Input (expected on $input.first().json):\n * - ok: boolean\n * - language: \"en\" | \"sv\" (optional, default \"en\")\n * - blocksSchemaVersion: \"1.0\"\n * - blocks: non-empty array (CV blocks)\n * - edits: array from Normalize Output: [{ blockId, text }]\n * - summaryOfChanges: string\n *\n * Output:\n * - Same object, but with edits sanitized/dropped if unsafe.\n * - Never throws. If input invalid, forces edits=[] and summaryOfChanges=\"\".\n *\n * Strategy:\n * - Only allow edits for existing blockIds.\n * - For experience blocks: forbid bullet-count increase.\n * - For all blocks: forbid introducing certain \"inflation phrases\" unless they already existed in the original block text.\n * - Enforce output language roughly (block Swedish leakage when language is en).\n * - Clamp sizes and strip leading garbage.\n */\n\nconst input = ($input.first() && $input.first().json) ? $input.first().json : {};\n\nfunction safeString(x) {\n  return (typeof x === \"string\") ? x : (x == null ? \"\" : String(x));\n}\n\nfunction isPlainObject(x) {\n  return !!x && typeof x === \"object\" && !Array.isArray(x);\n}\n\nfunction sanitizeLeadingGarbage(str) {\n  return safeString(str).replace(/^\\uFEFF/, \"\").replace(/^=+/, \"\").trim();\n}\n\nfunction normLite(s) {\n  return safeString(s).toLowerCase().replace(/\\s+/g, \" \").trim();\n}\n\nfunction splitLines(s) {\n  return safeString(s).replace(/\\r/g, \"\").split(\"\\n\");\n}\n\nfunction countBullets(text) {\n  const lines = splitLines(text);\n  let n = 0;\n  for (const line of lines) {\n    const t = line.trim();\n    if (!t) continue;\n    // Common bullet styles: •, -, *, –\n    if (/^(•|\\-|\\*|–)\\s+/.test(t)) n += 1;\n  }\n  return n;\n}\n\nfunction looksSwedish(text) {\n  const t = safeString(text);\n  if (/[åäöÅÄÖ]/.test(t)) return true;\n  const low = t.toLowerCase();\n  // very rough Swedish leakage signals\n  const hits = [\n    \" och \", \" att \", \" som \", \" för \", \" med \", \" inte \", \" även \", \" på \", \" är \", \" det \", \" den \", \" detta \"\n  ].filter(w => low.includes(w)).length;\n  return hits >= 2;\n}\n\nconst language = (input.language === \"sv\" || input.language === \"en\") ? input.language : \"en\";\n\n// Validate blocks\nconst blocks = Array.isArray(input.blocks) ? input.blocks : [];\nif (input.ok !== true || input.blocksSchemaVersion !== \"1.0\" || blocks.length === 0) {\n  // Force safe no-op\n  const out = {\n    ...input,\n    edits: [],\n    summaryOfChanges: \"\"\n  };\n  return [{ json: out }];\n}\n\n// Build lookup\nconst byId = new Map();\nfor (const b of blocks) {\n  if (!isPlainObject(b)) continue;\n  const id = safeString(b.blockId).trim();\n  if (!id) continue;\n  byId.set(id, b);\n}\n\n// Inflation phrases that often get hallucinated in tailoring.\n// Allowed only if already present in the original block text (same block).\nconst INFLATION_PHRASES = [\n  \"risk management\",\n  \"delivery governance\",\n  \"financial tracking\",\n  \"financial control\",\n  \"budget control\",\n  \"predictable performance\",\n  \"predictable prioritisation\",\n  \"customer interface\",\n  \"primary customer interface\",\n  \"security clearance\",\n  \"defence\",\n  \"defense\",\n  \"high-volume environments\",\n  \"structured reporting\",\n  \"escalation\",\n  \"delivery risk\",\n];\n\n// Hard cap to prevent runaway text\nconst MAX_TEXT_LEN = 1800;\nconst MAX_SUMMARY_LEN = 1200;\n\nconst editsIn = Array.isArray(input.edits) ? input.edits : [];\nconst safeEdits = [];\nconst dropped = []; // internal log; we do not include this in output unless you want\n\nfor (const e of editsIn) {\n  if (!isPlainObject(e)) continue;\n\n  const blockId = safeString(e.blockId).trim();\n  let nextText = sanitizeLeadingGarbage(e.text);\n\n  if (!blockId || !byId.has(blockId)) {\n    dropped.push({ blockId, reason: \"UNKNOWN_BLOCK\" });\n    continue;\n  }\n\n  const block = byId.get(blockId);\n  const type = safeString(block.type).trim();\n  const prevText = safeString(block.text);\n\n  // Empty text edits are allowed but pointless. Keep only if you explicitly want to support clearing.\n  if (!nextText) {\n    dropped.push({ blockId, reason: \"EMPTY_TEXT\" });\n    continue;\n  }\n\n  // Clamp\n  if (nextText.length > MAX_TEXT_LEN) nextText = nextText.slice(0, MAX_TEXT_LEN).trim();\n\n  // Language guard: if CV language is en, reject Swedish leakage\n  if (language === \"en\" && looksSwedish(nextText)) {\n    dropped.push({ blockId, reason: \"LANGUAGE_LEAK_SV\" });\n    continue;\n  }\n\n  // Experience bullet guard: do not increase bullet count\n  if (type === \"experience\") {\n    const prevBullets = countBullets(prevText);\n    const nextBullets = countBullets(nextText);\n\n    // If original had bullets, new must not add more\n    if (prevBullets > 0 && nextBullets > prevBullets) {\n      dropped.push({ blockId, reason: \"BULLET_COUNT_INCREASE\", prevBullets, nextBullets });\n      continue;\n    }\n\n    // If original had bullets but new has none, reject (usually means model rewrote into prose)\n    if (prevBullets > 0 && nextBullets === 0) {\n      dropped.push({ blockId, reason: \"BULLETS_REMOVED\", prevBullets, nextBullets });\n      continue;\n    }\n  }\n\n  // Inflation phrase guard: if new text adds any inflation phrase not present before, reject\n  const prevNorm = normLite(prevText);\n  const nextNorm = normLite(nextText);\n\n  let inflationHit = null;\n  for (const p of INFLATION_PHRASES) {\n    const pn = normLite(p);\n    const hadBefore = prevNorm.includes(pn);\n    const hasNow = nextNorm.includes(pn);\n    if (!hadBefore && hasNow) {\n      inflationHit = p;\n      break;\n    }\n  }\n  if (inflationHit) {\n    dropped.push({ blockId, reason: \"INFLATION_PHRASE_ADDED\", phrase: inflationHit });\n    continue;\n  }\n\n  // If the edit is identical after trimming, drop it (no-op)\n  if (nextNorm === prevNorm) {\n    dropped.push({ blockId, reason: \"NO_OP\" });\n    continue;\n  }\n\n  safeEdits.push({ blockId, text: nextText });\n}\n\n// Summary clamp\nlet summary = sanitizeLeadingGarbage(input.summaryOfChanges);\nif (summary.length > MAX_SUMMARY_LEN) summary = summary.slice(0, MAX_SUMMARY_LEN).trim();\n\n// If all edits dropped, force summary empty to avoid misleading “changes made”\nif (safeEdits.length === 0) summary = \"\";\n\n// IMPORTANT: Do not change blocks here. Only sanitize edits.\n// Deterministic Apply node will apply safely.\nconst out = {\n  ...input,\n  edits: safeEdits,\n  summaryOfChanges: summary\n};\n\nreturn [{ json: out }];"
+      },
+      "onError": null,
+      "retryOnFail": null,
+      "alwaysOutputData": null
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate + Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate + Normalize": {
+      "main": [
+        [
+          {
+            "node": "Build Tailor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Tailor": {
+      "main": [
+        [
+          {
+            "node": "TailorModel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TailorModel": {
+      "main": [
+        [
+          {
+            "node": "Normalize Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Output": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Deterministic Apply + Canonicalize": {
+      "main": [
+        [
+          {
+            "node": "BuildResponse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BuildResponse": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Tailor Guard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tailor Guard": {
+      "main": [
+        [
+          {
+            "node": "Deterministic Apply + Canonicalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "inspectedAtUtc": "2026-10-23T18:05:44.4413228Z",
+  "activeCodeAndGraphMatchesSaved": true
+}

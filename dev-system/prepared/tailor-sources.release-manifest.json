@@ -1,0 +1,67 @@
+{
+  "purpose": "Review only. No workflow write, model call, frontend enablement or deployment.",
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "savedVersionId": "f399ee97-764b-44e0-bc42-5c7517499890",
+  "activeVersionId": "f399ee97-764b-44e0-bc42-5c7517499890",
+  "remoteUpdatedAt": "2026-02-20T15:42:43.114Z",
+  "inspectedAtUtc": "2026-10-23T18:05:44.4413228Z",
+  "activeCodeAndGraphMatchesSaved": true,
+  "safeFixtureSha256": "f03ce80d150245176f3049a2c1a725b96f82a08634a28501acbd7dcbfae04c12",
+  "sharedSourceSha256": {
+    "experience-discovery-contract.js": "4dd9cfa4031a7efa192c8a127a78c063ce862f983f344fec075194713d09fff2",
+    "tailor-sources.js": "64b515f7c16931a5cf0cbff3ca62fdc7ce1799502dad34093b6955709b0f01ee"
+  },
+  "adapterSha256": "6c363f655041da02429623e5f46c0eef2efdd43405dcf6d398bd02b2c1c23a98",
+  "workflowDiffSha256": "41d5ee23ef48d27a1180b9b83b5dcbdaeda192336b98da433106fab0727c2fc2",
+  "frontendSourceSha256": "f16d3ca9b4fbbe484486017406668423ef99d4fe71afe7bd0d4a26f73441fc40",
+  "frontendEnablePatchSha256": "3c81bf66ef0e58cc804dc29b844e60155aae9498bac20aa7d5a5b5714c9adfa2",
+  "newNodes": [
+    "Tailor has answer sources?",
+    "Tailor source input valid?",
+    "Tailor sources model",
+    "Compose source suggestion",
+    "Respond with source suggestion"
+  ],
+  "changedExistingNodes": [
+    "Validate + Normalize"
+  ],
+  "preservedLegacyNodes": [
+    "Webhook",
+    "TailorModel",
+    "Build Tailor",
+    "Normalize Output",
+    "Deterministic Apply + Canonicalize",
+    "BuildResponse",
+    "Respond to Webhook",
+    "Merge",
+    "Tailor Guard"
+  ],
+  "model": {
+    "name": "gpt-4.1-mini",
+    "maxOutputTokens": 4000,
+    "temperature": 0.2,
+    "simplify": false,
+    "store": false,
+    "n8nRetryOnFail": false,
+    "tools": [],
+    "credential": "Inherited in memory from existing TailorModel; absent from review diff."
+  },
+  "publicationOrder": [
+    "Fresh saved/active definition check and verified complete encrypted snapshots.",
+    "Apply approved existing-workflow patch with publishIfActive=false; read back saved AND active state. Stop on any unexpected active-state change.",
+    "Separately approved publication of exactly the reviewed saved workflow.",
+    "Apply frontend enable patch, rebuild/verify assets, then approved PR merge/Pages release."
+  ],
+  "excluded": [
+    "No new blocks/profile store.",
+    "No external workflow/API mutations or executions in preparation.",
+    "No live-model semantic-quality or n8n-engine validation claimed."
+  ],
+  "failureStatuses": {
+    "invalidRequest": 400,
+    "inputTooLarge": 413,
+    "invalidModelOutput": 422,
+    "providerError": 503
+  },
+  "hashEncoding": "SHA-256 of UTF-8 text after BOM removal and LF normalization (portable across checkouts)."
+}
