@@ -5,7 +5,7 @@ const {chromium}=require('playwright'),fs=require('node:fs'),path=require('node:
 const f=require('./fixtures/tailor-sources.cjs'),{createHarness,response}=require('./helpers/tailor-workflow-harness.cjs');
 const discovery=require('../backend/experience-discovery.cjs').createHandler({model:f.discovery});
 const tailor=createHarness({model:input=>response(f.model(input))});
-const phase=process.argv[2],root=path.resolve(__dirname,'..'),site='https://drafted-cad750.webflow.io/',assets='https://draftedagent.github.io/drafted-webflow/',build='2026-10-23-tailor-sources-live';
+const phase=process.argv[2],root=path.resolve(__dirname,'..'),site='https://drafted-cad750.webflow.io/',assets='https://draftedagent.github.io/drafted-webflow/',build=JSON.parse(fs.readFileSync(path.join(root,'latest.json'),'utf8')).build;
 if(!['preflight','published'].includes(phase))throw Error('Explicit phase required');
 const normalized=s=>s.replace(/\r\n/g,'\n');
 (async()=>{const browser=await chromium.launch({headless:true,channel:'msedge'});try{
@@ -37,13 +37,13 @@ const normalized=s=>s.replace(/\r\n/g,'\n');
  await guide.getByRole('button',{name:'Review questions',exact:true}).click();const input=panel.getByRole('textbox');
  await input.fill('At Example Studio, I planned a release with two developers.');await panel.getByRole('button',{name:'Send answer',exact:true}).click();
  await input.fill('In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions.');await panel.getByRole('button',{name:'Send answer',exact:true}).click();
- await panel.getByRole('heading',{name:'What your answers added',exact:true}).waitFor();assert.equal(requests.length,0);const before=await cv.innerText();
+ await panel.getByRole('heading',{name:'Ready to tailor your CV.',exact:true}).waitFor();assert.equal(requests.length,0);const before=await cv.innerText();
  await panel.getByRole('button',{name:'Finish and tailor my CV',exact:true}).click();await observed;await page.locator('#tailor-btn').evaluate(button=>button.click());hold=false;release();await suggestion.waitFor();
  assert.equal(requests.length,1);assert.equal(requests[0].sourcesSchemaVersion,'1.0');assert.equal(requests[0].sourceContext.answers.length,2);assert.ok(!JSON.stringify(requests).includes('ADVISORY ONLY'));assert.equal(await cv.innerText(),before);
  for(const details of await suggestion.locator('details').all())await details.evaluate(e=>e.open=true);await page.screenshot({path:path.join(os.tmpdir(),'drafted-tailor-'+phase+'-desktop.png')});
  await suggestion.getByRole('button',{name:'Dismiss',exact:true}).click();assert.equal(await cv.innerText(),before);
  await guide.getByRole('button',{name:'Tailor my CV',exact:true}).click();await suggestion.waitFor();await suggestion.getByRole('button',{name:'Apply tailored CV',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.cv-document-inner').innerText.includes('I planned a release'));assert.ok((await cv.innerText()).includes('I did not lead customer sessions.'));
- await page.getByRole('button',{name:'Review your answers',exact:true}).click();await panel.locator('.discovery-history').evaluate(e=>e.open=true);await panel.getByRole('button',{name:'Correct answer 1',exact:true}).click();await input.fill('No');await panel.getByRole('button',{name:'Save correction',exact:true}).click();await panel.getByRole('button',{name:'Back to the editor',exact:true}).click();
+ await page.getByRole('button',{name:'Review your answers',exact:true}).click();await panel.locator('.discovery-history').evaluate(e=>e.open=true);await panel.getByRole('button',{name:'Correct answer 1',exact:true}).click();await input.fill('No');await panel.getByRole('button',{name:'Save correction',exact:true}).click();await page.getByRole('button',{name:'Chat',exact:true}).click();
  const approved=await cv.innerText();await guide.getByRole('button',{name:'Tailor my CV',exact:true}).click();await suggestion.waitFor();assert.equal(await cv.innerText(),approved);await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(os.tmpdir(),'drafted-tailor-'+phase+'-mobile.png')});await suggestion.getByRole('button',{name:'Apply tailored CV',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('.cv-document-inner').innerText.includes('I planned a release'));assert.ok((await cv.innerText()).includes('internal workshops'));
  assert.deepEqual(unexpected,[]);assert.deepEqual(errors,[]);const receipt={phase,site,build,realSourceGate:true,tailorRequestsMocked:requests.length,remoteWorkflowExecutions:0,externalModelCalls:0,reviewBeforeApply:true,multiApplyCorrection:true,duplicateStartBlocked:true};fs.writeFileSync(path.join(os.tmpdir(),'drafted-tailor-'+phase+'-website.json'),JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt));
  }finally{await browser.close();}
