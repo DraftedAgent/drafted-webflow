@@ -21,7 +21,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
   await page.getByRole('button',{name:'Try a synthetic CV and job ad',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.workspace-print-button')?.disabled===false);
   await page.waitForFunction(()=>document.documentElement.classList.contains('drafted-editor-active'));
   async function section(selector,active){await page.locator(selector).evaluate(el=>el.scrollIntoView({behavior:'instant'}));await page.waitForFunction(value=>document.documentElement.classList.contains('drafted-editor-active')===value,active);await page.waitForTimeout(250);assert.equal(await page.locator('.navbar').isVisible(),!active);assert.ok(await page.locator(selector).evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('.page-scroll').getBoundingClientRect().top)<2),'Stable section anchor');}
-  for(let i=0;i<2;i++){await section('#section-input',false);await section('.hero-section',false);await section('.section-editor',true);}
+  for(let i=0;i<5;i++){await section('#section-input',false);await section('.hero-section',false);await section('.section-editor',true);}
   await page.locator('#editor-input').fill('Preserve this unsent instruction.');
   assert.equal(await page.locator('.workspace-print-help,#cv-design-note').count(),0);
   for(const design of ['classic_v1','compact_v1','editorial_v1']){

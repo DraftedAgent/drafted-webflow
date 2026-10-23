@@ -13,7 +13,8 @@
     }
     function align(target,top=0){scroller.scrollTop+=target.getBoundingClientRect().top-scroller.getBoundingClientRect().top-top;}
     function settle(){
-      if(changing||locked||scroller.querySelector('dialog[open]'))return;
+      if(changing){schedule();return;}
+      if(locked||scroller.querySelector('dialog[open]'))return;
       const bounds=scroller.getBoundingClientRect();
       section=sections().sort((a,b)=>visible(b)-visible(a))[0];
       function visible(el){const r=el.getBoundingClientRect();return Math.max(0,Math.min(r.bottom,bounds.bottom)-Math.max(r.top,bounds.top));}
@@ -24,7 +25,7 @@
       root.classList.toggle('drafted-editor-active',active);measure();align(section,top);
       requestAnimationFrame(()=>{scroller.style.scrollSnapType=snap;requestAnimationFrame(()=>{changing=false;});});
     }
-    function schedule(){if(changing)return;clearTimeout(timer);timer=setTimeout(settle,140);}
+    function schedule(){clearTimeout(timer);timer=setTimeout(settle,140);}
     scroller.addEventListener('scroll',schedule,{passive:true});
     scroller.addEventListener('scrollend',()=>{clearTimeout(timer);settle();});
     window.addEventListener('resize',()=>{clearTimeout(timer);changing=true;measure();requestAnimationFrame(()=>{if(section)align(section);requestAnimationFrame(()=>{changing=false;schedule();});});},{passive:true});
