@@ -1,36 +1,35 @@
 /* Workspace chrome only; never changes the CV or its document renderer. */
 (function(global){
   'use strict';
-  let locked=0,settleViewport=()=>{};
-  function viewport(){
-    const root=document.documentElement,scroller=document.querySelector('.page-scroll');
-    const nav=document.querySelector('.w-nav'),editor=scroller?.querySelector('.section-editor');
-    if(!scroller||!editor)return;
-    let active=false,changing=false,timer,section=null;
-    const sections=()=>[...scroller.children].filter(el=>el.matches('.snap-section,.section-cta'));
-    function measure(){
-      root.style.setProperty('--nav-h',`${active?0:Math.round(nav?.getBoundingClientRect().height||0)}px`);
-    }
-    function align(target,top=0){scroller.scrollTop+=target.getBoundingClientRect().top-scroller.getBoundingClientRect().top-top;}
-    function settle(){
-      if(changing){schedule();return;}
-      if(locked||scroller.querySelector('dialog[open]'))return;
-      const bounds=scroller.getBoundingClientRect();
-      section=sections().sort((a,b)=>visible(b)-visible(a))[0];
-      function visible(el){const r=el.getBoundingClientRect();return Math.max(0,Math.min(r.bottom,bounds.bottom)-Math.max(r.top,bounds.top));}
-      const next=section===editor;
-      if(next===active)return;
-      const top=section.getBoundingClientRect().top-bounds.top,snap=scroller.style.scrollSnapType;
-      changing=true;scroller.style.scrollSnapType='none';active=next;
-      root.classList.toggle('drafted-editor-active',active);measure();align(section,top);
-      requestAnimationFrame(()=>{scroller.style.scrollSnapType=snap;requestAnimationFrame(()=>{changing=false;});});
-    }
-    function schedule(){clearTimeout(timer);timer=setTimeout(settle,140);}
-    scroller.addEventListener('scroll',schedule,{passive:true});
-    scroller.addEventListener('scrollend',()=>{clearTimeout(timer);settle();});
-    window.addEventListener('resize',()=>{clearTimeout(timer);changing=true;measure();requestAnimationFrame(()=>{if(section)align(section);requestAnimationFrame(()=>{changing=false;schedule();});});},{passive:true});
-    if(nav)new ResizeObserver(measure).observe(nav);
-    settleViewport=schedule;document.fonts?.ready.then(measure);measure();schedule();
+  function captureScroll(scroller){
+    const top=scroller.getBoundingClientRect().top;
+    const element=[...scroller.children].find(el=>el.matches('.navbar,.snap-section,.section-cta')&&el.getBoundingClientRect().bottom>top);
+    if(!element)return null;
+    const rect=element.getBoundingClientRect();
+    return {element,fraction:(top-rect.top)/rect.height,top:scroller.scrollTop,width:scroller.clientWidth,height:scroller.clientHeight};
+  }
+  function restoreScroll(scroller,reading){
+    if(!reading?.element.isConnected)return;
+    if(reading.width===scroller.clientWidth&&reading.height===scroller.clientHeight)scroller.scrollTop=reading.top;
+    else scroller.scrollTop+=reading.element.getBoundingClientRect().top-scroller.getBoundingClientRect().top+reading.fraction*reading.element.getBoundingClientRect().height;
+  }
+  function flow(){
+    const scroller=document.querySelector('.page-scroll'),nav=document.querySelector('.navbar.w-nav');
+    if(!scroller)return;
+    // Keep the live Webflow header and its bindings in the one page scroll flow.
+    if(nav&&nav.parentElement!==scroller)scroller.prepend(nav);
+    let reading=captureScroll(scroller),width=scroller.clientWidth,height=scroller.clientHeight;
+    // Scrolling only records an anchor. It never changes layout or header visibility.
+    scroller.addEventListener('scroll',()=>{
+      if(width===scroller.clientWidth&&height===scroller.clientHeight)reading=captureScroll(scroller);
+    },{passive:true});
+    new ResizeObserver(()=>{
+      if(width===scroller.clientWidth&&height===scroller.clientHeight)return;
+      // Respect navigation that happened during resize; only correct the retained/clamped old offset.
+      const retained=reading&&Math.min(reading.top,Math.max(0,scroller.scrollHeight-scroller.clientHeight));
+      if(reading&&Math.abs(scroller.scrollTop-retained)<1)restoreScroll(scroller,reading);
+      width=scroller.clientWidth;height=scroller.clientHeight;reading=captureScroll(scroller);
+    }).observe(scroller);
   }
   let tooltipId=0;
   function iconButton(label,className,paths){
@@ -46,7 +45,7 @@
     button.addEventListener('keydown',event=>{if(event.key==='Escape')tooltip.hidden=true;});
     return button;
   }
-  global.DraftedWorkspaceView={viewport,iconButton,lock(){locked++;return ()=>{locked--;settleViewport();};}};
+  global.DraftedWorkspaceView={flow,iconButton,captureScroll,restoreScroll};
 })(window);
 
 ;
@@ -361,10 +360,10 @@
       const anchor=slots.find(el=>el.getBoundingClientRect().bottom>bounds.top)||slots[0];
       const rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
-      saved={release:global.DraftedWorkspaceView.lock(),snap:workspaceScroll?.style.scrollSnapType,placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{reading:global.DraftedWorkspaceView.captureScroll(workspaceScroll),top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
-      if(workspaceScroll){workspaceScroll.style.overflow='hidden';workspaceScroll.style.scrollSnapType='none';}
+      if(workspaceScroll){workspaceScroll.style.overflow='hidden';}
       global.DraftedCvLayout.rescale(host);
       // Keep the same reading position when the viewer scale increases.
       if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height,newRect=anchor.getBoundingClientRect();pane.scrollTop+=newRect.top-pane.getBoundingClientRect().top+fraction*newRect.height;}
@@ -375,12 +374,12 @@
       const previous=saved;saved=null;
       previous.placeholder.replaceWith(card);expand.hidden=false;close.hidden=true;
       document.body.style.overflow=previous.overflow;
-      if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;workspaceScroll.scrollTop=previous.workspace.top;workspaceScroll.scrollLeft=previous.workspace.left;}
+      if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);workspaceScroll.scrollLeft=previous.workspace.left;}
       global.DraftedCvLayout.rescale(host);
       pane.scrollTop=previous.top;pane.scrollLeft=previous.left;
       window.scrollTo(previous.x,previous.y);
       (previous.focus?.isConnected?previous.focus:expand).focus({preventScroll:true});
-      requestAnimationFrame(()=>{if(workspaceScroll){workspaceScroll.scrollTop=previous.workspace.top;workspaceScroll.style.scrollSnapType=previous.snap;}requestAnimationFrame(previous.release);});
+      requestAnimationFrame(()=>{if(workspaceScroll)global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);});
     }
     expand.addEventListener('click',open);
     close.addEventListener('click',()=>dialog.close());
@@ -790,7 +789,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-23-preview-toolbar");
+console.log("DRAFTED_JS_SOURCE", "2026-10-23-natural-header");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1056,7 +1055,7 @@ function setEditorProcessing(isOn) {
 
   console.log("✅ Drafted editor loaded");
 
-  DraftedWorkspaceView.viewport();
+  DraftedWorkspaceView.flow();
 
   // Initial UI state — safe to run now
   setEditorProcessing(false);

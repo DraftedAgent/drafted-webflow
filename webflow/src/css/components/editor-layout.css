@@ -1,6 +1,4 @@
-/* The editor is a viewport-sized workspace below the measured site navigation. */
-.drafted-editor-active .navbar.w-nav{display:none!important}
-.drafted-editor-active .page-scroll{top:0;height:100dvh}
+/* The editor fills the viewport within the natural page scroll flow. */
 .page-scroll>.section-editor.snap-section.drafted-app.discovery-enabled{
   height:100%!important;min-height:0!important;max-height:100%!important;
   padding:0!important;overflow:hidden;background:#eaf0f3;

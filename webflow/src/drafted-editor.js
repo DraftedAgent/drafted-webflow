@@ -276,7 +276,7 @@ function setEditorProcessing(isOn) {
 
   console.log("✅ Drafted editor loaded");
 
-  DraftedWorkspaceView.viewport();
+  DraftedWorkspaceView.flow();
 
   // Initial UI state — safe to run now
   setEditorProcessing(false);

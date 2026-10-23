@@ -36,7 +36,7 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
     for(const g of data.geometry){assert.ok(Math.abs(g.w-794)<=1&&Math.abs(g.h-1123)<=1);assert.equal(g.overflow,false,'Content fits page');assert.equal(g.horizontal,false,'Long word wraps');assert.equal(g.empty,false);assert.equal(g.lastHeading,false,'No orphaned heading');}
     assert.equal(data.bodySize,'14px');return data;
    }
-   await page.waitForFunction(()=>document.documentElement.classList.contains('drafted-editor-active'));
+   await page.waitForFunction(()=>Math.abs(document.querySelector('.section-editor').getBoundingClientRect().top)<2);
    const initial=await audit(fixture);assert.ok(name==='short'?initial.count===1:initial.count>=2);
    assert.equal(await page.locator('#cv-design').count(),1,'Shared designs are available with native PDF printing');
    for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){

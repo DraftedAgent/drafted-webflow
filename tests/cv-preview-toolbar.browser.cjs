@@ -22,7 +22,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
    window.print=()=>{const f=window.frameElement,p=window.parent;p.__toolbarPrints=p.__toolbarPrints||[];p.__toolbarPrints.push({design:f.dataset.cvDesign,ready:f.dataset.cvPrint,pages:f.dataset.pageCount,text:[...document.querySelectorAll('.cv-page-content')].map(el=>el.textContent),noTools:!document.querySelector('button,select,.is-selected'),fonts:document.fonts.check('14px "Drafted Sans"')});window.dispatchEvent(new Event('afterprint'));};
   });
   await page.goto(base+'?sample=1');await page.waitForFunction(()=>!document.querySelector('.workspace-print-button')?.disabled);
-  await page.waitForFunction(()=>document.documentElement.classList.contains('drafted-editor-active'));
+  await page.waitForFunction(()=>Math.abs(document.querySelector('.section-editor').getBoundingClientRect().top)<2);
   await page.locator('#editor-input').fill('Preserve this unsent instruction.');
   assert.equal(await page.locator('.cv-tools,.workspace-more-toggle,.workspace-print-help,#cv-design-note').count(),0);
   assert.equal(await page.getByRole('button',{name:'Export PDF (Classic)',exact:true}).count(),0);
