@@ -1,0 +1,37 @@
+{
+  "modelExecutionsInitiated": 0,
+  "proof": {
+    "projectionVerified": true,
+    "activeVerified": true,
+    "nodeCount": 15,
+    "projectionSha256": "315160d3114f5c41d39e530be4c355ee1f837122e0dbfbf1fb353bf0e91bbcca"
+  },
+  "savedRawSha256": "09afd3b8b9b98f7d7d549e7c9435c72a224c61f2e4caac8d6296b5622e763f89",
+  "beforeVersionId": "ac02e245-1b06-43b1-812e-8ee0ebc720d8",
+  "savedVersionId": "c143d087-8803-40d5-8c94-6425780d8afe",
+  "saveStatus": 200,
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "postSaveSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T192911007Z__H8oAioy58R1v3PvRe3YUa__c143d087-8803-40d5-8c94-6425780d8afe__post-save-DEV-085.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T192911007Z__H8oAioy58R1v3PvRe3YUa__c143d087-8803-40d5-8c94-6425780d8afe__post-save-DEV-085.manifest.json",
+    "verified": true
+  },
+  "preSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T192903604Z__H8oAioy58R1v3PvRe3YUa__ac02e245-1b06-43b1-812e-8ee0ebc720d8__pre-save-DEV-085.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T192903604Z__H8oAioy58R1v3PvRe3YUa__ac02e245-1b06-43b1-812e-8ee0ebc720d8__pre-save-DEV-085.manifest.json",
+    "verified": true
+  },
+  "phase": "published",
+  "activeVersionId": "c143d087-8803-40d5-8c94-6425780d8afe",
+  "publishStatus": 200,
+  "prePublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T192931503Z__H8oAioy58R1v3PvRe3YUa__c143d087-8803-40d5-8c94-6425780d8afe__pre-publish-DEV-085.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T192931503Z__H8oAioy58R1v3PvRe3YUa__c143d087-8803-40d5-8c94-6425780d8afe__pre-publish-DEV-085.manifest.json",
+    "verified": true
+  },
+  "postPublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T192938638Z__H8oAioy58R1v3PvRe3YUa__c143d087-8803-40d5-8c94-6425780d8afe__post-publish-DEV-085.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T192938638Z__H8oAioy58R1v3PvRe3YUa__c143d087-8803-40d5-8c94-6425780d8afe__post-publish-DEV-085.manifest.json",
+    "verified": true
+  }
+}
