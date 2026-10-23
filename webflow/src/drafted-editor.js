@@ -1888,8 +1888,8 @@ function updateContextChip() {
 
     const blocks = data.blocks;
 
-    const nextTitle = String(data.cvTitle || "").trim();
-    if (nextTitle) documentTitle = nextTitle;
+    // A new upload with no title must not inherit a previous person's heading.
+    documentTitle = String(data.cvTitle || "").trim();
 
     const nextCvVersionId = String(data.cvVersionId || "").trim();
     cvVersionId = nextCvVersionId || cvVersionId || null;

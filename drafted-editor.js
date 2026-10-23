@@ -95,8 +95,17 @@
     const add = (tag, cls, text, id = '', keep = false, source = false) => {
       if (text !== '') units.push({tag, cls, text, id, keep, source});
     };
-    add('h1', 'cv-title', title, '', true);
-    for (const b of [...blocks].sort((a, c) => a.order - c.order || (String(a.blockId) < String(c.blockId) ? -1 : String(a.blockId) > String(c.blockId) ? 1 : 0))) {
+    const sorted=[...blocks].sort((a,c)=>a.order-c.order||(String(a.blockId)<String(c.blockId)?-1:String(a.blockId)>String(c.blockId)?1:0));
+    // Explicit semantic labels only. Never infer a person's name from cvTitle,
+    // a summary, employment history, email address or the uploaded filename.
+    const labels={name:['name','full name','namn'],headline:['professional headline','headline','yrkestitel','profilrad'],contact:['contact details','contact','kontaktuppgifter','kontakt']};
+    const role=b=>['otherSections','block'].includes(b.type)?Object.keys(labels).find(key=>labels[key].includes(String(b.label||'').trim().toLowerCase())):undefined;
+    const header=sorted.filter(b=>role(b)&&String(b.text||'').trim());
+    for(const kind of ['name','headline','contact']){
+      for(const b of header.filter(b=>role(b)===kind))add(kind==='name'?'h1':'p',kind==='name'?'cv-title cv-person-name':kind==='headline'?'cv-headline':'cv-header-contact',String(b.text),String(b.blockId),true,true);
+      if(kind==='headline'&&!header.length)add('p','cv-headline cv-document-label',title,'',true);
+    }
+    for (const b of sorted.filter(b=>!header.includes(b))) {
       const id = String(b.blockId), type = String(b.type);
       const metadata = type === 'experience' ? [b.title,b.employer,b.startDate,b.endDate] : type === 'education' ? [b.degree,b.program,b.institution,b.startDate,b.endDate] : [];
       if (![b.text,...metadata].some(value => String(value || '').trim())) continue;
@@ -788,7 +797,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-23-editor-workspace-nav");
+console.log("DRAFTED_JS_SOURCE", "2026-10-23-cv-person-header");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -2666,8 +2675,8 @@ function updateContextChip() {
 
     const blocks = data.blocks;
 
-    const nextTitle = String(data.cvTitle || "").trim();
-    if (nextTitle) documentTitle = nextTitle;
+    // A new upload with no title must not inherit a previous person's heading.
+    documentTitle = String(data.cvTitle || "").trim();
 
     const nextCvVersionId = String(data.cvVersionId || "").trim();
     cvVersionId = nextCvVersionId || cvVersionId || null;

@@ -18,6 +18,9 @@
 :is(.cv-layout,#editor-preview-text) .cv-block.is-selected {background:#fff0b5;box-shadow:inset 3px 0 #c29322;}
 :is(.cv-layout,#editor-preview-text) .cv-page h1,:is(.cv-layout,#editor-preview-text) .cv-page h2,:is(.cv-layout,#editor-preview-text) .cv-page h3,:is(.cv-layout,#editor-preview-text) .cv-page p,:is(.cv-layout,#editor-preview-text) .cv-page ul,:is(.cv-layout,#editor-preview-text) .cv-page li {padding:0;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;text-transform:none;letter-spacing:normal;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-title {font:700 25pt/1.12 "Drafted Sans",sans-serif;color:#192e3c;margin:0 0 7mm;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-person-name {margin-bottom:3mm;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-headline {font:400 12pt/1.4 "Drafted Sans",sans-serif;color:#52616c;margin:0 0 4mm;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-header-contact {font:400 9.5pt/1.45 "Drafted Sans",sans-serif;color:#52616c;margin:0 0 4mm;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-section-heading {font:700 11pt/1.4 "Drafted Sans",sans-serif;color:#294959;letter-spacing:.09em;text-transform:uppercase;border-top:1px solid #c5d0d5;padding-top:4mm;margin:4mm 0 3mm;opacity:1;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-exp-title,:is(.cv-layout,#editor-preview-text) .cv-page .cv-edu-degree {font:700 11.5pt/1.35 "Drafted Sans",sans-serif;color:#223744;margin:3mm 0 1mm;opacity:1;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-entry-meta {font:400 9.5pt/1.4 "Drafted Sans",sans-serif;color:#52616c;margin:0 0 2.5mm;}
