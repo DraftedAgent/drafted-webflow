@@ -1318,7 +1318,10 @@ function setApplyLabel() {
   let documentBlocksState = null;
   let blockRangesById = {}; 
   let documentTitle = "";
+  // Presentation only: never part of CV/proposal snapshots or discovery context.
+  let selectedCvDesign = 'classic_v1';
   let previewView = null;
+  let browserPrint = null;
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
@@ -1342,7 +1345,7 @@ function setApplyLabel() {
     const tools=section.querySelector('.cv-tools');
     if(tools){
       tools.setAttribute('role','toolbar');tools.setAttribute('aria-label','Document actions');
-      for(const [icon,label]of [['download','Export PDF'],['copy','Copy text']]){
+      for(const [icon,label]of [['download','Export PDF (Classic)'],['copy','Copy text']]){
         const control=tools.querySelector('svg.feather-'+icon)?.closest('.tool-btn');if(!control)continue;
         control.setAttribute('role','button');control.setAttribute('aria-label',label);control.tabIndex=0;
         const text=document.createElement('span');text.className='workspace-tool-label';text.textContent=label;control.append(text);
@@ -1359,10 +1362,24 @@ function setApplyLabel() {
     container.prepend(topbar);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
     const previewTitle=document.createElement('div');previewTitle.className='workspace-preview-title';
-    const label=document.createElement('h2');label.id='cv-preview-heading';label.className='workspace-preview-label';label.textContent='CV preview';
-    const counter=document.createElement('span');counter.className='workspace-page-count';counter.setAttribute('role','status');counter.setAttribute('aria-live','polite');previewTitle.append(label,counter);
+    const previewLabel=document.createElement('h2');previewLabel.id='cv-preview-heading';previewLabel.className='workspace-preview-label';previewLabel.textContent='CV preview';
+    const pageCount=document.createElement('span');pageCount.className='workspace-page-count';pageCount.setAttribute('role','status');pageCount.setAttribute('aria-live','polite');
+    previewTitle.append(previewLabel,pageCount);
     section.querySelector('.cv-card')?.prepend(previewTitle);
-    const card=editorPreviewEl.closest('.cv-card');if(card)previewView=DraftedCvPreviewOverlay.create({section,card,host:editorPreviewEl,heading:previewTitle});
+    const designControls=document.createElement('div');designControls.className='workspace-design-controls';
+    const designLabel=document.createElement('label');designLabel.htmlFor='cv-design';designLabel.textContent='Design';
+    const designSelect=document.createElement('select');designSelect.id='cv-design';designSelect.setAttribute('aria-label','CV design');designSelect.setAttribute('aria-describedby','cv-design-note');
+    for(const design of DraftedCvDesigns){const option=document.createElement('option');option.value=design.id;option.textContent=design.name;designSelect.append(option);}
+    designSelect.value=selectedCvDesign;
+    designSelect.addEventListener('change',()=>{
+      selectedCvDesign=designSelect.value;
+      renderDocument(documentTextState);
+    });
+    const note=document.createElement('span');note.id='cv-design-note';note.textContent='Page count varies by design. Print saves the selected design; Export PDF uses Classic.';
+    designControls.append(designLabel,designSelect,note);previewTitle.after(designControls);
+    const previewCard=editorPreviewEl.closest('.cv-card');
+    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
+    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:designControls,getTitle:()=>documentTitle});
   })();
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
@@ -1552,7 +1569,13 @@ function setApplyLabel() {
       workspaceTitle.title = documentTitle || 'Untitled CV';
     }
     DraftedCvLayout.render(editorPreviewEl, {
-      blocks: documentBlocksState || [], title: documentTitle || '',
+      blocks: documentBlocksState || [], title: documentTitle || '', templateId: selectedCvDesign,
+      onState(state) {
+        previewView?.setState(state);
+        browserPrint?.setState(state);
+        const counter=document.querySelector('.workspace-page-count');
+        if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
+      },
       onLayout(count) {
         const heading = document.querySelector('.workspace-preview-title');
         if (heading) {
@@ -1566,7 +1589,6 @@ function setApplyLabel() {
           }
           counter.textContent = count ? `${count} ${count === 1 ? 'page' : 'pages'}` : '';
         }
-        previewView?.setState(count ? 'ready' : 'loading');
         applySelectedBlocksUI();
       }
     });
@@ -1834,6 +1856,7 @@ function updateContextChip() {
   editorPreviewEl.addEventListener("click", (e) => {
     if (!documentBlocksState || !documentBlocksState.length) return;
 
+    if (e.target.closest("a.cv-document-link")) return;
     const blockEl = e.target.closest(".cv-block[data-block-id]");
     if (!blockEl || !editorPreviewEl.contains(blockEl)) return;
 
