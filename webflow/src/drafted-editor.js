@@ -518,25 +518,46 @@ maybeShowTailor();
        document.querySelectorAll('.tailor-suggestion').forEach(card=>card.remove());
        const card=document.createElement('section');card.className='tailor-suggestion discovery-guidance';card.setAttribute('aria-label','Tailoring suggestion');
        const add=(tag,text,host=card)=>{const node=document.createElement(tag);node.textContent=text;host.append(node);return node;};
+       const sectionName=block=>[block?.label||block?.type,block?.employer||block?.institution||block?.title].filter((value,index,all)=>value&&all.indexOf(value)===index).join(' · ');
+       const excerpt=(text,answerId)=>text.length<=180?`“${text}”`:`Wording from answer ${request.sourceContext.questions.findIndex(q=>q.id===request.sourceContext.answers.find(a=>a.id===answerId)?.questionId)+1} (see full change).`;
+       const changed=computeChangedBlockIds(documentBlocksState,data.blocks);
+       const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View sources and full changes',fullDetails);
        add('h2','Review your tailored CV');
-       add('p',data.sourcesSchemaVersion?'Review the proposed wording and its source answers. Your CV has not changed.':'This suggestion uses your current CV and the job ad. Your experience answers are not included yet. Your CV has not changed.');
-       for(const review of data.sourceReview||[]){const box=add('section','');box.className='tailor-review-warning';const block=documentBlocksState.find(b=>b.blockId===review.blockId);add('h3','Earlier wording needs review',box);add('p',`${block?.label||review.blockId}: earlier wording or its source can no longer be matched safely. It has been left unchanged.`,box);for(const g of request.sourceContext.applications.filter(g=>g.blockId===review.blockId))for(const a of g.additions)add('blockquote',a.text,box);}
+       add('p',data.sourcesSchemaVersion?(changed.length?'Proposed changes from your answers. Your CV has not changed.':'Your CV has not changed.'):'This suggestion uses your CV and the job ad. Your answers are not included. Your CV has not changed.');
+       const proposed=[];
+       for(const usage of data.sourceUsage||[]){const block=data.blocks.find(b=>b.blockId===usage.blockId),prior=request.sourceContext.applications.find(g=>g.blockId===usage.blockId)?.additions.some(a=>a.source.answerId===usage.answerId);proposed.push(`${prior?'Update':'Add'} in ${sectionName(block)}: ${excerpt(usage.proposedQuote,usage.answerId)}`);}
+       if(data.sourcesSchemaVersion){const retained=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const group of request.sourceContext.applications)for(const prior of group.additions.filter(a=>!retained.has(a.id))){if(!data.sourceUsage.some(u=>u.blockId===group.blockId&&u.answerId===prior.source.answerId))proposed.push(`Remove from ${sectionName(documentBlocksState.find(b=>b.blockId===group.blockId))}: ${excerpt(prior.text,prior.source.answerId)}`);}}
+       if(proposed.length){const list=add('ul','');list.className='tailor-answer-changes';for(const text of proposed)add('li',text,list);}
+       if(data.sourcesSchemaVersion){
+         const notes=[];
+         for(const [index,q] of request.sourceContext.questions.entries()){
+           const answer=request.sourceContext.answers.find(a=>a.questionId===q.id);if(!answer&&q.status!=='skipped')continue;
+           if(answer&&data.sourceUsage.some(u=>u.answerId===answer.id))continue;
+           const context=answer&&data.contextQuestions.find(c=>c.answerId===answer.id);
+           const existing=answer&&q.status==='recorded'?data.sourceApplications.filter(g=>!data.sourceReview.some(r=>r.blockId===g.blockId)&&g.additions.some(a=>a.source.answerId===answer.id&&a.source.answerRevision===answer.revision)):[];
+           const needsReview=answer&&q.status==='recorded'&&request.sourceContext.applications.some(g=>data.sourceReview.some(r=>r.blockId===g.blockId)&&g.additions.some(a=>a.source.answerId===answer.id));
+           const reason=context?.reason==='context_unclear'?'The setting is unclear.':context?.reason==='new_block_required'?'Needs a new CV entry; none was created.':needsReview?'Earlier wording needs review before it can be updated.':existing.length?`Already in your CV in ${existing.map(g=>sectionName(data.blocks.find(b=>b.blockId===g.blockId))).join(', ')}; no new wording proposed.`:
+             ({no:'You answered no; not used for new experience wording.',skipped:'Skipped; not used for new wording.',unknown:'The experience is still unclear.',needs_detail:'More detail is needed.',processing:'Still being checked.',answered:'Still being checked.',editing:'Being corrected.',error:'Could not be checked.'}[q.status]||'No new wording was proposed from this answer.');
+           notes.push(`${answer?'Answer':'Question'} ${index+1}: ${reason}`);
+         }
+         if(notes.length===1)add('p',notes[0]);else if(notes.length){const details=add('details','');details.className='tailor-unused-answers';add('summary',`${notes.length} answers without new wording`,details);const list=add('ul','',details);for(const note of notes)add('li',note,list);}
+       }
+       for(const review of data.sourceReview||[]){const box=add('section','');box.className='tailor-review-warning';const block=documentBlocksState.find(b=>b.blockId===review.blockId);add('h3','Earlier wording needs review',box);add('p',`${sectionName(block)}: left unchanged because the earlier wording or source could not be matched safely.`,box);for(const g of request.sourceContext.applications.filter(g=>g.blockId===review.blockId))for(const a of g.additions)add('blockquote',a.text,fullDetails);}
        for(const question of data.contextQuestions||[]){
-         const box=add('section','');box.className='tailor-context-question';const source=request.sourceContext.answers.find(a=>a.id===question.answerId);add('blockquote',source.text,box);
-         if(question.reason==='new_block_required'){add('p','This experience needs a new CV entry. No existing section was selected safely. Creating entries needs separate contract support; nothing has been added.',box);continue;}
+         const box=add('section','');box.className='tailor-context-question';const source=request.sourceContext.answers.find(a=>a.id===question.answerId),number=request.sourceContext.questions.findIndex(q=>q.id===source.questionId)+1;add('h3',`Answer ${number}`,fullDetails);add('blockquote',source.text,fullDetails);
+         if(question.reason==='new_block_required'){add('p',`Answer ${number} needs a new CV entry; none was created.`,box);continue;}
+         add('p',`Answer ${number}`,box);
          add('h3','Where did this experience take place?',box);add('p','Name the workplace, project or other setting.',box);
          const input=add('textarea','',box);input.rows=2;input.setAttribute('aria-label','Where did this experience take place?');const save=add('button','Save context',box);save.type='button';
          save.addEventListener('click',()=>{try{discoveryController.appendContext(question.answerId,question.answerRevision,input.value);card.remove();showTailorFeedback('Context saved. Choose Tailor my CV to prepare a new suggestion.');}catch{add('p','The context could not be saved. Keep your text and check that the answer is still current and within 50,000 characters.',box);}});
        }
-       for(const usage of data.sourceUsage||[]){const box=add('details','');add('summary',`Source for ${documentBlocksState.find(b=>b.blockId===usage.blockId)?.label||usage.blockId}`,box);add('p',`User answer · revision ${usage.answerRevision}`,box);add('blockquote',usage.sourceQuote,box);if(usage.contextQuote&&usage.contextQuote!==usage.sourceQuote){add('p','Context from your answer',box);add('blockquote',usage.contextQuote,box);}add('p','Proposed wording',box);add('blockquote',usage.proposedQuote,box);}
-       if(data.sourcesSchemaVersion&&request.sourceContext.answers.some(a=>request.sourceContext.questions.find(q=>q.id===a.questionId)?.status==='recorded'&&!data.sourceUsage.some(u=>u.answerId===a.id)))add('p','Some answers are not included as new wording in this suggestion. Existing approved additions may already use them.');
-       if(data.sourcesSchemaVersion){const retained=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const group of request.sourceContext.applications)for(const prior of group.additions.filter(a=>!retained.has(a.id))){const box=add('details','');add('summary','Earlier wording proposed for replacement or removal',box);add('blockquote',prior.text,box);const current=request.sourceContext.answers.find(a=>a.id===prior.source.answerId);if(current){add('p',`Current user answer · revision ${current.revision}`,box);add('blockquote',current.text,box);}add('p','Your CV keeps the earlier wording until you choose Apply.',box);}}
-       const changed=computeChangedBlockIds(documentBlocksState,data.blocks);
+       for(const usage of data.sourceUsage||[]){const box=add('section','',fullDetails);add('h3',`Source for ${sectionName(documentBlocksState.find(b=>b.blockId===usage.blockId))}`,box);add('p',`User answer · revision ${usage.answerRevision}`,box);add('blockquote',usage.sourceQuote,box);if(usage.contextQuote&&usage.contextQuote!==usage.sourceQuote){add('p','Context from your answer',box);add('blockquote',usage.contextQuote,box);}add('p','Proposed wording',box);add('blockquote',usage.proposedQuote,box);}
        for(const id of changed){
-         const old=documentBlocksState.find(b=>b.blockId===id),next=data.blocks.find(b=>b.blockId===id),details=add('details','');
-         add('summary',next.label||next.type,details);add('p','Current',details);add('blockquote',old.text,details);add('p','Suggested',details);add('blockquote',next.text,details);
+         const old=documentBlocksState.find(b=>b.blockId===id),next=data.blocks.find(b=>b.blockId===id),details=add('section','',fullDetails);
+         add('h3',sectionName(next),details);add('p','Current',details);add('blockquote',old.text,details);add('p','Suggested',details);add('blockquote',next.text,details);
        }
        if(!changed.length)add('p','No text changes were suggested.');
+       if(fullDetails.childElementCount>1)card.append(fullDetails);
        const apply=add('button','Apply tailored CV');apply.type='button';apply.disabled=!changed.length;
        const dismiss=add('button','Dismiss');dismiss.type='button';
        apply.addEventListener('click',()=>{
@@ -547,7 +568,7 @@ maybeShowTailor();
          if(data.sourcesSchemaVersion)tailorSourceLedger.commit(request,data);
          documentTitle=data.cvTitle;cvVersionId=data.cvVersionId;
          buildStateFromBlocks(deepClone(data.blocks),{preserveCanonical:!!data.sourcesSchemaVersion});if(data.sourcesSchemaVersion)discoveryController.adoptRepresentation(documentBlocksState,cvVersionId);renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
-         card.remove();setTailorMinimized('Tailored ✓');
+         card.remove();showTailorFeedback(`Applied changes in ${changed.map(id=>sectionName(data.blocks.find(b=>b.blockId===id))).join(', ')}.`);setTailorMinimized('Tailored ✓');
        });
        dismiss.addEventListener('click',()=>{card.remove();setTailorReady();});
        chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;setTailorMinimized('Suggestion ready to review');
