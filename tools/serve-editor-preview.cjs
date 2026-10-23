@@ -8,7 +8,9 @@ const envelope=(b=blocks)=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'prev
 const paginationFixtures=require('../tests/fixtures/cv-pagination.cjs');
 const pdfFixtures=require('../tests/fixtures/cv-pdf.cjs');
 const pdfFixture=pdfFixtures[process.env.DRAFTED_PREVIEW_PDF_CASE]||null;
-const paginationFixture=pdfFixture||(['short','multi','long'].includes(process.env.DRAFTED_PREVIEW_CV)?paginationFixtures[process.env.DRAFTED_PREVIEW_CV]:null);
+const headerFixtures=require('../tests/fixtures/cv-header.cjs');
+const headerFixture=headerFixtures.cases[process.env.DRAFTED_PREVIEW_HEADER_CASE];
+const paginationFixture=headerFixture||pdfFixture||(['short','multi','long'].includes(process.env.DRAFTED_PREVIEW_CV)?paginationFixtures[process.env.DRAFTED_PREVIEW_CV]:null);
 const paginationDiscovery=paginationFixture&&createHandler({model:async data=>data.operation==='plan'?{topics:[]}:fixtureModel(data)});
 const outcomeFixture=process.env.DRAFTED_PREVIEW_SCENARIO==='outcomes'?require('../tests/fixtures/discovery-outcomes.cjs'):null;
 const outcomeDiscovery=outcomeFixture&&createHandler({model:async data=>{calls.push({operation:data.operation,conversationLanguage:data.request.conversationLanguage,synthetic:true});return outcomeFixture.model(data);}});
@@ -22,6 +24,7 @@ const server=http.createServer(async(req,res)=>{
   let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>1000000)return json(413,{error:'Preview input too large'});}
   if(pathname==='/webflow-experience-discovery'){let r;try{r=JSON.parse(body);}catch{return json(400,{error:'invalid JSON'});}const result=await (paginationDiscovery||outcomeDiscovery||discovery)(r);return json(result.status,result.body);}
   calls.push({operation:pathname,synthetic:true});
+  if(pathname==='/preview-api/rewrite'&&headerFixture){const updated=structuredClone(headerFixture);updated.blocks.find(b=>b.type==='summary').text+='\nSynthetic header verification edit.';return json(200,headerFixtures.envelope(updated));}
   if(pathname==='/preview-api/upload')return json(200,paginationFixture?paginationFixtures.envelope(paginationFixture):outcomeFixture?{...envelope(outcomeFixture.blocks),cvTitle:'Sara Example'}:envelope());
   if(pathname==='/preview-api/jobcontext')return json(200,{ok:true,jobContextSchemaVersion:'1.0',jobContext:outcomeFixture?.jobContext||jobContext});
   // Unrelated external operations are safely blocked in the preview rather than faked as success.
