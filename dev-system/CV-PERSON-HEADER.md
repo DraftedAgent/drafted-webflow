@@ -45,3 +45,22 @@ Actual uploads remain affected until the described upload canonicalizers are cha
 The owner explicitly requests Publicera after reviewing the local frontend and described backend need/candidate. Scope includes publishing the reviewed two upload canonicalizers plus frontend header support, with no model calls or new service/subscription. Rechecked main 423cddd and unchanged upload saved/active c707c413. Release build 2026-10-23-cv-person-header differs from the tested local bundle only in the version marker. Both original source hashes still match the local SV/EN node-inspection proof. Full encrypted saved/published/candidate snapshots are required before each external write; restore only this release through new versions, never overwrite intervening changes.
 
 Publication verification uses isolated local execution of the actual Code-node sources with synthetic input and actual Webflow DOM with mocked backend responses, followed by comparison of saved/active node definitions. It does not start a production upload, model call or actual n8n workflow execution; that runtime limit remains explicit. Frontend support is delivered first, then the exact two-node backend candidate is published. Final identities, snapshots and served hashes follow verification.
+
+## Publication receipt (2026-10-23)
+
+Owner-approved delivery supersedes the local-only status above. PR [#18](https://github.com/DraftedAgent/drafted-webflow/pull/18), exact release head `fa994f18f2f78c41a81c383914bacda24924d0c6`, merged to main `79484119dc9e24d5492a02db7831a56ff7311e47`. Pages run [39948318618](https://github.com/DraftedAgent/drafted-webflow/actions/runs/39948318618) succeeded. Root JS/CSS/latest.json served hashes all match the committed release, build `2026-10-23-cv-person-header`. The existing Webflow loader consumes those assets; no Webflow page publication was needed.
+
+Upload workflow `6Bvk0NYcElT9OirH`: saved/active version advanced from `c707c413-9352-4de1-afdc-3bf29d343110` to `8c44dfe5-0fb8-4ea8-a25f-81b2f9080485`. PUT and explicit-version publish both returned 200. Full definition comparison confirms that only `EnsureBlocksAndJoin.parameters.jsCode` and `EnsureBlocksAndJoin1.parameters.jsCode` changed; saved and published node/connection definitions match the reviewed candidate. Both deployed node sources were fetched again and executed locally with synthetic fixtures: header facts retained, body IDs unchanged, exact model artefacts repaired, missing facts not invented. No production workflow/model execution.
+
+Rollback snapshots contain full saved/published definitions plus exact candidate, encrypted using Windows DPAPI, restricted ACL, and decrypted/hash-verified immediately. Manifest paths (outside Git):
+
+- `C:\Users\wallg\AppData\Local\Drafted\dev-system-backups\n8n\6Bvk0NYcElT9OirH\20261023T114801780Z__6Bvk0NYcElT9OirH__c707c413-9352-4de1-afdc-3bf29d343110__pre-update-DEV-071.manifest.json`
+
+- `C:\Users\wallg\AppData\Local\Drafted\dev-system-backups\n8n\6Bvk0NYcElT9OirH\20261023T114811580Z__6Bvk0NYcElT9OirH__8c44dfe5-0fb8-4ea8-a25f-81b2f9080485__pre-publish-DEV-071.manifest.json`
+
+- `C:\Users\wallg\AppData\Local\Drafted\dev-system-backups\n8n\6Bvk0NYcElT9OirH\20261023T114821961Z__6Bvk0NYcElT9OirH__8c44dfe5-0fb8-4ea8-a25f-81b2f9080485__post-publish-DEV-071.manifest.json`
+
+
+Rollback must restore only this reviewed change through a new version after checking intervening edits. Do not overwrite another release. Existing open CVs still need re-upload from the original source to recover facts dropped by the former pipeline. No billing/subscription change or external model run.
+
+Published-site synthetic verification passed complete/long/missing-data fixtures, all three designs, desktop 1440/1024 and mobile 390, one/five/one initial pages, complete page text/order, selection, scrolling, menus, overlay node identity/focus/scroll restoration, repeated section transitions, fonts and print preparation. Legacy export request remains the canonical blocks/classic_v1; its response was mocked. All backend POSTs intercepted: zero real backend/model calls. Desktop/mobile screenshots inspected. No fresh native PDF save or real Cloud upload/runtime claim. Safe proof files: Temp/drafted-header-published-website.json, drafted-header-public-hashes.json, drafted-header-deploy-receipt.json and drafted-header-published-node-proof/backend-node-results.json.
