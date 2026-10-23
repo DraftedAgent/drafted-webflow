@@ -236,6 +236,7 @@
     viewer.model = model;
     const generation = ++viewer.generation;
     host.classList.add('cv-layout');
+    delete host.dataset.pageCount;
     host.dataset.layoutState = 'loading'; host.setAttribute('aria-busy', 'true'); model.onState?.('loading');
     viewer.pending = (model.blocks.length ? fontsReady() : Promise.resolve()).then(() => {
       if (generation !== viewer.generation) return;
@@ -261,5 +262,5 @@
     do { generation = viewer.generation; await viewer.pending; } while (generation !== viewer.generation);
     if (host.dataset.layoutState !== 'ready') throw Error('Document layout is not ready.');
   }
-  global.DraftedCvLayout = {render, ready, version:'a4-v2'};
+  global.DraftedCvLayout = {render, ready, rescale(host){viewers.get(host)?.scale();}, version:'a4-v2'};
 })(window);

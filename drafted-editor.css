@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-22-cv-designs-local */
+/* drafted-editor.css | build=2026-10-23-expanded-cv-local */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -1365,6 +1365,22 @@ html, body{
 .section-editor.discovery-enabled .cv-document-inner:has(>.cv-layout) {padding:0;min-height:0;background:transparent;border:0;box-shadow:none;}
 .workspace-page-count {margin-left:auto;color:#52616c;font:500 12px/1.4 "Drafted Sans",sans-serif;white-space:nowrap;letter-spacing:normal;text-transform:none;}
 .workspace-preview-title {display:flex;align-items:center;gap:12px;}
+.workspace-preview-title .workspace-preview-label {margin:0;padding:0;font:inherit;color:inherit;min-width:0;}
+.workspace-preview-action {flex:none;border:1px solid #bac8d0;border-radius:6px;background:#fff;color:#24313b;padding:7px 10px;font:500 12px/1.4 "Drafted Sans",sans-serif;min-height:34px;white-space:nowrap;cursor:pointer;}
+.workspace-preview-action[hidden] {display:none!important;}
+.workspace-preview-action:disabled {opacity:.55;cursor:default;}
+.workspace-preview-action:focus-visible,.cv-document:focus-visible {outline:2px solid #315d71;outline-offset:2px;}
+.cv-preview-dialog {position:fixed;inset:0;width:min(1120px,calc(100vw - 32px));height:calc(100dvh - 32px);max-width:none;max-height:none;margin:auto;padding:0;border:1px solid #bac8d0;border-radius:12px;overflow:hidden;box-sizing:border-box;background:#f3f6f8;color:#24313b;}
+.cv-preview-dialog[open] {display:flex;}
+.cv-preview-dialog::backdrop {background:#132b3dcc;}
+.section-editor.discovery-enabled .cv-preview-dialog .cv-card {width:100%;height:100%;border:0;border-radius:0;padding:16px!important;}
+.cv-preview-placeholder {flex:1;min-width:0;min-height:0;}
+@media(max-width:700px){
+  .workspace-preview-title {gap:8px;}
+  .workspace-preview-action {padding:7px 8px;}
+  .cv-preview-dialog {width:calc(100vw - 12px);height:calc(100dvh - 12px);border-radius:8px;}
+  .section-editor.discovery-enabled .cv-preview-dialog .cv-card {padding:10px!important;}
+}
 /* Fixed presentation variants, applied before measuring AND before printing.
  * Compact uses 10pt body text; no size depends on content or panel width. */
 :is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page {padding:14mm 16mm 17mm;font-size:10pt;line-height:1.4;}

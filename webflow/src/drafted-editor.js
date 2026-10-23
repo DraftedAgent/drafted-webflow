@@ -1320,6 +1320,7 @@ function setApplyLabel() {
   let documentTitle = "";
   // Presentation only: never part of CV/proposal snapshots or discovery context.
   let selectedCvDesign = 'classic_v1';
+  let previewView = null;
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
@@ -1359,7 +1360,10 @@ function setApplyLabel() {
     }
     container.prepend(topbar);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
-    const previewTitle=document.createElement('h2');previewTitle.className='workspace-preview-title';previewTitle.textContent='CV preview';
+    const previewTitle=document.createElement('div');previewTitle.className='workspace-preview-title';
+    const previewLabel=document.createElement('h2');previewLabel.id='cv-preview-heading';previewLabel.className='workspace-preview-label';previewLabel.textContent='CV preview';
+    const pageCount=document.createElement('span');pageCount.className='workspace-page-count';pageCount.setAttribute('role','status');pageCount.setAttribute('aria-live','polite');
+    previewTitle.append(previewLabel,pageCount);
     section.querySelector('.cv-card')?.prepend(previewTitle);
     const designControls=document.createElement('div');designControls.className='workspace-design-controls';
     const designLabel=document.createElement('label');designLabel.htmlFor='cv-design';designLabel.textContent='Design';
@@ -1372,6 +1376,8 @@ function setApplyLabel() {
     });
     const note=document.createElement('span');note.id='cv-design-note';note.textContent='Designs can have different page counts.';
     designControls.append(designLabel,designSelect,note);previewTitle.after(designControls);
+    const previewCard=editorPreviewEl.closest('.cv-card');
+    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
   })();
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
@@ -1562,7 +1568,12 @@ function setApplyLabel() {
     }
     DraftedCvLayout.render(editorPreviewEl, {
       blocks: documentBlocksState || [], title: documentTitle || '', templateId: selectedCvDesign,
-      onState: updatePdfExportControl,
+      onState(state) {
+        updatePdfExportControl();
+        previewView?.setState(state);
+        const counter=document.querySelector('.workspace-page-count');
+        if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
+      },
       onLayout(count) {
         const heading = document.querySelector('.workspace-preview-title');
         if (heading) {

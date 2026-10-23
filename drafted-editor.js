@@ -249,6 +249,7 @@
     viewer.model = model;
     const generation = ++viewer.generation;
     host.classList.add('cv-layout');
+    delete host.dataset.pageCount;
     host.dataset.layoutState = 'loading'; host.setAttribute('aria-busy', 'true'); model.onState?.('loading');
     viewer.pending = (model.blocks.length ? fontsReady() : Promise.resolve()).then(() => {
       if (generation !== viewer.generation) return;
@@ -274,7 +275,64 @@
     do { generation = viewer.generation; await viewer.pending; } while (generation !== viewer.generation);
     if (host.dataset.layoutState !== 'ready') throw Error('Document layout is not ready.');
   }
-  global.DraftedCvLayout = {render, ready, version:'a4-v2'};
+  global.DraftedCvLayout = {render, ready, rescale(host){viewers.get(host)?.scale();}, version:'a4-v2'};
+})(window);
+
+;
+/* Viewer interaction only: move the live preview, never clone or paginate it. */
+(function(global){
+  'use strict';
+  function create({section,card,host,heading}){
+    const pane=card.querySelector('.cv-document');
+    const workspaceScroll=section.closest('.page-scroll');
+    const expand=document.createElement('button');expand.type='button';expand.className='workspace-preview-action workspace-expand-preview';expand.textContent='Expand preview';expand.disabled=true;expand.setAttribute('aria-haspopup','dialog');expand.setAttribute('aria-controls','cv-preview-dialog');
+    const close=document.createElement('button');close.type='button';close.className='workspace-preview-action workspace-close-preview';close.textContent='Close';close.hidden=true;
+    heading.append(expand,close);
+    const dialog=document.createElement('dialog');dialog.id='cv-preview-dialog';dialog.className='cv-preview-dialog';dialog.setAttribute('aria-labelledby','cv-preview-heading');
+    section.append(dialog);
+    pane.tabIndex=0;pane.setAttribute('role','region');pane.setAttribute('aria-label','CV pages');
+    let saved=null;
+    function open(){
+      if(saved||expand.disabled)return;
+      const bounds=pane.getBoundingClientRect();
+      const slots=[...host.querySelectorAll('.cv-page-slot')];
+      const anchor=slots.find(el=>el.getBoundingClientRect().bottom>bounds.top)||slots[0];
+      const rect=anchor?.getBoundingClientRect();
+      const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
+      saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
+      document.body.style.overflow='hidden';dialog.showModal();
+      if(workspaceScroll)workspaceScroll.style.overflow='hidden';
+      global.DraftedCvLayout.rescale(host);
+      // Keep the same reading position when the viewer scale increases.
+      if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height,newRect=anchor.getBoundingClientRect();pane.scrollTop+=newRect.top-pane.getBoundingClientRect().top+fraction*newRect.height;}
+      close.focus({preventScroll:true});
+    }
+    function restore(){
+      if(!saved)return;
+      const previous=saved;saved=null;
+      previous.placeholder.replaceWith(card);expand.hidden=false;close.hidden=true;
+      document.body.style.overflow=previous.overflow;
+      if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;workspaceScroll.scrollTop=previous.workspace.top;workspaceScroll.scrollLeft=previous.workspace.left;}
+      global.DraftedCvLayout.rescale(host);
+      pane.scrollTop=previous.top;pane.scrollLeft=previous.left;
+      window.scrollTo(previous.x,previous.y);
+      (previous.focus?.isConnected?previous.focus:expand).focus({preventScroll:true});
+    }
+    expand.addEventListener('click',open);
+    close.addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('cancel',event=>{event.preventDefault();dialog.close();});
+    dialog.addEventListener('close',restore);
+    dialog.addEventListener('keydown',event=>{
+      if(event.key!=='Tab')return;
+      const controls=[...dialog.querySelectorAll('button:not([disabled]),select:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(el=>!el.closest('[hidden]')&&el.getClientRects().length);
+      const first=controls[0],last=controls.at(-1);
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+    });
+    return {setState(state){expand.disabled=state!=='ready'||Number(host.dataset.pageCount)<1;}};
+  }
+  global.DraftedCvPreviewOverlay={create};
 })(window);
 
 ;
@@ -612,7 +670,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-22-cv-designs-local");
+console.log("DRAFTED_JS_SOURCE", "2026-10-23-expanded-cv-local");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1922,6 +1980,7 @@ function setApplyLabel() {
   let documentTitle = "";
   // Presentation only: never part of CV/proposal snapshots or discovery context.
   let selectedCvDesign = 'classic_v1';
+  let previewView = null;
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
@@ -1961,7 +2020,10 @@ function setApplyLabel() {
     }
     container.prepend(topbar);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
-    const previewTitle=document.createElement('h2');previewTitle.className='workspace-preview-title';previewTitle.textContent='CV preview';
+    const previewTitle=document.createElement('div');previewTitle.className='workspace-preview-title';
+    const previewLabel=document.createElement('h2');previewLabel.id='cv-preview-heading';previewLabel.className='workspace-preview-label';previewLabel.textContent='CV preview';
+    const pageCount=document.createElement('span');pageCount.className='workspace-page-count';pageCount.setAttribute('role','status');pageCount.setAttribute('aria-live','polite');
+    previewTitle.append(previewLabel,pageCount);
     section.querySelector('.cv-card')?.prepend(previewTitle);
     const designControls=document.createElement('div');designControls.className='workspace-design-controls';
     const designLabel=document.createElement('label');designLabel.htmlFor='cv-design';designLabel.textContent='Design';
@@ -1974,6 +2036,8 @@ function setApplyLabel() {
     });
     const note=document.createElement('span');note.id='cv-design-note';note.textContent='Designs can have different page counts.';
     designControls.append(designLabel,designSelect,note);previewTitle.after(designControls);
+    const previewCard=editorPreviewEl.closest('.cv-card');
+    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
   })();
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
@@ -2164,7 +2228,12 @@ function setApplyLabel() {
     }
     DraftedCvLayout.render(editorPreviewEl, {
       blocks: documentBlocksState || [], title: documentTitle || '', templateId: selectedCvDesign,
-      onState: updatePdfExportControl,
+      onState(state) {
+        updatePdfExportControl();
+        previewView?.setState(state);
+        const counter=document.querySelector('.workspace-page-count');
+        if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
+      },
       onLayout(count) {
         const heading = document.querySelector('.workspace-preview-title');
         if (heading) {
