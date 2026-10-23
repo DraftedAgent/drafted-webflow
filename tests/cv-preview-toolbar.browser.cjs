@@ -7,7 +7,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
  const browser=await chromium.launch({headless:true,channel:'msedge'});
  try{
   const baseline=await browser.newPage({viewport:{width:1440,height:1000}});
-  await baseline.route('**/*',route=>{const url=route.request().url();if(!url.startsWith(base))return route.abort();const file=new URL(url).pathname.slice(1);if(['drafted-editor.js','drafted-editor.css'].includes(file))return route.fulfill({contentType:file.endsWith('.js')?'text/javascript':'text/css',body:execFileSync('git',['show','HEAD:'+file])});return route.continue();});
+  await baseline.route('**/*',route=>{const url=route.request().url();if(!url.startsWith(base))return route.abort();const file=new URL(url).pathname.slice(1);if(['drafted-editor.js','drafted-editor.css'].includes(file))return route.fulfill({contentType:file.endsWith('.js')?'text/javascript':'text/css',body:execFileSync('git',['show','c0cec3e:'+file])});return route.continue();});
   await baseline.goto(base+'?sample=1');await baseline.waitForFunction(()=>!document.querySelector('.workspace-print-button')?.disabled);
   await baseline.waitForTimeout(500);
   const before={},after={};
