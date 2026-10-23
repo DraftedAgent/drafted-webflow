@@ -1,6 +1,6 @@
 (function(root){
   'use strict';
-  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null}={}){
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false}={}){
     const drafts=new Map(),mountedRound=session.round().id;
     let error='',busy=false,disposed=false,renderedQuestion=null;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
@@ -18,6 +18,7 @@
       const details=el('details');details.className='discovery-history';details.append(el('summary','View or correct your answers'));
       for(const a of answers){const q=r.queue.find(q=>q.id===a.questionId),latest=a.revisions.at(-1);details.append(el('p',q.question,'discovery-history-question'));
         if(latest.followupReply!==undefined){details.append(el('p',a.revisions.at(-2).text,'discovery-answer'),el('p','Your clarification','discovery-result-label'),el('p',latest.followupReply,'discovery-answer'));}else details.append(el('p',latest.text,'discovery-answer'));
+        if(a.revisions.length>1){const revisions=el('details',null,'discovery-revisions');revisions.append(el('summary','Original answer and revisions'));for(const revision of a.revisions)revisions.append(el('p',`Revision ${revision.revision}`),el('blockquote',revision.text,'discovery-answer'));details.append(revisions);}
         if(a.status==='processing')details.append(el('p','Answer saved. Checking it in the background.','discovery-note'));
         if(a.status==='error'){details.append(el('p','Your answer is saved. We could not check it.','discovery-note'));if(onRetry)details.append(button(`Retry answer ${r.queue.indexOf(q)+1}`,()=>onRetry(a.id)));}
         details.append(button(`Correct answer ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,a.revisions.at(-1).text);session.correct(q.id);}));
@@ -30,7 +31,7 @@
       const result=session.results(),snap=session.snapshot(),r=session.round();
       container.append(el('h2',result.pending?'Your answers are saved.':'What your answers added'));
       if(result.pending){const status=el('p',`Checking ${result.pending===1?'your last answer':result.pending+' answers'} in the background. You can review your answers or go back to the editor.`);status.setAttribute('role','status');container.append(status);}
-      container.append(el('p','These answers have not been added to your CV or used in CV suggestions. Earlier tailoring does not include them.','discovery-cv-status'));
+      container.append(el('p',sourceTailoring?'Answers are source material. Each tailoring suggestion shows which answers it uses. Only Apply changes your CV.':'These answers have not been added to your CV or used in CV suggestions. Earlier tailoring does not include them.','discovery-cv-status'));
       for(const q of r.queue){
         const card=el('section',null,'discovery-result'),own=snap.answers.find(a=>a.id===q.answerId&&a.roundId===r.id);
         const sources=own?.status==='recorded'?[own]:q.status==='covered'?snap.answers.filter(a=>a.roundId===r.id&&a.status==='recorded'&&a.drafts.some(d=>d.coveredQuestionIds.includes(q.id))):[];
@@ -38,17 +39,18 @@
         requirementList(q,card);
         if(sources.length){
           card.append(el('p','What you described','discovery-result-label'));
-          for(const a of sources){const drafts=q.status==='covered'?a.drafts.filter(d=>d.coveredQuestionIds.includes(q.id)):a.drafts;for(const quote of new Set(drafts.map(d=>d.sourceQuote)))sourceExcerpt(card,quote);}
+          for(const a of sources){const drafts=q.status==='covered'?a.drafts.filter(d=>d.coveredQuestionIds.includes(q.id)):a.drafts;for(const quote of new Set(drafts.length?drafts.map(d=>d.sourceQuote):[a.revisions.at(-1).text]))sourceExcerpt(card,quote);}
           card.append(el('p','Potential support for the requirement above; not a finding that every part is met.','discovery-note'),el('p','Still unverified: whether your example covers all activities, audiences and settings in this requirement. An example in one setting does not establish experience in another.'));
-          card.append(el('p','How it is used: saved here for your review only. It is not used by CV suggestions.','discovery-note'));
+          card.append(el('p',sourceTailoring?'Available as source material for a suggestion. AI interpretations are advisory; the original answer remains the source.':'How it is used: saved here for your review only. It is not used by CV suggestions.','discovery-note'));
         }else{
           if(q.status==='no'&&own){card.append(el('p','Your answer','discovery-result-label'));sourceExcerpt(card,own.revisions.at(-1).text);}
           const message={no:'You answered “No” within the scope of your answer. This does not rule out experience in other settings.',unknown:'You said you do not know. Whether you have this experience is still unclear.',needs_detail:'We could not identify a concrete example from your answer. This does not mean you lack the experience. You can clarify it below.',skipped:'You skipped this topic. No example was provided; this does not mean you lack the experience.',error:'Your answer is saved, but could not be checked. You can retry it below.',processing:'Your answer is saved and is still being checked.',unanswered:'You have not answered this topic. No conclusion about your experience has been drawn.'};
-          card.append(el('p',message[q.status]||'No example is ready for review. No conclusion about your experience has been drawn.'),el('p','How it is used: no experience from this topic is used in your CV or CV suggestions.','discovery-note'));
+          card.append(el('p',message[q.status]||'No example is ready for review. No conclusion about your experience has been drawn.'),el('p',sourceTailoring?'This answer is not eligible for new experience claims. Earlier approved wording stays until you review and apply a change.':'How it is used: no experience from this topic is used in your CV or CV suggestions.','discovery-note'));
         }
         if(!own||q.status==='skipped')card.append(button(`Answer question ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,own?.revisions.at(-1).text||'');session.correct(q.id);}));
         container.append(card);
       }
+      if(onFinishAndTailor){container.append(el('p',sourceTailoring?'Tailoring can use your relevant answers. You review the suggestion before Apply.':'Tailoring currently uses only your CV and the job ad. Your answers stay here for review.','discovery-note'),button('Finish and tailor my CV',()=>{const result=onFinishAndTailor();continueToEditor();return result;}));}
       container.append(button('Back to the editor',continueToEditor));
     }
     const continueToEditor=()=>{disposed=true;stopObserving();onContinue(session.accountsForRound());};
@@ -82,6 +84,7 @@
       }
       history();if(historyOpen&&container.querySelector('.discovery-history'))container.querySelector('.discovery-history').open=true;
       if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}
+      onStateChange();
       renderedQuestion=session.current()?.id;
       if(selection){const input=container.querySelector('textarea');if(input){input.focus({preventScroll:true});input.setSelectionRange(selection.start,selection.end);}}
     }

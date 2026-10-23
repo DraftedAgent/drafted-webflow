@@ -1,0 +1,25 @@
+# Tailor source release — DEV-081
+
+2026-10-23. After the concrete DEV-080 workflow diff, exact contract/examples, synthetic verification and stated limitations, owner explicitly says ”publicera”. This authorizes publication of that existing-workflow adapter, applying its frontend gate patch, commit/push and PR #23 merge/Pages release. It does not authorize external model test execution, another workflow, new blocks, simultaneous unrelated CV rephrasing, Webflow publication or persistent profiles.
+
+## Backend publication verified
+
+Existing workflow `H8oAioy58R1v3PvRe3YUa`, unchanged route `/webhook/tailor-cv`. Fresh saved/active baseline was `f399ee97-764b-44e0-bc42-5c7517499890`. The adapter's exact safe diff matched the reviewed artifact before writing. Credential references, all nine other existing node definitions, settings, metadata, static/pinned data, groups and sharing were preserved by full projection comparison.
+
+Before each mutation a complete raw saved/published definition and candidate were encrypted outside Git with Windows DPAPI, owner/SYSTEM/Administrators-only ACLs, immutable names, manifests and successful decrypt/hash/identity verification. Safe receipt: [prepared/tailor-sources.deployment.json](prepared/tailor-sources.deployment.json). Encrypted files are not in Git; paths are environment-specific evidence.
+
+PUT with explicit `?publishIfActive=false` returned 200, created saved version `ac02e245-1b06-43b1-812e-8ee0ebc720d8` and retained the old active version. Exact saved projection verified before publication. Fresh pre-publish snapshot and drift check passed. POST activate with that explicit saved version returned 200. Subsequent GET verifies both saved and active IDs equal `ac02e245-1b06-43b1-812e-8ee0ebc720d8`; active nodes/graph and saved full projection match the approved candidate, 15 nodes. Final complete encrypted snapshot was verified. No webhook/testlistener/model/execution request was initiated.
+
+Rollback is possible from the verified full snapshots, but still requires its own exact owner-approved scope and fresh pre-rollback snapshot. Saved restore uses the same workflow ID and `publishIfActive=false`; restoring published content/version uses the separately approved explicit-version operation. Do not overwrite intervening changes. Prior published content is version `f399ee97-764b-44e0-bc42-5c7517499890`; the pre-release frontend baseline is main `1e7b1e51fc671b385d26e217e6581c7fffee1bfb`. Revert preserves subsequent work; no force push.
+
+## Frontend release assets
+
+Applied the exact reviewed `tailor-sources.frontend-enable.patch`. Source-aware transport now targets exactly the supported production Tailor endpoint with no preview override, while localhost previews retain their explicit synthetic capability. Shared strict receipt validation, source revisions, missing context, in-flight/stale checks, detached Current/Suggested review and Apply are preserved.
+
+Build `2026-10-23-tailor-sources-live`; root JS/CSS and both latest pointers updated. JS/dist and latest parity verified. Build CSS differed only in line endings/blank lines; previous reviewed CSS bytes retained with the new build header after comparing every nonblank line. No CSS behavior change or other workflow change. Frozen DEV-080 preparation artifacts remain intact; tests accept only the exact approved before/after frontend gate, and the preparation command refuses to regenerate a duplicate enable patch after release.
+
+67 unit/session/transport tests pass. `tests/tailor-published.browser.cjs preflight` loads the actual published Webflow page with the candidate assets and intercepts **every** backend request before navigation. It verifies no preview override, exact candidate JS, question completion without auto Tailor, raw original sources sent to the real production URL, source-driven proposals in existing employment/project blocks, negation scope, deduplicated start, Dismiss, Apply and subsequent No correction after Apply. Desktop/mobile screenshots inspected; no page errors or unhandled backend routes. This does not execute live n8n or prove real-model semantic quality.
+
+Delivery is through existing draft PR [#23](https://github.com/DraftedAgent/drafted-webflow/pull/23), base main `1e7b1e5`. Before merge recheck exact head/base, Pages legacy main `/`, absence of changed CI/workflows and merged=false; mark ready and merge exact tested head. After Pages deployment verify served latest/JS/CSS against committed assets and rerun `tests/tailor-published.browser.cjs published` against the actual site/served assets with all backend traffic still intercepted. Final merge/served-byte verification is recorded in the PR delivery receipt and user response; this document is the commit-time backend-publication/frontend-release record.
+
+The release keeps source profile 1.0's disclosed boundary: grounded additions/corrections to existing blocks. New block creation and free rephrasing of unrelated CV text in the same source-aware pass need separate provenance contracts. A valid source quote is not proof of semantic fidelity; user review before Apply remains required.
