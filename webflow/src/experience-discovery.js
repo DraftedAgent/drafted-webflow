@@ -23,9 +23,23 @@
         if(t.support==='clear'){if(!t.evidence?.length)throw Error('MISSING_CV_EVIDENCE');for(const e of t.evidence){requireText(e.quote);if(!c.blocks.some(b=>b.blockId===e.blockId&&b.text.includes(e.quote)))throw Error('INVALID_CV_EVIDENCE');}continue;}
         if(t.support!=='unclear')throw Error('INVALID_SUPPORT');requireText(t.question);queue.push({id:this.id(),topicKey:t.key,signalRefs:copy(t.signalRefs),question:t.question,status:'unanswered',followupUsed:false,answerId:null});
       }
-      this.state.round={id:this.id(),contextRevision:c.revision,language,phase:'offer',total:queue.length,index:0,queue,notice:''};this.state.revision++;
+      // Rank by the supplied ad priorities, preserving model order for equal importance.
+      const score=q=>Math.max(...q.signalRefs.map(ref=>ref.field==='topPriorities'?Number(c.jobContext.topPriorities[ref.index].weight)||0:3));
+      queue.sort((a,b)=>score(b)-score(a));
+      const active=queue.slice(0,5),reserve=queue.slice(5);
+      this.state.round={id:this.id(),contextRevision:c.revision,language,phase:'offer',total:active.length,index:0,queue:active,reserve,batchStart:0,notice:''};this.state.revision++;
     }
     round(){if(!this.state.round||this.state.round.contextRevision!==this.state.context?.revision)throw Error('NO_CURRENT_ROUND');return this.state.round;}
+    allQuestions(){const r=this.round();return r.queue.concat(r.reserve||[]);}
+    moreCount(){return (this.round().reserve||[]).filter(q=>q.status==='unanswered').length;}
+    continueQuestions(){
+      const r=this.round();if(r.phase!=='complete')throw Error('ROUND_NOT_COMPLETE');
+      // Do not generate/replan, repeat answered questions or discard original sources.
+      const next=(r.reserve||[]).filter(q=>q.status==='unanswered').slice(0,5);
+      if(!next.length)return false;
+      r.reserve=r.reserve.filter(q=>!next.includes(q));r.batchStart=r.queue.length;r.queue.push(...next);
+      r.total=r.queue.length;r.index=r.batchStart;r.phase='question';r.finishedEarly=false;r.notice='';this.state.revision++;return true;
+    }
     current(){return this.round().queue[this.round().index]||null;}
     start(){const r=this.round();if(r.phase!=='offer')throw Error('INVALID_PHASE');r.phase=r.total?'question':'complete';}
     submit(text,{defer=false}={}){
@@ -47,9 +61,9 @@
     interpretFailed(token,{background=false}={}){try{if(background){const a=this.answerForToken(token);a.status='error';this.round().queue.find(q=>q.id===a.questionId).status='error';this.notify();}else if(JSON.stringify(this.token())===JSON.stringify(token))this.round().phase='error';}catch{}}
     reviewDrafts(token,drafts,{background=false}={}){
       const r=this.round(),a=background?this.answerForToken(token):this.state.answers.find(a=>a.id===this.current()?.answerId),q=r.queue.find(q=>q.id===a?.questionId);if(!a||!background&&(!['ready','interpreting'].includes(r.phase)||JSON.stringify(this.token())!==JSON.stringify(token)))throw Error('STALE_ANSWER');if(!Array.isArray(drafts))throw Error('INVALID_DRAFTS');
-      for(const d of drafts){requireText(d.proposedText);requireText(d.sourceQuote);if(!a.revisions.at(-1).text.includes(d.sourceQuote))throw Error('INVALID_SOURCE_QUOTE');if(!Array.isArray(d.coveredQuestionIds)||d.coveredQuestionIds.some(id=>!r.queue.some(q=>q.id===id)))throw Error('UNKNOWN_QUESTION');}
+      for(const d of drafts){requireText(d.proposedText);requireText(d.sourceQuote);if(!a.revisions.at(-1).text.includes(d.sourceQuote))throw Error('INVALID_SOURCE_QUOTE');if(!Array.isArray(d.coveredQuestionIds)||d.coveredQuestionIds.some(id=>!this.allQuestions().some(q=>q.id===id)))throw Error('UNKNOWN_QUESTION');}
       if(!drafts.length){if(!background){this.askFollowup();return;}a.status=q.status='needs_detail';this.settleBackground();this.notify();return;}
-      a.drafts=copy(drafts);a.status=q.status='recorded';this.state.revision++;if(background){for(const later of r.queue){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
+      a.drafts=copy(drafts);for(const later of r.reserve||[])if(later.status==='unanswered'&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';a.status=q.status='recorded';this.state.revision++;if(background){for(const later of this.allQuestions()){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
     }
     settleBackground(){const r=this.round();if(r.phase!=='complete'||r.finishedEarly)return;const index=r.queue.findIndex(q=>q.status==='needs_detail'&&!q.followupUsed);if(index>=0){r.index=index;this.askFollowup();}}
     askFollowup(){const r=this.round(),q=this.current(),a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='needs_detail';q.status='needs_detail';if(!q.followupUsed){q.followupUsed=true;r.phase='followup';r.notice='Can you give one specific example in response to the original question?';}else this.advance();}
@@ -58,7 +72,7 @@
       r.notice=n?(r.language==='sv'?'Ditt svar besvarade också en senare fråga.':'Your answer also covered a later question.'):'';r.phase=r.index>=r.total?'complete':'question';
       this.settleBackground();
     }
-    invalidate(answerId){const a=this.state.answers.find(a=>a.id===answerId);if(!a)return;a.status='pending';for(const q of this.state.round?.queue||[])if(q.status==='covered'&&a.drafts.some(d=>d.coveredQuestionIds.includes(q.id)))q.status='unanswered';}
+    invalidate(answerId){const a=this.state.answers.find(a=>a.id===answerId);if(!a)return;a.status='pending';for(const q of this.state.round?this.allQuestions():[])if(q.status==='covered'&&a.drafts.some(d=>d.coveredQuestionIds.includes(q.id)))q.status='unanswered';}
     correct(id){const r=this.round(),index=r.queue.findIndex(q=>q.id===id);if(index<0)throw Error('UNKNOWN_QUESTION');r.finishedEarly=false;r.index=index;r.phase='correct';r.notice='';}
     skip(){const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');if(q.answerId){this.invalidate(q.answerId);this.state.answers.find(a=>a.id===q.answerId).status='skipped';}q.status='skipped';this.advance();}
     finish(){this.round().finishedEarly=true;this.round().phase='complete';}

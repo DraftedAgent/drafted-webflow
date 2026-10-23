@@ -29,7 +29,7 @@
     async runInterpret(session,token){
       const snap=session.snapshot(),answer=snap.answers.find(a=>a.id===token.answerId);
       const c=snap.context,r=snap.round;
-      const request={schemaVersion:'1.0',operation:'interpret',requestId:this.id(),contextRevision:c.revision,conversationLanguage:r.language,cvVersionId:c.cvVersionId,blocksSchemaVersion:'1.0',blocks:c.blocks,jobContextSchemaVersion:'1.0',jobContext:c.jobContext,roundId:r.id,questionId:answer.questionId,questions:r.queue.map(q=>({id:q.id,topicKey:q.topicKey,question:q.question,signalRefs:q.signalRefs})),sourceAnswer:{id:answer.id,revision:answer.currentRevision,text:answer.revisions.at(-1).text}};
+      const request={schemaVersion:'1.0',operation:'interpret',requestId:this.id(),contextRevision:c.revision,conversationLanguage:r.language,cvVersionId:c.cvVersionId,blocksSchemaVersion:'1.0',blocks:c.blocks,jobContextSchemaVersion:'1.0',jobContext:c.jobContext,roundId:r.id,questionId:answer.questionId,questions:session.allQuestions().map(q=>({id:q.id,topicKey:q.topicKey,question:q.question,signalRefs:q.signalRefs})),sourceAnswer:{id:answer.id,revision:answer.currentRevision,text:answer.revisions.at(-1).text}};
       session.beginInterpret(token,{background:this.background});
       const current=()=>{try{if(this.background){session.answerForToken(token);return true;}return JSON.stringify(session.token())===JSON.stringify(token);}catch{return false;}};
       try{const result=await this.call(request);if(!current())return {stale:true};session.reviewDrafts(token,result.drafts,{background:this.background});return result;}

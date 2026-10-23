@@ -36,6 +36,8 @@
       container.append(el('h2','Ready to tailor your CV.'));
       const pending=session.results().pending;
       if(pending){const status=el('p',`${pending===1?'One answer is':pending+' answers are'} still being checked.`,'discovery-note');status.setAttribute('role','status');container.append(status);}
+      if(session.moreCount())container.append(button(`Explore more questions (${session.moreCount()})`,()=>session.continueQuestions()));
+      else container.append(el('p','No further relevant questions were identified for this CV and job ad.','discovery-note'));
       if(onFinishAndTailor){const finish=button('Finish and tailor my CV',()=>{const result=onFinishAndTailor();continueToEditor();return result;});finish.className='discovery-finish-primary';container.append(finish);}
     }
     const continueToEditor=()=>{disposed=true;stopObserving();onContinue(session.accountsForRound());};
@@ -48,7 +50,8 @@
       if(r.phase==='offer'){container.append(el('h2',r.total?`${r.total} relevant experience ${r.total===1?'topic is':'topics are'} not clear in your CV.`:'We can continue with what is available.'));if(r.total)container.append(button('Start the questions',()=>session.start()));container.append(button('Continue with what is available',()=>{session.finish();continueToEditor();}));}
       else if(r.phase==='complete')outcome();
       else{
-        const q=session.current(),followup=r.phase==='followup',progress=el('p',followup?`Follow-up · Question ${r.index+1} of ${r.total}`:`${r.index+1}/${r.total}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index+1} of ${r.total}`);container.append(progress);
+        const batchStart=r.index<r.batchStart?0:r.batchStart||0;
+        const q=session.current(),followup=r.phase==='followup',progress=el('p',followup?`Follow-up · Question ${r.index-batchStart+1} of ${r.total-batchStart}`:`${r.index-batchStart+1}/${r.total-batchStart}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index-batchStart+1} of ${r.total-batchStart}`);container.append(progress);
         if(followup){
           const answer=session.snapshot().answers.find(a=>a.id===q.answerId),context=el('div',null,'discovery-followup-context');
           context.append(el('p','Topic from the job ad','discovery-result-label'));requirementList(q,context);

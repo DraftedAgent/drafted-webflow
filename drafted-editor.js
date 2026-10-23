@@ -587,9 +587,23 @@
         if(t.support==='clear'){if(!t.evidence?.length)throw Error('MISSING_CV_EVIDENCE');for(const e of t.evidence){requireText(e.quote);if(!c.blocks.some(b=>b.blockId===e.blockId&&b.text.includes(e.quote)))throw Error('INVALID_CV_EVIDENCE');}continue;}
         if(t.support!=='unclear')throw Error('INVALID_SUPPORT');requireText(t.question);queue.push({id:this.id(),topicKey:t.key,signalRefs:copy(t.signalRefs),question:t.question,status:'unanswered',followupUsed:false,answerId:null});
       }
-      this.state.round={id:this.id(),contextRevision:c.revision,language,phase:'offer',total:queue.length,index:0,queue,notice:''};this.state.revision++;
+      // Rank by the supplied ad priorities, preserving model order for equal importance.
+      const score=q=>Math.max(...q.signalRefs.map(ref=>ref.field==='topPriorities'?Number(c.jobContext.topPriorities[ref.index].weight)||0:3));
+      queue.sort((a,b)=>score(b)-score(a));
+      const active=queue.slice(0,5),reserve=queue.slice(5);
+      this.state.round={id:this.id(),contextRevision:c.revision,language,phase:'offer',total:active.length,index:0,queue:active,reserve,batchStart:0,notice:''};this.state.revision++;
     }
     round(){if(!this.state.round||this.state.round.contextRevision!==this.state.context?.revision)throw Error('NO_CURRENT_ROUND');return this.state.round;}
+    allQuestions(){const r=this.round();return r.queue.concat(r.reserve||[]);}
+    moreCount(){return (this.round().reserve||[]).filter(q=>q.status==='unanswered').length;}
+    continueQuestions(){
+      const r=this.round();if(r.phase!=='complete')throw Error('ROUND_NOT_COMPLETE');
+      // Do not generate/replan, repeat answered questions or discard original sources.
+      const next=(r.reserve||[]).filter(q=>q.status==='unanswered').slice(0,5);
+      if(!next.length)return false;
+      r.reserve=r.reserve.filter(q=>!next.includes(q));r.batchStart=r.queue.length;r.queue.push(...next);
+      r.total=r.queue.length;r.index=r.batchStart;r.phase='question';r.finishedEarly=false;r.notice='';this.state.revision++;return true;
+    }
     current(){return this.round().queue[this.round().index]||null;}
     start(){const r=this.round();if(r.phase!=='offer')throw Error('INVALID_PHASE');r.phase=r.total?'question':'complete';}
     submit(text,{defer=false}={}){
@@ -611,9 +625,9 @@
     interpretFailed(token,{background=false}={}){try{if(background){const a=this.answerForToken(token);a.status='error';this.round().queue.find(q=>q.id===a.questionId).status='error';this.notify();}else if(JSON.stringify(this.token())===JSON.stringify(token))this.round().phase='error';}catch{}}
     reviewDrafts(token,drafts,{background=false}={}){
       const r=this.round(),a=background?this.answerForToken(token):this.state.answers.find(a=>a.id===this.current()?.answerId),q=r.queue.find(q=>q.id===a?.questionId);if(!a||!background&&(!['ready','interpreting'].includes(r.phase)||JSON.stringify(this.token())!==JSON.stringify(token)))throw Error('STALE_ANSWER');if(!Array.isArray(drafts))throw Error('INVALID_DRAFTS');
-      for(const d of drafts){requireText(d.proposedText);requireText(d.sourceQuote);if(!a.revisions.at(-1).text.includes(d.sourceQuote))throw Error('INVALID_SOURCE_QUOTE');if(!Array.isArray(d.coveredQuestionIds)||d.coveredQuestionIds.some(id=>!r.queue.some(q=>q.id===id)))throw Error('UNKNOWN_QUESTION');}
+      for(const d of drafts){requireText(d.proposedText);requireText(d.sourceQuote);if(!a.revisions.at(-1).text.includes(d.sourceQuote))throw Error('INVALID_SOURCE_QUOTE');if(!Array.isArray(d.coveredQuestionIds)||d.coveredQuestionIds.some(id=>!this.allQuestions().some(q=>q.id===id)))throw Error('UNKNOWN_QUESTION');}
       if(!drafts.length){if(!background){this.askFollowup();return;}a.status=q.status='needs_detail';this.settleBackground();this.notify();return;}
-      a.drafts=copy(drafts);a.status=q.status='recorded';this.state.revision++;if(background){for(const later of r.queue){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
+      a.drafts=copy(drafts);for(const later of r.reserve||[])if(later.status==='unanswered'&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';a.status=q.status='recorded';this.state.revision++;if(background){for(const later of this.allQuestions()){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
     }
     settleBackground(){const r=this.round();if(r.phase!=='complete'||r.finishedEarly)return;const index=r.queue.findIndex(q=>q.status==='needs_detail'&&!q.followupUsed);if(index>=0){r.index=index;this.askFollowup();}}
     askFollowup(){const r=this.round(),q=this.current(),a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='needs_detail';q.status='needs_detail';if(!q.followupUsed){q.followupUsed=true;r.phase='followup';r.notice='Can you give one specific example in response to the original question?';}else this.advance();}
@@ -622,7 +636,7 @@
       r.notice=n?(r.language==='sv'?'Ditt svar besvarade också en senare fråga.':'Your answer also covered a later question.'):'';r.phase=r.index>=r.total?'complete':'question';
       this.settleBackground();
     }
-    invalidate(answerId){const a=this.state.answers.find(a=>a.id===answerId);if(!a)return;a.status='pending';for(const q of this.state.round?.queue||[])if(q.status==='covered'&&a.drafts.some(d=>d.coveredQuestionIds.includes(q.id)))q.status='unanswered';}
+    invalidate(answerId){const a=this.state.answers.find(a=>a.id===answerId);if(!a)return;a.status='pending';for(const q of this.state.round?this.allQuestions():[])if(q.status==='covered'&&a.drafts.some(d=>d.coveredQuestionIds.includes(q.id)))q.status='unanswered';}
     correct(id){const r=this.round(),index=r.queue.findIndex(q=>q.id===id);if(index<0)throw Error('UNKNOWN_QUESTION');r.finishedEarly=false;r.index=index;r.phase='correct';r.notice='';}
     skip(){const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');if(q.answerId){this.invalidate(q.answerId);this.state.answers.find(a=>a.id===q.answerId).status='skipped';}q.status='skipped';this.advance();}
     finish(){this.round().finishedEarly=true;this.round().phase='complete';}
@@ -688,6 +702,8 @@
       container.append(el('h2','Ready to tailor your CV.'));
       const pending=session.results().pending;
       if(pending){const status=el('p',`${pending===1?'One answer is':pending+' answers are'} still being checked.`,'discovery-note');status.setAttribute('role','status');container.append(status);}
+      if(session.moreCount())container.append(button(`Explore more questions (${session.moreCount()})`,()=>session.continueQuestions()));
+      else container.append(el('p','No further relevant questions were identified for this CV and job ad.','discovery-note'));
       if(onFinishAndTailor){const finish=button('Finish and tailor my CV',()=>{const result=onFinishAndTailor();continueToEditor();return result;});finish.className='discovery-finish-primary';container.append(finish);}
     }
     const continueToEditor=()=>{disposed=true;stopObserving();onContinue(session.accountsForRound());};
@@ -700,7 +716,8 @@
       if(r.phase==='offer'){container.append(el('h2',r.total?`${r.total} relevant experience ${r.total===1?'topic is':'topics are'} not clear in your CV.`:'We can continue with what is available.'));if(r.total)container.append(button('Start the questions',()=>session.start()));container.append(button('Continue with what is available',()=>{session.finish();continueToEditor();}));}
       else if(r.phase==='complete')outcome();
       else{
-        const q=session.current(),followup=r.phase==='followup',progress=el('p',followup?`Follow-up · Question ${r.index+1} of ${r.total}`:`${r.index+1}/${r.total}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index+1} of ${r.total}`);container.append(progress);
+        const batchStart=r.index<r.batchStart?0:r.batchStart||0;
+        const q=session.current(),followup=r.phase==='followup',progress=el('p',followup?`Follow-up · Question ${r.index-batchStart+1} of ${r.total-batchStart}`:`${r.index-batchStart+1}/${r.total-batchStart}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index-batchStart+1} of ${r.total-batchStart}`);container.append(progress);
         if(followup){
           const answer=session.snapshot().answers.find(a=>a.id===q.answerId),context=el('div',null,'discovery-followup-context');
           context.append(el('p','Topic from the job ad','discovery-result-label'));requirementList(q,context);
@@ -840,7 +857,7 @@
     async runInterpret(session,token){
       const snap=session.snapshot(),answer=snap.answers.find(a=>a.id===token.answerId);
       const c=snap.context,r=snap.round;
-      const request={schemaVersion:'1.0',operation:'interpret',requestId:this.id(),contextRevision:c.revision,conversationLanguage:r.language,cvVersionId:c.cvVersionId,blocksSchemaVersion:'1.0',blocks:c.blocks,jobContextSchemaVersion:'1.0',jobContext:c.jobContext,roundId:r.id,questionId:answer.questionId,questions:r.queue.map(q=>({id:q.id,topicKey:q.topicKey,question:q.question,signalRefs:q.signalRefs})),sourceAnswer:{id:answer.id,revision:answer.currentRevision,text:answer.revisions.at(-1).text}};
+      const request={schemaVersion:'1.0',operation:'interpret',requestId:this.id(),contextRevision:c.revision,conversationLanguage:r.language,cvVersionId:c.cvVersionId,blocksSchemaVersion:'1.0',blocks:c.blocks,jobContextSchemaVersion:'1.0',jobContext:c.jobContext,roundId:r.id,questionId:answer.questionId,questions:session.allQuestions().map(q=>({id:q.id,topicKey:q.topicKey,question:q.question,signalRefs:q.signalRefs})),sourceAnswer:{id:answer.id,revision:answer.currentRevision,text:answer.revisions.at(-1).text}};
       session.beginInterpret(token,{background:this.background});
       const current=()=>{try{if(this.background){session.answerForToken(token);return true;}return JSON.stringify(session.token())===JSON.stringify(token);}catch{return false;}};
       try{const result=await this.call(request);if(!current())return {stale:true};session.reviewDrafts(token,result.drafts,{background:this.background});return result;}
@@ -876,17 +893,19 @@
       const remaining=r.queue.filter(q=>['unanswered','answered'].includes(q.status)||q.id===session.current()?.id&&['followup','correct','error'].includes(r.phase)).length;
       guidance.hidden=false;
       if(remaining){
-        guidance.append(el('h2','Your CV may not tell the whole story.'),el('p',`We have ${remaining} ${remaining===1?'question':'questions'} about experience that could be relevant to this job. ${sourceTailoring?`Answer ${remaining===1?'it':'them'} to help Drafted tailor your CV.`:`Review ${remaining===1?'it':'them'} to explore experience that is not clear in your CV.`}`),button('Review questions',open));
+        guidance.append(el('h2','Your CV may not tell the whole story.'),el('p',`We have ${remaining} prioritized ${remaining===1?'question':'questions'} about experience that could be relevant to this job. ${sourceTailoring?`Answer ${remaining===1?'it':'them'} to help Drafted tailor your CV.`:`Review ${remaining===1?'it':'them'} to explore experience that is not clear in your CV.`}`),button('Review questions',open));
+        if(session.moreCount())guidance.append(el('p',`Start with ${remaining===1?'this question':'these '+remaining+' questions'}. You can explore ${session.moreCount()} more afterwards.`));
       }else{
         guidance.append(el('h2','Ready to tailor your CV.'),el('p',sourceTailoring&&session.accountsForRound().length?'Drafted can now use your answers and the job ad to suggest improvements.':'Drafted can use your current CV and the job ad to suggest improvements.'),button('Tailor my CV',()=>onTailor()));
       }
+      if(r.phase==='complete'&&session.moreCount())guidance.append(button(`Explore more questions (${session.moreCount()})`,()=>{if(session.continueQuestions()){prepared=false;if(opened)showRound();else open();updatePlanIndicator();}}));
       const note=el('p',sourceTailoring?'Review the suggestion before choosing Apply.':'Tailoring currently uses only your CV and the job ad. Your answers stay here for review.');note.className='discovery-note';guidance.append(note);const sourceNotice=sourceTailoring&&getSourceNotice();if(sourceNotice){const status=el('p',sourceNotice);status.className='tailor-review-warning';status.setAttribute('role','status');guidance.append(status);}
     }
     function setLabel(label){launcher.replaceChildren(document.createTextNode(label),count);launcher.setAttribute('aria-label',label);}
-    function updatePlanIndicator(){launcher.dataset.planState=planState;launcher.setAttribute('aria-busy',String(pending));count.hidden=planState!=='ready';if(planState==='ready'){count.textContent=String(session.round().total);count.setAttribute('aria-label',session.round().total+' experience questions ready');launcher.title=session.round().total+' questions about experience that is not clear in this CV';}else launcher.title=planState==='loading'?'Preparing questions in the background':planState==='error'?'Questions could not be prepared. Open to retry.':'Explore your experience';}
+    function updatePlanIndicator(){launcher.dataset.planState=planState;launcher.setAttribute('aria-busy',String(pending));count.hidden=planState!=='ready';if(planState==='ready'){count.textContent=String(session.round().total-(session.round().batchStart||0));count.setAttribute('aria-label',count.textContent+' experience questions in this round');launcher.title=count.textContent+' questions about experience that is not clear in this CV';}else launcher.title=planState==='loading'?'Preparing questions in the background':planState==='error'?'Questions could not be prepared. Open to retry.':'Explore your experience';}
     function close(focus=false){if(planState==='ready'&&session.round().phase==='complete'){prepared=false;setLabel('Review your answers');}updateGuidance();opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
     function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
-    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=client.submit(session,t);if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>client.retry(session,id).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();},sourceTailoring,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
+    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=client.submit(session,t);if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>client.retry(session,id).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();},sourceTailoring,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
     function activate(){if(!session.round().total){body.replaceChildren(el('h2','No additional experience questions'),el('p','No further questions were identified for this CV and job ad. You can keep working in the editor.'));prepared=true;return;}if(session.round().phase==='offer')session.start();showRound();}
     async function start(){if(pending)return;const epoch=generation,controller=new AbortController();planController=controller;pending=true;planState='loading';updatePlanIndicator();body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en',{signal:controller.signal});if(result.stale||epoch!==generation)return;planState='ready';updateGuidance();if(opened)activate();else body.replaceChildren();}catch{if(epoch!==generation)return;planState='error';body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){if(planController===controller)planController=null;pending=false;body.removeAttribute('aria-busy');updatePlanIndicator();}}}
     function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
@@ -1051,7 +1070,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-23-tailor-source-errors");
+console.log("DRAFTED_JS_SOURCE", "2026-10-23-prioritized-question-rounds");
 
 console.log("🚀 drafted-editor.js executing");
 

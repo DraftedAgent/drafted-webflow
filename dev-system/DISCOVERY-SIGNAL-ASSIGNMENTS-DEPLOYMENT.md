@@ -1,0 +1,13 @@
+# Discovery single signal ownership — DEV-092
+
+2026-10-23. Owner explicitly approved DEV-091 integration and activation in this side conversation. Bug fix and internal contract change; public Discovery1.0 remains unchanged.
+
+The model returns discovery-plan-assignments-1 with one request-wide signalTopics object. Each original signal key has one topic key or null. Backend iterates the trusted catalog once to construct references, so a valid assignment plan cannot produce REF_REUSED_ACROSS_TOPICS. Multiple owners, unknown keys/topics, orphan topics, stale responses and old formats fail explicitly; no silent deduplication, deletion, merging or fallback. Existing source compiler retains exact original text, identity, negatives and scope. Interpretation and Tailor/review-before-Apply remain unchanged.
+
+Approved change touched only Build discovery prompt and Validate model response in workflow zeIzzxPwD2Y91OyD. Fresh live definition rehearsed locally with synthetic model responses in string and parsed-object modes. Complete projection checked. Saved with publishIfActive=false before explicit activation. Saved and active version are both **720bf158-17f4-440d-9a29-a5a84fa3b3a3**, replacing 3478b0d8-8a3e-4bc5-aa19-40e19b377066. Both complete saved projection and active nodes/connections verified. Model, credentials, settings, graph, other workflows and frontend publication unchanged.
+
+79 unit/integration tests passed. New actual Code/graph tests cover nine topics, unique reference ownership, full original negative-qualified evidence, malformed output, exact two-node diff, version drift and unchanged interpretation. Browser tests passed for source-driven questions/completion/context/proposals/corrections/multiple Apply/negative/skip/stale/mobile and injected reported422 followed by explicit retry with original CV/context/answers retained. No external traffic from browser tests. No external model call or production webhook execution initiated. Therefore live model semantic compliance is not claimed; verified production definition and local synthetic execution are distinct.
+
+Local preview: http://127.0.0.1:8799/?sample=1 (sources-assignments, synthetic=true, externalModelCalls=0). Previous8798 remains the prior anchor preview.
+
+Encrypted lossless pre-save, post-save, pre-publish and post-publish saved/active/candidate snapshots verified under owner-restricted DPAPI storage outside Git. Safe provenance: [deployment receipt](prepared/discovery-assignments.deployment.json). Rollback must check drift and explicitly activate/restore the preserved previous version; do not discard intervening edits.

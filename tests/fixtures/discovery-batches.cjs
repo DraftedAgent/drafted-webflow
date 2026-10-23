@@ -1,0 +1,5 @@
+const f=require('./tailor-sources.cjs');
+const questions=['Have you helped plan a delivery?','Have you helped run a workshop?','Have you helped users learn a new tool?','What changed after a rollout you supported?','Have you helped map data between systems?','Have you supported a customer kickoff?','Have you helped improve an onboarding process?','Have you tested a system migration?','Have you helped document a support process?','Have you helped measure product adoption?','Have you supported a process change?','Have you helped explain a technical decision?'];
+const jobContext={...f.jobContext,topPriorities:questions.slice(0,8).map((signal,i)=>({signal,weight:i<3?5:4})),mustHave:questions.slice(8)};
+function discoveryModel({request:r,input}){if(r.operation!=='plan')return f.discovery({request:r});const signals=input.signals;return {modelFormat:input.modelFormat,requestId:r.requestId,contextRevision:r.contextRevision,topics:signals.map((s,i)=>({key:'topic'+i,question:questions[i],support:'unclear',evidenceIds:[]})),signalTopics:Object.fromEntries(signals.map((s,i)=>[s.id,'topic'+i]))};}
+module.exports={...f,jobContext,discoveryModel};
