@@ -51,7 +51,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
     assert.equal(await page.locator('#cv-design').evaluate(el=>el===document.activeElement),true);
     assert.equal(await page.locator('#cv-design').evaluate(el=>getComputedStyle(el).outlineColor),'rgb(112, 121, 128)');
     for(const name of ['Expand preview','Export PDF','Copy text']){
-     const button=page.getByRole('button',{name,exact:true});await button.focus();assert.equal(await button.locator('[role=tooltip]').isVisible(),true);assert.equal(await button.locator('[role=tooltip]').textContent(),name);await page.keyboard.press('Escape');assert.equal(await button.locator('[role=tooltip]').isVisible(),false);await page.locator('.workspace-brand').hover();await button.hover();assert.equal(await button.locator('[role=tooltip]').isVisible(),true);
+     const button=page.getByRole('button',{name,exact:true});await button.focus();await page.keyboard.press('Tab');await page.keyboard.press('Shift+Tab');assert.equal(await button.locator('[role=tooltip]').isVisible(),true);assert.equal(await button.locator('[role=tooltip]').textContent(),name);await page.keyboard.press('Escape');assert.equal(await button.locator('[role=tooltip]').isVisible(),false);await page.locator('.workspace-brand').hover();await button.hover();assert.equal(await button.locator('[role=tooltip]').isVisible(),true);await page.locator('.workspace-brand').hover();assert.equal(await button.locator('[role=tooltip]').isVisible(),false,'Pointer leave dismisses even a focused tooltip');
     }
     await page.getByRole('button',{name:'Copy text',exact:true}).click();assert.ok((await page.evaluate(()=>window.__copiedCv)).includes('Å'));
     await checkPrint(design);
@@ -63,6 +63,10 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
     assert.equal(await page.locator('#cv-preview-dialog .workspace-preview-title #cv-design').count(),1);assert.equal(await fit(),true);
     assert.equal(await page.evaluate(()=>window.__toolbarHost===document.querySelector('#editor-preview-text')&&window.__toolbarControls===document.querySelector('.workspace-preview-title')&&window.__toolbarPages.every((el,i)=>el===document.querySelectorAll('.cv-page')[i])),true);
     assert.equal(await page.getByRole('button',{name:'Close',exact:true}).evaluate(el=>el===document.activeElement),true);
+    const close=page.getByRole('button',{name:'Close',exact:true});assert.equal(await close.locator('[role=tooltip]').isVisible(),false,'Automatic modal focus must not open Close tooltip');
+    await close.hover();assert.equal(await close.locator('[role=tooltip]').isVisible(),true);await page.locator('.cv-document').hover({position:{x:8,y:8}});assert.equal(await close.locator('[role=tooltip]').isVisible(),false,'Close hover cannot stick while it retains focus');
+    await page.keyboard.press('Tab');await page.keyboard.press('Shift+Tab');assert.equal(await close.locator('[role=tooltip]').isVisible(),true,'Intentional keyboard focus still shows tooltip');
+    await page.evaluate(()=>window.dispatchEvent(new Event('blur')));assert.equal(await close.locator('[role=tooltip]').isVisible(),false);
     await page.keyboard.press('Tab');assert.equal(await page.locator('.cv-document').evaluate(el=>el===document.activeElement),true);await page.keyboard.press('Tab');
     assert.ok(await page.locator('#cv-preview-dialog').evaluate(el=>el.contains(document.activeElement)));
     await checkPrint(design);assert.ok(await page.locator('.cv-block.is-selected').count());
@@ -74,6 +78,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
     if(viewport.width===390)await page.keyboard.press('Escape');else await page.getByRole('button',{name:'Close',exact:true}).click();
     await page.waitForFunction(()=>!document.querySelector('#cv-preview-dialog').open);
     assert.equal(await page.getByRole('button',{name:'Expand preview',exact:true}).evaluate(el=>el===document.activeElement),true);
+    assert.equal(await page.getByRole('button',{name:'Expand preview',exact:true}).locator('[role=tooltip]').isVisible(),false,'Restored focus must not open Expand tooltip');
     assert.equal(await pane.evaluate(el=>el.scrollTop),scroll);assert.equal(await page.locator('#cv-design').inputValue(),design);
     assert.equal(await page.locator('#editor-input').inputValue(),'Preserve this unsent instruction.');
     assert.deepEqual(await page.locator('.cv-page-content').allTextContents(),signatures[design]);
@@ -92,10 +97,14 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
   await touch.route('**/*',route=>route.request().url().startsWith(base)?route.continue():route.abort());
   await touch.addInitScript(()=>{window.print=()=>window.dispatchEvent(new Event('afterprint'));Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{window.__touchCopied=true;}}});});
   await touch.goto(base+'?sample=1');await touch.waitForFunction(()=>!document.querySelector('.workspace-print-button')?.disabled);
-  await touch.getByRole('button',{name:'Expand preview',exact:true}).tap();assert.equal(await touch.locator('#cv-preview-dialog').evaluate(el=>el.open),true);
+  await touch.getByRole('button',{name:'Expand preview',exact:true}).tap();assert.equal(await touch.locator('#cv-preview-dialog').evaluate(el=>el.open),true);assert.equal(await touch.locator('.workspace-tooltip:visible').count(),0);
   await touch.getByRole('button',{name:'Copy text',exact:true}).tap();assert.equal(await touch.evaluate(()=>window.__touchCopied),true);
   await touch.getByRole('button',{name:'Export PDF',exact:true}).tap();await touch.waitForFunction(()=>!document.querySelector('iframe[data-cv-print]')&&!document.querySelector('.workspace-print-button').disabled);
-  await touch.getByRole('button',{name:'Close',exact:true}).tap();await touch.waitForFunction(()=>!document.querySelector('#cv-preview-dialog').open);await touch.close();
+  await touch.getByRole('button',{name:'Close',exact:true}).tap();await touch.waitForFunction(()=>!document.querySelector('#cv-preview-dialog').open);assert.equal(await touch.locator('.workspace-tooltip:visible').count(),0);await touch.close();
+  for(let i=0;i<3;i++){
+   await page.locator('#cv-design').focus();await page.keyboard.press('Tab');const expand=page.getByRole('button',{name:'Expand preview',exact:true});assert.equal(await expand.locator('[role=tooltip]').isVisible(),true);
+   await page.keyboard.press('Enter');assert.equal(await page.getByRole('button',{name:'Close',exact:true}).locator('[role=tooltip]').isVisible(),false);await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('#cv-preview-dialog').open&&document.activeElement.classList.contains('workspace-expand-preview'));assert.equal(await expand.locator('[role=tooltip]').isVisible(),false);
+  }
   assert.deepEqual(errors,[]);assert.deepEqual(outside,[]);
   fs.writeFileSync(path.join(output,'results.json'),JSON.stringify({designs:3,viewports:7,printPreparationCalls:prints.length,staleExportRejected:true,touch:true,outsideRequests:outside,pageErrors:errors},null,2));
   console.log('Preview toolbar PASS: three designs, seven viewports, normal/expanded controls/tooltips/focus/copy, same live pages/selection/scroll/draft, selected-design print preparation and stale-export rejection, touch; no external calls. Native PDF saving not rerun.');

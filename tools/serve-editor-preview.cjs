@@ -17,7 +17,7 @@ const outcomeDiscovery=outcomeFixture&&createHandler({model:async data=>{calls.p
 const discovery=createHandler({model:async data=>{calls.push({operation:data.operation,conversationLanguage:data.request.conversationLanguage,synthetic:true});const sv=data.request.conversationLanguage==='sv';if(data.operation==='plan')return {topics:[{key:'planning',question:sv?'Har du hjälpt ett team att prioritera arbetet och planera en leverans?':'Have you helped a team prioritize work and plan a delivery?',signalRefs:[{field:'topPriorities',index:0}],support:'unclear',evidence:[]},{key:'interviews',question:sv?'Har du pratat med användare?':'Have you talked with users?',signalRefs:[{field:'topPriorities',index:1}],support:'clear',evidence:[{blockId:'experience-1',quote:'Intervjuade fem användare och sammanställde deras synpunkter.'}]},{key:'collaboration',question:sv?'Har du arbetat tillsammans med designers och utvecklare?':'Have you worked with designers and developers?',signalRefs:[{field:'topPriorities',index:2}],support:'unclear',evidence:[]}]};return fixtureModel(data);}});
 const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,'http://localhost'),pathname=url.pathname;
- res.setHeader('Content-Security-Policy',"default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'");res.setHeader('Cache-Control','no-store');
+ res.setHeader('Content-Security-Policy',"default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'");res.setHeader('Cache-Control','no-store');
  const json=(status,data)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
  if(req.method==='GET'&&pathname==='/preview-status')return json(200,{synthetic:true,externalModelCalls:0,calls});
  if(req.method==='POST'){
@@ -32,7 +32,7 @@ const server=http.createServer(async(req,res)=>{
  }
  if(req.method!=='GET')return json(404,{error:'Not found'});
  const target=path.resolve(repo,'.'+(pathname==='/'?'/webflow/preview/editor.html':pathname));if(!target.startsWith(repo+path.sep))return json(404,{error:'Not found'});
- fs.readFile(target,(e,data)=>{if(e)return json(404,{error:'Not found'});res.writeHead(200,{'Content-Type':target.endsWith('.html')?'text/html; charset=utf-8':target.endsWith('.css')?'text/css':target.endsWith('.js')?'text/javascript':'application/octet-stream'});res.end(data);});
+ fs.readFile(target,(e,data)=>{if(e)return json(404,{error:'Not found'});res.writeHead(200,{'Content-Type':target.endsWith('.html')?'text/html; charset=utf-8':target.endsWith('.css')?'text/css':(/\.m?js$/.test(target))?'text/javascript':target.endsWith('.wasm')?'application/wasm':'application/octet-stream'});res.end(data);});
 });
 server.listen(Number(process.env.PORT||8771),'127.0.0.1',()=>console.log(`Whole editor, local synthetic preview: http://127.0.0.1:${server.address().port}/`));
 module.exports={server};

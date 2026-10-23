@@ -1,7 +1,7 @@
 'use strict';
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spawn,execFileSync}=require('node:child_process'),path=require('node:path'),os=require('node:os'),fs=require('node:fs');
 const fixtures=require('./fixtures/cv-pagination.cjs');
-const exportRegion=code=>code.slice(code.indexOf('// 2) Bygg payload ENBART'),code.indexOf('  window.addEventListener("beforeunload"')).replace(/\r\n/g,'\n');
+const exportRegion=code=>{const normalized=code.replace(/\r\n/g,'\n'),start=normalized.indexOf('// 2) Bygg payload ENBART'),handler=normalized.indexOf('function bindPdfDownloadButton()',start),end=normalized.indexOf('\n}',handler)+2;assert.ok(start>=0&&handler>start&&end>handler);return normalized.slice(start,end);};
 assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src/drafted-editor.js'),'utf8')),exportRegion(execFileSync('git',['show','6c8b2f7:webflow/src/drafted-editor.js'],{encoding:'utf8'})),'Published export code must remain identical');
 (async()=>{
  const child=spawn(process.execPath,[path.resolve(__dirname,'../tools/serve-editor-preview.cjs')],{env:{...process.env,PORT:'0',DRAFTED_REWRITE_TEST_APPROVAL:''},stdio:['ignore','pipe','pipe']});

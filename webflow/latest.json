@@ -1,6 +1,6 @@
 {
-  "build": "2026-10-23-natural-header-snap",
-  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-23-natural-header-snap",
-  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-23-natural-header-snap",
-  "ts": "2026-10-23T13:15:44Z"
+  "build": "2026-10-23-source-preview",
+  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-23-source-preview",
+  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-23-source-preview",
+  "ts": "2026-10-23T13:56:38Z"
 }

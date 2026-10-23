@@ -27,6 +27,7 @@
       // Keep the same reading position when the viewer scale increases.
       if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height,newRect=anchor.getBoundingClientRect();pane.scrollTop+=newRect.top-pane.getBoundingClientRect().top+fraction*newRect.height;}
       close.focus({preventScroll:true});
+      global.DraftedWorkspaceView.dismissTooltips(heading);
     }
     function restore(){
       if(!saved)return;
@@ -38,6 +39,7 @@
       pane.scrollTop=previous.top;pane.scrollLeft=previous.left;
       window.scrollTo(previous.x,previous.y);
       (previous.focus?.isConnected?previous.focus:expand).focus({preventScroll:true});
+      global.DraftedWorkspaceView.dismissTooltips(heading);
       requestAnimationFrame(()=>{if(workspaceScroll){global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);workspaceScroll.style.scrollSnapType=previous.workspace.snap;}});
     }
     expand.addEventListener('click',open);
