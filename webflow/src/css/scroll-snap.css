@@ -3,16 +3,20 @@ html,body {height:100%;overflow:hidden!important;}
 .navbar.w-nav {position:relative;inset:auto;width:100%;z-index:10;box-sizing:border-box;}
 .page-scroll {
   position:fixed;inset:0;height:100dvh;
-  overflow-y:auto;overflow-anchor:none;scroll-snap-type:none;scroll-behavior:auto;
+  overflow-y:auto;overflow-anchor:none;scroll-snap-type:y mandatory;scroll-behavior:auto;
   -webkit-overflow-scrolling:touch;overscroll-behavior-y:none;
   scroll-padding-top:0!important;
 }
 /* Full-height workspaces no longer depend on a changing header reservation. */
 .page-scroll .snap-section {
   height:100%;min-height:100%;box-sizing:border-box;overflow:hidden;
-  scroll-snap-align:none;scroll-snap-stop:normal;padding-top:0!important;
+  scroll-snap-align:start;scroll-snap-stop:always;padding-top:0!important;
 }
-.section-cta {min-height:100%;box-sizing:border-box;padding-top:80px;padding-bottom:80px;}
+/* Header and landing share the first snap section; tall content can grow naturally. */
+.page-scroll>.page-start {height:auto;min-height:100%;display:flex;flex-direction:column;scroll-snap-align:start;scroll-snap-stop:always;}
+.page-start>.navbar.w-nav {flex:0 0 auto;}
+.page-scroll>.page-start>.hero-section {height:auto;min-height:0;flex:1 0 auto;padding-bottom:16px;scroll-snap-align:none;scroll-snap-stop:normal;}
+.section-cta {scroll-snap-align:start;scroll-snap-stop:always;min-height:100%;box-sizing:border-box;padding-top:80px;padding-bottom:80px;}
 .page-scroll>.section-editor.snap-section.drafted-app {
   height:100%!important;min-height:100%!important;max-height:100%!important;margin:0!important;
 }

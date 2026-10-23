@@ -3,7 +3,7 @@
   'use strict';
   function captureScroll(scroller){
     const top=scroller.getBoundingClientRect().top;
-    const element=[...scroller.children].find(el=>el.matches('.navbar,.snap-section,.section-cta')&&el.getBoundingClientRect().bottom>top);
+    const element=[...scroller.children].find(el=>el.matches('.page-start,.navbar,.snap-section,.section-cta')&&el.getBoundingClientRect().bottom>top);
     if(!element)return null;
     const rect=element.getBoundingClientRect();
     return {element,fraction:(top-rect.top)/rect.height,top:scroller.scrollTop,width:scroller.clientWidth,height:scroller.clientHeight};
@@ -16,8 +16,12 @@
   function flow(){
     const scroller=document.querySelector('.page-scroll'),nav=document.querySelector('.navbar.w-nav');
     if(!scroller)return;
-    // Keep the live Webflow header and its bindings in the one page scroll flow.
-    if(nav&&nav.parentElement!==scroller)scroller.prepend(nav);
+    // One landing snap point includes the live header; no height measurement or visibility state.
+    const hero=scroller.querySelector(':scope > .hero-section');
+    if(nav&&hero){
+      const start=document.createElement('div');start.className='page-start';
+      scroller.prepend(start);start.append(nav,hero);
+    }else if(nav&&!scroller.contains(nav))scroller.prepend(nav);
     let reading=captureScroll(scroller),width=scroller.clientWidth,height=scroller.clientHeight;
     // Scrolling only records an anchor. It never changes layout or header visibility.
     scroller.addEventListener('scroll',()=>{
@@ -360,10 +364,10 @@
       const anchor=slots.find(el=>el.getBoundingClientRect().bottom>bounds.top)||slots[0];
       const rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
-      saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{reading:global.DraftedWorkspaceView.captureScroll(workspaceScroll),top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{snap:workspaceScroll.style.scrollSnapType,reading:global.DraftedWorkspaceView.captureScroll(workspaceScroll),top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
-      if(workspaceScroll){workspaceScroll.style.overflow='hidden';}
+      if(workspaceScroll){workspaceScroll.style.scrollSnapType='none';workspaceScroll.style.overflow='hidden';}
       global.DraftedCvLayout.rescale(host);
       // Keep the same reading position when the viewer scale increases.
       if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height,newRect=anchor.getBoundingClientRect();pane.scrollTop+=newRect.top-pane.getBoundingClientRect().top+fraction*newRect.height;}
@@ -379,7 +383,7 @@
       pane.scrollTop=previous.top;pane.scrollLeft=previous.left;
       window.scrollTo(previous.x,previous.y);
       (previous.focus?.isConnected?previous.focus:expand).focus({preventScroll:true});
-      requestAnimationFrame(()=>{if(workspaceScroll)global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);});
+      requestAnimationFrame(()=>{if(workspaceScroll){global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);workspaceScroll.style.scrollSnapType=previous.workspace.snap;}});
     }
     expand.addEventListener('click',open);
     close.addEventListener('click',()=>dialog.close());
@@ -789,7 +793,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-23-natural-header");
+console.log("DRAFTED_JS_SOURCE", "2026-10-23-natural-header-snap");
 
 console.log("🚀 drafted-editor.js executing");
 

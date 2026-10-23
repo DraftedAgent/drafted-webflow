@@ -19,10 +19,10 @@
       const anchor=slots.find(el=>el.getBoundingClientRect().bottom>bounds.top)||slots[0];
       const rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
-      saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{reading:global.DraftedWorkspaceView.captureScroll(workspaceScroll),top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{snap:workspaceScroll.style.scrollSnapType,reading:global.DraftedWorkspaceView.captureScroll(workspaceScroll),top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
-      if(workspaceScroll){workspaceScroll.style.overflow='hidden';}
+      if(workspaceScroll){workspaceScroll.style.scrollSnapType='none';workspaceScroll.style.overflow='hidden';}
       global.DraftedCvLayout.rescale(host);
       // Keep the same reading position when the viewer scale increases.
       if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height,newRect=anchor.getBoundingClientRect();pane.scrollTop+=newRect.top-pane.getBoundingClientRect().top+fraction*newRect.height;}
@@ -38,7 +38,7 @@
       pane.scrollTop=previous.top;pane.scrollLeft=previous.left;
       window.scrollTo(previous.x,previous.y);
       (previous.focus?.isConnected?previous.focus:expand).focus({preventScroll:true});
-      requestAnimationFrame(()=>{if(workspaceScroll)global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);});
+      requestAnimationFrame(()=>{if(workspaceScroll){global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);workspaceScroll.style.scrollSnapType=previous.workspace.snap;}});
     }
     expand.addEventListener('click',open);
     close.addEventListener('click',()=>dialog.close());

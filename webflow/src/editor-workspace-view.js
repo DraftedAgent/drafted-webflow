@@ -3,7 +3,7 @@
   'use strict';
   function captureScroll(scroller){
     const top=scroller.getBoundingClientRect().top;
-    const element=[...scroller.children].find(el=>el.matches('.navbar,.snap-section,.section-cta')&&el.getBoundingClientRect().bottom>top);
+    const element=[...scroller.children].find(el=>el.matches('.page-start,.navbar,.snap-section,.section-cta')&&el.getBoundingClientRect().bottom>top);
     if(!element)return null;
     const rect=element.getBoundingClientRect();
     return {element,fraction:(top-rect.top)/rect.height,top:scroller.scrollTop,width:scroller.clientWidth,height:scroller.clientHeight};
@@ -16,8 +16,12 @@
   function flow(){
     const scroller=document.querySelector('.page-scroll'),nav=document.querySelector('.navbar.w-nav');
     if(!scroller)return;
-    // Keep the live Webflow header and its bindings in the one page scroll flow.
-    if(nav&&nav.parentElement!==scroller)scroller.prepend(nav);
+    // One landing snap point includes the live header; no height measurement or visibility state.
+    const hero=scroller.querySelector(':scope > .hero-section');
+    if(nav&&hero){
+      const start=document.createElement('div');start.className='page-start';
+      scroller.prepend(start);start.append(nav,hero);
+    }else if(nav&&!scroller.contains(nav))scroller.prepend(nav);
     let reading=captureScroll(scroller),width=scroller.clientWidth,height=scroller.clientHeight;
     // Scrolling only records an anchor. It never changes layout or header visibility.
     scroller.addEventListener('scroll',()=>{
