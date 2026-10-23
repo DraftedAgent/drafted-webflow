@@ -35,6 +35,7 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
     for(const g of data.geometry){assert.ok(Math.abs(g.w-794)<=1&&Math.abs(g.h-1123)<=1);assert.equal(g.overflow,false,'Content fits page');assert.equal(g.horizontal,false,'Long word wraps');assert.equal(g.empty,false);assert.equal(g.lastHeading,false,'No orphaned heading');}
     assert.equal(data.bodySize,'14px');return data;
    }
+   await page.waitForFunction(()=>document.documentElement.classList.contains('drafted-editor-active'));
    const initial=await audit(fixture);assert.ok(name==='short'?initial.count===1:initial.count>=2);
    assert.equal(await page.locator('#cv-design').count(),1,'Shared designs are available with native PDF printing');
    for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
@@ -48,9 +49,9 @@ assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src
     const bounds=await dialog.boundingBox();assert.ok(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=viewport.width+1&&bounds.y+bounds.height<=viewport.height+1);
     await page.locator('.cv-block[data-block-id="experience-1"]').first().click();assert.equal(await page.locator('.cv-block[data-block-id="experience-1"].is-selected').count(),await page.locator('.cv-block[data-block-id="experience-1"]').count());
     await dialog.screenshot({path:path.join(os.tmpdir(),`drafted-overlay-only-${name}-${viewport.width}.png`)});
-    await page.keyboard.press('Escape');await page.waitForFunction(()=>document.activeElement.classList.contains('workspace-expand-preview'));assert.ok(Math.abs(await pane.evaluate(el=>el.scrollTop)-top)<=1);
+    await page.keyboard.press('Escape');await page.waitForFunction(()=>document.activeElement.classList.contains('workspace-expand-preview'));assert.ok(Math.abs(await pane.evaluate(el=>el.scrollTop)-top)<=1,JSON.stringify({name,viewport,expected:top,actual:await pane.evaluate(el=>el.scrollTop)}));
     assert.equal(await page.evaluate(()=>window.__overlayRenderCalls),0,'Open/close must not paginate');await page.getByRole('button',{name:'Clear',exact:true}).click();
-    await expand.click();await page.getByRole('button',{name:'Close',exact:true}).click();await page.waitForFunction(()=>document.activeElement.classList.contains('workspace-expand-preview'));assert.ok(Math.abs(await pane.evaluate(el=>el.scrollTop)-top)<=1);
+    await expand.click();await page.getByRole('button',{name:'Close',exact:true}).click();await page.waitForFunction(()=>document.activeElement.classList.contains('workspace-expand-preview'));assert.ok(Math.abs(await pane.evaluate(el=>el.scrollTop)-top)<=1,JSON.stringify({name,viewport,expected:top,actual:await pane.evaluate(el=>el.scrollTop)}));
    }
    for(const viewport of [{width:1920,height:1080},{width:1366,height:768},{width:1024,height:600},{width:768,height:1024},{width:390,height:844},{width:360,height:640},{width:844,height:390}]) {
     await page.setViewportSize(viewport);await page.waitForTimeout(70);const resized=await audit(fixture);assert.deepEqual(resized.signature,initial.signature,'Panel resize cannot change page breaks');
