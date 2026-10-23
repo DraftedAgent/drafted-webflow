@@ -48,14 +48,14 @@ fs.mkdirSync(out,{recursive:true});fs.mkdirSync(proofRoot,{recursive:true});
     await page.getByRole('button',{name:'Use full CV',exact:true}).click();await page.locator('#editor-input').fill('Apply the synthetic revised CV.');await page.locator('#editor-send').click();await page.waitForFunction(()=>document.querySelector('#editor-preview-text').textContent.includes('Recently applied edit:'));
     await page.locator('#cv-design').selectOption(design);await page.waitForFunction(id=>document.querySelector('#editor-preview-text').dataset.cvDesign===id&&document.querySelector('#editor-preview-text').dataset.layoutState==='ready',design);
     assert.equal(await page.locator('.workspace-print-help,#cv-design-note').count(),0);
-    for(const width of [320,390]){await page.setViewportSize({width,height:844});const box=await page.getByRole('button',{name:'Print / Save as PDF',exact:true}).boundingBox();assert.ok(box.x>=0&&box.x+box.width<=width);}
+    for(const width of [320,390]){await page.setViewportSize({width,height:844});const box=await page.getByRole('button',{name:'Export PDF',exact:true}).boundingBox();assert.ok(box.x>=0&&box.x+box.width<=width);}
     await page.setViewportSize({width:1440,height:1000});
     if(design==='classic_v1'){
      // Only the new preparation flow: pending resources, obsolete selection and cancel cleanup.
-     holdPrintStyles=true;let waiting=new Promise(resolve=>printStylesSeen=resolve);await page.getByRole('button',{name:'Print / Save as PDF',exact:true}).click();await waiting;assert.equal(await page.getByRole('button',{name:'Print / Save as PDF',exact:true}).isDisabled(),true);
+     holdPrintStyles=true;let waiting=new Promise(resolve=>printStylesSeen=resolve);await page.getByRole('button',{name:'Export PDF',exact:true}).click();await waiting;assert.equal(await page.getByRole('button',{name:'Export PDF',exact:true}).isDisabled(),true);
      await page.locator('#cv-design').selectOption('compact_v1');await page.waitForFunction(()=>document.querySelector('#editor-preview-text').dataset.cvDesign==='compact_v1');releasePrintStyles();await page.getByText('Your CV or design changed. Please print again.',{exact:true}).waitFor();assert.equal(await page.locator('iframe[data-cv-print]').count(),0);
      await page.locator('#cv-design').selectOption(design);await page.waitForFunction(id=>document.querySelector('#editor-preview-text').dataset.cvDesign===id,design);
-     holdPrintStyles=true;waiting=new Promise(resolve=>printStylesSeen=resolve);await page.getByRole('button',{name:'Print / Save as PDF',exact:true}).click();await waiting;
+     holdPrintStyles=true;waiting=new Promise(resolve=>printStylesSeen=resolve);await page.getByRole('button',{name:'Export PDF',exact:true}).click();await waiting;
      const printFrame=page.frames().find(frame=>frame.parentFrame());await printFrame.evaluate(()=>window.print=()=>window.dispatchEvent(new Event('afterprint')));releasePrintStyles();await page.waitForFunction(()=>!document.querySelector('iframe[data-cv-print]'));assert.equal(await page.locator('.workspace-print-status').isVisible(),false);
     }
    }

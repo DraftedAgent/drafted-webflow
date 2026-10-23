@@ -35,10 +35,9 @@
   }
   function create({host,controls,getTitle}){
     const stylesheet=document.querySelector('link[href*="drafted-editor.css"]')?.href;
-    const button=document.createElement('button');button.type='button';button.className='workspace-print-button';button.setAttribute('aria-label','Print / Save as PDF');button.title='Print / Save as PDF';button.disabled=true;
-    button.innerHTML='<svg class="workspace-print-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg><span class="workspace-print-label">Print / Save as PDF</span>';
+    const button=global.DraftedWorkspaceView.iconButton('Export PDF','workspace-print-button','<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>');button.disabled=true;
     const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
-    controls.append(button,status);
+    controls.insertBefore(button,controls.querySelector('.workspace-close-preview'));controls.append(status);
     let state='loading',busy=false;
     const refresh=()=>{button.disabled=busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.setAttribute('aria-busy',String(busy));};
     button.addEventListener('click',async()=>{
