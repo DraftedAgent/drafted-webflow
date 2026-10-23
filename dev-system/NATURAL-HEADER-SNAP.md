@@ -21,3 +21,16 @@ Preview: http://127.0.0.1:8788/ and http://127.0.0.1:8788/?sample=1. Build 2026-
 ## Owner-approved publication
 
 Owner explicitly requests publicera after local review. Main rechecked 711479b, same isolated worktree and reviewed scroll-only scope. Release build 2026-10-23-natural-header-snap differs only in marker from local proof. Pages main-at-root is the delivery path. No Webflow/backend/n8n/billing/model operation. Rollback baseline 711479b through a new scoped restoration preserving intervening work. Exact-candidate actual-Webflow-DOM preflight, expected-head/base merge, then Pages/served hashes/published behavior checks. Final receipt follows.
+
+## Publication receipt (2026-10-23)
+
+Owner-approved delivery completed through PR [#21](https://github.com/DraftedAgent/drafted-webflow/pull/21). Exact release head 986616b92512b5f656f5483e5bb0283cc5d699aa, merged main d998ec45da871765a905835165868b93138da099, expected head/base/file list and clean mergeability verified before merge. No configured check runs/statuses; local suites and exact-candidate Webflow-DOM preflight are validation evidence. Pages [39960656409](https://github.com/DraftedAgent/drafted-webflow/actions/runs/39960656409) succeeded. Existing Webflow loader consumes root assets; no full Webflow publish performed.
+
+Served root files match frozen exact-commit SHA256:
+- drafted-editor.js: 1c4cda9786415c805242d6d952d7931f30fdb23c8761243d74efa95e3b35d996
+- drafted-editor.css: 5275b283d31e7a61b036abfec1dc9140ce5de3cae400ee4424084d3cb3fbf263
+- latest.json: 7d9e9ea53b5d2d4ce1a8751ea0cde744c9c9725cb53a9f9bb519fc115e1a68c6
+
+Actual published Webflow DOM passes complete/long synthetic fixtures (one/five CV pages), forward/back wheel snapping across landing/upload/editor/CTA at 1440/390/320 widths, normal-flow header with constant height/display and no direction state, native oversized-section reading, full editor/input fit at desktop/mobile/low-height 844x390, same page text/order/count, selection, draft, pane/outer scroll, focus and modal rotation. All three designs prepare print with loaded fonts and no editor tools; no server export invoked. Screenshot reviewed. Zero real backend/model requests: three mocked requests per fixture. No broad PDF save/parity rerun, backend/n8n/billing/subscription changes.
+
+Build 2026-10-23-natural-header-snap. Safe evidence: TEMP/drafted-snap-preflight-website.json, drafted-snap-published-website.json, drafted-snap-public-hashes.json and drafted-snap-{preflight,published}-{width}.png. Rollback baseline 711479b via a scoped new restoration after checking subsequent changes; never rewrite main.
