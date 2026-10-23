@@ -197,5 +197,5 @@
     host.dataset.pageCount = String(pages.length);
     model.onLayout?.(pages.length);
   }
-  global.DraftedCvLayout = {render, version:'a4-v1'};
+  global.DraftedCvLayout = {render, rescale(host){viewers.get(host)?.scale();}, version:'a4-v1'};
 })(window);

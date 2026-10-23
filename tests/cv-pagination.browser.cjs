@@ -1,6 +1,8 @@
 'use strict';
-const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spawn}=require('node:child_process'),path=require('node:path'),os=require('node:os'),fs=require('node:fs');
+const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spawn,execFileSync}=require('node:child_process'),path=require('node:path'),os=require('node:os'),fs=require('node:fs');
 const fixtures=require('./fixtures/cv-pagination.cjs');
+const exportRegion=code=>code.slice(code.indexOf('// 2) Bygg payload ENBART'),code.indexOf('  window.addEventListener("beforeunload"')).replace(/\r\n/g,'\n');
+assert.equal(exportRegion(fs.readFileSync(path.resolve(__dirname,'../webflow/src/drafted-editor.js'),'utf8')),exportRegion(execFileSync('git',['show','6c8b2f7:webflow/src/drafted-editor.js'],{encoding:'utf8'})),'Published export code must remain identical');
 (async()=>{
  const child=spawn(process.execPath,[path.resolve(__dirname,'../tools/serve-editor-preview.cjs')],{env:{...process.env,PORT:'0',DRAFTED_REWRITE_TEST_APPROVAL:''},stdio:['ignore','pipe','pipe']});
  const base=await new Promise((resolve,reject)=>{let out='';const timer=setTimeout(()=>reject(Error('Server startup timeout')),10000);child.stdout.on('data',s=>{out+=s;const m=out.match(/http:\/\/127\.0\.0\.1:\d+\//);if(m){clearTimeout(timer);resolve(m[0]);}});child.on('error',reject);});
@@ -34,6 +36,22 @@ const fixtures=require('./fixtures/cv-pagination.cjs');
     assert.equal(data.bodySize,'14px');return data;
    }
    const initial=await audit(fixture);assert.ok(name==='short'?initial.count===1:initial.count>=2);
+   assert.equal(await page.locator('#cv-design').count(),0,'Overlay release excludes the design selector');
+   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
+    await page.setViewportSize(viewport);await page.waitForTimeout(80);
+    const pane=page.locator('.cv-document');await pane.evaluate(el=>el.scrollTop=Math.min(180,el.scrollHeight-el.clientHeight));const top=await pane.evaluate(el=>el.scrollTop);
+    await page.evaluate(()=>{window.__overlayNodes=[...document.querySelectorAll('.cv-page')];window.__overlayRenderCalls=0;window.__originalRender ||= DraftedCvLayout.render;DraftedCvLayout.render=(...args)=>{window.__overlayRenderCalls++;return window.__originalRender(...args);};});
+    const expand=page.getByRole('button',{name:'Expand preview',exact:true});await expand.focus();await expand.press('Enter');const dialog=page.getByRole('dialog',{name:'CV preview',exact:true});await dialog.waitFor({state:'visible'});
+    assert.equal(await page.getByRole('button',{name:'Close',exact:true}).evaluate(el=>el===document.activeElement),true);
+    await page.keyboard.press('Shift+Tab');assert.equal(await page.evaluate(()=>!!document.activeElement.closest('dialog[open]')),true);
+    assert.equal(await page.evaluate(()=>window.__overlayNodes.every((el,i)=>el===document.querySelectorAll('.cv-page')[i])),true);assert.deepEqual((await audit(fixture)).signature,initial.signature);
+    const bounds=await dialog.boundingBox();assert.ok(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=viewport.width+1&&bounds.y+bounds.height<=viewport.height+1);
+    await page.locator('.cv-block[data-block-id="experience-1"]').first().click();assert.equal(await page.locator('.cv-block[data-block-id="experience-1"].is-selected').count(),await page.locator('.cv-block[data-block-id="experience-1"]').count());
+    await dialog.screenshot({path:path.join(os.tmpdir(),`drafted-overlay-only-${name}-${viewport.width}.png`)});
+    await page.keyboard.press('Escape');await page.waitForFunction(()=>document.activeElement.classList.contains('workspace-expand-preview'));assert.ok(Math.abs(await pane.evaluate(el=>el.scrollTop)-top)<=1);
+    assert.equal(await page.evaluate(()=>window.__overlayRenderCalls),0,'Open/close must not paginate');await page.getByRole('button',{name:'Clear',exact:true}).click();
+    await expand.click();await page.getByRole('button',{name:'Close',exact:true}).click();await page.waitForFunction(()=>document.activeElement.classList.contains('workspace-expand-preview'));assert.ok(Math.abs(await pane.evaluate(el=>el.scrollTop)-top)<=1);
+   }
    for(const viewport of [{width:1920,height:1080},{width:1366,height:768},{width:1024,height:600},{width:768,height:1024},{width:390,height:844},{width:360,height:640},{width:844,height:390}]) {
     await page.setViewportSize(viewport);await page.waitForTimeout(70);const resized=await audit(fixture);assert.deepEqual(resized.signature,initial.signature,'Panel resize cannot change page breaks');
     const fits=await page.evaluate(()=>{const pane=document.querySelector('.cv-document'),slot=document.querySelector('.cv-page-slot'),p=slot.firstElementChild,r=p.getBoundingClientRect(),s=slot.getBoundingClientRect();return {fits:r.width<=pane.clientWidth&&Math.abs(r.width-s.width)<1&&Math.abs(r.height-s.height)<1,overflow:pane.scrollWidth>pane.clientWidth+1};});assert.equal(fits.fits,true);assert.equal(fits.overflow,false);
