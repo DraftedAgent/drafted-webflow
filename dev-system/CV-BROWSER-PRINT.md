@@ -6,14 +6,14 @@ The original export payload builder/transport/download/error handler is byte-ide
 
 ## Try and save
 
-Run node tools/serve-editor-preview.cjs using the existing synthetic preview server with DRAFTED_PREVIEW_PDF_CASE=long-special. Open the localhost URL in desktop Chrome, choose Try a synthetic CV and job ad, select Classic/Compact/Editorial, then Print / Save as PDF. Expand preview also supports the same print control. How to save a PDF opens the English instructions:
+Run node tools/serve-editor-preview.cjs using the existing synthetic preview server with DRAFTED_PREVIEW_PDF_CASE=long-special. Open the localhost URL in desktop Chrome, choose Try a synthetic CV and job ad, select Classic/Compact/Editorial, then Print / Save as PDF. Expand preview supports the same controls in its header. In the normal editor, design selection and Print / Save as PDF share the existing top toolbar. No persistent help or routine print-status text occupies the CV pane. Native dialog settings remain documented here for reference:
 
 1. Choose Save as PDF in the print destination list.
 2. Use A4, 100% scale and no margins.
 3. Disable headers/footers and enable background graphics.
 4. Save with the desired file name and location.
 
-The filename can default to the parent page title; the user chooses it in the native save dialog. Mobile browsers expose different system print/save/share controls. Cancel/afterprint cleanup reports only that the dialog closed, never that a file was successfully saved: ordinary page JavaScript cannot reliably detect the user's final save decision. The existing Export PDF implementation is preserved; its visible label now states Classic.
+The filename can default to the parent page title; the user chooses it in the native save dialog. Mobile browsers expose different system print/save/share controls. Cancel/afterprint cleanup silently restores focus; only actual errors are shown, never an unsupported claim that a file was saved: ordinary page JavaScript cannot reliably detect the user's final save decision. The existing Export PDF implementation is preserved; its visible label now states Classic.
 
 ## Shared-document implementation
 
@@ -25,7 +25,7 @@ The iframe contains no editor controls. Its outer html/body override only editor
 
 Reused tests/cv-pdf.browser.cjs, fixtures/cv-pdf.cjs and verify-cv-pdf.py. The new DRAFTED_TEST_NATIVE_PRINT=1 mode has three edited long-special cases, one for each existing design. This release retains only the native path of that proof driver; server-export modes/backend remain in draft PR #12. tests/native-print-context.cjs creates a disposable, signed-out Chrome profile with Save as PDF/A4/100%/no margins/backgrounds/no headers preset and --kiosk-printing solely for unattended testing. It triggers the actual product window.print() path and reads the files saved by Chrome; no page.pdf(), backend render call or substituted PDF response generates those files. It does not touch the user's browser/printer profile. Chrome 155.0.8059.84 is verified. An Edge kiosk attempt did not produce a file; native Edge save is not claimed verified.
 
-Checks are limited to the changed path: stylesheet preparation keeps the new button busy, a design change during preparation rejects the obsolete copy, simulated cancel/afterprint cleans up, buttons fit 320/390px widths, instructions are visible, Apply precedes each print, and one actual save is initiated within the overlay. Source/page signatures remain unchanged; existing PDF export request count stays zero. Three final native PDFs contain 4/3/4 pages, 11 total. All final pages are rendered with Poppler and visually inspected against actual unscaled preview DOM proofs. The proof fonts and element geometry are checked against the real preview by the reused harness.
+Checks are limited to the changed path: stylesheet preparation keeps the new button busy, a design change during preparation rejects the obsolete copy, simulated cancel/afterprint cleans up, buttons fit 320/390px widths, Apply precedes each print, and one actual save is initiated within the overlay. Source/page signatures remain unchanged; existing PDF export request count stays zero. Three final native PDFs contain 4/3/4 pages, 11 total. All final pages are rendered with Poppler and visually inspected against actual unscaled preview DOM proofs. The proof fonts and element geometry are checked against the real preview by the reused harness.
 
 Pypdf verifies matching per-page normalized text in geometric-layout extraction, complete applied text, Swedish/accent/currency/Greek characters, embedded Liberation fonts, zero rasterized document images and no editor/print-help UI. Exact HTTP/HTTPS/www/email/long-URL annotation destinations survive: 17/15/17 annotations, including full long targets. Link destinations are inspected without opening external sites or mail apps. No page errors/outside browser requests or external model calls.
 
