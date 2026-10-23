@@ -4,7 +4,7 @@
   function create({section,card,host,heading,controls}){
     const pane=card.querySelector('.cv-document');
     const workspaceScroll=section.closest('.page-scroll');
-    const expand=document.createElement('button');expand.type='button';expand.className='workspace-preview-action workspace-expand-preview';expand.textContent='Expand preview';expand.disabled=true;expand.setAttribute('aria-haspopup','dialog');expand.setAttribute('aria-controls','cv-preview-dialog');
+    const expand=document.createElement('button');expand.type='button';expand.className='workspace-preview-action workspace-expand-preview';expand.textContent='Expand preview';expand.disabled=true;const expandLabel=document.createElement('span');expandLabel.className='workspace-expand-label';expandLabel.textContent='Expand preview';const expandIcon=document.createElement('span');expandIcon.className='workspace-expand-icon';expandIcon.setAttribute('aria-hidden','true');expandIcon.textContent='⛶';expand.replaceChildren(expandIcon,expandLabel);expand.setAttribute('aria-label','Expand preview');expand.setAttribute('aria-haspopup','dialog');expand.setAttribute('aria-controls','cv-preview-dialog');
     const close=document.createElement('button');close.type='button';close.className='workspace-preview-action workspace-close-preview';close.textContent='Close';close.hidden=true;
     heading.append(expand,close);
     const dialog=document.createElement('dialog');dialog.id='cv-preview-dialog';dialog.className='cv-preview-dialog';dialog.setAttribute('aria-labelledby','cv-preview-heading');
@@ -18,11 +18,12 @@
       const anchor=slots.find(el=>el.getBoundingClientRect().bottom>bounds.top)||slots[0];
       const rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
-      saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      saved={release:global.DraftedWorkspaceView.lock(),snap:workspaceScroll?.style.scrollSnapType,placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      saved.headingSlot=document.createComment('Preview toolbar position');heading.replaceWith(saved.headingSlot);card.prepend(heading);
       if(controls){saved.controlsSlot=document.createComment('CV toolbar position');controls.replaceWith(saved.controlsSlot);heading.insertBefore(controls,heading.querySelector('.workspace-page-count'));}
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
-      if(workspaceScroll)workspaceScroll.style.overflow='hidden';
+      if(workspaceScroll){workspaceScroll.style.overflow='hidden';workspaceScroll.style.scrollSnapType='none';}
       global.DraftedCvLayout.rescale(host);
       // Keep the same reading position when the viewer scale increases.
       if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height,newRect=anchor.getBoundingClientRect();pane.scrollTop+=newRect.top-pane.getBoundingClientRect().top+fraction*newRect.height;}
@@ -32,6 +33,7 @@
       if(!saved)return;
       const previous=saved;saved=null;
       if(previous.controlsSlot)previous.controlsSlot.replaceWith(controls);
+      previous.headingSlot.replaceWith(heading);
       previous.placeholder.replaceWith(card);expand.hidden=false;close.hidden=true;
       document.body.style.overflow=previous.overflow;
       if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;workspaceScroll.scrollTop=previous.workspace.top;workspaceScroll.scrollLeft=previous.workspace.left;}
@@ -39,6 +41,7 @@
       pane.scrollTop=previous.top;pane.scrollLeft=previous.left;
       window.scrollTo(previous.x,previous.y);
       (previous.focus?.isConnected?previous.focus:expand).focus({preventScroll:true});
+      requestAnimationFrame(()=>{if(workspaceScroll){workspaceScroll.scrollTop=previous.workspace.top;workspaceScroll.style.scrollSnapType=previous.snap;}requestAnimationFrame(previous.release);});
     }
     expand.addEventListener('click',open);
     close.addEventListener('click',()=>dialog.close());

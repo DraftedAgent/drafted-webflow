@@ -276,49 +276,8 @@ function setEditorProcessing(isOn) {
 
   console.log("✅ Drafted editor loaded");
 
-  // ✅ NAV HEIGHT VAR (must run before snap layout is evaluated)
-  (function setupNavHeightVar(){
-    const root = document.documentElement;
-  
-    let last = 0;
-  function setVar(px){
-    const v = Math.max(0, Math.round(px));
+  DraftedWorkspaceView.viewport();
 
-    // Ignore insane jumps (mobile menu opening, etc)
-    if (last && v > last * 1.8) return;
-
-    last = v;
-    root.style.setProperty("--nav-h", v + "px");
-  }
-  
-    function findNavbar(){
-      // Webflow navbar wrapper (recommended)
-      return document.querySelector(".w-nav") 
-        // fallback: your nav element
-        || document.querySelector("nav[role='navigation']")
-        || document.querySelector("nav");
-    }
-    
-  
-    const nav = findNavbar();
-    console.log("setupNavHeightVar: nav found", nav);
-
-    if (!nav) { setVar(0); return; }
-  
-    const measure = () => setVar(nav.getBoundingClientRect().height);
-  
-    measure();
-  
-    const ro = new ResizeObserver(measure);
-    ro.observe(nav);
-  
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(measure);
-    }
-  
-    window.addEventListener("resize", measure, { passive: true });
-  })();
-  
   // Initial UI state — safe to run now
   setEditorProcessing(false);
   setEditorPlaceholder(true);
@@ -1375,7 +1334,8 @@ function setApplyLabel() {
       selectedCvDesign=designSelect.value;
       renderDocument(documentTextState);
     });
-    designControls.append(designLabel,designSelect);topbar.insertBefore(designControls,tools||null);
+    designControls.append(designLabel,designSelect);topbar.insertBefore(previewTitle,tools||null);topbar.insertBefore(designControls,tools||null);
+    DraftedWorkspaceView.actions(topbar,tools);
     const previewCard=editorPreviewEl.closest('.cv-card');
     if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle,controls:designControls});
     browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:designControls,getTitle:()=>documentTitle});
