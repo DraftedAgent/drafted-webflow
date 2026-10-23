@@ -8,6 +8,7 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8').replace(/^\uFEFF/,'').re
 const original=read('tests/fixtures/tailor-workflow.safe.json'),baseline=JSON.parse(original.replace(/^\uFEFF/,'')),candidate=adapter.prepare(baseline),diff=adapter.diff(baseline,candidate);
 const file='webflow/src/drafted-editor.js',source=read(file),lines=source.split(/\r?\n/),index=lines.findIndex(l=>l.startsWith('const tailorSourcesEnabled='));
 if(index<0)throw Error('FRONTEND_GATE_CHANGED');
+if(lines[index].includes('(!window.__DRAFTED_PREVIEW_ENDPOINTS__'))throw Error('FRONTEND_RELEASE_ALREADY_APPLIED: keep the reviewed pre-release artifacts frozen.');
 const before=lines[index],after=before.replace('const tailorSourcesEnabled=','const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_URL==="https://drafted.app.n8n.cloud/webhook/tailor-cv")||');
 const frontend=`--- a/${file}\n+++ b/${file}\n@@ -${index-2},5 +${index-2},5 @@\n`+[...lines.slice(index-3,index).map(l=>' '+l),'-'+before,'+'+after,...lines.slice(index+1,index+2).map(l=>' '+l)].join('\n')+'\n';
 const patch=JSON.stringify(diff,null,2)+'\n';

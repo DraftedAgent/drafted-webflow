@@ -1,0 +1,37 @@
+{
+  "record": "Verified backend publication and frontend release assets before Pages merge",
+  "devId": "DEV-081",
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "beforeVersionId": "f399ee97-764b-44e0-bc42-5c7517499890",
+  "savedVersionId": "ac02e245-1b06-43b1-812e-8ee0ebc720d8",
+  "activeVersionId": "ac02e245-1b06-43b1-812e-8ee0ebc720d8",
+  "saveStatus": 200,
+  "publishStatus": 200,
+  "projection": {
+    "projectionVerified": true,
+    "activeVerified": true,
+    "nodeCount": 15,
+    "projectionSha256": "c484ede749347ebe702766182631309948d26b6d980c67831c4acc9699c36abd"
+  },
+  "encryptedSnapshotManifests": [
+    "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T181506010Z__H8oAioy58R1v3PvRe3YUa__f399ee97-764b-44e0-bc42-5c7517499890__pre-save-DEV-081.manifest.json",
+    "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T181510063Z__H8oAioy58R1v3PvRe3YUa__ac02e245-1b06-43b1-812e-8ee0ebc720d8__post-save-DEV-081.manifest.json",
+    "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T181521356Z__H8oAioy58R1v3PvRe3YUa__ac02e245-1b06-43b1-812e-8ee0ebc720d8__pre-publish-DEV-081.manifest.json",
+    "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261023T181525973Z__H8oAioy58R1v3PvRe3YUa__ac02e245-1b06-43b1-812e-8ee0ebc720d8__post-publish-DEV-081.manifest.json"
+  ],
+  "frontend": {
+    "build": "2026-10-23-tailor-sources-live",
+    "normalizedUtf8Sha256": {
+      "drafted-editor.js": "1df40949416ba96fe4971776b3cb266a25954b940b7f0b8ae47ccba6ddf4b44a",
+      "drafted-editor.css": "17be047b199e2f5460293064d39f36169eba37c1d59b935e3ff2747fd3533b8a",
+      "latest.json": "2667f5c2055fda9aefe7e2c8896ce9e271d4439f8decf3058cebea4f37dc242a"
+    }
+  },
+  "validation": {
+    "unitTestsPassed": 67,
+    "actualWebsiteWithCandidateAssets": "passed; all backend requests locally fulfilled",
+    "remoteWorkflowTestRequests": 0,
+    "externalModelCalls": 0,
+    "liveAssetReadback": "To be recorded in PR delivery receipt after Pages merge"
+  }
+}

@@ -1031,7 +1031,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-23-tailor-answer-sources");
+console.log("DRAFTED_JS_SOURCE", "2026-10-23-tailor-sources-live");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1049,7 +1049,7 @@ const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n
 let discoveryController = null;
 let discoveryCvFile = null;
 let tailorInFlight = false;
-const tailorSourcesEnabled=['localhost','127.0.0.1'].includes(location.hostname)&&draftedEndpoints.tailorSources===true&&draftedEndpoints.tailor==='/preview-api/tailor';
+const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_URL==="https://drafted.app.n8n.cloud/webhook/tailor-cv")||['localhost','127.0.0.1'].includes(location.hostname)&&draftedEndpoints.tailorSources===true&&draftedEndpoints.tailor==='/preview-api/tailor';
 const tailorSourceLedger=new DraftedTailorSources.Ledger();
 
 // The editor is a workspace; remove the legacy Webflow section introduction.

@@ -1,8 +1,8 @@
-# Tailor with source answers — local profile 1.0
+# Tailor with source answers — profile 1.0
 
-2026-10-23. Owner-approved **local implementation and synthetic validation only**. This profile permits source-supported additions in relevant existing CV blocks. It supersedes the earlier proposed summary-only restriction and single `previousApplication` suffix. It does not change the deployed Tailor workflow, authorize external execution/publication, create blocks, resolve general commit/version ownership, or introduce persistent profiles.
+2026-10-23. Initially approved for local implementation/synthetic validation; **DEV-081 owner authorizes publication of the prepared existing-workflow adapter and frontend integration**. Backend saved/active version is `ac02e245-1b06-43b1-812e-8ee0ebc720d8`, workflow `H8oAioy58R1v3PvRe3YUa`. The profile permits source-supported additions in relevant existing CV blocks. It supersedes the earlier proposed summary-only restriction and single `previousApplication` suffix. It does not create blocks, resolve general commit/version ownership, or introduce persistent profiles. External model test execution remains excluded.
 
-Implementation: `webflow/src/tailor-sources.js`, injected-provider handler `backend/tailor-sources.cjs`, existing discovery Session/editor/review UI. Production source transport remains disabled. Local capability requires loopback hostname, explicit fixture capability `tailorSources:true`, and `/preview-api/tailor`; there is no external fallback. The deployed no-source Tailor contract remains unchanged.
+Implementation: `webflow/src/tailor-sources.js`, existing discovery Session/editor/review UI, and the approved n8n adapter. Frontend release assets enable the profile for exactly `https://drafted.app.n8n.cloud/webhook/tailor-cv` when there is no preview override. Local capability still requires loopback hostname, explicit fixture capability `tailorSources:true`, and `/preview-api/tailor`; the injected handler is a synthetic preview only. No synthetic production fallback. The no-source Tailor contract remains unchanged. Source-profile additions/corrections do not also rephrase unrelated CV text in the same pass; that needs a separate provenance-preserving edit contract.
 
 ## Exact request profile
 

@@ -1,5 +1,7 @@
 # Source-aware Tailor release readiness
 
+DEV-081 supersedes the preparation-only status: owner explicitly requests publication. The reviewed backend adapter is published and read-back verified as saved/active ac02e245-1b06-43b1-812e-8ee0ebc720d8. The exact frontend gate patch is applied in build 2026-10-23-tailor-sources-live for PR #23/Pages delivery. [Deployment record](TAILOR-SOURCE-DEPLOYMENT.md). No external model execution or Webflow publication. The paragraphs below are historical preparation/delivery evidence.
+
 DEV-080 supersedes the pending choice below: owner selected preparation of the real Tailor connection first. [Concrete prepared candidate](TAILOR-SOURCE-PRODUCTION-CANDIDATE.md), version-bound workflow diff, manifest and un-applied frontend enablement patch are now local. External workflow/publication/model actions remain unperformed. Source profile adds/corrects supported additions; combining ordinary CV rephrasing in the same pass is a disclosed separate contract need. Do not read the historical publication choices as new approval.
 
 2026-10-23, DEV-079. Owner requests commit, push and publication of the reviewed local candidate. Base origin/main re-fetched and unchanged at 1e7b1e51fc671b385d26e217e6581c7fffee1bfb. This request authorizes saving/delivering the reviewed work. Readiness is evaluated separately from authorization; a synthetic provider is not a production backend.

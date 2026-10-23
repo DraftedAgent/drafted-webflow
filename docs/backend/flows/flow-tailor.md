@@ -1,8 +1,8 @@
-> Local-only extension approved 2026-10-23: [Tailor source profile 1.0](../../../contracts/tailor-sources-v1.md) defines typed user-source additions to relevant existing blocks, traced receipts and multi-Apply correction handling. Implemented only in the isolated localhost handler; the deployed workflow and the legacy endpoint contract below are unchanged. No new-block support or external execution is authorized. The no-new-fields rule below continues to govern requests to the deployed workflow.
+> DEV-081, 2026-10-23: owner-authorized [Tailor source profile 1.0](../../../contracts/tailor-sources-v1.md) is published in existing workflow H8oAioy58R1v3PvRe3YUa, saved/active ac02e245-1b06-43b1-812e-8ee0ebc720d8. It adds typed user-source additions to relevant existing blocks, traced receipts and multi-Apply correction handling. The no-new-fields rule below governs the unchanged no-source profile; source requests use the exact separate extension. No new-block support or external model test execution. Actual inspected route is /webhook/tailor-cv.
 
 ## **Endpoint**
 
-POST /webflow-tailor-cv  
+POST /tailor-cv
 Content-Type: application/json
 
 ## **Required Fields**

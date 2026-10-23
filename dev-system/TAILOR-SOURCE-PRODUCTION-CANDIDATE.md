@@ -1,5 +1,7 @@
 # Förberedd koppling till befintligt Tailor-workflow
 
+**DEV-081 status:** ägaren har därefter sagt ”publicera”. Den exakt förberedda adaptern är publicerad i befintligt workflow, sparad/aktiv `ac02e245-1b06-43b1-812e-8ee0ebc720d8`. Frontend-patchen är applicerad och byggd för Pages-leverans via PR #23. [Leveransunderlag och verifiering](TAILOR-SOURCE-DEPLOYMENT.md). Nedan behålls det historiska godkännandeunderlaget; dess tidigare ej-applicerad/ej-publicerad-status gäller inte längre. Ingen extern modellkörning har utförts.
+
 2026-10-23, DEV-080. Ägaren valde ”Förbered riktig Tailor-koppling först”. Detta är en lokal, versionsbunden kandidat för godkännande. Ingen extern definition har skrivits, aktiverats eller publicerats. Ingen extern modell har körts. Den tidigare kandidatens källprofil, original/revisioner, granskning och Apply återanvänds.
 
 ## Exakt omfattning
