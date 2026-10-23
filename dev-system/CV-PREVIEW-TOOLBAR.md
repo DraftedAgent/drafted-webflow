@@ -25,3 +25,16 @@ Local preview: http://127.0.0.1:8786/?sample=1 (complete synthetic header). Run 
 ## Owner-approved publication
 
 Owner explicitly requests publicera after local review. Remote main rechecked at 7948411; same isolated worktree and exact UI-only scope. Build 2026-10-23-preview-toolbar differs from tested local assets only in version marker. Pages legacy main-at-root delivery verified. No Webflow/backend/n8n/billing/model operation. Rollback baseline 7948411 through a new scoped restoration, preserving intervening changes; do not rewrite main. Exact candidate preflight on actual Webflow DOM with all backend requests intercepted, then expected-head/base merge and Pages/served-hash/published-UI verification. No full native PDF save/parity rerun for toolbar-only work. Final receipt follows.
+
+## Publication receipt (2026-10-23)
+
+PR [#19](https://github.com/DraftedAgent/drafted-webflow/pull/19), exact release head `79eeb88c3edd1b349cddb9f3d7b4b0a3b4499eb0`, merged to main `d4df5361c33d1e4f6390889187bcf6e9105ef8c6` after rechecking unchanged base/head/file list and clean mergeability. No configured check runs/statuses; local and actual-site preflight are the validation evidence. Pages [39953841740](https://github.com/DraftedAgent/drafted-webflow/actions/runs/39953841740) completed successfully. Existing Webflow loader consumes root assets, no full Webflow publish required or performed.
+
+Root files fetched after Pages success match frozen exact-commit SHA256:
+- `drafted-editor.js`: `378ebdfd8ae4fc0cbad5500028fd8bdaccf01433a2e0d4e9f2cd315fe3bd1784`
+- `drafted-editor.css`: `5d7fdeffb409ffb983737ae3f146d72b6cb848e2cf0a400b1280abba652dc0b9`
+- `latest.json`: `a2ea0c5cce94a9d09762d875836fdecd657eac1f7a142d2f5786bf45c7acfde2`
+
+Post-publication actual-Webflow-DOM check passes complete/long synthetic fixtures (one/five pages), all three designs at 1440/390/320px, correct right-pane control placement, exactly one Export PDF action, normal/expanded selected-design print preparation, full page text/order/count, loaded fonts and no tools/selection in print DOM. Same live pages move into overlay; Close/Escape restores focus; copy, hover/focus tooltip and unsent instruction retained. 36 prepared print contexts, Classic endpoint never invoked. Backend responses intercepted before navigation: three mocked requests per fixture, zero real backend/model calls. Published screenshots visually reviewed. This is prepared-print-DOM verification, not a new native PDF save/parity run.
+
+Safe local evidence: TEMP/drafted-toolbar-preflight-website.json, drafted-toolbar-published-website.json, drafted-toolbar-public-hashes.json and drafted-toolbar-{preflight,published}-{width}-{normal,expanded}.png. No n8n/backend/billing/subscription changes. Build `2026-10-23-preview-toolbar`. Rollback remains a scoped new commit restoring this release from baseline 7948411 after checking intervening changes.
