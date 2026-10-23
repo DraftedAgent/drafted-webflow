@@ -62,6 +62,21 @@
     correct(id){const r=this.round(),index=r.queue.findIndex(q=>q.id===id);if(index<0)throw Error('UNKNOWN_QUESTION');r.finishedEarly=false;r.index=index;r.phase='correct';r.notice='';}
     skip(){const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');if(q.answerId){this.invalidate(q.answerId);this.state.answers.find(a=>a.id===q.answerId).status='skipped';}q.status='skipped';this.advance();}
     finish(){this.round().finishedEarly=true;this.round().phase='complete';}
+    sourceContext(applications=[]){
+      const snap=this.snapshot(),r=this.round();
+      return {contextRevision:snap.context.revision+':'+snap.revision+':'+r.phase+':'+r.index,roundId:r.id,
+        questions:r.queue.map(q=>({id:q.id,question:q.question,signalRefs:copy(q.signalRefs),status:r.phase==='correct'&&q.id===this.current()?.id?'editing':q.status})),
+        answers:snap.answers.filter(a=>a.roundId===r.id).map(a=>({id:a.id,questionId:a.questionId,revision:a.currentRevision,text:a.revisions.at(-1).text})),applications:copy(applications)};
+    }
+    appendContext(answerId,revision,reply){
+      requireText(reply);const a=this.state.answers.find(a=>a.id===answerId&&a.roundId===this.round().id);
+      if(!a||a.currentRevision!==revision||a.status!=='recorded')throw Error('STALE_ANSWER');
+      const latest=a.revisions.at(-1),sourceTextBeforeContext=latest.contextReply!==undefined?latest.sourceTextBeforeContext:latest.text;const text=sourceTextBeforeContext+'\n\nContext: '+reply;if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,contextReply:reply,sourceTextBeforeContext});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();
+    }
+    adoptRepresentation(blocks,cvVersionId){
+      const r=this.round(),revision=this.id();for(const a of this.state.answers.filter(a=>a.roundId===r.id&&a.status==='processing')){a.status='error';r.queue.find(q=>q.id===a.questionId).status='error';}this.state.context={...this.state.context,revision,blocks:copy(blocks),cvVersionId};r.contextRevision=revision;this.state.revision++;
+    }
     accounts(){return copy(this.state.answers.filter(a=>a.status==='recorded').map(a=>({...a,sourceText:a.revisions.at(-1).text,verification:'user_submitted',interpretationsAreAdvisory:true})));}
     accountsForRound(){return this.accounts().filter(a=>a.roundId===this.round().id);}
     summary(){const r=this.round(),count=s=>r.queue.filter(q=>q.status===s).length;return {total:r.total,answered:count('recorded'),covered:count('covered'),skipped:count('skipped'),no:count('no'),unknown:count('unknown'),remaining:r.queue.filter(q=>['unanswered','answered'].includes(q.status)).length};}

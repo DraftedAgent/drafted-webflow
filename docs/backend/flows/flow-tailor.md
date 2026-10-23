@@ -1,3 +1,5 @@
+> Local-only extension approved 2026-10-23: [Tailor source profile 1.0](../../../contracts/tailor-sources-v1.md) defines typed user-source additions to relevant existing blocks, traced receipts and multi-Apply correction handling. Implemented only in the isolated localhost handler; the deployed workflow and the legacy endpoint contract below are unchanged. No new-block support or external execution is authorized. The no-new-fields rule below continues to govern requests to the deployed workflow.
+
 ## **Endpoint**
 
 POST /webflow-tailor-cv  
