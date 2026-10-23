@@ -20,3 +20,10 @@ The prior owner restriction against external workflow changes and external model
 2. Preserve this candidate in GitHub and prepare the real existing-workflow integration for review first. Do not merge the current candidate as if it publishes answer-aware tailoring. The production diff and its external scope must be concrete before dependent operations.
 
 No production action has yet been executed. Commit/push outcome and PR reference are reported after verified delivery. Source-aware local preview remains localhost:8795 with sources scenario; existing synthetic tests do not prove live model semantic fidelity.
+
+
+## Verified branch delivery — DEV-079
+
+2026-10-23. Reviewed product/source candidate committed as d904791dd2d45122d051a5f6f16c53e1fbab623a and pushed to origin/codex/questions-to-tailoring. Remote SHA read-back matches. Draft PR #23: https://github.com/DraftedAgent/drafted-webflow/pull/23, base 1e7b1e51fc671b385d26e217e6581c7fffee1bfb, created and attached to this chat. Existing HTTPS/GCM account has push rights; connector remains read-only. Actual Pages settings rechecked: legacy build from main at /, no .github workflow files/changes.
+
+Before push, all 58 unit/session/transport tests and the full source-driven browser suite were rerun and passed; all outside browser traffic blocked. No source code changed after those checks. Source feature remains loopback/fixture gated. The owner has been asked whether to publish only the deployable UI candidate or first prepare the actual production Tailor adapter. No merge/publication or remote workflow/model action has been performed. This receipt is a separate documentation-only follow-up on the same branch.
