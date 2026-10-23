@@ -282,7 +282,7 @@
 /* Viewer interaction only: move the live preview, never clone or paginate it. */
 (function(global){
   'use strict';
-  function create({section,card,host,heading}){
+  function create({section,card,host,heading,controls}){
     const pane=card.querySelector('.cv-document');
     const workspaceScroll=section.closest('.page-scroll');
     const expand=document.createElement('button');expand.type='button';expand.className='workspace-preview-action workspace-expand-preview';expand.textContent='Expand preview';expand.disabled=true;expand.setAttribute('aria-haspopup','dialog');expand.setAttribute('aria-controls','cv-preview-dialog');
@@ -300,6 +300,7 @@
       const rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
       saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      if(controls){saved.controlsSlot=document.createComment('CV toolbar position');controls.replaceWith(saved.controlsSlot);heading.insertBefore(controls,heading.querySelector('.workspace-page-count'));}
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
       if(workspaceScroll)workspaceScroll.style.overflow='hidden';
@@ -311,6 +312,7 @@
     function restore(){
       if(!saved)return;
       const previous=saved;saved=null;
+      if(previous.controlsSlot)previous.controlsSlot.replaceWith(controls);
       previous.placeholder.replaceWith(card);expand.hidden=false;close.hidden=true;
       document.body.style.overflow=previous.overflow;
       if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;workspaceScroll.scrollTop=previous.workspace.top;workspaceScroll.scrollLeft=previous.workspace.left;}
@@ -373,26 +375,20 @@
   }
   function create({host,controls,getTitle}){
     const stylesheet=document.querySelector('link[href*="drafted-editor.css"]')?.href;
-    const button=document.createElement('button');button.type='button';button.className='workspace-print-button';button.textContent='Print / Save as PDF';button.disabled=true;
-    const help=document.createElement('details');help.className='workspace-print-help';
-    const summary=document.createElement('summary');summary.textContent='How to save a PDF';
-    const steps=document.createElement('ol');
-    for(const text of ['Choose Save as PDF in the print destination list.','Use A4 paper, 100% scale and no margins.','Turn off headers and footers. Turn on background graphics.','Choose Save, enter a file name and select a location.']){const item=document.createElement('li');item.textContent=text;steps.append(item);}
-    const mobile=document.createElement('p');mobile.textContent='On mobile, use the system PDF or save/share option where available. Names vary by browser. Cancel returns to your CV without changes.';
-    help.append(summary,steps,mobile);
-    const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
-    controls.append(button,help,status);
+    const button=document.createElement('button');button.type='button';button.className='workspace-print-button';button.setAttribute('aria-label','Print / Save as PDF');button.title='Print / Save as PDF';button.disabled=true;
+    button.innerHTML='<svg class="workspace-print-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg><span class="workspace-print-label">Print / Save as PDF</span>';
+    const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
+    controls.append(button,status);
     let state='loading',busy=false;
-    const refresh=()=>{button.disabled=busy||state!=='ready'||Number(host.dataset.pageCount)<1;};
+    const refresh=()=>{button.disabled=busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.setAttribute('aria-busy',String(busy));};
     button.addEventListener('click',async()=>{
       if(button.disabled)return;
-      busy=true;refresh();status.textContent='Preparing the current design for printing…';let frame;
+      busy=true;refresh();status.hidden=true;status.textContent='';let frame;
       try{
         frame=await prepare(host,getTitle(),stylesheet);
-        frame.contentWindow.addEventListener('afterprint',()=>{frame.remove();busy=false;refresh();status.textContent='Print dialog closed. Your CV is unchanged.';button.focus({preventScroll:true});},{once:true});
-        status.textContent='Choose Save as PDF in the print dialog.';
+        frame.contentWindow.addEventListener('afterprint',()=>{frame.remove();busy=false;refresh();button.focus({preventScroll:true});},{once:true});
         frame.contentWindow.print();
-      }catch(error){frame?.remove();busy=false;refresh();status.textContent=error.message||'The print dialog could not be opened.';}
+      }catch(error){frame?.remove();busy=false;refresh();status.hidden=false;status.textContent=error.message||'The print dialog could not be opened.';}
     });
     return {setState(next){state=next;refresh();}};
   }
@@ -734,7 +730,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-23-browser-print");
+console.log("DRAFTED_JS_SOURCE", "2026-10-23-compact-preview-tools");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -2092,17 +2088,16 @@ function setApplyLabel() {
     section.querySelector('.cv-card')?.prepend(previewTitle);
     const designControls=document.createElement('div');designControls.className='workspace-design-controls';
     const designLabel=document.createElement('label');designLabel.htmlFor='cv-design';designLabel.textContent='Design';
-    const designSelect=document.createElement('select');designSelect.id='cv-design';designSelect.setAttribute('aria-label','CV design');designSelect.setAttribute('aria-describedby','cv-design-note');
+    const designSelect=document.createElement('select');designSelect.id='cv-design';designSelect.setAttribute('aria-label','CV design');
     for(const design of DraftedCvDesigns){const option=document.createElement('option');option.value=design.id;option.textContent=design.name;designSelect.append(option);}
     designSelect.value=selectedCvDesign;
     designSelect.addEventListener('change',()=>{
       selectedCvDesign=designSelect.value;
       renderDocument(documentTextState);
     });
-    const note=document.createElement('span');note.id='cv-design-note';note.textContent='Page count varies by design. Print saves the selected design; Export PDF uses Classic.';
-    designControls.append(designLabel,designSelect,note);previewTitle.after(designControls);
+    designControls.append(designLabel,designSelect);topbar.insertBefore(designControls,tools||null);
     const previewCard=editorPreviewEl.closest('.cv-card');
-    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
+    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle,controls:designControls});
     browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:designControls,getTitle:()=>documentTitle});
   })();
 

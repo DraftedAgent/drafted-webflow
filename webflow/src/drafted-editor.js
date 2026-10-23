@@ -1368,17 +1368,16 @@ function setApplyLabel() {
     section.querySelector('.cv-card')?.prepend(previewTitle);
     const designControls=document.createElement('div');designControls.className='workspace-design-controls';
     const designLabel=document.createElement('label');designLabel.htmlFor='cv-design';designLabel.textContent='Design';
-    const designSelect=document.createElement('select');designSelect.id='cv-design';designSelect.setAttribute('aria-label','CV design');designSelect.setAttribute('aria-describedby','cv-design-note');
+    const designSelect=document.createElement('select');designSelect.id='cv-design';designSelect.setAttribute('aria-label','CV design');
     for(const design of DraftedCvDesigns){const option=document.createElement('option');option.value=design.id;option.textContent=design.name;designSelect.append(option);}
     designSelect.value=selectedCvDesign;
     designSelect.addEventListener('change',()=>{
       selectedCvDesign=designSelect.value;
       renderDocument(documentTextState);
     });
-    const note=document.createElement('span');note.id='cv-design-note';note.textContent='Page count varies by design. Print saves the selected design; Export PDF uses Classic.';
-    designControls.append(designLabel,designSelect,note);previewTitle.after(designControls);
+    designControls.append(designLabel,designSelect);topbar.insertBefore(designControls,tools||null);
     const previewCard=editorPreviewEl.closest('.cv-card');
-    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
+    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle,controls:designControls});
     browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:designControls,getTitle:()=>documentTitle});
   })();
 

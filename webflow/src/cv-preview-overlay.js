@@ -1,7 +1,7 @@
 /* Viewer interaction only: move the live preview, never clone or paginate it. */
 (function(global){
   'use strict';
-  function create({section,card,host,heading}){
+  function create({section,card,host,heading,controls}){
     const pane=card.querySelector('.cv-document');
     const workspaceScroll=section.closest('.page-scroll');
     const expand=document.createElement('button');expand.type='button';expand.className='workspace-preview-action workspace-expand-preview';expand.textContent='Expand preview';expand.disabled=true;expand.setAttribute('aria-haspopup','dialog');expand.setAttribute('aria-controls','cv-preview-dialog');
@@ -19,6 +19,7 @@
       const rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
       saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      if(controls){saved.controlsSlot=document.createComment('CV toolbar position');controls.replaceWith(saved.controlsSlot);heading.insertBefore(controls,heading.querySelector('.workspace-page-count'));}
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
       if(workspaceScroll)workspaceScroll.style.overflow='hidden';
@@ -30,6 +31,7 @@
     function restore(){
       if(!saved)return;
       const previous=saved;saved=null;
+      if(previous.controlsSlot)previous.controlsSlot.replaceWith(controls);
       previous.placeholder.replaceWith(card);expand.hidden=false;close.hidden=true;
       document.body.style.overflow=previous.overflow;
       if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;workspaceScroll.scrollTop=previous.workspace.top;workspaceScroll.scrollLeft=previous.workspace.left;}
