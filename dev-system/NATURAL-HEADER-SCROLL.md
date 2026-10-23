@@ -21,3 +21,16 @@ Local preview: http://127.0.0.1:8787/ (header flow), http://127.0.0.1:8787/?samp
 ## Owner-approved publication
 
 Owner explicitly requests publicera after local review. Remote main rechecked d4df536; same isolated worktree and UI-only scope. Build 2026-10-23-natural-header changes only the local build marker. Pages main-at-root confirmed before delivery. No Webflow/backend/n8n/billing/model action. Rollback baseline d4df536, through a new scoped restoration preserving intervening work. Exact candidate Webflow-DOM preflight, expected-head/base merge, then Pages success, served hashes and published behavior verification. Final receipt follows.
+
+## Publication receipt (2026-10-23)
+
+PR [#20](https://github.com/DraftedAgent/drafted-webflow/pull/20), release head fef7b7efadcf5410e7a6719da2dffdf5bbc1014c, merged to main 711479b016f85f60806e41b000c73225b640b036 after expected-head/base/file-scope verification and clean mergeability. No configured check runs/statuses; local suites and actual-site preflight are the validation evidence. Pages [39958585089](https://github.com/DraftedAgent/drafted-webflow/actions/runs/39958585089) completed successfully. Existing Webflow loader consumes root assets; no full Webflow publish performed.
+
+Root files fetched after deployment match frozen exact-commit SHA256:
+- drafted-editor.js: 0130345c241aaabf1fc796cd25a6970c0dfe45117f9ec86ce4fca03caa95c08f
+- drafted-editor.css: 254476082a2c7a17ad27d21f8835ce5e769156b898edb653603817c5f0a0b505
+- latest.json: 677dfc7188bf9640943781b7eab89b0a5af9f8e63424ce5f08a6d54d29e2fa64
+
+Actual published Webflow DOM passes complete/long synthetic CVs, all three designs, 1440/390/320/844 widths including low height, natural header position and bidirectional incremental scrolling without delayed shifts, full-height editor/input fit, retained branding, unchanged per-page text/order/count on resize, selection/draft/scroll/focus, and resize while expanded. Selected-design browser-print preparation passes for each design; no server export invoked. One/five pages retained. All backend traffic intercepted before navigation (three mocked requests per fixture); zero real backend/model calls. Prepared print is checked; no full native PDF save/parity rerun.
+
+Safe evidence outside Git: TEMP/drafted-natural-preflight-website.json, drafted-natural-published-website.json, drafted-natural-public-hashes.json and drafted-natural-{preflight,published}-{width}.png. No backend/n8n/billing/subscription change. Build 2026-10-23-natural-header. Rollback remains a scoped new commit from d4df536, preserving subsequent changes.
