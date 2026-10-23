@@ -671,7 +671,6 @@ maybeShowTailor();
   }
   
   
-  let currentUrl = null;
 
 function onReady(fn) {
   if (document.readyState === "loading") {
@@ -694,19 +693,14 @@ function setupFilePicker() {
 
   if (fileInput.dataset.bound === "1") return;
   fileInput.dataset.bound = "1";
+  const originalPreview = DraftedUploadedPdf.create({frame:previewFrame,wrap:previewWrap});
 
   fileInput.addEventListener("change", () => {
     discoveryController?.invalidate();
     const file = fileInput.files?.[0] || null;
 
     if (fileName) fileName.textContent = file ? file.name : "No file selected";
-    if (!file) return;
-
-    if (currentUrl) URL.revokeObjectURL(currentUrl);
-    currentUrl = URL.createObjectURL(file);
-
-    if (previewFrame) previewFrame.src = currentUrl;
-    previewWrap?.classList.add("has-file");
+    void originalPreview.setFile(file);
   });
 }
 
@@ -2531,9 +2525,7 @@ function bindPdfDownloadButton() {
 
 
 
-  window.addEventListener("beforeunload", () => {
-    if (currentUrl) URL.revokeObjectURL(currentUrl);
-  });
+
 
   /* ===============================
      INITIAL
