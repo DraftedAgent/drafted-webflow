@@ -17,3 +17,7 @@ Tooltip hover now ends on pointer leave/cancel. Focus alone shows a tooltip only
 Local preview: http://127.0.0.1:8789/?sample=1. Build 2026-10-23-preview-tooltip-local. Synthetic screenshots/results/review.diff under ignored output/pdf/preview-tooltip; full toolbar results under output/pdf/preview-toolbar. The before/after helper is TEMP/drafted-tooltip-proof.cjs. Physical mobile devices not tested. No publication.
 
 DEV-076 continues in this worktree without discarding this tooltip fix. Current combined local build is 2026-10-23-source-preview-local; source-only demo uses port 8791. Both changes remain unpublished.
+
+## Published with DEV-076
+
+2026-10-23. Owner-approved PR22, candidate f33602e, production merge 1e7b1e5, release 2026-10-23-source-preview. Pages success, served asset hash verification and published actual-site mocked desktop/mobile/overlay tooltip checks pass. See ORIGINAL-CV-PREVIEW.md final receipt; earlier local-only statements are historical. No real upload/model/backend execution.
