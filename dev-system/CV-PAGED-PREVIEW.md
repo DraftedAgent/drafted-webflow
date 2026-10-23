@@ -1,5 +1,7 @@
 # A4 CV document layout — step 1
 
+DEV-060 (local step 2): [CV-PDF-EXPORT.md](CV-PDF-EXPORT.md) now describes a real local PDF candidate reusing this renderer, packaged fonts, version guards and independent page-by-page raster/text verification. The deployed export/backend remains unchanged; the historical step 1 boundaries below still describe that release.
+
 2026-10-22, DEV-058. Local implementation from `codex/discovery-draft-proposals` commit `ed749a6815756f3c038da2e846f13a889d4c7ce1`, in the separate `editor-isolated-base` worktree on `codex/editor-current-base`. The publication candidate is isolated on codex/a4-preview-delivery from main 3e26e896464725611cbb1400d91a8099d5dab570; unpublished discovery/source-proposal work from the preparation branch is excluded. This is a presentation change. No new CV schema, content rewriting, discovery/Tailor/backend changes or production delivery.
 
 ## Rendering and editor integration

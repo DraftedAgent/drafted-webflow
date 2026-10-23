@@ -1,0 +1,45 @@
+# Shared A4 PDF export - local step 2
+
+Step 3 continues this uncommitted local implementation with three presentations in the same renderer. See [CV-DESIGNS.md](CV-DESIGNS.md) for the shared design allowlist, current verification and unchanged production boundary. Statements about one design/no selector below describe the step-2 checkpoint.
+
+2026-10-22, DEV-060. Branch `codex/a4-pdf-export`, base `6c8b2f7ac997aa0f0f06d1c017de0e0ca84bbda0` (published step 1). The clean A4 worktree was reused. The verified DEV-059 publication receipt was carried forward from `67e90a4`; other worktrees and their unpublished changes were not modified. No commit, push, PR, merge, publication, n8n access/mutation or external model execution is part of this task.
+
+## Architecture and scope
+
+The existing production export uses a separate backend classic_v1 HTML template. Keeping a direct PDF download while sharing the preview requires replacing that rendering implementation. This need was disclosed before implementation. `backend/cv-pdf.cjs` is a LOCAL candidate for that rendering component, wired only into the existing localhost `/preview-api/export` route. There is no new external service or production endpoint change. The request remains `cvVersionId`, `cvTitle`, `language`, `templateId: classic_v1`, and complete canonical `blocks`; success remains PDF binary, failure remains the documented JSON error. Existing export limits are enforced before browser rendering; oversized content fails instead of being shortened.
+
+Both the editor and the PDF renderer use the exact same `cv-document-layout.js` and `cv-document-layout.css`. There is no parallel PDF content template. The renderer builds the same semantic DOM from a copied canonical snapshot, performs the same physical A4 pagination and prints that already paginated DOM through Edge/Skia with CSS page size, backgrounds, 100% scale, zero printer margins and no browser headers/footers. Only a minimal empty document shell is specific to export. Interaction styling, editor controls and viewer scale/gaps are absent in print. Each export uses an isolated browser page and closes it; all assets are fulfilled from exact local files and all other browser traffic is denied. User content is inserted as text, never executed as markup. The local service returns bytes in memory and does not store user documents.
+
+The shared template now embeds Liberation Sans regular/bold from the locally bundled PDF.js 5.6.205 standard fonts, with the complete SIL Open Font License in `webflow/assets/fonts/LICENSE_LIBERATION`. This replaces the platform-dependent Arial/sans-serif lookup with explicit shared font files. The type sizes, margins and one design remain unchanged; the original 1/5/4-page fixtures retain their counts. Regular SHA256 `f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f`; bold `361c61b82d575c5c35fd9157fda8b0194bcfcd0d88ea8521a4fb5dd53d33dddc`.
+
+Font loading and pagination expose an explicit readiness promise/state. Export stays disabled while fonts/layout load; missing fonts fail rather than silently substituting. On click, export copies the visible canonical blocks/title/version after readiness. It compares that snapshot again after receiving the PDF and waiting for the current layout: if an approved edit changed the CV during generation, the old result is discarded with an English message and no download. This comparison includes complete content, not only cvVersionId, because existing Rewrite can reuse an ID. Empty titles remain empty in the document. Export does not apply proposals, change blocks or resolve the older CDQ-01 state-ownership question: it derives the currently visible representation without committing it.
+
+HTTP/HTTPS, www and email sources become semantic anchors without altering source text. Long URLs receive their complete destination on each page/line fragment; parentheses around a URL are not included in the destination. PDF link annotations are verified without visiting the destinations. The existing block-selection listener leaves explicit link activation alone; other click/Shift-click selection, native text dragging and scrolling remain intact.
+
+## Reproduce and inspect
+
+With bundled Node packages on NODE_PATH and installed Edge:
+
+```powershell
+node --test tests/cv-pdf.test.cjs
+node tests/cv-pdf.browser.cjs
+python tests/verify-cv-pdf.py --pdftoppm <path-to-pdftoppm>
+node tests/cv-pagination.browser.cjs
+node tests/editor-discovery.browser.cjs
+node tests/discovery-outcomes.browser.cjs
+node --test tests/experience-discovery.test.cjs tests/discovery-transport.test.cjs tests/discovery-background.test.cjs tests/discovery-negative.test.cjs
+```
+
+The real browser-export test produces four synthetic examples in `output/pdf`: short (1 page), multi (5), long-special (4), edited (5). It downloads each from the actual editor control at desktop and mobile sizes through the real LOCAL renderer, not a fake PDF response. It tests delayed fonts/export availability, current-source completeness, preserved page signatures after panel resize, no CV mutation, fragment selection and real wheel scrolling. A delayed old PDF is held while the existing Apply flow installs the edited fixture; the obsolete download is blocked, then the new 5-page version exports successfully.
+
+Independent PDF QA uses pypdf for every page's extracted text/order, page count, embedded font resources, zero image XObjects and URI annotations. Swedish characters, accents, currency, Greek letters, bullets, punctuation, long URLs and the recently applied edit survive. Poppler renders every actual PDF page at 96 dpi. Each is compared with a 100%-scale screenshot of the actual preview page DOM, copied into an unclipped proof window without repaginating or changing its content. The proof's fonts, letter spacing and every heading/paragraph/list/footer rectangle are independently checked against the actual scaled editor after removing only the viewer scale (less than 0.08 CSS px difference), so inherited editor styles cannot silently disappear from the comparison. There is no automatic image alignment or resizing. Acceptance uses exact normalized text/order and symmetric ink correspondence within a stated 2-pixel raster tolerance; raw and blurred pixel errors are also reported. Comparison PNGs and complete machine evidence are generated under `tmp/pdfs` and copied to the local output proofs for review. Artifacts are ignored by Git, not silently committed.
+
+For a local interactive demo set `DRAFTED_PREVIEW_PDF_CASE=long-special`, run `node tools/serve-editor-preview.cjs`, then open `/?sample=1`. Export PDF generates a real local download. To demonstrate an approved edit: choose Use full CV, enter exactly `Apply the synthetic PDF edit.`, click Apply, then export again. This is a deliberately labelled synthetic fixture operation, not an AI rewrite. Other instructions remain outside the mock preview's scope. There is no style selector.
+
+## Observed differences and deployment boundary
+
+The verified environment is Edge 155.0.4283.62 for both client preview and server-side print. The layout and page content agree for all eight exports (four inputs at two panel widths). The exported PDF is searchable/selectable vector text with embedded fonts and active links; it contains no rasterized document pages or editor controls.
+
+Pixel identity is NOT claimed. Windows screen text uses LCD/subpixel edge colors, while Poppler rasterizes Skia PDF glyphs differently. Ink bounds differ by at most two pixels at 96 dpi in the tested pages; all ink corresponds within that tolerance without image alignment. Raw mean absolute RGB error ranges with text density (maximum 18.0254/255; blurred maximum 7.7585/255), so that measurement is reported rather than silently treated as zero. The observed Chromium MediaBox is 594.96 x 841.92 pt (nominal A4), versus ideal A4 595.276 x 841.890 pt: a printer-unit rounding difference, not a different line/page-break layout. Creation timestamps also differ, so byte-for-byte PDF reproducibility is not claimed. Actual metrics are in `output/pdf/proofs/verification.json`; compare page PNG pairs rather than inferring equality from shared CSS alone.
+
+Other browser engines/platforms, untested scripts/emoji outside the packaged fonts' coverage, PDF/A compliance and complete tagged-PDF accessibility are not verified. Production must pin the browser/font/template resources and repeat parity tests on its actual runtime. The local code uses installed Edge via Playwright; it cannot simply be pasted into an n8n Cloud Code node. The existing renderer must be verified to execute this same JavaScript/template and font package, or an explicitly approved supported headless-browser render target is needed. That deployment/runtime decision and production wiring are NOT implemented or authorized here. The production frontend endpoint still points at the original service and production classic_v1 remains unchanged. A later frontend-only publish would not complete step 2 and must not be represented as matching production PDF export.

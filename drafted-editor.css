@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-22-discovery-context-results */
+/* drafted-editor.css | build=2026-10-22-cv-designs-local */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -1327,17 +1327,16 @@ html, body{
   }
 /* --- end import: ./utilities/helpers.css --- */
 
-
-
-
 /* --- import: ./components/cv-document-layout.css (from index.css) --- */
+@font-face {font-family:"Drafted Sans";src:url("./webflow/assets/fonts/LiberationSans-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:block;}
+@font-face {font-family:"Drafted Sans";src:url("./webflow/assets/fonts/LiberationSans-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:block;}
 /* Shared A4 document stylesheet; keep physical layout independent of viewer size.
  * Step 2 must use these exact rules and the same renderer/font/browser version.
  */
 :is(.cv-layout,#editor-preview-text) .cv-page {
   width:210mm; height:297mm; min-width:210mm; max-width:none!important;
   padding:17mm 18mm 18mm; box-sizing:border-box; position:relative;
-  background:#fff; color:#24313b; font:10.5pt/1.48 Arial, sans-serif;
+  background:#fff; color:#24313b; font:10.5pt/1.48 "Drafted Sans", sans-serif;
   text-align:left; letter-spacing:normal; transform-origin:top left;
   box-shadow:0 2px 10px #2333421c;
 }
@@ -1348,14 +1347,15 @@ html, body{
 :is(.cv-layout,#editor-preview-text) .cv-block:hover {background:#edf3f866;}
 :is(.cv-layout,#editor-preview-text) .cv-block.is-selected {background:#fff0b5;box-shadow:inset 3px 0 #c29322;}
 :is(.cv-layout,#editor-preview-text) .cv-page h1,:is(.cv-layout,#editor-preview-text) .cv-page h2,:is(.cv-layout,#editor-preview-text) .cv-page h3,:is(.cv-layout,#editor-preview-text) .cv-page p,:is(.cv-layout,#editor-preview-text) .cv-page ul,:is(.cv-layout,#editor-preview-text) .cv-page li {padding:0;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;text-transform:none;letter-spacing:normal;}
-:is(.cv-layout,#editor-preview-text) .cv-page .cv-title {font:700 25pt/1.12 Arial,sans-serif;color:#192e3c;margin:0 0 7mm;}
-:is(.cv-layout,#editor-preview-text) .cv-page .cv-section-heading {font:700 11pt/1.4 Arial,sans-serif;color:#294959;letter-spacing:.09em;text-transform:uppercase;border-top:1px solid #c5d0d5;padding-top:4mm;margin:4mm 0 3mm;opacity:1;}
-:is(.cv-layout,#editor-preview-text) .cv-page .cv-exp-title,:is(.cv-layout,#editor-preview-text) .cv-page .cv-edu-degree {font:700 11.5pt/1.35 Arial,sans-serif;color:#223744;margin:3mm 0 1mm;opacity:1;}
-:is(.cv-layout,#editor-preview-text) .cv-page .cv-entry-meta {font:400 9.5pt/1.4 Arial,sans-serif;color:#52616c;margin:0 0 2.5mm;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-title {font:700 25pt/1.12 "Drafted Sans",sans-serif;color:#192e3c;margin:0 0 7mm;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-section-heading {font:700 11pt/1.4 "Drafted Sans",sans-serif;color:#294959;letter-spacing:.09em;text-transform:uppercase;border-top:1px solid #c5d0d5;padding-top:4mm;margin:4mm 0 3mm;opacity:1;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-exp-title,:is(.cv-layout,#editor-preview-text) .cv-page .cv-edu-degree {font:700 11.5pt/1.35 "Drafted Sans",sans-serif;color:#223744;margin:3mm 0 1mm;opacity:1;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-entry-meta {font:400 9.5pt/1.4 "Drafted Sans",sans-serif;color:#52616c;margin:0 0 2.5mm;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-block-body {font:inherit;text-align:left;padding:0;margin:0 0 2.2mm;white-space:pre-wrap;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-list {list-style:none;margin:0;padding:0;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-list-item {padding-left:3.5mm;text-indent:-3.5mm;}
-:is(.cv-layout,#editor-preview-text) .cv-page-number {position:absolute;bottom:8mm;left:18mm;right:18mm;border-top:1px solid #dce2e6;padding-top:2mm;color:#65727b;font:9pt/1.3 Arial,sans-serif;text-align:right;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-list-item.cv-break-long-token {word-break:break-all;}
+:is(.cv-layout,#editor-preview-text) .cv-page-number {position:absolute;bottom:8mm;left:18mm;right:18mm;border-top:1px solid #dce2e6;padding-top:2mm;color:#65727b;font:9pt/1.3 "Drafted Sans",sans-serif;text-align:right;}
 .cv-layout-measure {position:fixed!important;left:-20000px;top:0;width:210mm;visibility:hidden;pointer-events:none;}
 .cv-layout-measure .cv-page {transform:none!important;}
 /* Viewer only: scaling never changes the measured document width or type size. */
@@ -1363,8 +1363,30 @@ html, body{
 :is(.cv-layout,#editor-preview-text):not(.cv-layout-measure) .cv-page-slot {position:relative;flex:none;max-width:none;}
 :is(.cv-layout,#editor-preview-text):not(.cv-layout-measure) .cv-page {position:absolute;top:0;left:0;}
 .section-editor.discovery-enabled .cv-document-inner:has(>.cv-layout) {padding:0;min-height:0;background:transparent;border:0;box-shadow:none;}
-.workspace-page-count {margin-left:auto;color:#52616c;font:500 12px/1.4 Arial,sans-serif;white-space:nowrap;letter-spacing:normal;text-transform:none;}
+.workspace-page-count {margin-left:auto;color:#52616c;font:500 12px/1.4 "Drafted Sans",sans-serif;white-space:nowrap;letter-spacing:normal;text-transform:none;}
 .workspace-preview-title {display:flex;align-items:center;gap:12px;}
+/* Fixed presentation variants, applied before measuring AND before printing.
+ * Compact uses 10pt body text; no size depends on content or panel width. */
+:is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page {padding:14mm 16mm 17mm;font-size:10pt;line-height:1.4;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page .cv-title {font-size:22pt;margin-bottom:4mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page .cv-section-heading {font-size:10pt;letter-spacing:.06em;padding-top:2.5mm;margin:2.5mm 0 2mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page .cv-exp-title,
+:is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page .cv-edu-degree {font-size:10.5pt;margin-top:2mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page .cv-entry-meta {margin-bottom:1.5mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page .cv-block-body {margin-bottom:1.5mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="compact_v1"] .cv-page-number {left:16mm;right:16mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="editorial_v1"] .cv-page {padding:19mm 18mm 19mm;color:#283746;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="editorial_v1"] .cv-page .cv-title {font-size:28pt;line-height:1.16;color:#173d51;border-bottom:3px solid #315d71;padding-bottom:5mm;margin-bottom:6mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="editorial_v1"] .cv-page .cv-section-heading {font-size:12pt;line-height:1.35;text-transform:none;letter-spacing:normal;color:#173d51;background:#edf2f4;border:0;border-left:3px solid #315d71;padding:2mm 3mm;margin:5mm 0 3mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="editorial_v1"] .cv-page .cv-exp-title,
+:is(.cv-layout,#editor-preview-text)[data-cv-design="editorial_v1"] .cv-page .cv-edu-degree {font-size:12pt;color:#173d51;margin-top:3.5mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="editorial_v1"] .cv-page .cv-entry-meta {color:#526773;margin-bottom:3mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="editorial_v1"] .cv-page-number {left:18mm;right:18mm;border-top-color:#315d71;}
+.workspace-design-controls {display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;flex:none;min-width:0;margin:0 0 12px;color:#52616c;font:12px/1.4 "Drafted Sans",sans-serif;}
+.workspace-design-controls label {margin:0;font:700 12px/1.4 "Drafted Sans",sans-serif;}
+.workspace-design-controls select {width:auto;min-width:125px;max-width:100%;min-height:36px;margin:0;padding:6px 30px 6px 10px;border:1px solid #bac8d0;border-radius:6px;background:#fff;color:#24313b;font:14px/1.4 "Drafted Sans",sans-serif;}
+.workspace-design-controls select:focus-visible {outline:2px solid #315d71;outline-offset:2px;}
+#cv-design-note {flex:1 1 180px;font:12px/1.4 "Drafted Sans",sans-serif;}
 @page {size:A4;margin:0;}
 @media print {
   .cv-layout {display:block!important;width:210mm!important;gap:0!important;}
@@ -1372,5 +1394,12 @@ html, body{
   :is(.cv-layout,#editor-preview-text) .cv-page-slot:last-child {break-after:auto;}
   :is(.cv-layout,#editor-preview-text) .cv-page {transform:none!important;box-shadow:none;}
   :is(.cv-layout,#editor-preview-text) .cv-block:hover,:is(.cv-layout,#editor-preview-text) .cv-block.is-selected {background:transparent;box-shadow:none;}
+}
+
+:is(.cv-layout,#editor-preview-text) .cv-document-link {font:inherit;color:inherit;letter-spacing:inherit;text-decoration:underline;text-decoration-color:#a4b2bb;text-underline-offset:2px;}
+@media print {
+  html,body {margin:0!important;padding:0!important;}
+  .cv-layout {margin:0!important;padding:0!important;}
+  :is(.cv-layout,#editor-preview-text) .cv-page {print-color-adjust:exact;-webkit-print-color-adjust:exact;}
 }
 /* --- end import: ./components/cv-document-layout.css --- */

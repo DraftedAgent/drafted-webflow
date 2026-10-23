@@ -1,3 +1,16 @@
+/* Shared presentation allowlist: browser preview and local PDF renderer. */
+(function (root) {
+  'use strict';
+  const designs = Object.freeze([
+    Object.freeze({id:'classic_v1', name:'Classic'}),
+    Object.freeze({id:'compact_v1', name:'Compact'}),
+    Object.freeze({id:'editorial_v1', name:'Editorial'})
+  ]);
+  if (typeof module === 'object' && module.exports) module.exports = designs;
+  else root.DraftedCvDesigns = designs;
+})(typeof window === 'object' ? window : globalThis);
+
+;
 /* Shared document renderer. No editor state, endpoints or model calls.
  * Physical page geometry and typography live in cv-document-layout.css.
  * Pagination measures real, unscaled browser layout before fitting the viewer.
@@ -5,6 +18,16 @@
 (function (global) {
   'use strict';
   const viewers = new WeakMap();
+  let fontReadiness;
+  function fontsReady() {
+    return fontReadiness ||= Promise.all([
+      document.fonts.load('14px "Drafted Sans"'),
+      document.fonts.load('700 14px "Drafted Sans"')
+    ]).then(faces => {
+      if (faces.some(list => !list.length)) throw Error('Document fonts are unavailable.');
+      return document.fonts.ready;
+    }).catch(error => { fontReadiness = null; throw error; });
+  }
   const node = (tag, className, text) => {
     const el = document.createElement(tag);
     el.className = className;
@@ -18,7 +41,7 @@
       if (text !== '') units.push({tag, cls, text, id, keep, source});
     };
     add('h1', 'cv-title', title, '', true);
-    for (const b of [...blocks].sort((a, c) => a.order - c.order)) {
+    for (const b of [...blocks].sort((a, c) => a.order - c.order || (String(a.blockId) < String(c.blockId) ? -1 : String(a.blockId) > String(c.blockId) ? 1 : 0))) {
       const id = String(b.blockId), type = String(b.type);
       const metadata = type === 'experience' ? [b.title,b.employer,b.startDate,b.endDate] : type === 'education' ? [b.degree,b.program,b.institution,b.startDate,b.endDate] : [];
       if (![b.text,...metadata].some(value => String(value || '').trim())) continue;
@@ -40,7 +63,7 @@
       const flush = () => { add('p', 'cv-block-body', paragraph, id, false, true); paragraph = ''; };
       for (const line of lines.filter(Boolean)) {
         if (/^\s*(?:[-*•▪‣]|\d+[.)])\s+/.test(line)) {
-          flush(); add('li', 'cv-block-body cv-list-item', line, id, false, true);
+          flush(); add('li', 'cv-block-body cv-list-item' + (/\S{120}/.test(line) ? ' cv-break-long-token' : ''), line, id, false, true);
         } else if (!line.trim()) { paragraph += line; flush(); }
         else paragraph += line;
       }
@@ -49,9 +72,42 @@
     return units;
   }
 
-  function paginate(units) {
+  function linkify(pages) {
+    const groups = new Map();
+    for (const page of pages) for (const el of page.querySelectorAll('[data-cv-source]')) {
+      const id = el.dataset.cvSource;
+      if (!groups.has(id)) groups.set(id, []);
+      groups.get(id).push(el);
+    }
+    // Resolve URLs against the complete source before distributing annotations
+    // over its page fragments. A long URL remains one destination on every page.
+    for (const elements of groups.values()) {
+      const text = elements.map(el => el.textContent).join(''), links = [];
+      for (const match of text.matchAll(/https?:\/\/[^\s<>]+|www\.[^\s<>]+|mailto:[^\s<>]+|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)) {
+        let visible = match[0].replace(/[.,;!?]+$/, '');
+        while (visible.endsWith(')') && (visible.match(/\)/g) || []).length > (visible.match(/\(/g) || []).length) visible = visible.slice(0,-1);
+        const href = /^(https?:|mailto:)/i.test(visible) ? visible : /^www\./i.test(visible) ? 'https://' + visible : 'mailto:' + visible;
+        links.push({start:match.index,end:match.index + visible.length,href});
+      }
+      let offset = 0;
+      for (const el of elements) {
+        const value = el.textContent, end = offset + value.length, nodes = []; let cursor = 0;
+        for (const link of links.filter(link => link.start < end && link.end > offset)) {
+          const start = Math.max(0, link.start - offset), stop = Math.min(value.length, link.end - offset);
+          nodes.push(document.createTextNode(value.slice(cursor, start)));
+          const anchor = node('a', 'cv-document-link', value.slice(start, stop));
+          anchor.href = link.href; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer';
+          nodes.push(anchor); cursor = stop;
+        }
+        nodes.push(document.createTextNode(value.slice(cursor))); el.replaceChildren(...nodes); offset = end;
+      }
+    }
+  }
+
+  function paginate(units, templateId) {
     if (!units.length) return [];
     const measure = node('div', 'cv-layout cv-layout-measure');
+    measure.dataset.cvDesign = templateId;
     measure.setAttribute('aria-hidden', 'true');
     document.body.append(measure);
     const pages = [];
@@ -168,11 +224,14 @@
         page.setAttribute('aria-label', `Page ${i + 1} of ${pages.length}`);
         page.append(node('div', 'cv-page-number', `${i + 1} / ${pages.length}`));
       });
+      linkify(pages);
       return pages;
     } finally { measure.remove(); }
   }
 
   function render(host, model) {
+    const templateId = model.templateId || 'classic_v1';
+    if (!global.DraftedCvDesigns.some(design => design.id === templateId)) throw Error('Unknown CV design.');
     let viewer = viewers.get(host);
     if (!viewer) {
       const scale = () => {
@@ -184,20 +243,38 @@
           page.style.transform = `scale(${factor})`;
         }
       };
-      viewer = {scale}; viewers.set(host, viewer);
+      viewer = {scale, generation:0}; viewers.set(host, viewer);
       new ResizeObserver(scale).observe(host);
-      document.fonts?.ready.then(() => viewer.model && render(host, viewer.model));
-      document.fonts?.addEventListener('loadingdone', () => viewer.model && render(host, viewer.model));
     }
     viewer.model = model;
-    const pages = model.blocks.length ? paginate(unitsFromBlocks(model.blocks, model.title)) : [];
+    const generation = ++viewer.generation;
     host.classList.add('cv-layout');
-    host.replaceChildren(...pages.map(page => { const slot = node('div', 'cv-page-slot'); slot.append(page); return slot; }));
-    viewer.scale();
-    host.dataset.pageCount = String(pages.length);
-    model.onLayout?.(pages.length);
+    host.dataset.layoutState = 'loading'; host.setAttribute('aria-busy', 'true'); model.onState?.('loading');
+    viewer.pending = (model.blocks.length ? fontsReady() : Promise.resolve()).then(() => {
+      if (generation !== viewer.generation) return;
+      const pages = model.blocks.length ? paginate(unitsFromBlocks(model.blocks, model.title), templateId) : [];
+      host.dataset.cvDesign = templateId;
+      host.replaceChildren(...pages.map(page => { const slot = node('div', 'cv-page-slot'); slot.append(page); return slot; }));
+      viewer.scale(); host.dataset.pageCount = String(pages.length); host.dataset.layoutState = 'ready';
+      host.setAttribute('aria-busy', 'false'); model.onLayout?.(pages.length); model.onState?.('ready');
+    }).catch(error => {
+      if (generation !== viewer.generation) return;
+      host.dataset.layoutState = 'error'; host.setAttribute('aria-busy', 'false'); model.onState?.('error');
+      throw error;
+    });
+    // Readiness is exposed to export; keep a failed background font load from
+    // becoming an unhandled rejection while retaining the explicit error state.
+    viewer.pending.catch(() => {});
+    return viewer.pending;
   }
-  global.DraftedCvLayout = {render, version:'a4-v1'};
+  async function ready(host) {
+    const viewer = viewers.get(host);
+    if (!viewer) throw Error('Document layout is unavailable.');
+    let generation;
+    do { generation = viewer.generation; await viewer.pending; } while (generation !== viewer.generation);
+    if (host.dataset.layoutState !== 'ready') throw Error('Document layout is not ready.');
+  }
+  global.DraftedCvLayout = {render, ready, version:'a4-v2'};
 })(window);
 
 ;
@@ -535,7 +612,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-22-a4-preview");
+console.log("DRAFTED_JS_SOURCE", "2026-10-22-cv-designs-local");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1843,6 +1920,8 @@ function setApplyLabel() {
   let documentBlocksState = null;
   let blockRangesById = {}; 
   let documentTitle = "";
+  // Presentation only: never part of CV/proposal snapshots or discovery context.
+  let selectedCvDesign = 'classic_v1';
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
@@ -1884,6 +1963,17 @@ function setApplyLabel() {
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
     const previewTitle=document.createElement('h2');previewTitle.className='workspace-preview-title';previewTitle.textContent='CV preview';
     section.querySelector('.cv-card')?.prepend(previewTitle);
+    const designControls=document.createElement('div');designControls.className='workspace-design-controls';
+    const designLabel=document.createElement('label');designLabel.htmlFor='cv-design';designLabel.textContent='Design';
+    const designSelect=document.createElement('select');designSelect.id='cv-design';designSelect.setAttribute('aria-label','CV design');designSelect.setAttribute('aria-describedby','cv-design-note');
+    for(const design of DraftedCvDesigns){const option=document.createElement('option');option.value=design.id;option.textContent=design.name;designSelect.append(option);}
+    designSelect.value=selectedCvDesign;
+    designSelect.addEventListener('change',()=>{
+      selectedCvDesign=designSelect.value;
+      renderDocument(documentTextState);
+    });
+    const note=document.createElement('span');note.id='cv-design-note';note.textContent='Designs can have different page counts.';
+    designControls.append(designLabel,designSelect,note);previewTitle.after(designControls);
   })();
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
@@ -2073,7 +2163,8 @@ function setApplyLabel() {
       workspaceTitle.title = documentTitle || 'Untitled CV';
     }
     DraftedCvLayout.render(editorPreviewEl, {
-      blocks: documentBlocksState || [], title: documentTitle || '',
+      blocks: documentBlocksState || [], title: documentTitle || '', templateId: selectedCvDesign,
+      onState: updatePdfExportControl,
       onLayout(count) {
         const heading = document.querySelector('.workspace-preview-title');
         if (heading) {
@@ -2354,6 +2445,7 @@ function updateContextChip() {
   editorPreviewEl.addEventListener("click", (e) => {
     if (!documentBlocksState || !documentBlocksState.length) return;
 
+    if (e.target.closest("a.cv-document-link")) return;
     const blockEl = e.target.closest(".cv-block[data-block-id]");
     if (!blockEl || !editorPreviewEl.contains(blockEl)) return;
 
@@ -2971,106 +3063,59 @@ function buildPdfExportPayload() {
     ok: true,
     payload: {
       cvVersionId,
-      cvTitle: documentTitle || "CV",
+      cvTitle: documentTitle || "",
       language: documentLanguage || "en",
-      templateId: "classic_v1",
-      blocks: documentBlocksState
+      templateId: selectedCvDesign,
+      blocks: deepClone(documentBlocksState)
     }
   };
 }
 
-// 3) Hitta download-knappen via SVG och bind click
-function bindPdfDownloadButton() {
-  const toolsEl = document.querySelector(".cv-tools");
-  if (!toolsEl) return;
-
-  // robust: hittar ikonen och går upp till närmaste klickbara wrapper
-  const icon = toolsEl.querySelector("svg.feather.feather-download");
-  const clickable = icon?.closest(".tool-btn") || icon?.closest("button, a, [role='button']");
-  if (!clickable) return;
-
-  // undvik dubbelbindningar
-  if (clickable.dataset?.draftedBound === "1") return;
-  if (clickable.dataset) clickable.dataset.draftedBound = "1";
-
-  clickable.addEventListener("click", async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // enkel lock (delad med chat om du vill, men du kan hålla den separat)
-    if (window.__DRAFTED_EXPORT__?.inFlight) return;
-
-    const built = buildPdfExportPayload();
-    if (!built.ok) {
-      console.warn("PDF export blocked:", built.reason);
-      // här kan du återanvända din befintliga UI toast/appendChatMessage om du vill
-      alert("Your CV cannot be downloaded yet. Upload a CV first.");
-      return;
-    }
-
-    try {
-      window.__DRAFTED_EXPORT__ = window.__DRAFTED_EXPORT__ || { inFlight: false };
-      window.__DRAFTED_EXPORT__.inFlight = true;
-
-      const res = await fetch(N8N_EXPORT_PDF_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/pdf, application/json"
-        },
-        body: JSON.stringify(built.payload),
-      });
-
-      const contentType = (res.headers.get("content-type") || "").toLowerCase();
-
-      // Om backend failar ska den svara JSON (ok:false)
-      if (contentType.includes("application/json")) {
-        const err = await res.json().catch(() => null);
-        console.error("Export JSON error:", err);
-        alert(err?.message || err?.contractError || "PDF export failed.");
-        return;
-      }
-
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        console.error("Export HTTP error:", res.status, txt);
-        alert("PDF export failed (HTTP " + res.status + ").");
-        return;
-      }
-
-      // PDF binary
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-
-      const safeTitle = (documentTitle || "CV")
-        .trim()
-        .replace(/[^\w\d\- _åäöÅÄÖ]/g, "")
-        .replace(/\s+/g, " ")
-        .slice(0, 80);
-
-      const filename = `${safeTitle || "CV"}.pdf`;
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      // cleanup
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (err) {
-      console.error("Export exception:", err);
-      alert("PDF export failed. Please try again.");
-    } finally {
-      if (window.__DRAFTED_EXPORT__) window.__DRAFTED_EXPORT__.inFlight = false;
-    }
-  });
+function updatePdfExportControl() {
+  const control = document.querySelector('.cv-tools .feather-download')?.closest('.tool-btn');
+  if (!control) return;
+  const busy = !!window.__DRAFTED_EXPORT__?.inFlight;
+  const ready = editorPreviewEl.dataset.layoutState === 'ready' && Number(editorPreviewEl.dataset.pageCount) > 0;
+  control.setAttribute('aria-disabled', String(busy || !ready));
+  control.setAttribute('aria-busy', String(busy || editorPreviewEl.dataset.layoutState === 'loading'));
+  control.title = busy ? 'Preparing your PDF...' : ready ? 'Export PDF' : 'Waiting for document fonts and layout';
 }
 
-
-
-
+function bindPdfDownloadButton() {
+  const control = document.querySelector('.cv-tools .feather-download')?.closest('.tool-btn');
+  if (!control || control.dataset.draftedBound === '1') return;
+  control.dataset.draftedBound = '1';
+  control.addEventListener('click', async event => {
+    event.preventDefault(); event.stopPropagation();
+    if (window.__DRAFTED_EXPORT__?.inFlight || control.getAttribute('aria-disabled') === 'true') return;
+    window.__DRAFTED_EXPORT__ = {inFlight:true}; updatePdfExportControl();
+    const currentKey = () => JSON.stringify(buildPdfExportPayload());
+    try {
+      await DraftedCvLayout.ready(editorPreviewEl);
+      const built = buildPdfExportPayload();
+      if (!built.ok) throw Error('Upload a CV before exporting.');
+      const key = JSON.stringify(built);
+      const response = await fetch(N8N_EXPORT_PDF_URL, {
+        method:'POST', headers:{'Content-Type':'application/json','Accept':'application/pdf, application/json'},
+        body:JSON.stringify(built.payload)
+      });
+      if (!response.ok || !(response.headers.get('content-type') || '').toLowerCase().startsWith('application/pdf')) {
+        const error = await response.json().catch(() => null);
+        throw Error(error?.contractError?.message || 'PDF export failed. Please try again.');
+      }
+      const buffer = await response.arrayBuffer();
+      if (new TextDecoder().decode(buffer.slice(0,5)) !== '%PDF-') throw Error('The export did not return a valid PDF.');
+      await DraftedCvLayout.ready(editorPreviewEl);
+      if (key !== currentKey()) throw Error('Your CV changed or a different design was selected while the PDF was being prepared. Please export again.');
+      const url = URL.createObjectURL(new Blob([buffer], {type:'application/pdf'}));
+      const link = document.createElement('a'); link.href = url;
+      link.download = (built.payload.cvTitle || 'CV').replace(/[^\w\d\- _åäöÅÄÖ]/g,'').trim().slice(0,80) + '.pdf';
+      document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url),1000);
+    } catch (error) { alert(error.message || 'PDF export failed. Please try again.'); }
+    finally { window.__DRAFTED_EXPORT__.inFlight = false; updatePdfExportControl(); }
+  });
+  updatePdfExportControl();
+}
 
   window.addEventListener("beforeunload", () => {
     if (currentUrl) URL.revokeObjectURL(currentUrl);
