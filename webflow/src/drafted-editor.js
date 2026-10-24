@@ -28,6 +28,7 @@ const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n
 let discoveryController = null;
 let discoveryCvFile = null;
 let tailorInFlight = false;
+let tailorAppliedStamp = null;
 const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_URL==="https://drafted.app.n8n.cloud/webhook/tailor-cv")||['localhost','127.0.0.1'].includes(location.hostname)&&draftedEndpoints.tailorSources===true&&draftedEndpoints.tailor==='/preview-api/tailor';
 const tailorSourceLedger=new DraftedTailorSources.Ledger();
 
@@ -507,11 +508,29 @@ maybeShowTailor();
      TAILOR HIGHLIGHT CARD UI
      =============================== */
 
-     function tailorContextStamp() {
+     function tailorContextStamp(sources=discoveryController?.sourceRevision()) {
        return JSON.stringify({blocks:documentBlocksState,title:documentTitle,version:cvVersionId,language:documentLanguage,
          job:jobAdInputEl?.value,role:targetRoleInput?.value,context:window.__DRAFTED_JOBCONTEXT__,
          file:!!discoveryCvFile && getFileInput()?.files?.[0]===discoveryCvFile,
-         sources:discoveryController?.sourceRevision()});
+         sources});
+     }
+
+     function tailorPresentationState() {
+       if(tailorInFlight)return 'preparing';
+       if(chatMessagesEl?.querySelector('.tailor-suggestion'))return 'review';
+       if(tailorAppliedStamp&&tailorAppliedStamp===tailorContextStamp(discoveryController?.sourceContentRevision()))return 'applied';
+       return 'ready';
+     }
+
+     function refreshTailorPresentation() {
+       const state=tailorPresentationState();
+       document.querySelectorAll('.tailor-progress').forEach(node=>node.remove());
+       if(state==='preparing'){
+         const progress=document.createElement('p');progress.className='tailor-progress';progress.setAttribute('role','status');progress.textContent='Preparing your suggestions…';chatMessagesEl.prepend(progress);
+       }
+       if(state!=='applied')chatMessagesEl?.querySelector('.tailor-applied-message')?.remove();
+       if(state==='ready'&&window.__DRAFTED_JOBCONTEXT__&&documentBlocksState?.length)setTailorReady();else setTailorHidden();
+       discoveryController?.refreshTailorState();
      }
 
      function showTailorSuggestion(data, stamp, request) {
@@ -519,15 +538,19 @@ maybeShowTailor();
        const card=document.createElement('section');card.className='tailor-suggestion discovery-guidance';card.setAttribute('aria-label','Tailoring suggestion');
        const add=(tag,text,host=card)=>{const node=document.createElement(tag);node.textContent=text;host.append(node);return node;};
        const sectionName=block=>[block?.label||block?.type,block?.employer||block?.institution||block?.title].filter((value,index,all)=>value&&all.indexOf(value)===index).join(' · ');
-       const excerpt=(text,answerId)=>text.length<=180?`“${text}”`:`Wording from answer ${request.sourceContext.questions.findIndex(q=>q.id===request.sourceContext.answers.find(a=>a.id===answerId)?.questionId)+1} (see full change).`;
+       // Preview actual proposed wording; never invent a new AI summary or use
+       // an answer number in place of the change. Full text stays in details.
+       const excerpt=text=>{const clean=String(text).replace(/\s+/g,' ').trim();return clean.length<=280?clean:clean.slice(0,280).replace(/\s+\S*$/,'')+'…';};
        const changed=computeChangedBlockIds(documentBlocksState,data.blocks);
-       const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View sources and full changes',fullDetails);
-       add('h2','Review your tailored CV');
-       add('p',data.sourcesSchemaVersion?(changed.length?'Proposed changes from your answers. Your CV has not changed.':'Your CV has not changed.'):'This suggestion uses your CV and the job ad. Your answers are not included. Your CV has not changed.');
+       const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
+       add('h2','Review suggested changes');
        const proposed=[];
-       for(const usage of data.sourceUsage||[]){const block=data.blocks.find(b=>b.blockId===usage.blockId),prior=request.sourceContext.applications.find(g=>g.blockId===usage.blockId)?.additions.some(a=>a.source.answerId===usage.answerId);proposed.push(`${prior?'Update':'Add'} in ${sectionName(block)}: ${excerpt(usage.proposedQuote,usage.answerId)}`);}
-       if(data.sourcesSchemaVersion){const retained=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const group of request.sourceContext.applications)for(const prior of group.additions.filter(a=>!retained.has(a.id))){if(!data.sourceUsage.some(u=>u.blockId===group.blockId&&u.answerId===prior.source.answerId))proposed.push(`Remove from ${sectionName(documentBlocksState.find(b=>b.blockId===group.blockId))}: ${excerpt(prior.text,prior.source.answerId)}`);}}
-       if(proposed.length){const list=add('ul','');list.className='tailor-answer-changes';for(const text of proposed)add('li',text,list);}
+       for(const usage of data.sourceUsage||[]){const prior=request.sourceContext.applications.find(g=>g.blockId===usage.blockId)?.additions.some(a=>a.source.answerId===usage.answerId);proposed.push({blockId:usage.blockId,action:prior?'Update':'Add',text:usage.proposedQuote});}
+       if(data.sourcesSchemaVersion){const retained=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const group of request.sourceContext.applications)for(const prior of group.additions.filter(a=>!retained.has(a.id))){if(!data.sourceUsage.some(u=>u.blockId===group.blockId&&u.answerId===prior.source.answerId))proposed.push({blockId:group.blockId,action:'Remove',text:prior.text});}}
+       else for(const id of changed){const old=request.blocks.find(b=>b.blockId===id).text,next=data.blocks.find(b=>b.blockId===id).text;let from=0,end=0;while(from<old.length&&from<next.length&&old[from]===next[from])from++;while(end<old.length-from&&end<next.length-from&&old[old.length-1-end]===next[next.length-1-end])end++;proposed.push({blockId:id,action:'Update',text:next.slice(from,next.length-end)||old.slice(from,old.length-end)});}
+       if(proposed.length){const list=add('ul','');list.className='tailor-answer-changes';for(const change of proposed){const item=add('li','',list);add('h3',sectionName(data.blocks.find(b=>b.blockId===change.blockId)),item);add('p',`${change.action}: ${excerpt(change.text)}`,item);}}
+       else add('p','No text changes were suggested.');
+       add('p','Your CV will change when you apply.');
        if(data.sourcesSchemaVersion){
          const notes=[];
          for(const [index,q] of request.sourceContext.questions.entries()){
@@ -540,13 +563,13 @@ maybeShowTailor();
              ({no:'You answered no; not used for new experience wording.',skipped:'Skipped; not used for new wording.',unknown:'The experience is still unclear.',needs_detail:'More detail is needed.',processing:'Still being checked.',answered:'Still being checked.',editing:'Being corrected.',error:'Could not be checked.'}[q.status]||'No new wording was proposed from this answer.');
            notes.push(`${answer?'Answer':'Question'} ${index+1}: ${reason}`);
          }
-         if(notes.length===1)add('p',notes[0]);else if(notes.length){const details=add('details','');details.className='tailor-unused-answers';add('summary',`${notes.length} answers without new wording`,details);const list=add('ul','',details);for(const note of notes)add('li',note,list);}
+         if(notes.length){const section=add('section','',fullDetails);section.className='tailor-unused-answers';add('h3','Answers without new wording',section);const list=add('ul','',section);for(const note of notes)add('li',note,list);}
+         for(const [index,answer] of request.sourceContext.answers.entries()){const section=add('section','',fullDetails),q=request.sourceContext.questions.find(q=>q.id===answer.questionId);add('h3',`Original answer ${index+1} · revision ${answer.revision}`,section);if(q)add('p',q.question,section);add('blockquote',answer.text,section);}
        }
        for(const review of data.sourceReview||[]){const box=add('section','');box.className='tailor-review-warning';const block=documentBlocksState.find(b=>b.blockId===review.blockId);add('h3','Earlier wording needs review',box);add('p',`${sectionName(block)}: left unchanged because the earlier wording or source could not be matched safely.`,box);for(const g of request.sourceContext.applications.filter(g=>g.blockId===review.blockId))for(const a of g.additions)add('blockquote',a.text,fullDetails);}
        for(const question of data.contextQuestions||[]){
-         const box=add('section','');box.className='tailor-context-question';const source=request.sourceContext.answers.find(a=>a.id===question.answerId),number=request.sourceContext.questions.findIndex(q=>q.id===source.questionId)+1;add('h3',`Answer ${number}`,fullDetails);add('blockquote',source.text,fullDetails);
-         if(question.reason==='new_block_required'){add('p',`Answer ${number} needs a new CV entry; none was created.`,box);continue;}
-         add('p',`Answer ${number}`,box);
+         if(question.reason==='new_block_required')continue;
+         const box=add('section','');box.className='tailor-context-question';
          add('h3','Where did this experience take place?',box);add('p','Name the workplace, project or other setting.',box);
          const input=add('textarea','',box);input.rows=2;input.setAttribute('aria-label','Where did this experience take place?');const save=add('button','Save context',box);save.type='button';
          save.addEventListener('click',()=>{try{discoveryController.appendContext(question.answerId,question.answerRevision,input.value);card.remove();showTailorFeedback('Context saved. Choose Tailor my CV to prepare a new suggestion.');}catch{add('p','The context could not be saved. Keep your text and check that the answer is still current and within 50,000 characters.',box);}});
@@ -556,9 +579,8 @@ maybeShowTailor();
          const old=documentBlocksState.find(b=>b.blockId===id),next=data.blocks.find(b=>b.blockId===id),details=add('section','',fullDetails);
          add('h3',sectionName(next),details);add('p','Current',details);add('blockquote',old.text,details);add('p','Suggested',details);add('blockquote',next.text,details);
        }
-       if(!changed.length)add('p','No text changes were suggested.');
        if(fullDetails.childElementCount>1)card.append(fullDetails);
-       const apply=add('button','Apply tailored CV');apply.type='button';apply.disabled=!changed.length;
+       const apply=add('button','Apply changes');apply.type='button';apply.disabled=!changed.length;
        const dismiss=add('button','Dismiss');dismiss.type='button';
        apply.addEventListener('click',()=>{
          if(apply.disabled)return;
@@ -567,20 +589,22 @@ maybeShowTailor();
          pendingProposal=null;pendingProposalMeta=null;pendingSuggestion=null;clearAllProposalCards();setApplyLabel();
          if(data.sourcesSchemaVersion)tailorSourceLedger.commit(request,data);
          documentTitle=data.cvTitle;cvVersionId=data.cvVersionId;
-         buildStateFromBlocks(deepClone(data.blocks),{preserveCanonical:!!data.sourcesSchemaVersion});if(data.sourcesSchemaVersion)discoveryController.adoptRepresentation(documentBlocksState,cvVersionId);renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
-         card.remove();showTailorFeedback(`Applied changes in ${changed.map(id=>sectionName(data.blocks.find(b=>b.blockId===id))).join(', ')}.`);setTailorMinimized('Tailored ✓');
+         buildStateFromBlocks(deepClone(data.blocks),{preserveCanonical:!!data.sourcesSchemaVersion});discoveryController?.adoptRepresentation(documentBlocksState,cvVersionId);renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
+         card.remove();document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
+         tailorAppliedStamp=tailorContextStamp(discoveryController?.sourceContentRevision());
+         discoveryController?.showChat(true);refreshTailorPresentation();
+         const message=document.createElement('div');message.className='chat-message ai tailor-applied-message';message.setAttribute('role','status');message.textContent='Your CV is updated. What would you like to change?';chatMessagesEl.prepend(message);chatMessagesEl.scrollTop=0;
        });
-       dismiss.addEventListener('click',()=>{card.remove();setTailorReady();});
-       chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;setTailorMinimized('Suggestion ready to review');
+       dismiss.addEventListener('click',()=>{card.remove();refreshTailorPresentation();});
+       chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;
      }
 
      function showTailorFeedback(text,retry=false) {
-       setTailorReady();
        document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
        const feedback=document.createElement('div');feedback.className='tailor-feedback discovery-guidance';feedback.setAttribute('role','status');
        const message=document.createElement('p');message.textContent=text;feedback.append(message);
        if(retry){const button=document.createElement('button');button.type='button';button.className='discovery-primary';button.textContent='Try tailoring again';button.addEventListener('click',()=>runTailor());feedback.append(button);}
-       chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;
+       chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;refreshTailorPresentation();
      }
 
      async function fetchTailorSources(payload){
@@ -590,7 +614,7 @@ maybeShowTailor();
 
      async function runTailor() {
        const btn=document.getElementById('tailor-btn');
-       if(!btn||tailorInFlight||isPreviewingProposal)return;
+       if(!btn||tailorInFlight||isPreviewingProposal||tailorPresentationState()==='review'||tailorPresentationState()==='applied')return;
        const jobContext=window.__DRAFTED_JOBCONTEXT__;
        if(!jobContext||!documentBlocksState?.length)return;
        // Lock is shared by the toolbar, guidance and finish actions.
@@ -598,7 +622,8 @@ maybeShowTailor();
        tailorInFlight=true;btn.disabled=true;
        let sourceRequest=tailorSourcesEnabled;
        try {
-         setTailorMinimized('Tailoring in progress…');
+         discoveryController?.showChat();
+         refreshTailorPresentation();
          const stamp=tailorContextStamp();
          const payload={cvVersionId:cvVersionId||null,cvTitle:documentTitle||'',targetRole:targetRoleInput?.value?.trim()||'',
            language:documentLanguage||'en',blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
@@ -617,7 +642,7 @@ maybeShowTailor();
          console.error('Tailoring failed',{endpoint:endpoint.origin+endpoint.pathname,code:err instanceof DraftedTailorSourceClient.Failure?err.code:'TAILOR_FAILED',status:err instanceof DraftedTailorSourceClient.Failure?err.status:null,backendCode:err instanceof DraftedTailorSourceClient.Failure?err.backendCode:null});
          showTailorFeedback(sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true);
        }
-       finally{tailorInFlight=false;btn.disabled=false;}
+       finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();}
      }
 
      function setTailorHidden() {
@@ -626,12 +651,12 @@ maybeShowTailor();
       const minibar = document.getElementById("tailor-minibar");
       const btn = document.getElementById("tailor-btn");
     
-      if (card) card.classList.remove("is-visible");
+      if (card) {card.hidden=true;card.classList.remove("is-visible");}
       if (content) content.classList.remove("is-ready");
       if (minibar) minibar.classList.remove("is-minimized");
     
       // reset button so it works next time
-      if (btn) btn.disabled = false;
+      if (btn) btn.disabled = tailorInFlight;
     }
     
     function setTailorReady() {
@@ -640,31 +665,13 @@ maybeShowTailor();
       const minibar = document.getElementById("tailor-minibar");
       const btn = document.getElementById("tailor-btn");
     
-      if (card) card.classList.add("is-visible");
+      if (card) {card.hidden=false;card.classList.add("is-visible");}
       if (content) content.classList.add("is-ready");
       if (minibar) minibar.classList.remove("is-minimized");
     
       // ensure CTA is clickable when we re-enter ready state
-      if (btn) btn.disabled = false;
+      if (btn) btn.disabled = tailorInFlight;
     }
-  function setTailorMinimized(statusText) {
-    const card = document.getElementById("tailor-card");
-    const content = document.getElementById("tailor-content");
-    const minibar = document.getElementById("tailor-minibar");
-    const miniTextEl = document.getElementById("tailor-mini-text");
-
-    if (card) card.classList.add("is-visible");
-    if (content) content.classList.remove("is-ready");
-    if (minibar) minibar.classList.add("is-minimized");
-
-    if (miniTextEl && typeof statusText === "string") {
-      const trimmed = statusText.trim();
-      if (trimmed) {
-        miniTextEl.textContent = trimmed;
-      }
-    }
-  }
-
   function maybeShowTailor() {
     discoveryController?.sync();
     const hasJobContext =
@@ -676,7 +683,7 @@ maybeShowTailor();
       !!(Array.isArray(documentBlocksState) && documentBlocksState.length);
 
     if (hasJobContext && hasBlocks) {
-      setTailorReady();
+      refreshTailorPresentation();
     } else {
       setTailorHidden();
     }
@@ -1381,6 +1388,8 @@ function setApplyLabel() {
       host: chatMessagesEl,
       endpoint: N8N_DISCOVERY_URL,
       onTailor: runTailor,
+      getTailorState:tailorPresentationState,
+      onSourceStateChange:refreshTailorPresentation,
       sourceTailoring: tailorSourcesEnabled,
       getSourceNotice:()=>{const c=discoveryController?.sourceContext(tailorSourceLedger.snapshot());if(!c)return '';return c.applications.some(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text!==g.checkpointText||g.additions.some(x=>{const a=c.answers.find(a=>a.id===x.source.answerId);return !a||a.revision!==x.source.answerRevision||c.questions.find(q=>q.id===a.questionId)?.status!=='recorded';}))?'Earlier wording may use changed or unavailable answers. It remains unchanged until you review and apply an update.':'';},
       getContext: () => !isPreviewingProposal && discoveryCvFile && getFileInput()?.files?.[0] === discoveryCvFile && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__

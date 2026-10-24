@@ -1,0 +1,26 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const refs=require('../backend/tailor-source-references.cjs'),proposal=require('../backend/tailor-context-recovery-proposal.cjs'),adapter=require('../backend/n8n-tailor-context-recovery-proposal.cjs'),profile=require('../webflow/src/tailor-sources.js'),f=require('./fixtures/tailor-source-references.cjs'),h=require('./helpers/tailor-references-harness.cjs');
+const {model}=require('./fixtures/tailor-context-recovery.cjs'),{definition}=require('./helpers/tailor-context-recovery-harness.cjs');
+test('missing employment context becomes an explicit current-source question; independent valid source remains a detached proposal',async()=>{
+ const r=f.request();r.sourceContext.answers[0].text='I ran internal AI workshops for colleagues, not customer sessions.';r.sourceContext.answers[0].revision=4;const before=structuredClone(r),c=refs.catalog(r,'ctx'),raw=model(c.modelInput);
+ assert.throws(()=>refs.compile(r,raw,'ctx'),/UNSUPPORTED_SOURCE_TARGET/);const compiled=proposal.compile(r,raw,'ctx');assert.deepEqual(compiled.contextQuestions,[{answerId:'a1',answerRevision:4,reason:'context_unclear'}]);assert.equal(compiled.additions.length,1);assert.equal(compiled.additions[0].answerId,'a2');
+ const d=await h.createHarness({definition:definition(),model:input=>h.response(model(input))})(r);assert.equal(d.status,200);profile.validateCandidate(r,d.body);assert.equal(d.body.blocks[1].text,r.blocks[1].text);assert.equal(d.body.sourceUsage.length,1);assert.equal(d.body.sourceUsage[0].answerId,'a2');assert.deepEqual(r,before);
+});
+test('all additions of unclear source are withheld, including summary/skills; no relocation or model rerun',()=>{
+ const r=f.request();r.sourceContext.answers[0].text='I ran internal AI workshops, not external training.';const c=refs.catalog(r,'ctx'),raw=model(c.modelInput);raw.additions.push({sourceKey:c.sources[0].sourceKey,targetKey:c.targets.find(t=>t.type==='summary').targetKey,text:'AI workshops.'});const out=proposal.compile(r,raw,'ctx');assert.ok(!out.additions.some(a=>a.answerId==='a1'));assert.equal(out.contextQuestions.length,1);
+});
+test('unknown IDs, duplicates, conflicts, malformed text, already-applied pairs and wrong choice despite valid setting still fail closed',()=>{
+ const r=f.request();r.sourceContext.answers[0].text='I ran internal AI workshops.';const c=refs.catalog(r,'ctx'),raw=model(c.modelInput);
+ for(const mutate of [x=>x.additions.push({...x.additions[0]}),x=>x.additions[1].sourceKey='foreign',x=>x.additions[1].targetKey='foreign',x=>x.additions[0].text=' ',x=>x.additions[0].extra=true,x=>x.contextQuestions.push({sourceKey:x.additions[0].sourceKey,reason:'context_unclear'})]){const v=structuredClone(raw);mutate(v);assert.throws(()=>proposal.compile(r,v,'ctx'));}
+ const known=f.request(),catalog=refs.catalog(known,'known'),bad={additions:[{sourceKey:catalog.sources[1].sourceKey,targetKey:catalog.targets.find(t=>t.type==='experience').targetKey,text:'Wrong workplace.'}],contextQuestions:[]};assert.throws(()=>proposal.compile(known,bad,'known'),/UNSUPPORTED_SOURCE_TARGET/);
+ const d=profile.candidate(known,refs.compile(known,f.model(catalog.modelInput),'known'));known.blocks=d.blocks;known.sourceContext.applications=d.sourceApplications;const applied=refs.catalog(known,'applied');assert.throws(()=>proposal.compile(known,{additions:[{sourceKey:applied.sources[0].sourceKey,targetKey:applied.targets.find(t=>t.type==='experience').targetKey,text:'Duplicate.'}],contextQuestions:[]},'applied'),/UNSUPPORTED_SOURCE_TARGET/);
+});
+test('context reply produces reviewed target wording with original source identity/revision; no and skipped never recover into additions',async()=>{
+ let r=f.request();r.sourceContext.answers[0].text='I ran internal AI workshops, not customer sessions.';const handle=h.createHarness({definition:definition(),model:input=>h.response(model(input))});let d=await handle(r);assert.equal(d.status,200);assert.equal(d.body.contextQuestions.length,1);
+ r.sourceContext.answers[0].revision++;r.sourceContext.answers[0].text+='\n\nContext: At Example Studio';d=await handle(r);profile.validateCandidate(r,d.body);assert.equal(d.body.contextQuestions.length,0);assert.equal(d.body.sourceUsage[0].answerRevision,2);assert.equal(d.body.sourceUsage[0].sourceQuote,r.sourceContext.answers[0].text);assert.match(d.body.sourceUsage[0].proposedQuote,/not customer/);
+ for(const status of ['no','skipped']){const n=f.request();n.sourceContext.questions[0].status=status;const c=refs.catalog(n,'neg');assert.ok(!c.sources.some(s=>s.answerId==='a1'));assert.throws(()=>proposal.compile(n,{additions:[{sourceKey:'a1',targetKey:c.targets[1].targetKey,text:'Bad'}],contextQuestions:[]},'neg'));}
+});
+test('candidate changes only Compose Code; deployed strict compiler remains unchanged',()=>{
+ const before=h.definition(),after=definition();for(const n of before.nodes){if(n.name!=='Compose source suggestion')assert.deepEqual(after.nodes.find(a=>a.id===n.id),n);}assert.deepEqual(after.connections,before.connections);assert.deepEqual(after.settings,before.settings);assert.throws(()=>adapter.prepare(before),/TAILOR_BASE_CHANGED/);
+});
