@@ -666,7 +666,7 @@
 ;
 (function(root){
   'use strict';
-  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false}={}){
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready'}={}){
     const drafts=new Map(),mountedRound=session.round().id;
     let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
@@ -699,12 +699,14 @@
     function requirementList(q,host){const list=el('ul');for(const text of requirements(q))list.append(el('li',text));host.append(list);}
     function sourceExcerpt(host,text){host.append(el('blockquote',text.length>360?text.slice(0,360)+'…':text,'discovery-answer'));if(text.length>360)host.append(el('p','Excerpt shown. Your full answer is under “View or correct your answers”.','discovery-note'));}
     function outcome(){
-      container.append(el('h2','Ready to tailor your CV.'));
+      const state=getTailorState();
+      container.append(el('h2',state==='ready'?'Ready to tailor your CV.':'Review your answers'));
+      if(state==='preparing'){const status=el('p','Preparing your suggestions…');status.setAttribute('role','status');container.append(status);}
       const pending=session.results().pending;
       if(pending){const status=el('p',`${pending===1?'One answer is':pending+' answers are'} still being checked.`,'discovery-note');status.setAttribute('role','status');container.append(status);}
       if(session.moreCount())container.append(button(`Explore more questions (${session.moreCount()})`,()=>session.continueQuestions()));
       else container.append(el('p','No further relevant questions were identified for this CV and job ad.','discovery-note'));
-      if(onFinishAndTailor){const finish=button('Finish and tailor my CV',()=>{const result=onFinishAndTailor();continueToEditor();return result;});finish.className='discovery-finish-primary';container.append(finish);}
+      if(onFinishAndTailor&&state==='ready'){const finish=button('Finish and tailor my CV',()=>{const result=onFinishAndTailor();continueToEditor();return result;});finish.disabled=busy;finish.className='discovery-finish-primary';container.append(finish);}
     }
     const continueToEditor=()=>{disposed=true;stopObserving();onContinue(session.accountsForRound());};
     function render(){
@@ -712,7 +714,7 @@
       const focused=container.contains(document.activeElement)&&document.activeElement.tagName==='TEXTAREA'?document.activeElement:null;
       const selection=focused&&renderedQuestion===session.current()?.id?{start:focused.selectionStart,end:focused.selectionEnd}:null;
       const historyOpen=r.phase==='complete'&&renderedPhase!=='complete'?false:container.querySelector('.discovery-history')?.open;
-      container.replaceChildren();container.classList.add('experience-discovery');if(r.phase!=='complete')container.append(el('p','Your answers stay while this page is open. The questions do not change your CV.','discovery-note'));
+      container.replaceChildren();container.classList.add('experience-discovery');
       if(r.phase==='offer'){container.append(el('h2',r.total?`${r.total} relevant experience ${r.total===1?'topic is':'topics are'} not clear in your CV.`:'We can continue with what is available.'));if(r.total)container.append(button('Start the questions',()=>session.start()));container.append(button('Continue with what is available',()=>{session.finish();continueToEditor();}));}
       else if(r.phase==='complete')outcome();
       else{
@@ -726,15 +728,17 @@
           context.append(el('p',brief?'This answer does not yet describe an example. One specific situation will help show how your experience relates to the original question.':'I could not tell what experience this answer describes. You can clarify what you mean, give an example if you have one, or skip.'));
           container.append(context,el('h2',brief?'What is one situation you have in mind when answering the question above?':'What do you mean in relation to the original question?'));
         }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
+        const actions=el('div');actions.className='discovery-question-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Answer actions');
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
           const label=el('label','A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
-          container.append(label,el('p','Up to 50,000 characters. Nothing is automatically cut.','discovery-note'),button(r.phase==='correct'?'Save correction':'Send answer',()=>{const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
-          if(r.phase==='error'&&onRetry)container.append(button('Try again',()=>onRetry()));
-          container.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();drafts.delete(q.id);}));
+          container.append(label,el('p','Up to 50,000 characters.','discovery-note'));
+          actions.append(button(r.phase==='correct'?'Save correction':'Send answer',()=>{const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
+          if(r.phase==='error'&&onRetry)actions.append(button('Try again',()=>onRetry()));
+          actions.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();drafts.delete(q.id);}));
         }
         const pending=session.results().pending;if(pending)container.append(el('p',`${pending===1?'An earlier answer is':pending+' earlier answers are'} being checked. You can keep going.`,'discovery-note'));
-        container.append(button('Finish the questions',()=>session.finish()));
+        actions.append(button('Finish the questions',()=>session.finish()));container.append(actions);
       }
       history();if(historyOpen&&container.querySelector('.discovery-history'))container.querySelector('.discovery-history').open=true;
       if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}
@@ -871,7 +875,7 @@
 /* Experience questions are an optional mode inside the existing editor. */
 (function(root){
   'use strict';
-  function create({host,getContext,endpoint,onTailor=()=>{},sourceTailoring=false,getSourceNotice=()=>''}){
+  function create({host,getContext,endpoint,onTailor=()=>{},sourceTailoring=false,getTailorBusy=()=>false,getTailorState=()=>getTailorBusy()?'preparing':'ready',onSourceStateChange=()=>{},getSourceNotice=()=>''}){
     const session=new root.DraftedExperienceDiscovery.Session(),client=new root.DraftedDiscoveryClient.Client({endpoint,background:true});
     const card=host.closest('.chat-card');
     host.closest('.section-editor')?.classList.add('discovery-enabled');
@@ -886,11 +890,13 @@
     const guidance=el('section');guidance.className='discovery-guidance';guidance.id='drafted-discovery-guidance';guidance.setAttribute('aria-label','Next step');guidance.hidden=true;host.prepend(guidance);
     let fingerprint='',generation=0,opened=false,prepared=false,pending=false,savedScroll=0,planState='idle',planController=null;
     const count=el('span');count.className='discovery-count';count.id='drafted-experience-count';count.setAttribute('role','status');launcher.setAttribute('aria-describedby',count.id);count.hidden=true;launcher.append(count);launcher.setAttribute('aria-label','Experience questions');
+    function remainingQuestions(){const r=session.round();return r.queue.filter(q=>['unanswered','answered'].includes(q.status)||q.id===session.current()?.id&&['followup','correct','error'].includes(r.phase)).length;}
     function updateGuidance(){
       guidance.replaceChildren();guidance.hidden=true;
+      if(getTailorState()!=='ready')return;
       if(planState!=='ready')return;
       const r=session.round();if(!r.total)return;
-      const remaining=r.queue.filter(q=>['unanswered','answered'].includes(q.status)||q.id===session.current()?.id&&['followup','correct','error'].includes(r.phase)).length;
+      const remaining=remainingQuestions();
       guidance.hidden=false;
       if(remaining){
         guidance.append(el('h2','Your CV may not tell the whole story.'),el('p',`We have ${remaining} prioritized ${remaining===1?'question':'questions'} about experience that could be relevant to this job. ${sourceTailoring?`Answer ${remaining===1?'it':'them'} to help Drafted tailor your CV.`:`Review ${remaining===1?'it':'them'} to explore experience that is not clear in your CV.`}`),button('Review questions',open));
@@ -899,13 +905,19 @@
         guidance.append(el('h2','Ready to tailor your CV.'),el('p',sourceTailoring&&session.accountsForRound().length?'Drafted can now use your answers and the job ad to suggest improvements.':'Drafted can use your current CV and the job ad to suggest improvements.'),button('Tailor my CV',()=>onTailor()));
       }
       if(r.phase==='complete'&&session.moreCount())guidance.append(button(`Explore more questions (${session.moreCount()})`,()=>{if(session.continueQuestions()){prepared=false;if(opened)showRound();else open();updatePlanIndicator();}}));
-      const note=el('p',sourceTailoring?'Review the suggestion before choosing Apply.':'Tailoring currently uses only your CV and the job ad. Your answers stay here for review.');note.className='discovery-note';guidance.append(note);const sourceNotice=sourceTailoring&&getSourceNotice();if(sourceNotice){const status=el('p',sourceNotice);status.className='tailor-review-warning';status.setAttribute('role','status');guidance.append(status);}
+      const note=el('p',sourceTailoring?'Review the suggestion before choosing Apply.':'Tailoring currently uses only your CV and the job ad. Your answers stay here for review.');note.className='discovery-note';guidance.append(note);let sourceNotice='';if(sourceTailoring){try{sourceNotice=getSourceNotice();}catch{sourceNotice='Answer details could not be checked. Your CV has not changed.';}}if(sourceNotice){const status=el('p',sourceNotice);status.className='tailor-review-warning';status.setAttribute('role','status');guidance.append(status);}
     }
     function setLabel(label){launcher.replaceChildren(document.createTextNode(label),count);launcher.setAttribute('aria-label',label);}
-    function updatePlanIndicator(){launcher.dataset.planState=planState;launcher.setAttribute('aria-busy',String(pending));count.hidden=planState!=='ready';if(planState==='ready'){count.textContent=String(session.round().total-(session.round().batchStart||0));count.setAttribute('aria-label',count.textContent+' experience questions in this round');launcher.title=count.textContent+' questions about experience that is not clear in this CV';}else launcher.title=planState==='loading'?'Preparing questions in the background':planState==='error'?'Questions could not be prepared. Open to retry.':'Explore your experience';}
+    function updatePlanIndicator(){
+      launcher.dataset.planState=planState;launcher.setAttribute('aria-busy',String(pending));
+      const remaining=planState==='ready'?remainingQuestions():0;
+      count.hidden=remaining===0;count.textContent=remaining?String(remaining):'';
+      count.setAttribute('aria-label',remaining+' experience '+(remaining===1?'question':'questions')+' remaining');
+      launcher.title=planState==='ready'?(remaining?remaining+' '+(remaining===1?'question':'questions')+' remaining':'Review your answers'):planState==='loading'?'Preparing questions in the background':planState==='error'?'Questions could not be prepared. Open to retry.':'Explore your experience';
+    }
     function close(focus=false){if(planState==='ready'&&session.round().phase==='complete'){prepared=false;setLabel('Review your answers');}updateGuidance();opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
     function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
-    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=client.submit(session,t);if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>client.retry(session,id).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();},sourceTailoring,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
+    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=client.submit(session,t);if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>client.retry(session,id).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
     function activate(){if(!session.round().total){body.replaceChildren(el('h2','No additional experience questions'),el('p','No further questions were identified for this CV and job ad. You can keep working in the editor.'));prepared=true;return;}if(session.round().phase==='offer')session.start();showRound();}
     async function start(){if(pending)return;const epoch=generation,controller=new AbortController();planController=controller;pending=true;planState='loading';updatePlanIndicator();body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en',{signal:controller.signal});if(result.stale||epoch!==generation)return;planState='ready';updateGuidance();if(opened)activate();else body.replaceChildren();}catch{if(epoch!==generation)return;planState='error';body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){if(planController===controller)planController=null;pending=false;body.removeAttribute('aria-busy');updatePlanIndicator();}}}
     function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
@@ -914,11 +926,14 @@
     // Escape pauses questions, retaining the mounted answer form and any draft.
     panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close(true);}});
     function invalidate(){generation++;planController?.abort();planController=null;fingerprint='';prepared=false;pending=false;planState='idle';close();guidance.hidden=true;launcher.hidden=true;setLabel('Experience questions');count.hidden=true;launcher.removeAttribute('aria-busy');launcher.dataset.planState='idle';body.replaceChildren();body.removeAttribute('aria-busy');const c=session.snapshot().context;if(c)session.setContext({...c,revision:crypto.randomUUID()});}
-    function sync(){const context=getContext();if(!context){if(fingerprint)invalidate();return;}const key=JSON.stringify(context);if(key===fingerprint)return;invalidate();fingerprint=key;session.setContext({...context,revision:crypto.randomUUID()});launcher.hidden=false;start();}
+    function sync(){const context=getContext();if(!context){if(fingerprint)invalidate();return;}const key=JSON.stringify(context);if(key===fingerprint)return;invalidate();fingerprint=key;session.setContext({...context,revision:crypto.randomUUID()});launcher.hidden=false;start();onSourceStateChange();}
     return {sync,invalidate,
+      refreshTailorState:updateGuidance,
+      showChat:(processed=false)=>{if(processed){prepared=false;setLabel('Review your answers');}close(true);},
       sourceContext:applications=>planState==='ready'?session.sourceContext(applications):null,
       appendContext:(id,revision,text)=>{session.appendContext(id,revision,text);prepared=false;updateGuidance();},
-      adoptRepresentation:(blocks,version)=>{session.adoptRepresentation(blocks,version);fingerprint=JSON.stringify(getContext());prepared=false;updateGuidance();},
+      adoptRepresentation:(blocks,version)=>{if(planState!=='ready')return;session.adoptRepresentation(blocks,version);fingerprint=JSON.stringify(getContext());prepared=false;updateGuidance();},
+      sourceContentRevision:()=>{const s=session.snapshot();return JSON.stringify(s.answers.filter(a=>a.roundId===s.round?.id).map(a=>({id:a.id,revision:a.currentRevision,text:a.revisions.at(-1)?.text,status:a.status})));},
       sourceRevision:()=>JSON.stringify({context:session.snapshot().context?.revision,answers:session.snapshot().answers,phase:session.snapshot().round?.phase,index:session.snapshot().round?.index})};
   }
   root.DraftedDiscoveryEditor={create};
@@ -1070,7 +1085,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-23-prioritized-question-rounds");
+console.log("DRAFTED_JS_SOURCE", "2026-10-24-question-actions");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1088,6 +1103,7 @@ const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n
 let discoveryController = null;
 let discoveryCvFile = null;
 let tailorInFlight = false;
+let tailorAppliedStamp = null;
 const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_URL==="https://drafted.app.n8n.cloud/webhook/tailor-cv")||['localhost','127.0.0.1'].includes(location.hostname)&&draftedEndpoints.tailorSources===true&&draftedEndpoints.tailor==='/preview-api/tailor';
 const tailorSourceLedger=new DraftedTailorSources.Ledger();
 
@@ -1567,11 +1583,29 @@ maybeShowTailor();
      TAILOR HIGHLIGHT CARD UI
      =============================== */
 
-     function tailorContextStamp() {
+     function tailorContextStamp(sources=discoveryController?.sourceRevision()) {
        return JSON.stringify({blocks:documentBlocksState,title:documentTitle,version:cvVersionId,language:documentLanguage,
          job:jobAdInputEl?.value,role:targetRoleInput?.value,context:window.__DRAFTED_JOBCONTEXT__,
          file:!!discoveryCvFile && getFileInput()?.files?.[0]===discoveryCvFile,
-         sources:discoveryController?.sourceRevision()});
+         sources});
+     }
+
+     function tailorPresentationState() {
+       if(tailorInFlight)return 'preparing';
+       if(chatMessagesEl?.querySelector('.tailor-suggestion'))return 'review';
+       if(tailorAppliedStamp&&tailorAppliedStamp===tailorContextStamp(discoveryController?.sourceContentRevision()))return 'applied';
+       return 'ready';
+     }
+
+     function refreshTailorPresentation() {
+       const state=tailorPresentationState();
+       document.querySelectorAll('.tailor-progress').forEach(node=>node.remove());
+       if(state==='preparing'){
+         const progress=document.createElement('p');progress.className='tailor-progress';progress.setAttribute('role','status');progress.textContent='Preparing your suggestions…';chatMessagesEl.prepend(progress);
+       }
+       if(state!=='applied')chatMessagesEl?.querySelector('.tailor-applied-message')?.remove();
+       if(state==='ready'&&window.__DRAFTED_JOBCONTEXT__&&documentBlocksState?.length)setTailorReady();else setTailorHidden();
+       discoveryController?.refreshTailorState();
      }
 
      function showTailorSuggestion(data, stamp, request) {
@@ -1579,15 +1613,19 @@ maybeShowTailor();
        const card=document.createElement('section');card.className='tailor-suggestion discovery-guidance';card.setAttribute('aria-label','Tailoring suggestion');
        const add=(tag,text,host=card)=>{const node=document.createElement(tag);node.textContent=text;host.append(node);return node;};
        const sectionName=block=>[block?.label||block?.type,block?.employer||block?.institution||block?.title].filter((value,index,all)=>value&&all.indexOf(value)===index).join(' · ');
-       const excerpt=(text,answerId)=>text.length<=180?`“${text}”`:`Wording from answer ${request.sourceContext.questions.findIndex(q=>q.id===request.sourceContext.answers.find(a=>a.id===answerId)?.questionId)+1} (see full change).`;
+       // Preview actual proposed wording; never invent a new AI summary or use
+       // an answer number in place of the change. Full text stays in details.
+       const excerpt=text=>{const clean=String(text).replace(/\s+/g,' ').trim();return clean.length<=280?clean:clean.slice(0,280).replace(/\s+\S*$/,'')+'…';};
        const changed=computeChangedBlockIds(documentBlocksState,data.blocks);
-       const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View sources and full changes',fullDetails);
-       add('h2','Review your tailored CV');
-       add('p',data.sourcesSchemaVersion?(changed.length?'Proposed changes from your answers. Your CV has not changed.':'Your CV has not changed.'):'This suggestion uses your CV and the job ad. Your answers are not included. Your CV has not changed.');
+       const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
+       add('h2','Review suggested changes');
        const proposed=[];
-       for(const usage of data.sourceUsage||[]){const block=data.blocks.find(b=>b.blockId===usage.blockId),prior=request.sourceContext.applications.find(g=>g.blockId===usage.blockId)?.additions.some(a=>a.source.answerId===usage.answerId);proposed.push(`${prior?'Update':'Add'} in ${sectionName(block)}: ${excerpt(usage.proposedQuote,usage.answerId)}`);}
-       if(data.sourcesSchemaVersion){const retained=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const group of request.sourceContext.applications)for(const prior of group.additions.filter(a=>!retained.has(a.id))){if(!data.sourceUsage.some(u=>u.blockId===group.blockId&&u.answerId===prior.source.answerId))proposed.push(`Remove from ${sectionName(documentBlocksState.find(b=>b.blockId===group.blockId))}: ${excerpt(prior.text,prior.source.answerId)}`);}}
-       if(proposed.length){const list=add('ul','');list.className='tailor-answer-changes';for(const text of proposed)add('li',text,list);}
+       for(const usage of data.sourceUsage||[]){const prior=request.sourceContext.applications.find(g=>g.blockId===usage.blockId)?.additions.some(a=>a.source.answerId===usage.answerId);proposed.push({blockId:usage.blockId,action:prior?'Update':'Add',text:usage.proposedQuote});}
+       if(data.sourcesSchemaVersion){const retained=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const group of request.sourceContext.applications)for(const prior of group.additions.filter(a=>!retained.has(a.id))){if(!data.sourceUsage.some(u=>u.blockId===group.blockId&&u.answerId===prior.source.answerId))proposed.push({blockId:group.blockId,action:'Remove',text:prior.text});}}
+       else for(const id of changed){const old=request.blocks.find(b=>b.blockId===id).text,next=data.blocks.find(b=>b.blockId===id).text;let from=0,end=0;while(from<old.length&&from<next.length&&old[from]===next[from])from++;while(end<old.length-from&&end<next.length-from&&old[old.length-1-end]===next[next.length-1-end])end++;proposed.push({blockId:id,action:'Update',text:next.slice(from,next.length-end)||old.slice(from,old.length-end)});}
+       if(proposed.length){const list=add('ul','');list.className='tailor-answer-changes';for(const change of proposed){const item=add('li','',list);add('h3',sectionName(data.blocks.find(b=>b.blockId===change.blockId)),item);add('p',`${change.action}: ${excerpt(change.text)}`,item);}}
+       else add('p','No text changes were suggested.');
+       add('p','Your CV will change when you apply.');
        if(data.sourcesSchemaVersion){
          const notes=[];
          for(const [index,q] of request.sourceContext.questions.entries()){
@@ -1600,13 +1638,13 @@ maybeShowTailor();
              ({no:'You answered no; not used for new experience wording.',skipped:'Skipped; not used for new wording.',unknown:'The experience is still unclear.',needs_detail:'More detail is needed.',processing:'Still being checked.',answered:'Still being checked.',editing:'Being corrected.',error:'Could not be checked.'}[q.status]||'No new wording was proposed from this answer.');
            notes.push(`${answer?'Answer':'Question'} ${index+1}: ${reason}`);
          }
-         if(notes.length===1)add('p',notes[0]);else if(notes.length){const details=add('details','');details.className='tailor-unused-answers';add('summary',`${notes.length} answers without new wording`,details);const list=add('ul','',details);for(const note of notes)add('li',note,list);}
+         if(notes.length){const section=add('section','',fullDetails);section.className='tailor-unused-answers';add('h3','Answers without new wording',section);const list=add('ul','',section);for(const note of notes)add('li',note,list);}
+         for(const [index,answer] of request.sourceContext.answers.entries()){const section=add('section','',fullDetails),q=request.sourceContext.questions.find(q=>q.id===answer.questionId);add('h3',`Original answer ${index+1} · revision ${answer.revision}`,section);if(q)add('p',q.question,section);add('blockquote',answer.text,section);}
        }
        for(const review of data.sourceReview||[]){const box=add('section','');box.className='tailor-review-warning';const block=documentBlocksState.find(b=>b.blockId===review.blockId);add('h3','Earlier wording needs review',box);add('p',`${sectionName(block)}: left unchanged because the earlier wording or source could not be matched safely.`,box);for(const g of request.sourceContext.applications.filter(g=>g.blockId===review.blockId))for(const a of g.additions)add('blockquote',a.text,fullDetails);}
        for(const question of data.contextQuestions||[]){
-         const box=add('section','');box.className='tailor-context-question';const source=request.sourceContext.answers.find(a=>a.id===question.answerId),number=request.sourceContext.questions.findIndex(q=>q.id===source.questionId)+1;add('h3',`Answer ${number}`,fullDetails);add('blockquote',source.text,fullDetails);
-         if(question.reason==='new_block_required'){add('p',`Answer ${number} needs a new CV entry; none was created.`,box);continue;}
-         add('p',`Answer ${number}`,box);
+         if(question.reason==='new_block_required')continue;
+         const box=add('section','');box.className='tailor-context-question';
          add('h3','Where did this experience take place?',box);add('p','Name the workplace, project or other setting.',box);
          const input=add('textarea','',box);input.rows=2;input.setAttribute('aria-label','Where did this experience take place?');const save=add('button','Save context',box);save.type='button';
          save.addEventListener('click',()=>{try{discoveryController.appendContext(question.answerId,question.answerRevision,input.value);card.remove();showTailorFeedback('Context saved. Choose Tailor my CV to prepare a new suggestion.');}catch{add('p','The context could not be saved. Keep your text and check that the answer is still current and within 50,000 characters.',box);}});
@@ -1616,9 +1654,8 @@ maybeShowTailor();
          const old=documentBlocksState.find(b=>b.blockId===id),next=data.blocks.find(b=>b.blockId===id),details=add('section','',fullDetails);
          add('h3',sectionName(next),details);add('p','Current',details);add('blockquote',old.text,details);add('p','Suggested',details);add('blockquote',next.text,details);
        }
-       if(!changed.length)add('p','No text changes were suggested.');
        if(fullDetails.childElementCount>1)card.append(fullDetails);
-       const apply=add('button','Apply tailored CV');apply.type='button';apply.disabled=!changed.length;
+       const apply=add('button','Apply changes');apply.type='button';apply.disabled=!changed.length;
        const dismiss=add('button','Dismiss');dismiss.type='button';
        apply.addEventListener('click',()=>{
          if(apply.disabled)return;
@@ -1627,20 +1664,22 @@ maybeShowTailor();
          pendingProposal=null;pendingProposalMeta=null;pendingSuggestion=null;clearAllProposalCards();setApplyLabel();
          if(data.sourcesSchemaVersion)tailorSourceLedger.commit(request,data);
          documentTitle=data.cvTitle;cvVersionId=data.cvVersionId;
-         buildStateFromBlocks(deepClone(data.blocks),{preserveCanonical:!!data.sourcesSchemaVersion});if(data.sourcesSchemaVersion)discoveryController.adoptRepresentation(documentBlocksState,cvVersionId);renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
-         card.remove();showTailorFeedback(`Applied changes in ${changed.map(id=>sectionName(data.blocks.find(b=>b.blockId===id))).join(', ')}.`);setTailorMinimized('Tailored ✓');
+         buildStateFromBlocks(deepClone(data.blocks),{preserveCanonical:!!data.sourcesSchemaVersion});discoveryController?.adoptRepresentation(documentBlocksState,cvVersionId);renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
+         card.remove();document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
+         tailorAppliedStamp=tailorContextStamp(discoveryController?.sourceContentRevision());
+         discoveryController?.showChat(true);refreshTailorPresentation();
+         const message=document.createElement('div');message.className='chat-message ai tailor-applied-message';message.setAttribute('role','status');message.textContent='Your CV is updated. What would you like to change?';chatMessagesEl.prepend(message);chatMessagesEl.scrollTop=0;
        });
-       dismiss.addEventListener('click',()=>{card.remove();setTailorReady();});
-       chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;setTailorMinimized('Suggestion ready to review');
+       dismiss.addEventListener('click',()=>{card.remove();refreshTailorPresentation();});
+       chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;
      }
 
      function showTailorFeedback(text,retry=false) {
-       setTailorReady();
        document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
        const feedback=document.createElement('div');feedback.className='tailor-feedback discovery-guidance';feedback.setAttribute('role','status');
        const message=document.createElement('p');message.textContent=text;feedback.append(message);
        if(retry){const button=document.createElement('button');button.type='button';button.className='discovery-primary';button.textContent='Try tailoring again';button.addEventListener('click',()=>runTailor());feedback.append(button);}
-       chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;
+       chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;refreshTailorPresentation();
      }
 
      async function fetchTailorSources(payload){
@@ -1650,7 +1689,7 @@ maybeShowTailor();
 
      async function runTailor() {
        const btn=document.getElementById('tailor-btn');
-       if(!btn||tailorInFlight||isPreviewingProposal)return;
+       if(!btn||tailorInFlight||isPreviewingProposal||tailorPresentationState()==='review'||tailorPresentationState()==='applied')return;
        const jobContext=window.__DRAFTED_JOBCONTEXT__;
        if(!jobContext||!documentBlocksState?.length)return;
        // Lock is shared by the toolbar, guidance and finish actions.
@@ -1658,7 +1697,8 @@ maybeShowTailor();
        tailorInFlight=true;btn.disabled=true;
        let sourceRequest=tailorSourcesEnabled;
        try {
-         setTailorMinimized('Tailoring in progress…');
+         discoveryController?.showChat();
+         refreshTailorPresentation();
          const stamp=tailorContextStamp();
          const payload={cvVersionId:cvVersionId||null,cvTitle:documentTitle||'',targetRole:targetRoleInput?.value?.trim()||'',
            language:documentLanguage||'en',blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
@@ -1677,7 +1717,7 @@ maybeShowTailor();
          console.error('Tailoring failed',{endpoint:endpoint.origin+endpoint.pathname,code:err instanceof DraftedTailorSourceClient.Failure?err.code:'TAILOR_FAILED',status:err instanceof DraftedTailorSourceClient.Failure?err.status:null,backendCode:err instanceof DraftedTailorSourceClient.Failure?err.backendCode:null});
          showTailorFeedback(sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true);
        }
-       finally{tailorInFlight=false;btn.disabled=false;}
+       finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();}
      }
 
      function setTailorHidden() {
@@ -1686,12 +1726,12 @@ maybeShowTailor();
       const minibar = document.getElementById("tailor-minibar");
       const btn = document.getElementById("tailor-btn");
     
-      if (card) card.classList.remove("is-visible");
+      if (card) {card.hidden=true;card.classList.remove("is-visible");}
       if (content) content.classList.remove("is-ready");
       if (minibar) minibar.classList.remove("is-minimized");
     
       // reset button so it works next time
-      if (btn) btn.disabled = false;
+      if (btn) btn.disabled = tailorInFlight;
     }
     
     function setTailorReady() {
@@ -1700,31 +1740,13 @@ maybeShowTailor();
       const minibar = document.getElementById("tailor-minibar");
       const btn = document.getElementById("tailor-btn");
     
-      if (card) card.classList.add("is-visible");
+      if (card) {card.hidden=false;card.classList.add("is-visible");}
       if (content) content.classList.add("is-ready");
       if (minibar) minibar.classList.remove("is-minimized");
     
       // ensure CTA is clickable when we re-enter ready state
-      if (btn) btn.disabled = false;
+      if (btn) btn.disabled = tailorInFlight;
     }
-  function setTailorMinimized(statusText) {
-    const card = document.getElementById("tailor-card");
-    const content = document.getElementById("tailor-content");
-    const minibar = document.getElementById("tailor-minibar");
-    const miniTextEl = document.getElementById("tailor-mini-text");
-
-    if (card) card.classList.add("is-visible");
-    if (content) content.classList.remove("is-ready");
-    if (minibar) minibar.classList.add("is-minimized");
-
-    if (miniTextEl && typeof statusText === "string") {
-      const trimmed = statusText.trim();
-      if (trimmed) {
-        miniTextEl.textContent = trimmed;
-      }
-    }
-  }
-
   function maybeShowTailor() {
     discoveryController?.sync();
     const hasJobContext =
@@ -1736,7 +1758,7 @@ maybeShowTailor();
       !!(Array.isArray(documentBlocksState) && documentBlocksState.length);
 
     if (hasJobContext && hasBlocks) {
-      setTailorReady();
+      refreshTailorPresentation();
     } else {
       setTailorHidden();
     }
@@ -2441,6 +2463,8 @@ function setApplyLabel() {
       host: chatMessagesEl,
       endpoint: N8N_DISCOVERY_URL,
       onTailor: runTailor,
+      getTailorState:tailorPresentationState,
+      onSourceStateChange:refreshTailorPresentation,
       sourceTailoring: tailorSourcesEnabled,
       getSourceNotice:()=>{const c=discoveryController?.sourceContext(tailorSourceLedger.snapshot());if(!c)return '';return c.applications.some(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text!==g.checkpointText||g.additions.some(x=>{const a=c.answers.find(a=>a.id===x.source.answerId);return !a||a.revision!==x.source.answerRevision||c.questions.find(q=>q.id===a.questionId)?.status!=='recorded';}))?'Earlier wording may use changed or unavailable answers. It remains unchanged until you review and apply an update.':'';},
       getContext: () => !isPreviewingProposal && discoveryCvFile && getFileInput()?.files?.[0] === discoveryCvFile && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__

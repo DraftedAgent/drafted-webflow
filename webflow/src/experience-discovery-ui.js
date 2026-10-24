@@ -1,6 +1,6 @@
 (function(root){
   'use strict';
-  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false}={}){
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready'}={}){
     const drafts=new Map(),mountedRound=session.round().id;
     let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
@@ -33,12 +33,14 @@
     function requirementList(q,host){const list=el('ul');for(const text of requirements(q))list.append(el('li',text));host.append(list);}
     function sourceExcerpt(host,text){host.append(el('blockquote',text.length>360?text.slice(0,360)+'…':text,'discovery-answer'));if(text.length>360)host.append(el('p','Excerpt shown. Your full answer is under “View or correct your answers”.','discovery-note'));}
     function outcome(){
-      container.append(el('h2','Ready to tailor your CV.'));
+      const state=getTailorState();
+      container.append(el('h2',state==='ready'?'Ready to tailor your CV.':'Review your answers'));
+      if(state==='preparing'){const status=el('p','Preparing your suggestions…');status.setAttribute('role','status');container.append(status);}
       const pending=session.results().pending;
       if(pending){const status=el('p',`${pending===1?'One answer is':pending+' answers are'} still being checked.`,'discovery-note');status.setAttribute('role','status');container.append(status);}
       if(session.moreCount())container.append(button(`Explore more questions (${session.moreCount()})`,()=>session.continueQuestions()));
       else container.append(el('p','No further relevant questions were identified for this CV and job ad.','discovery-note'));
-      if(onFinishAndTailor){const finish=button('Finish and tailor my CV',()=>{const result=onFinishAndTailor();continueToEditor();return result;});finish.className='discovery-finish-primary';container.append(finish);}
+      if(onFinishAndTailor&&state==='ready'){const finish=button('Finish and tailor my CV',()=>{const result=onFinishAndTailor();continueToEditor();return result;});finish.disabled=busy;finish.className='discovery-finish-primary';container.append(finish);}
     }
     const continueToEditor=()=>{disposed=true;stopObserving();onContinue(session.accountsForRound());};
     function render(){
@@ -46,7 +48,7 @@
       const focused=container.contains(document.activeElement)&&document.activeElement.tagName==='TEXTAREA'?document.activeElement:null;
       const selection=focused&&renderedQuestion===session.current()?.id?{start:focused.selectionStart,end:focused.selectionEnd}:null;
       const historyOpen=r.phase==='complete'&&renderedPhase!=='complete'?false:container.querySelector('.discovery-history')?.open;
-      container.replaceChildren();container.classList.add('experience-discovery');if(r.phase!=='complete')container.append(el('p','Your answers stay while this page is open. The questions do not change your CV.','discovery-note'));
+      container.replaceChildren();container.classList.add('experience-discovery');
       if(r.phase==='offer'){container.append(el('h2',r.total?`${r.total} relevant experience ${r.total===1?'topic is':'topics are'} not clear in your CV.`:'We can continue with what is available.'));if(r.total)container.append(button('Start the questions',()=>session.start()));container.append(button('Continue with what is available',()=>{session.finish();continueToEditor();}));}
       else if(r.phase==='complete')outcome();
       else{
@@ -60,15 +62,17 @@
           context.append(el('p',brief?'This answer does not yet describe an example. One specific situation will help show how your experience relates to the original question.':'I could not tell what experience this answer describes. You can clarify what you mean, give an example if you have one, or skip.'));
           container.append(context,el('h2',brief?'What is one situation you have in mind when answering the question above?':'What do you mean in relation to the original question?'));
         }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
+        const actions=el('div');actions.className='discovery-question-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Answer actions');
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
           const label=el('label','A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
-          container.append(label,el('p','Up to 50,000 characters. Nothing is automatically cut.','discovery-note'),button(r.phase==='correct'?'Save correction':'Send answer',()=>{const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
-          if(r.phase==='error'&&onRetry)container.append(button('Try again',()=>onRetry()));
-          container.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();drafts.delete(q.id);}));
+          container.append(label,el('p','Up to 50,000 characters.','discovery-note'));
+          actions.append(button(r.phase==='correct'?'Save correction':'Send answer',()=>{const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
+          if(r.phase==='error'&&onRetry)actions.append(button('Try again',()=>onRetry()));
+          actions.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();drafts.delete(q.id);}));
         }
         const pending=session.results().pending;if(pending)container.append(el('p',`${pending===1?'An earlier answer is':pending+' earlier answers are'} being checked. You can keep going.`,'discovery-note'));
-        container.append(button('Finish the questions',()=>session.finish()));
+        actions.append(button('Finish the questions',()=>session.finish()));container.append(actions);
       }
       history();if(historyOpen&&container.querySelector('.discovery-history'))container.querySelector('.discovery-history').open=true;
       if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}

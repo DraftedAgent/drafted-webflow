@@ -1,0 +1,53 @@
+{
+  "proof": {
+    "projectionVerified": true,
+    "activeVerified": true,
+    "nodeCount": 15,
+    "projectionSha256": "e6ff225845693f1ce500f165d096edf83d00c11185f69cf79122c1f6baee41de"
+  },
+  "savedVersionId": "a5196f17-4ccc-41db-8993-9b6c5fe466dd",
+  "preSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T182938601Z__H8oAioy58R1v3PvRe3YUa__f024a1b5-9907-446b-9321-ff2f31ac351d__pre-save-DEV-101.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T182938601Z__H8oAioy58R1v3PvRe3YUa__f024a1b5-9907-446b-9321-ff2f31ac351d__pre-save-DEV-101.manifest.json",
+    "verified": true
+  },
+  "savedRawSha256": "89009eae70a23fd8f5137ef28bd99eea61e2e96d445a362c021751a007ddee57",
+  "postSaveSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T182947085Z__H8oAioy58R1v3PvRe3YUa__a5196f17-4ccc-41db-8993-9b6c5fe466dd__post-save-DEV-101.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T182947085Z__H8oAioy58R1v3PvRe3YUa__a5196f17-4ccc-41db-8993-9b6c5fe466dd__post-save-DEV-101.manifest.json",
+    "verified": true
+  },
+  "saveStatus": 200,
+  "phase": "published",
+  "modelExecutionsInitiated": 0,
+  "beforeVersionId": "f024a1b5-9907-446b-9321-ff2f31ac351d",
+  "activeVersionId": "a5196f17-4ccc-41db-8993-9b6c5fe466dd",
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "publishStatus": 200,
+  "prePublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T183016847Z__H8oAioy58R1v3PvRe3YUa__a5196f17-4ccc-41db-8993-9b6c5fe466dd__pre-publish-DEV-101.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T183016847Z__H8oAioy58R1v3PvRe3YUa__a5196f17-4ccc-41db-8993-9b6c5fe466dd__pre-publish-DEV-101.manifest.json",
+    "verified": true
+  },
+  "postPublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T183025175Z__H8oAioy58R1v3PvRe3YUa__a5196f17-4ccc-41db-8993-9b6c5fe466dd__post-publish-DEV-101.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T183025175Z__H8oAioy58R1v3PvRe3YUa__a5196f17-4ccc-41db-8993-9b6c5fe466dd__post-publish-DEV-101.manifest.json",
+    "verified": true
+  },
+  "devId": "DEV-101",
+  "changedNodes": [
+    "Compose source suggestion"
+  ],
+  "localValidation": {
+    "focusedTestsPassed": 54,
+    "contextAndActionsBrowserPassed": true,
+    "chatLifecycleBrowserPassed": true,
+    "actualSiteMockedPreflightPassed": true,
+    "externalModelRuns": 0,
+    "frontendBuild": "2026-10-24-question-actions"
+  },
+  "localSourceSha256": {
+    "backend/tailor-context-recovery-proposal.cjs": "7984a9d9cb1fd1f242d047ca11cb747e5450bfcdc087625055c7213ac9fffd7d",
+    "backend/n8n-tailor-context-recovery-proposal.cjs": "274118e9729d56baaaef28098b1501ff8de8f8bac9cb6f90698ea0bd71221a08"
+  }
+}

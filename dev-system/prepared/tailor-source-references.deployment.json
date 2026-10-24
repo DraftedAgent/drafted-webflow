@@ -1,0 +1,54 @@
+{
+  "savedRawSha256": "c8a23d2627c323b7d5c7d45f8aa54ef7cc67e37997878cd9e745480c59a65b6d",
+  "beforeVersionId": "c143d087-8803-40d5-8c94-6425780d8afe",
+  "postSaveSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T173009039Z__H8oAioy58R1v3PvRe3YUa__f024a1b5-9907-446b-9321-ff2f31ac351d__post-save-DEV-098.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T173009039Z__H8oAioy58R1v3PvRe3YUa__f024a1b5-9907-446b-9321-ff2f31ac351d__post-save-DEV-098.manifest.json",
+    "verified": true
+  },
+  "phase": "published",
+  "saveStatus": 200,
+  "savedVersionId": "f024a1b5-9907-446b-9321-ff2f31ac351d",
+  "proof": {
+    "projectionVerified": true,
+    "activeVerified": true,
+    "nodeCount": 15,
+    "projectionSha256": "4d62d46673f19f07d4a857606da0219867c37ef85e39184fa6766b292dfdad46"
+  },
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "activeVersionId": "f024a1b5-9907-446b-9321-ff2f31ac351d",
+  "modelExecutionsInitiated": 0,
+  "preSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T172952451Z__H8oAioy58R1v3PvRe3YUa__c143d087-8803-40d5-8c94-6425780d8afe__pre-save-DEV-098.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T172952451Z__H8oAioy58R1v3PvRe3YUa__c143d087-8803-40d5-8c94-6425780d8afe__pre-save-DEV-098.manifest.json",
+    "verified": true
+  },
+  "publishStatus": 200,
+  "prePublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T173047811Z__H8oAioy58R1v3PvRe3YUa__f024a1b5-9907-446b-9321-ff2f31ac351d__pre-publish-DEV-098.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T173047811Z__H8oAioy58R1v3PvRe3YUa__f024a1b5-9907-446b-9321-ff2f31ac351d__pre-publish-DEV-098.manifest.json",
+    "verified": true
+  },
+  "postPublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T173104129Z__H8oAioy58R1v3PvRe3YUa__f024a1b5-9907-446b-9321-ff2f31ac351d__post-publish-DEV-098.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T173104129Z__H8oAioy58R1v3PvRe3YUa__f024a1b5-9907-446b-9321-ff2f31ac351d__post-publish-DEV-098.manifest.json",
+    "verified": true
+  },
+  "devId": "DEV-098",
+  "changedNodes": [
+    "Validate + Normalize",
+    "Compose source suggestion"
+  ],
+  "localValidation": {
+    "focusedTestsPassed": 42,
+    "sourceBrowserPassed": true,
+    "sourceErrorBrowserPassed": true,
+    "exactLiveCandidateCodeRehearsed": true,
+    "externalModelRuns": 0,
+    "frontendPublished": false
+  },
+  "localSourceSha256": {
+    "backend/tailor-source-references.cjs": "56e883ab7a699d9247b3855390c24226152268d38db927cf6da85b7e20f2bcaa",
+    "backend/n8n-tailor-source-references.cjs": "14d471583adafb684ce492bc3f11b6d5799002004c54efa3dc79d7455dcbfaaa"
+  }
+}

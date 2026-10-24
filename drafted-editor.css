@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-23-prioritized-question-rounds */
+/* drafted-editor.css | build=2026-10-24-question-actions */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -915,6 +915,13 @@ html,body {height:100%;overflow:hidden!important;}
 .tailor-suggestion blockquote{white-space:pre-wrap;font-size:13px;margin:8px 0;padding:10px;background:white;border-radius:6px}.tailor-suggestion summary{cursor:pointer;font-size:14px;font-weight:600}.tailor-suggestion details{margin:12px 0}
 .drafted-discovery .discovery-finish-primary{background:#111;color:#fff;border-color:#111;font-weight:600}
 .chat-messages:has(>.tailor-suggestion,>.tailor-feedback button)>#drafted-discovery-guidance{display:none}
+.section-editor #tailor-card[hidden]{display:none!important}
+.tailor-progress{flex:0 0 auto;margin:4px 0 16px;font:14px/1.5 system-ui;color:#52656e}
+.tailor-answer-changes{list-style:none;margin:10px 0;padding:0}
+.tailor-answer-changes li{margin:12px 0}
+.tailor-answer-changes h3{font:600 14px/1.4 system-ui;margin:0 0 3px}
+.drafted-discovery .discovery-question-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:14px 0 8px}
+.drafted-discovery .discovery-question-actions button{margin:0}
 
 .tailor-context-question,.tailor-review-warning{padding:12px;margin:12px 0;border-left:3px solid #bd8538;background:#fff8e9;border-radius:4px}
 .tailor-context-question h3,.tailor-review-warning h3{font-size:14px;margin:0 0 6px}.tailor-context-question textarea{display:block;box-sizing:border-box;width:100%;font:14px/1.5 system-ui;padding:9px;border:1px solid #9ca5ab;border-radius:6px;resize:vertical;min-height:70px}.tailor-context-question textarea:focus-visible{outline:3px solid #416fbc;outline-offset:2px}
