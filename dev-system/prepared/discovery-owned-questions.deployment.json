@@ -1,0 +1,55 @@
+{
+  "activeVersionId": "6336f54e-9913-4976-bd32-78d8508338d5",
+  "modelExecutionsInitiated": 0,
+  "proof": {
+    "projectionVerified": true,
+    "activeVerified": true,
+    "nodeCount": 7,
+    "projectionSha256": "a3d028c090cfd2490a37a8070819154e86f308445b7b730889494a4363f203cd"
+  },
+  "preSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T185916515Z__zeIzzxPwD2Y91OyD__8fc9596b-ca45-4ade-8697-34e27bc9ecce__pre-save-DEV-103.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T185916515Z__zeIzzxPwD2Y91OyD__8fc9596b-ca45-4ade-8697-34e27bc9ecce__pre-save-DEV-103.manifest.json",
+    "verified": true
+  },
+  "postSaveSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T185923540Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__post-save-DEV-103.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T185923540Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__post-save-DEV-103.manifest.json",
+    "verified": true
+  },
+  "workflowId": "zeIzzxPwD2Y91OyD",
+  "phase": "published",
+  "saveStatus": 200,
+  "savedVersionId": "6336f54e-9913-4976-bd32-78d8508338d5",
+  "savedRawSha256": "2f75ef11b9ab27010cc5435d412e30d955f60fc3054ccd07a0ee7746dae47ef3",
+  "beforeVersionId": "8fc9596b-ca45-4ade-8697-34e27bc9ecce",
+  "publishStatus": 200,
+  "prePublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T185940340Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__pre-publish-DEV-103.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T185940340Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__pre-publish-DEV-103.manifest.json",
+    "verified": true
+  },
+  "postPublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T185947251Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__post-publish-DEV-103.clixml",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T185947251Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__post-publish-DEV-103.manifest.json",
+    "verified": true
+  },
+  "devId": "DEV-103",
+  "changedNodes": [
+    "Build discovery prompt",
+    "Validate model response"
+  ],
+  "localValidation": {
+    "focusedTestsPassed": 15,
+    "planFailureRetryBrowserPassed": true,
+    "chatLifecycleBrowserPassed": true,
+    "actualLiveCandidateCodeRehearsed": true,
+    "externalModelRuns": 0,
+    "frontendPublished": false
+  },
+  "sourceHashNormalization": "UTF-8 LF",
+  "localSourceSha256": {
+    "backend/discovery-signal-questions-proposal.cjs": "f7a0cabfc9d21ec63f77afd7ac284535e12cc9ceba53e9363268e8a17e5cec89",
+    "backend/n8n-discovery-signal-questions-proposal.cjs": "77930ff35fc71e872ba1cbba879e2cb684b72e5bac899798f0dab70a1406ffc6"
+  }
+}
