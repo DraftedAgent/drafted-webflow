@@ -16,9 +16,9 @@ function assess(binding,raw){let shapeValid=false;try{R.validate(raw,binding.sch
 function compose(binding,envelope){
  const r=binding.request;
  if(binding.operation==='tailor'){
-  const result=H.runCode(node(H.tailorBaseline,'Compose source suggestion'),envelope,{'Validate + Normalize':{json:{sourceRequest:r,sourceScope:binding.scope}}},binding.scope);return result.status===200?{body:result.body,outcome:outcome('tailor',result.body)}:{body:result.body,outcome:'technical_error',diagnostic:result.body.contractError?.code};
+  const result=H.runCode(node(H.tailorBaseline,'Compose source suggestion'),envelope,{'Validate + Normalize':{json:{sourceRequest:r,sourceScope:binding.scope}}},binding.scope);return result.status===200?{body:result.body,outcome:outcome('tailor',result.body,r)}:{body:result.body,outcome:'technical_error',diagnostic:result.body.contractError?.code};
  }
  const result=H.runCode(node(H.discoveryBaseline,'Validate model response'),envelope,{'Validate request':{json:{request:r}}},binding.scope);return result.httpStatus===200?{body:result.response,outcome:outcome(binding.operation,result.response)}:{body:result.response,outcome:'technical_error',diagnostic:result.diagnostic?.reason};
 }
-function outcome(operation,body){if(operation==='plan')return body.result.topics.length?'questions':'no_questions';if(operation==='interpret')return body.result.drafts.length?'answer_accounts':'needs_detail';return body.contextQuestions.length?(body.sourceUsage.length?'suggestion_with_context':'needs_context'):body.sourceUsage.length||body.sourceReview.length?'suggestion':'no_changes';}
+function outcome(operation,body,request){if(operation==='plan')return body.result.topics.length?'questions':'no_questions';if(operation==='interpret')return body.result.drafts.length?'answer_accounts':'needs_detail';return R.tailorOutcome(request,body);}
 module.exports={prepare,assess,compose,outcome};

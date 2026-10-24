@@ -39,10 +39,15 @@ function create({discoveryOwner,discoveryPublic,tailorRefs,tailorRecovery,tailor
  function reason(error){return error?.contractReason||error?.signalQuestionCode||error?.assessmentCode||error?.anchorCode||error?.message;}
  function path(error){return error?.contractPath||error?.signalQuestionPath||error?.assessmentPath||error?.anchorPath||'$';}
  function assess(binding,raw){let shapeValid=false;try{validate(raw,binding.schema);shapeValid=true;strict(binding,raw);return {shapeValid:true,referencesValid:true,reason:null,path:null};}catch(e){const safe=D.safe({operation:binding.operation,reason:reason(e),path:path(e)});return {shapeValid,referencesValid:false,reason:safe.reason,path:safe.path};}}
+ function tailorOutcome(request,body){
+  const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
+  const changed=JSON.stringify(canonical(request.blocks))!==JSON.stringify(canonical(body.blocks)),suggestion=changed||body.sourceReview.length>0;
+  return body.contextQuestions.length?(suggestion?'suggestion_with_context':'needs_context'):suggestion?'suggestion':'no_changes';
+ }
  function compose(binding,raw,options={}){
   const {operation,request:r,scope}=binding;validate(raw,binding.schema);
   if(operation==='tailor'){
-   const compiled=tailorRecovery.compile(r,raw,scope),body=tailorProfile.candidate(r,compiled,options);tailorProfile.validateCandidate(r,body);return {body,outcome:body.contextQuestions.length?(body.sourceUsage.length?'suggestion_with_context':'needs_context'):body.sourceUsage.length||body.sourceReview.length?'suggestion':'no_changes',audit:null};
+   const compiled=tailorRecovery.compile(r,raw,scope),body=tailorProfile.candidate(r,compiled,options);tailorProfile.validateCandidate(r,body);return {body,outcome:tailorOutcome(r,body),audit:null};
   }
   const compiled=strict(binding,raw),result=operation==='plan'?compiled.result:compiled;
   return {body:discoveryPublic.modelResult(r,result),outcome:operation==='plan'?(result.topics.length?'questions':'no_questions'):(result.drafts.length?'answer_accounts':'needs_detail'),audit:compiled.audit||null,counts:compiled.counts||null};
@@ -56,6 +61,6 @@ function create({discoveryOwner,discoveryPublic,tailorRefs,tailorRecovery,tailor
   if(p.text&&typeof p.text==='object'&&!Array.isArray(p.text))return p.text;fail('MODEL_OUTPUT_TEXT_MISSING');
  }
  function diagnostic(operation,requestId,status,error,code){return D.safe({operation,requestId,status,code,reason:reason(error),path:path(error)});}
- return {VERSION,prepare,validate,strict,assess,compose,extract,diagnostic,reason,path};
+ return {VERSION,prepare,validate,strict,assess,compose,tailorOutcome,extract,diagnostic,reason,path};
 }
 module.exports={create};

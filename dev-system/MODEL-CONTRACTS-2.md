@@ -1,3 +1,5 @@
+> DEV-105: Granskningsfynd rättade lokalt. Godkännande v2 binds till beständigt förbrukat runId/platser/budget. Även rena borttagningsförslag klassificeras som förslag i båda profilerna. [Nytt konkret pilotunderlag](MODEL-PILOT-APPROVAL.md) ersätter DEV-104:s tidigare hashvärden och godkännandeutkast. Ingen modellkörning eller driftsättning.
+
 # DEV-104 — Gemensamma modellkontrakt för Discovery och Tailor
 
 Lokal kandidat, 2026-10-24. Ingen workflowändring, aktivering, publicering eller extern modellkörning har gjorts. DEV-103 säkrades först i lokal commit `75a05f6`. Arbetet ligger på `codex/discovery-tailor-contracts`.

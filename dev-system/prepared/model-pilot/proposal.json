@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "approved": false,
+  "runId": "3c3b6ffa-d233-41a7-8393-e0b7f0e5adcb",
+  "manifestSha256": "690751f8f15367d7483fc4ed3963a375f5ea8d69105c22e9035c7281ef6b3288",
+  "materialsSha256": "c1726b5e4bc340468ba811bc24ba36a7eb378999b5f1874238fbde3a27fb07d7",
+  "sourcesSha256": "ab0667e530a1e37e1deb150a4160b11c116a6bd8158a28db3141310131af771c",
+  "maxCalls": 72,
+  "maxCostUSD": 1,
+  "inputUSDPerMillion": 0.4,
+  "outputUSDPerMillion": 1.6,
+  "totalConservativeReservationUSD": 0.7553672000000001,
+  "pricingCheckedAt": "2026-10-24",
+  "pricingSource": "https://developers.openai.com/api/docs/models/gpt-4.1-mini",
+  "serviceTier": "default",
+  "externalModelCalls": 0,
+  "automaticRetries": 0
+}

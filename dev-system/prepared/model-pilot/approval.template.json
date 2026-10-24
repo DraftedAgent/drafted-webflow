@@ -1,10 +1,12 @@
 {
+  "approvalVersion": 2,
+  "runId": "3c3b6ffa-d233-41a7-8393-e0b7f0e5adcb",
   "approved": false,
-  "manifestSha256": "3266793e1bcb2100caeaf89cfd72f39f0bd85b79b498ea606e0c0263a5eb3f09",
-  "materialsSha256": "ac267b1d8725b9d6f1a1dcfacdabc6f19fbbc654d58a067baba9284e805805a9",
-  "sourcesSha256": "335feb3e59e2bb0bbdafc85e4d1b7b98dd82b0fbf870dd0fc793736e7568e279",
+  "manifestSha256": "690751f8f15367d7483fc4ed3963a375f5ea8d69105c22e9035c7281ef6b3288",
+  "materialsSha256": "c1726b5e4bc340468ba811bc24ba36a7eb378999b5f1874238fbde3a27fb07d7",
+  "sourcesSha256": "ab0667e530a1e37e1deb150a4160b11c116a6bd8158a28db3141310131af771c",
   "maxCalls": 72,
-  "maxCostUSD": null,
-  "inputUSDPerMillion": null,
-  "outputUSDPerMillion": null
+  "maxCostUSD": 1,
+  "inputUSDPerMillion": 0.4,
+  "outputUSDPerMillion": 1.6
 }

@@ -1,0 +1,415 @@
+{
+  "synthetic": true,
+  "modelExecuted": false,
+  "request": {
+    "cvVersionId": "cv-1",
+    "cvTitle": "Alex Example",
+    "targetRole": "Product Specialist",
+    "language": "en",
+    "blocksSchemaVersion": "1.0",
+    "blocks": [
+      {
+        "blockId": "summary-1",
+        "type": "summary",
+        "label": "Profile",
+        "order": 10,
+        "text": "Product specialist working with digital teams."
+      },
+      {
+        "blockId": "experience-1",
+        "type": "experience",
+        "label": "Experience",
+        "order": 20,
+        "text": "Interviewed five users and shared their feedback.\n\nI planned a release with two developers.",
+        "employer": "Example Studio",
+        "title": "Product Specialist",
+        "startDate": "2022",
+        "endDate": "2024"
+      },
+      {
+        "blockId": "project-1",
+        "type": "otherSections",
+        "label": "Community Project",
+        "order": 30,
+        "text": "Volunteered with a local community group.\n\nI helped facilitate two internal workshops. I did not lead customer sessions."
+      },
+      {
+        "blockId": "skills-1",
+        "type": "skills",
+        "label": "Skills",
+        "order": 40,
+        "text": "User interviews.\n\nI used Python for data checks."
+      }
+    ],
+    "jobContextSchemaVersion": "1.0",
+    "jobContext": {
+      "roleTitle": "Product Specialist",
+      "seniority": "mid",
+      "surfaces": [
+        "app"
+      ],
+      "tone": "balanced",
+      "topPriorities": [
+        {
+          "signal": "Plan product deliveries",
+          "weight": 5
+        },
+        {
+          "signal": "Collaborate and facilitate workshops",
+          "weight": 4
+        }
+      ],
+      "mustHave": [],
+      "successMetrics": [],
+      "keywords": [
+        "product",
+        "planning",
+        "delivery",
+        "workshops",
+        "collaboration",
+        "research",
+        "users",
+        "design",
+        "development",
+        "communication"
+      ]
+    },
+    "sourcesSchemaVersion": "1.0",
+    "sourceContext": {
+      "contextRevision": "ctx-1",
+      "roundId": "round-1",
+      "questions": [
+        {
+          "id": "q1",
+          "question": "Have you helped plan a delivery?",
+          "signalRefs": [
+            {
+              "field": "topPriorities",
+              "index": 0
+            }
+          ],
+          "status": "no"
+        },
+        {
+          "id": "q2",
+          "question": "Have you helped people work together?",
+          "signalRefs": [
+            {
+              "field": "topPriorities",
+              "index": 1
+            }
+          ],
+          "status": "skipped"
+        }
+      ],
+      "answers": [
+        {
+          "id": "a1",
+          "questionId": "q1",
+          "revision": 2,
+          "text": "No"
+        },
+        {
+          "id": "a2",
+          "questionId": "q2",
+          "revision": 2,
+          "text": "Skipped"
+        }
+      ],
+      "applications": [
+        {
+          "blockId": "experience-1",
+          "checkpointText": "Interviewed five users and shared their feedback.\n\nI planned a release with two developers.",
+          "additions": [
+            {
+              "id": "withdrawal-applied-1",
+              "start": 49,
+              "end": 91,
+              "text": "I planned a release with two developers.",
+              "source": {
+                "answerId": "a1",
+                "answerRevision": 1,
+                "sourceQuote": "At Example Studio, I planned a release with two developers.\n\nI used Python for data checks."
+              }
+            }
+          ]
+        },
+        {
+          "blockId": "skills-1",
+          "checkpointText": "User interviews.\n\nI used Python for data checks.",
+          "additions": [
+            {
+              "id": "withdrawal-applied-2",
+              "start": 16,
+              "end": 48,
+              "text": "I used Python for data checks.",
+              "source": {
+                "answerId": "a1",
+                "answerRevision": 1,
+                "sourceQuote": "At Example Studio, I planned a release with two developers.\n\nI used Python for data checks."
+              }
+            }
+          ]
+        },
+        {
+          "blockId": "project-1",
+          "checkpointText": "Volunteered with a local community group.\n\nI helped facilitate two internal workshops. I did not lead customer sessions.",
+          "additions": [
+            {
+              "id": "withdrawal-applied-3",
+              "start": 41,
+              "end": 120,
+              "text": "I helped facilitate two internal workshops. I did not lead customer sessions.",
+              "source": {
+                "answerId": "a2",
+                "answerRevision": 1,
+                "sourceQuote": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "modelInput": {
+    "language": "en",
+    "jobContext": {
+      "roleTitle": "Product Specialist",
+      "seniority": "mid",
+      "surfaces": [
+        "app"
+      ],
+      "tone": "balanced",
+      "topPriorities": [
+        {
+          "signal": "Plan product deliveries",
+          "weight": 5
+        },
+        {
+          "signal": "Collaborate and facilitate workshops",
+          "weight": 4
+        }
+      ],
+      "mustHave": [],
+      "successMetrics": [],
+      "keywords": [
+        "product",
+        "planning",
+        "delivery",
+        "workshops",
+        "collaboration",
+        "research",
+        "users",
+        "design",
+        "development",
+        "communication"
+      ]
+    },
+    "sources": [],
+    "targets": [
+      {
+        "blockId": "summary-1",
+        "type": "summary",
+        "label": "Profile",
+        "order": 10,
+        "text": "Product specialist working with digital teams.",
+        "targetKey": "t1_withdrawal_example"
+      },
+      {
+        "blockId": "experience-1",
+        "type": "experience",
+        "label": "Experience",
+        "order": 20,
+        "text": "Interviewed five users and shared their feedback.",
+        "employer": "Example Studio",
+        "title": "Product Specialist",
+        "startDate": "2022",
+        "endDate": "2024",
+        "targetKey": "t2_withdrawal_example"
+      },
+      {
+        "blockId": "project-1",
+        "type": "otherSections",
+        "label": "Community Project",
+        "order": 30,
+        "text": "Volunteered with a local community group.",
+        "targetKey": "t3_withdrawal_example"
+      },
+      {
+        "blockId": "skills-1",
+        "type": "skills",
+        "label": "Skills",
+        "order": 40,
+        "text": "User interviews.",
+        "targetKey": "t4_withdrawal_example"
+      }
+    ],
+    "constraints": [
+      {
+        "text": "No",
+        "status": "no"
+      },
+      {
+        "text": "Skipped",
+        "status": "skipped"
+      }
+    ],
+    "reviewSections": []
+  },
+  "modelOutput": {
+    "additions": [],
+    "contextQuestions": []
+  },
+  "candidate": {
+    "body": {
+      "ok": true,
+      "blocksSchemaVersion": "1.0",
+      "cvVersionId": "cv-1",
+      "cvTitle": "Alex Example",
+      "summaryOfChanges": "Review the proposed changes before applying.",
+      "blocks": [
+        {
+          "blockId": "summary-1",
+          "type": "summary",
+          "label": "Profile",
+          "order": 10,
+          "text": "Product specialist working with digital teams."
+        },
+        {
+          "blockId": "experience-1",
+          "type": "experience",
+          "label": "Experience",
+          "order": 20,
+          "text": "Interviewed five users and shared their feedback.",
+          "employer": "Example Studio",
+          "title": "Product Specialist",
+          "startDate": "2022",
+          "endDate": "2024"
+        },
+        {
+          "blockId": "project-1",
+          "type": "otherSections",
+          "label": "Community Project",
+          "order": 30,
+          "text": "Volunteered with a local community group."
+        },
+        {
+          "blockId": "skills-1",
+          "type": "skills",
+          "label": "Skills",
+          "order": 40,
+          "text": "User interviews."
+        }
+      ],
+      "rewrittenCv": "Product specialist working with digital teams.\n\nInterviewed five users and shared their feedback.\n\nVolunteered with a local community group.\n\nUser interviews.",
+      "rewrittenCvLegacy": "Product specialist working with digital teams.\n\nInterviewed five users and shared their feedback.\n\nVolunteered with a local community group.\n\nUser interviews.",
+      "sourcesSchemaVersion": "1.0",
+      "sourceContextRevision": "ctx-1",
+      "sourceRoundId": "round-1",
+      "sourceUsage": [],
+      "sourceApplications": [],
+      "sourceReview": [],
+      "contextQuestions": []
+    },
+    "outcome": "suggestion",
+    "audit": null
+  },
+  "baseline": {
+    "body": {
+      "ok": true,
+      "blocksSchemaVersion": "1.0",
+      "cvVersionId": "cv-1",
+      "cvTitle": "Alex Example",
+      "summaryOfChanges": "Review the proposed changes before applying.",
+      "blocks": [
+        {
+          "blockId": "summary-1",
+          "type": "summary",
+          "label": "Profile",
+          "order": 10,
+          "text": "Product specialist working with digital teams."
+        },
+        {
+          "blockId": "experience-1",
+          "type": "experience",
+          "label": "Experience",
+          "order": 20,
+          "text": "Interviewed five users and shared their feedback.",
+          "employer": "Example Studio",
+          "title": "Product Specialist",
+          "startDate": "2022",
+          "endDate": "2024"
+        },
+        {
+          "blockId": "project-1",
+          "type": "otherSections",
+          "label": "Community Project",
+          "order": 30,
+          "text": "Volunteered with a local community group."
+        },
+        {
+          "blockId": "skills-1",
+          "type": "skills",
+          "label": "Skills",
+          "order": 40,
+          "text": "User interviews."
+        }
+      ],
+      "rewrittenCv": "Product specialist working with digital teams.\n\nInterviewed five users and shared their feedback.\n\nVolunteered with a local community group.\n\nUser interviews.",
+      "rewrittenCvLegacy": "Product specialist working with digital teams.\n\nInterviewed five users and shared their feedback.\n\nVolunteered with a local community group.\n\nUser interviews.",
+      "sourcesSchemaVersion": "1.0",
+      "sourceContextRevision": "ctx-1",
+      "sourceRoundId": "round-1",
+      "sourceUsage": [],
+      "sourceApplications": [],
+      "sourceReview": [],
+      "contextQuestions": []
+    },
+    "outcome": "suggestion"
+  },
+  "expected": {
+    "outcomes": [
+      "suggestion"
+    ],
+    "maxAdditions": 0,
+    "restoredBlocks": [
+      {
+        "blockId": "summary-1",
+        "type": "summary",
+        "label": "Profile",
+        "order": 10,
+        "text": "Product specialist working with digital teams."
+      },
+      {
+        "blockId": "experience-1",
+        "type": "experience",
+        "label": "Experience",
+        "order": 20,
+        "text": "Interviewed five users and shared their feedback.",
+        "employer": "Example Studio",
+        "title": "Product Specialist",
+        "startDate": "2022",
+        "endDate": "2024"
+      },
+      {
+        "blockId": "project-1",
+        "type": "otherSections",
+        "label": "Community Project",
+        "order": 30,
+        "text": "Volunteered with a local community group."
+      },
+      {
+        "blockId": "skills-1",
+        "type": "skills",
+        "label": "Skills",
+        "order": 40,
+        "text": "User interviews."
+      }
+    ],
+    "removedApplicationIds": [
+      "withdrawal-applied-1",
+      "withdrawal-applied-2",
+      "withdrawal-applied-3"
+    ]
+  }
+}

@@ -1,3 +1,5 @@
+> DEV-105: Reviewfynd rättade lokalt: beständigt engångsgodkännande med budgetjournal och korrekt klassificering av borttagningsförslag. [Nytt konkret pilotförslag: högst72 anrop, 1USD](MODEL-PILOT-APPROVAL.md), ännu inte godkänt eller kört.
+
 > DEV-104: [Gemensamma modellkontrakt för Discovery och Tailor](MODEL-CONTRACTS-2.md) är implementerade och verifierade lokalt. Samlad noddiff, säkra feldetaljer och spärrad syntetisk modellpilot är förberedda. Ingen ny backendaktivering, publicering eller extern modellkörning.
 
 > DEV-103 deployed: owner approved direct signal-owned questions. Existing Discovery saved/active6336f54e-9913-4976-bd32-78d8508338d5 verified against the exact two-Code-node candidate; encrypted snapshots verified. [Contract/scope](DISCOVERY-OWNED-QUESTIONS-PROPOSAL.md), [safe receipt](prepared/discovery-owned-questions.deployment.json). Fifteen tests and two isolated browser flows pass. No external model run or frontend publication; PR27 UI/Tailor release unchanged. Source/docs/tests are local on codex/discovery-owned-questions.

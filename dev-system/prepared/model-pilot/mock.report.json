@@ -1,6 +1,7 @@
 {
-  "version": 1,
-  "manifestSha256": "3266793e1bcb2100caeaf89cfd72f39f0bd85b79b498ea606e0c0263a5eb3f09",
+  "version": 2,
+  "executionReceipt": null,
+  "manifestSha256": "690751f8f15367d7483fc4ed3963a375f5ea8d69105c22e9035c7281ef6b3288",
   "mode": "mock",
   "externalCallsAttempted": 0,
   "providerAttempts": 72,
@@ -513,12 +514,12 @@
       "semanticReview": "pending"
     },
     {
-      "caseId": "tailor-no-skip",
+      "caseId": "tailor-withdraw-all",
       "profile": "baseline",
       "repeats": 2,
       "outcomes": [
-        "no_changes",
-        "no_changes"
+        "suggestion",
+        "suggestion"
       ],
       "questionCounts": [
         null,
@@ -528,12 +529,12 @@
       "semanticReview": "pending"
     },
     {
-      "caseId": "tailor-no-skip",
+      "caseId": "tailor-withdraw-all",
       "profile": "candidate",
       "repeats": 2,
       "outcomes": [
-        "no_changes",
-        "no_changes"
+        "suggestion",
+        "suggestion"
       ],
       "questionCounts": [
         null,
@@ -696,7 +697,7 @@
         "publicSuccess": true,
         "questionBounds": false
       },
-      "durationMs": 1,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -803,7 +804,7 @@
         "publicSuccess": true,
         "questionBounds": false
       },
-      "durationMs": 1,
+      "durationMs": 0,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -838,7 +839,7 @@
         "publicSuccess": true,
         "questionBounds": false
       },
-      "durationMs": 3,
+      "durationMs": 1,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -873,7 +874,7 @@
         "publicSuccess": true,
         "questionBounds": false
       },
-      "durationMs": 0,
+      "durationMs": 1,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -908,7 +909,7 @@
         "publicSuccess": true,
         "questionBounds": true
       },
-      "durationMs": 3,
+      "durationMs": 1,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1048,7 +1049,7 @@
         "publicSuccess": true,
         "questionBounds": false
       },
-      "durationMs": 2,
+      "durationMs": 1,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1083,7 +1084,7 @@
         "publicSuccess": true,
         "questionBounds": false
       },
-      "durationMs": 0,
+      "durationMs": 1,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1118,7 +1119,7 @@
         "publicSuccess": true,
         "questionBounds": false
       },
-      "durationMs": 1,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1153,7 +1154,7 @@
         "publicSuccess": true,
         "questionBounds": false
       },
-      "durationMs": 0,
+      "durationMs": 1,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1188,7 +1189,7 @@
         "publicSuccess": true,
         "questionBounds": true
       },
-      "durationMs": 5,
+      "durationMs": 3,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1332,7 +1333,7 @@
         "publicSuccess": true,
         "questionBounds": true
       },
-      "durationMs": 2,
+      "durationMs": 3,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1367,7 +1368,7 @@
         "publicSuccess": true,
         "questionBounds": true
       },
-      "durationMs": 0,
+      "durationMs": 1,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1402,7 +1403,7 @@
         "publicSuccess": true,
         "questionBounds": true
       },
-      "durationMs": 1,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1539,7 +1540,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 1,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1607,7 +1608,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 1,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1743,7 +1744,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 1,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1811,7 +1812,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 1,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1845,7 +1846,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 0,
+      "durationMs": 1,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1879,7 +1880,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 0,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -1947,7 +1948,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 1,
+      "durationMs": 3,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2151,7 +2152,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 1,
+      "durationMs": 4,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2219,7 +2220,7 @@
         "expectedOutcome": true,
         "publicSuccess": true
       },
-      "durationMs": 1,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2288,7 +2289,7 @@
         "publicSuccess": true,
         "additionBounds": true
       },
-      "durationMs": 8,
+      "durationMs": 13,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2323,7 +2324,7 @@
         "publicSuccess": true,
         "additionBounds": true
       },
-      "durationMs": 3,
+      "durationMs": 4,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2358,7 +2359,7 @@
         "publicSuccess": true,
         "additionBounds": true
       },
-      "durationMs": 6,
+      "durationMs": 8,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2393,7 +2394,7 @@
         "publicSuccess": true,
         "additionBounds": true
       },
-      "durationMs": 2,
+      "durationMs": 4,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2429,7 +2430,7 @@
         "additionBounds": true,
         "contextQuestion": true
       },
-      "durationMs": 4,
+      "durationMs": 10,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2465,7 +2466,7 @@
         "additionBounds": true,
         "contextQuestion": true
       },
-      "durationMs": 2,
+      "durationMs": 5,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2501,7 +2502,7 @@
         "additionBounds": true,
         "contextQuestion": true
       },
-      "durationMs": 5,
+      "durationMs": 6,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2537,7 +2538,7 @@
         "additionBounds": true,
         "contextQuestion": true
       },
-      "durationMs": 2,
+      "durationMs": 3,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2572,7 +2573,7 @@
         "publicSuccess": true,
         "additionBounds": true
       },
-      "durationMs": 4,
+      "durationMs": 10,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2607,7 +2608,7 @@
         "publicSuccess": true,
         "additionBounds": true
       },
-      "durationMs": 1,
+      "durationMs": 7,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2642,7 +2643,7 @@
         "publicSuccess": true,
         "additionBounds": true
       },
-      "durationMs": 4,
+      "durationMs": 9,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2677,7 +2678,7 @@
         "publicSuccess": true,
         "additionBounds": true
       },
-      "durationMs": 1,
+      "durationMs": 4,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2693,26 +2694,28 @@
       }
     },
     {
-      "caseId": "tailor-no-skip",
+      "caseId": "tailor-withdraw-all",
       "operation": "tailor",
       "repeat": 1,
       "profile": "baseline",
-      "scope": "pilot_tailor_no_skip_1",
+      "scope": "pilot_tailor_withdraw_all_1",
       "textFormat": "text",
-      "messagesSha256": "ce1d2f85f2b670ba205c768c60a1b47ae8ff70b5a521937ed7c2af0a491fde59",
-      "schemaSha256": "f336d03ae949ce4f276002f03f04f5f4865a1fc174df0bcc4aa683a858d66796",
+      "messagesSha256": "6a1bf0f21ece218647bbec61c9051ca65d6f37d7cd74992ec36e7954532d3d72",
+      "schemaSha256": "444e89251c232eb6e98ecb76e69948d956f449086012feb5325d0aefee25eef0",
       "shapeValid": true,
       "referencesValid": true,
       "reason": null,
       "path": null,
-      "outcome": "no_changes",
+      "outcome": "suggestion",
       "backendRecovered": false,
       "checks": {
         "expectedOutcome": true,
         "publicSuccess": true,
-        "additionBounds": true
+        "additionBounds": true,
+        "allWithdrawnBlocksRestored": true,
+        "allWithdrawnAdditionsRemoved": true
       },
-      "durationMs": 2,
+      "durationMs": 10,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2723,31 +2726,35 @@
       "manualReview": {
         "status": "pending",
         "checklist": [
-          "No and skipped answers are never positive experience sources."
+          "No and skipped answers supply no positive experience.",
+          "Remove all three precisely tracked additions across employment, skills and project blocks; never classify removal-only as no_changes.",
+          "This is a reviewable proposal; the currently applied CV remains unchanged until Apply."
         ]
       }
     },
     {
-      "caseId": "tailor-no-skip",
+      "caseId": "tailor-withdraw-all",
       "operation": "tailor",
       "repeat": 1,
       "profile": "candidate",
-      "scope": "pilot_tailor_no_skip_1",
+      "scope": "pilot_tailor_withdraw_all_1",
       "textFormat": "text",
-      "messagesSha256": "a72c1ea7b7f227099120a914bd5d408bcc07db4d372a878c15902031118b8399",
-      "schemaSha256": "f336d03ae949ce4f276002f03f04f5f4865a1fc174df0bcc4aa683a858d66796",
+      "messagesSha256": "a448fe4f52c8f408710157c0f8a6413abbabe1888c31282757c9c7fb98165499",
+      "schemaSha256": "444e89251c232eb6e98ecb76e69948d956f449086012feb5325d0aefee25eef0",
       "shapeValid": true,
       "referencesValid": true,
       "reason": null,
       "path": null,
-      "outcome": "no_changes",
+      "outcome": "suggestion",
       "backendRecovered": false,
       "checks": {
         "expectedOutcome": true,
         "publicSuccess": true,
-        "additionBounds": true
+        "additionBounds": true,
+        "allWithdrawnBlocksRestored": true,
+        "allWithdrawnAdditionsRemoved": true
       },
-      "durationMs": 2,
+      "durationMs": 5,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2758,31 +2765,35 @@
       "manualReview": {
         "status": "pending",
         "checklist": [
-          "No and skipped answers are never positive experience sources."
+          "No and skipped answers supply no positive experience.",
+          "Remove all three precisely tracked additions across employment, skills and project blocks; never classify removal-only as no_changes.",
+          "This is a reviewable proposal; the currently applied CV remains unchanged until Apply."
         ]
       }
     },
     {
-      "caseId": "tailor-no-skip",
+      "caseId": "tailor-withdraw-all",
       "operation": "tailor",
       "repeat": 2,
       "profile": "baseline",
-      "scope": "pilot_tailor_no_skip_2",
+      "scope": "pilot_tailor_withdraw_all_2",
       "textFormat": "text",
-      "messagesSha256": "c1569d271b9b59d2a8a6af8a359b2529ea123f0b78b30f8b42c8c700213e437c",
-      "schemaSha256": "a9bf8c2b592f5ec024b5589c4f85df3a4a8828846d29527f69e38da69194c59f",
+      "messagesSha256": "f9baada91d4286fafb7704afd4021d82c08daa9aa29fd66b730e486499ed6881",
+      "schemaSha256": "725ececf0fc93fda46fef5b5fe581a1f299a4a992618c352b0325d630968d0a0",
       "shapeValid": true,
       "referencesValid": true,
       "reason": null,
       "path": null,
-      "outcome": "no_changes",
+      "outcome": "suggestion",
       "backendRecovered": false,
       "checks": {
         "expectedOutcome": true,
         "publicSuccess": true,
-        "additionBounds": true
+        "additionBounds": true,
+        "allWithdrawnBlocksRestored": true,
+        "allWithdrawnAdditionsRemoved": true
       },
-      "durationMs": 2,
+      "durationMs": 10,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2793,31 +2804,35 @@
       "manualReview": {
         "status": "pending",
         "checklist": [
-          "No and skipped answers are never positive experience sources."
+          "No and skipped answers supply no positive experience.",
+          "Remove all three precisely tracked additions across employment, skills and project blocks; never classify removal-only as no_changes.",
+          "This is a reviewable proposal; the currently applied CV remains unchanged until Apply."
         ]
       }
     },
     {
-      "caseId": "tailor-no-skip",
+      "caseId": "tailor-withdraw-all",
       "operation": "tailor",
       "repeat": 2,
       "profile": "candidate",
-      "scope": "pilot_tailor_no_skip_2",
+      "scope": "pilot_tailor_withdraw_all_2",
       "textFormat": "text",
-      "messagesSha256": "b1e757b579f09f7687c9808e33b43a2d0f1de81ad81675ed9d93e745fad69a2a",
-      "schemaSha256": "a9bf8c2b592f5ec024b5589c4f85df3a4a8828846d29527f69e38da69194c59f",
+      "messagesSha256": "43109ce41f8e60cb17bb6ccf2e7ad05d1e42dc80a2fcfcc0600d742c925164d4",
+      "schemaSha256": "725ececf0fc93fda46fef5b5fe581a1f299a4a992618c352b0325d630968d0a0",
       "shapeValid": true,
       "referencesValid": true,
       "reason": null,
       "path": null,
-      "outcome": "no_changes",
+      "outcome": "suggestion",
       "backendRecovered": false,
       "checks": {
         "expectedOutcome": true,
         "publicSuccess": true,
-        "additionBounds": true
+        "additionBounds": true,
+        "allWithdrawnBlocksRestored": true,
+        "allWithdrawnAdditionsRemoved": true
       },
-      "durationMs": 2,
+      "durationMs": 4,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2828,7 +2843,9 @@
       "manualReview": {
         "status": "pending",
         "checklist": [
-          "No and skipped answers are never positive experience sources."
+          "No and skipped answers supply no positive experience.",
+          "Remove all three precisely tracked additions across employment, skills and project blocks; never classify removal-only as no_changes.",
+          "This is a reviewable proposal; the currently applied CV remains unchanged until Apply."
         ]
       }
     },
@@ -2853,7 +2870,7 @@
         "additionBounds": true,
         "newBlockNotCreated": true
       },
-      "durationMs": 3,
+      "durationMs": 10,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2889,7 +2906,7 @@
         "additionBounds": true,
         "newBlockNotCreated": true
       },
-      "durationMs": 1,
+      "durationMs": 4,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2925,7 +2942,7 @@
         "additionBounds": true,
         "newBlockNotCreated": true
       },
-      "durationMs": 3,
+      "durationMs": 7,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2961,7 +2978,7 @@
         "additionBounds": true,
         "newBlockNotCreated": true
       },
-      "durationMs": 1,
+      "durationMs": 5,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -2997,7 +3014,7 @@
         "additionBounds": true,
         "uncertainTextFrozen": true
       },
-      "durationMs": 3,
+      "durationMs": 11,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -3071,7 +3088,7 @@
         "additionBounds": true,
         "uncertainTextFrozen": true
       },
-      "durationMs": 5,
+      "durationMs": 4,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
@@ -3108,7 +3125,7 @@
         "additionBounds": true,
         "uncertainTextFrozen": true
       },
-      "durationMs": 3,
+      "durationMs": 2,
       "usage": null,
       "costUSD": null,
       "externalAttempted": false,
