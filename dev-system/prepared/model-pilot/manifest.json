@@ -1,0 +1,2846 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "workflowBases": {
+    "discovery": "6336f54e-9913-4976-bd32-78d8508338d5",
+    "tailor": "a5196f17-4ccc-41db-8993-9b6c5fe466dd"
+  },
+  "settings": {
+    "model": "gpt-4.1-mini",
+    "temperature": 0.2,
+    "maxOutputTokens": 4000,
+    "store": false,
+    "timeoutMs": 90000,
+    "maxDurationMs": 1800000,
+    "concurrency": 1,
+    "retries": 0,
+    "maxCalls": 72,
+    "endpoint": "https://api.openai.com/v1/responses"
+  },
+  "materialsSha256": "ac267b1d8725b9d6f1a1dcfacdabc6f19fbbc654d58a067baba9284e805805a9",
+  "sourcesSha256": "335feb3e59e2bb0bbdafc85e4d1b7b98dd82b0fbf870dd0fc793736e7568e279",
+  "cases": [
+    {
+      "id": "plan-overlap",
+      "operation": "plan",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "plan",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [
+            "Help plan a product delivery"
+          ],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "questions"
+        ],
+        "minQuestions": 1,
+        "maxQuestions": 2
+      },
+      "review": [
+        "Group only genuinely overlapping delivery requirements.",
+        "Do not assume experience missing from the CV is absent."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "plan-covered",
+      "operation": "plan",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "plan",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Planned product deliveries with developers and facilitated internal workshops with colleagues.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Facilitated community workshops."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "no_questions"
+        ],
+        "maxQuestions": 0
+      },
+      "review": [
+        "Evidence must actually support each claimed covered requirement, retaining scope."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "plan-sparse",
+      "operation": "plan",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "plan",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "A short personal introduction without relevant work examples."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "questions"
+        ],
+        "minQuestions": 1,
+        "maxQuestions": 2
+      },
+      "review": [
+        "Neutral questions about material gaps, no competence judgment."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "plan-condition",
+      "operation": "plan",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "plan",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [],
+          "mustHave": [
+            "Available to work on site three days per week"
+          ],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "no_questions"
+        ],
+        "maxQuestions": 0
+      },
+      "review": [
+        "Availability is not an experience requirement."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "plan-long",
+      "operation": "plan",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "plan",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. Supported internal tests; did not lead external training. ",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Facilitate workshops",
+              "weight": 4
+            },
+            {
+              "signal": "Explain complex tools",
+              "weight": 3
+            },
+            {
+              "signal": "Integrate systems",
+              "weight": 5
+            },
+            {
+              "signal": "Automate processes",
+              "weight": 4
+            },
+            {
+              "signal": "Evaluate customer needs",
+              "weight": 3
+            },
+            {
+              "signal": "Review data privacy",
+              "weight": 5
+            },
+            {
+              "signal": "Measure improvements",
+              "weight": 4
+            }
+          ],
+          "mustHave": [
+            "Internal AI adoption",
+            "Customer training",
+            "System migration",
+            "Vendor selection",
+            "Budget planning",
+            "Risk assessment",
+            "User interviews",
+            "SQL analysis",
+            "Stakeholder collaboration",
+            "Independent project delivery",
+            "Accessible communication",
+            "Roadmap prioritisation"
+          ],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "questions"
+        ],
+        "minQuestions": 1,
+        "maxQuestions": 20
+      },
+      "review": [
+        "Distinct relevant gaps; no fixed question padding.",
+        "Do not treat repeated keywords as evidence."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "plan-negation",
+      "operation": "plan",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "plan",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "sv",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Jag stöttade interna AI-workshops men ansvarade inte för kundutbildningar.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Leda utbildningar för externa kunder",
+              "weight": 5
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "questions"
+        ],
+        "minQuestions": 1,
+        "maxQuestions": 1
+      },
+      "review": [
+        "Internal support is not evidence of leading external customer training."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "interpret-concrete",
+      "operation": "interpret",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "interpret",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "roundId": "pilot-round",
+        "questionId": "pilot-question-1",
+        "questions": [
+          {
+            "id": "pilot-question-1",
+            "topicKey": "planning",
+            "question": "Have you helped plan a delivery?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "id": "pilot-question-2",
+            "topicKey": "workshops",
+            "question": "Have you helped with a workshop?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "sourceAnswer": {
+          "id": "pilot-answer",
+          "revision": 3,
+          "text": "At Example Studio, I coordinated internal release tests with two developers."
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "answer_accounts"
+        ]
+      },
+      "review": [
+        "Keep the actual personal contribution."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "interpret-mixed",
+      "operation": "interpret",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "interpret",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "roundId": "pilot-round",
+        "questionId": "pilot-question-1",
+        "questions": [
+          {
+            "id": "pilot-question-1",
+            "topicKey": "planning",
+            "question": "Have you helped plan a delivery?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "id": "pilot-question-2",
+            "topicKey": "workshops",
+            "question": "Have you helped with a workshop?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "sourceAnswer": {
+          "id": "pilot-answer",
+          "revision": 3,
+          "text": "I supported internal AI workshops. I did not lead customer training or own the rollout."
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "answer_accounts"
+        ]
+      },
+      "review": [
+        "Preserve internal scope and both exclusions."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "interpret-vague",
+      "operation": "interpret",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "interpret",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "roundId": "pilot-round",
+        "questionId": "pilot-question-1",
+        "questions": [
+          {
+            "id": "pilot-question-1",
+            "topicKey": "planning",
+            "question": "Have you helped plan a delivery?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "id": "pilot-question-2",
+            "topicKey": "workshops",
+            "question": "Have you helped with a workshop?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "sourceAnswer": {
+          "id": "pilot-answer",
+          "revision": 3,
+          "text": "Yes, a little."
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "needs_detail"
+        ]
+      },
+      "review": [
+        "Ask for a short example; invent no experience."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "interpret-uncertain",
+      "operation": "interpret",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "interpret",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "sv",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "roundId": "pilot-round",
+        "questionId": "pilot-question-1",
+        "questions": [
+          {
+            "id": "pilot-question-1",
+            "topicKey": "planning",
+            "question": "Have you helped plan a delivery?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "id": "pilot-question-2",
+            "topicKey": "workshops",
+            "question": "Have you helped with a workshop?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "sourceAnswer": {
+          "id": "pilot-answer",
+          "revision": 3,
+          "text": "Jag är osäker på vad du menar med den erfarenheten."
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "needs_detail"
+        ]
+      },
+      "review": [
+        "Clarify the meaning without confirming an invented fact."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "interpret-long",
+      "operation": "interpret",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "interpret",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "roundId": "pilot-round",
+        "questionId": "pilot-question-1",
+        "questions": [
+          {
+            "id": "pilot-question-1",
+            "topicKey": "planning",
+            "question": "Have you helped plan a delivery?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "id": "pilot-question-2",
+            "topicKey": "workshops",
+            "question": "Have you helped with a workshop?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "sourceAnswer": {
+          "id": "pilot-answer",
+          "revision": 3,
+          "text": "I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership. I supported internal test documentation, not delivery ownership."
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "answer_accounts"
+        ]
+      },
+      "review": [
+        "Do not truncate the original answer or turn repeated support into ownership."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "interpret-correction",
+      "operation": "interpret",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "interpret",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "roundId": "pilot-round",
+        "questionId": "pilot-question-1",
+        "questions": [
+          {
+            "id": "pilot-question-1",
+            "topicKey": "planning",
+            "question": "Have you helped plan a delivery?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "id": "pilot-question-2",
+            "topicKey": "workshops",
+            "question": "Have you helped with a workshop?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "sourceAnswer": {
+          "id": "pilot-answer",
+          "revision": 3,
+          "text": "Correction: a colleague planned the delivery. I only helped test it."
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "answer_accounts"
+        ]
+      },
+      "review": [
+        "The current correction supersedes the earlier planning claim."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "tailor-named",
+      "operation": "tailor",
+      "request": {
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "targetRole": "Product Specialist",
+        "language": "en",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sourcesSchemaVersion": "1.0",
+        "sourceContext": {
+          "contextRevision": "ctx-1",
+          "roundId": "round-1",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "status": "recorded"
+            },
+            {
+              "id": "q2",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "status": "recorded"
+            }
+          ],
+          "answers": [
+            {
+              "id": "a1",
+              "questionId": "q1",
+              "revision": 1,
+              "text": "At Example Studio, I planned a release with two developers."
+            },
+            {
+              "id": "a2",
+              "questionId": "q2",
+              "revision": 1,
+              "text": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+            }
+          ],
+          "applications": []
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "suggestion"
+        ],
+        "minAdditions": 1
+      },
+      "review": [
+        "Use relevant existing employment/project sections; no default summary placement."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "tailor-context",
+      "operation": "tailor",
+      "request": {
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "targetRole": "Product Specialist",
+        "language": "en",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sourcesSchemaVersion": "1.0",
+        "sourceContext": {
+          "contextRevision": "ctx-1",
+          "roundId": "round-1",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "status": "recorded"
+            },
+            {
+              "id": "q2",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "status": "recorded"
+            }
+          ],
+          "answers": [
+            {
+              "id": "a1",
+              "questionId": "q1",
+              "revision": 1,
+              "text": "I supported internal AI workshops, not customer training."
+            },
+            {
+              "id": "a2",
+              "questionId": "q2",
+              "revision": 1,
+              "text": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+            }
+          ],
+          "applications": []
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "needs_context",
+          "suggestion_with_context"
+        ],
+        "requiredContextAnswer": "a1"
+      },
+      "review": [
+        "Ask for the workplace/project; do not infer Example Studio from the CV."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "tailor-sections",
+      "operation": "tailor",
+      "request": {
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "targetRole": "Product Specialist",
+        "language": "en",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sourcesSchemaVersion": "1.0",
+        "sourceContext": {
+          "contextRevision": "ctx-1",
+          "roundId": "round-1",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "status": "recorded"
+            },
+            {
+              "id": "q2",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "status": "recorded"
+            }
+          ],
+          "answers": [
+            {
+              "id": "a1",
+              "questionId": "q1",
+              "revision": 1,
+              "text": "I used Python for data checks.\n\nIn Community Project, I supported internal workshops."
+            },
+            {
+              "id": "a2",
+              "questionId": "q2",
+              "revision": 1,
+              "text": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+            }
+          ],
+          "applications": []
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "suggestion"
+        ],
+        "minAdditions": 1
+      },
+      "review": [
+        "Skills and project work belong in relevant sections; preserve separate settings."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "tailor-no-skip",
+      "operation": "tailor",
+      "request": {
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "targetRole": "Product Specialist",
+        "language": "en",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sourcesSchemaVersion": "1.0",
+        "sourceContext": {
+          "contextRevision": "ctx-1",
+          "roundId": "round-1",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "status": "no"
+            },
+            {
+              "id": "q2",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "answers": [
+            {
+              "id": "a1",
+              "questionId": "q1",
+              "revision": 1,
+              "text": "No"
+            },
+            {
+              "id": "a2",
+              "questionId": "q2",
+              "revision": 1,
+              "text": "Skipped"
+            }
+          ],
+          "applications": []
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "no_changes"
+        ],
+        "maxAdditions": 0
+      },
+      "review": [
+        "No and skipped answers are never positive experience sources."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "tailor-new-entry",
+      "operation": "tailor",
+      "request": {
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "targetRole": "Product Specialist",
+        "language": "en",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sourcesSchemaVersion": "1.0",
+        "sourceContext": {
+          "contextRevision": "ctx-1",
+          "roundId": "round-1",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "status": "recorded"
+            },
+            {
+              "id": "q2",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "status": "recorded"
+            }
+          ],
+          "answers": [
+            {
+              "id": "a1",
+              "questionId": "q1",
+              "revision": 1,
+              "text": "At Another Company, I supported a release."
+            },
+            {
+              "id": "a2",
+              "questionId": "q2",
+              "revision": 1,
+              "text": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+            }
+          ],
+          "applications": []
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "needs_context",
+          "suggestion_with_context"
+        ],
+        "requiredNewBlockAnswer": "a1"
+      },
+      "review": [
+        "No existing employer fits. Report new_block_required without creating or relocating a block."
+      ],
+      "synthetic": true
+    },
+    {
+      "id": "tailor-correction-freeze",
+      "operation": "tailor",
+      "request": {
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "targetRole": "Product Specialist",
+        "language": "en",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.\n\nI planned a release with two developers.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group.\n\nI attended internal workshops; a colleague facilitated them. Manual clarification after Apply."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sourcesSchemaVersion": "1.0",
+        "sourceContext": {
+          "contextRevision": "ctx-1",
+          "roundId": "round-1",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "status": "recorded"
+            },
+            {
+              "id": "q2",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "status": "recorded"
+            }
+          ],
+          "answers": [
+            {
+              "id": "a1",
+              "questionId": "q1",
+              "revision": 2,
+              "text": "At Example Studio, I supported testing, not planning."
+            },
+            {
+              "id": "a2",
+              "questionId": "q2",
+              "revision": 2,
+              "text": "In Community Project, I attended internal workshops; a colleague facilitated them."
+            }
+          ],
+          "applications": [
+            {
+              "blockId": "experience-1",
+              "checkpointText": "Interviewed five users and shared their feedback.\n\nI planned a release with two developers.",
+              "additions": [
+                {
+                  "id": "pilot-seeded-1",
+                  "start": 49,
+                  "end": 91,
+                  "text": "I planned a release with two developers.",
+                  "source": {
+                    "answerId": "a1",
+                    "answerRevision": 1,
+                    "sourceQuote": "At Example Studio, I planned a release with two developers."
+                  }
+                }
+              ]
+            },
+            {
+              "blockId": "project-1",
+              "checkpointText": "Volunteered with a local community group.\n\nI attended internal workshops; a colleague facilitated them.",
+              "additions": [
+                {
+                  "id": "pilot-seeded-3",
+                  "start": 41,
+                  "end": 103,
+                  "text": "I attended internal workshops; a colleague facilitated them.",
+                  "source": {
+                    "answerId": "a2",
+                    "answerRevision": 2,
+                    "sourceQuote": "In Community Project, I attended internal workshops; a colleague facilitated them."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "outcomes": [
+          "suggestion"
+        ],
+        "requiredFrozenBlock": "project-1"
+      },
+      "review": [
+        "Replace all precisely tracked stale planning additions.",
+        "Keep manually edited uncertain project text unchanged for review."
+      ],
+      "synthetic": true
+    }
+  ],
+  "runs": [
+    {
+      "caseId": "plan-overlap",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_plan_overlap_1",
+      "textFormat": "json_object",
+      "messagesSha256": "121df5c634bdd413a12147a58efc962aceafdda9bb1ad47658892b467dda56cc",
+      "schemaSha256": "2613d07ca34ffac0ce39378714d354d99e1d03fe44438e02075970a4411cd117"
+    },
+    {
+      "caseId": "plan-overlap",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_plan_overlap_1",
+      "textFormat": "json_object",
+      "messagesSha256": "02e786c281138e62778b894dd14acc3ca4742bcfa072bc91e8bbc77ba0ceca14",
+      "schemaSha256": "2ba00699c3046b30154182982f0edd65a211aa16f4bf670e52aee47f1f9fa48b"
+    },
+    {
+      "caseId": "plan-overlap",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_plan_overlap_2",
+      "textFormat": "json_object",
+      "messagesSha256": "121df5c634bdd413a12147a58efc962aceafdda9bb1ad47658892b467dda56cc",
+      "schemaSha256": "2613d07ca34ffac0ce39378714d354d99e1d03fe44438e02075970a4411cd117"
+    },
+    {
+      "caseId": "plan-overlap",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_plan_overlap_2",
+      "textFormat": "json_object",
+      "messagesSha256": "02e786c281138e62778b894dd14acc3ca4742bcfa072bc91e8bbc77ba0ceca14",
+      "schemaSha256": "2ba00699c3046b30154182982f0edd65a211aa16f4bf670e52aee47f1f9fa48b"
+    },
+    {
+      "caseId": "plan-covered",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_plan_covered_1",
+      "textFormat": "json_object",
+      "messagesSha256": "ff2c82be7245d28dfd6f118e39e8898d834a45126c0ac7a415fd5e44a57bc2fb",
+      "schemaSha256": "106eea78d679f2abf497a369ed3dd1c9491849ef337fe7420980f13b5d90d96a"
+    },
+    {
+      "caseId": "plan-covered",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_plan_covered_1",
+      "textFormat": "json_object",
+      "messagesSha256": "2adb949ceb6e4625a6d4f84a3e7d85a407e36cff4b9a3905391066e87b1ec86e",
+      "schemaSha256": "e7c18c0df984e022bddf362ded88f22549f5a5ced0f5eb910608fdde51df70f7"
+    },
+    {
+      "caseId": "plan-covered",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_plan_covered_2",
+      "textFormat": "json_object",
+      "messagesSha256": "ff2c82be7245d28dfd6f118e39e8898d834a45126c0ac7a415fd5e44a57bc2fb",
+      "schemaSha256": "106eea78d679f2abf497a369ed3dd1c9491849ef337fe7420980f13b5d90d96a"
+    },
+    {
+      "caseId": "plan-covered",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_plan_covered_2",
+      "textFormat": "json_object",
+      "messagesSha256": "2adb949ceb6e4625a6d4f84a3e7d85a407e36cff4b9a3905391066e87b1ec86e",
+      "schemaSha256": "e7c18c0df984e022bddf362ded88f22549f5a5ced0f5eb910608fdde51df70f7"
+    },
+    {
+      "caseId": "plan-sparse",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_plan_sparse_1",
+      "textFormat": "json_object",
+      "messagesSha256": "433d593bc7b314876d07e959df7282880c8b8478b8a7eff8164f6ff2315e81bc",
+      "schemaSha256": "fa796552139b97f9ac7263be8948baaa78f81a3e7f1883dc1b5898149d0134b8"
+    },
+    {
+      "caseId": "plan-sparse",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_plan_sparse_1",
+      "textFormat": "json_object",
+      "messagesSha256": "7ffce72663c62d401eb3d1647e45187e8869d304383d40d584ae89c73bb9e86d",
+      "schemaSha256": "0932160436dc5f550ac4de90228ce8beb896413d347561b2b60ee97fb1210147"
+    },
+    {
+      "caseId": "plan-sparse",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_plan_sparse_2",
+      "textFormat": "json_object",
+      "messagesSha256": "433d593bc7b314876d07e959df7282880c8b8478b8a7eff8164f6ff2315e81bc",
+      "schemaSha256": "fa796552139b97f9ac7263be8948baaa78f81a3e7f1883dc1b5898149d0134b8"
+    },
+    {
+      "caseId": "plan-sparse",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_plan_sparse_2",
+      "textFormat": "json_object",
+      "messagesSha256": "7ffce72663c62d401eb3d1647e45187e8869d304383d40d584ae89c73bb9e86d",
+      "schemaSha256": "0932160436dc5f550ac4de90228ce8beb896413d347561b2b60ee97fb1210147"
+    },
+    {
+      "caseId": "plan-condition",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_plan_condition_1",
+      "textFormat": "json_object",
+      "messagesSha256": "3ec4b7bc89fb93607a1d92fdc309111c089c40a9aa4f1c70925b3df8601d0cfe",
+      "schemaSha256": "bbf8f7e5375ccb64b5ceea27244dfac15127a55ca7a3bc19713bf034c5e575d8"
+    },
+    {
+      "caseId": "plan-condition",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_plan_condition_1",
+      "textFormat": "json_object",
+      "messagesSha256": "c66c5cee13d605529e5cf7c810ad95f6f2430608b98e20c64d2047a43babf512",
+      "schemaSha256": "9a053bf4a8f8f6fb7dd13bb5c1d1ac9fba4202378d17c6a02d48377471a1fec6"
+    },
+    {
+      "caseId": "plan-condition",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_plan_condition_2",
+      "textFormat": "json_object",
+      "messagesSha256": "3ec4b7bc89fb93607a1d92fdc309111c089c40a9aa4f1c70925b3df8601d0cfe",
+      "schemaSha256": "bbf8f7e5375ccb64b5ceea27244dfac15127a55ca7a3bc19713bf034c5e575d8"
+    },
+    {
+      "caseId": "plan-condition",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_plan_condition_2",
+      "textFormat": "json_object",
+      "messagesSha256": "c66c5cee13d605529e5cf7c810ad95f6f2430608b98e20c64d2047a43babf512",
+      "schemaSha256": "9a053bf4a8f8f6fb7dd13bb5c1d1ac9fba4202378d17c6a02d48377471a1fec6"
+    },
+    {
+      "caseId": "plan-long",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_plan_long_1",
+      "textFormat": "json_object",
+      "messagesSha256": "715720e8f61c8692f2d674fb3332c5420a6f8fbcbcd6940371fc074fd7178a71",
+      "schemaSha256": "4791da4db1dfc14d006467ae97596e25d860749bd0fada5ae4a7bb6cc10c3f2c"
+    },
+    {
+      "caseId": "plan-long",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_plan_long_1",
+      "textFormat": "json_object",
+      "messagesSha256": "d2cab460ae5b5231c3506e1d19828fde3c108c22836ca8e9168a21678b410a45",
+      "schemaSha256": "5e76c2aca6cc7c3bb6d472338613fc2d876b83c32016ceba69cb4c1ac55a4bd8"
+    },
+    {
+      "caseId": "plan-long",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_plan_long_2",
+      "textFormat": "json_object",
+      "messagesSha256": "715720e8f61c8692f2d674fb3332c5420a6f8fbcbcd6940371fc074fd7178a71",
+      "schemaSha256": "4791da4db1dfc14d006467ae97596e25d860749bd0fada5ae4a7bb6cc10c3f2c"
+    },
+    {
+      "caseId": "plan-long",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_plan_long_2",
+      "textFormat": "json_object",
+      "messagesSha256": "d2cab460ae5b5231c3506e1d19828fde3c108c22836ca8e9168a21678b410a45",
+      "schemaSha256": "5e76c2aca6cc7c3bb6d472338613fc2d876b83c32016ceba69cb4c1ac55a4bd8"
+    },
+    {
+      "caseId": "plan-negation",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_plan_negation_1",
+      "textFormat": "json_object",
+      "messagesSha256": "5c1c730680933d9d9db63b634a20775a23c2b3002dc1f7d4a1d4f800476bdef4",
+      "schemaSha256": "68bd044f7a7e63c427a6f1a5fae3574aee68bd81810d0baa2380c59fef00fd74"
+    },
+    {
+      "caseId": "plan-negation",
+      "operation": "plan",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_plan_negation_1",
+      "textFormat": "json_object",
+      "messagesSha256": "3505dda152cbd658750e49be535110646b776f3efa4b9bfcfbe07843cc4f9e24",
+      "schemaSha256": "9b4bf3397cb8e146d850d7acc5bdc9090e638ec460a7c883919049a6cc7ca193"
+    },
+    {
+      "caseId": "plan-negation",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_plan_negation_2",
+      "textFormat": "json_object",
+      "messagesSha256": "5c1c730680933d9d9db63b634a20775a23c2b3002dc1f7d4a1d4f800476bdef4",
+      "schemaSha256": "68bd044f7a7e63c427a6f1a5fae3574aee68bd81810d0baa2380c59fef00fd74"
+    },
+    {
+      "caseId": "plan-negation",
+      "operation": "plan",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_plan_negation_2",
+      "textFormat": "json_object",
+      "messagesSha256": "3505dda152cbd658750e49be535110646b776f3efa4b9bfcfbe07843cc4f9e24",
+      "schemaSha256": "9b4bf3397cb8e146d850d7acc5bdc9090e638ec460a7c883919049a6cc7ca193"
+    },
+    {
+      "caseId": "interpret-concrete",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_interpret_concrete_1",
+      "textFormat": "json_object",
+      "messagesSha256": "48f9b2bd6d035425a4af01aa7da7beb625bbdeffbf9080ea10ec5353421cd904",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-concrete",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_interpret_concrete_1",
+      "textFormat": "json_object",
+      "messagesSha256": "4d325c1dfbc5c2a7b786e1259aa7d62ce366e4ac4a3f59fe4e00bbdf0c382b87",
+      "schemaSha256": "854272608b3aa3ee6506f1ddfe95d6859fcfc96f65a6f37337645cb0f649c64c"
+    },
+    {
+      "caseId": "interpret-concrete",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_interpret_concrete_2",
+      "textFormat": "json_object",
+      "messagesSha256": "48f9b2bd6d035425a4af01aa7da7beb625bbdeffbf9080ea10ec5353421cd904",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-concrete",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_interpret_concrete_2",
+      "textFormat": "json_object",
+      "messagesSha256": "632878c5333a102c9d72157e769073abb3ca5f6989e58daf8b10ef060208b308",
+      "schemaSha256": "65dc241eec3ea40f73b2baf299e0c8dc7b1c6b8f81b2c288b53fac538d3a0e97"
+    },
+    {
+      "caseId": "interpret-mixed",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_interpret_mixed_1",
+      "textFormat": "json_object",
+      "messagesSha256": "b267730dfbfaa0968cc5bedb619d38a9e4d28d10782c19734cf90bfd6aca6ac8",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-mixed",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_interpret_mixed_1",
+      "textFormat": "json_object",
+      "messagesSha256": "98f00db350f1bf4fb0ee5cbf059c0b4f798cec3a8aec774c18b7448d428fbc1d",
+      "schemaSha256": "44876fc3343f92b75822191c9f186cce48d567a9e40c257e55118a928d8fc2ef"
+    },
+    {
+      "caseId": "interpret-mixed",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_interpret_mixed_2",
+      "textFormat": "json_object",
+      "messagesSha256": "b267730dfbfaa0968cc5bedb619d38a9e4d28d10782c19734cf90bfd6aca6ac8",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-mixed",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_interpret_mixed_2",
+      "textFormat": "json_object",
+      "messagesSha256": "4b27c4c13ed7109aa45b05c2b21e2bbb70933f60c9d86a5d9f334ce914ac3c02",
+      "schemaSha256": "60a9227669caca6f792fccb16278bc58f1d523a45c616015c1cbf07f2c6e2f7d"
+    },
+    {
+      "caseId": "interpret-vague",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_interpret_vague_1",
+      "textFormat": "json_object",
+      "messagesSha256": "ab03821a40f59d75729d823e44a448be7f2985fa366878b6bc49b5ee042b4981",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-vague",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_interpret_vague_1",
+      "textFormat": "json_object",
+      "messagesSha256": "05343c2b6f7f5552d4a6f0cfd15856f30d0a82e7b27e76d8386b1e682db96057",
+      "schemaSha256": "509ee7d963761c078e5f515b09f0f7a1fa52ade1ff9d8829fa909fb1fc8950cc"
+    },
+    {
+      "caseId": "interpret-vague",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_interpret_vague_2",
+      "textFormat": "json_object",
+      "messagesSha256": "ab03821a40f59d75729d823e44a448be7f2985fa366878b6bc49b5ee042b4981",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-vague",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_interpret_vague_2",
+      "textFormat": "json_object",
+      "messagesSha256": "777cbb87dd499d7cc3b723a0390de2258b0d1315aca64b402e330d5d4c7c128b",
+      "schemaSha256": "faf73860994cdfea9d3c29e651bad1f3c8772adafc043cb72fb2f90e020f5d0d"
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_interpret_uncertain_1",
+      "textFormat": "json_object",
+      "messagesSha256": "b814db91be8fb3e628fa06e4366bcee7be5afde549fc30d701dc8a137d773275",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_interpret_uncertain_1",
+      "textFormat": "json_object",
+      "messagesSha256": "70ba24f5c606ae2f15bb7935677dbc695a471f7707eb231edc543c01a8239e30",
+      "schemaSha256": "7430eb7f1d7bcdcb67fe66afad3ff2d58e4627a8e6f52c52584cbcb858c479e1"
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_interpret_uncertain_2",
+      "textFormat": "json_object",
+      "messagesSha256": "b814db91be8fb3e628fa06e4366bcee7be5afde549fc30d701dc8a137d773275",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_interpret_uncertain_2",
+      "textFormat": "json_object",
+      "messagesSha256": "d3170bfed539460b19d687bc008d077a30fd98643f01a0a41f73ea1fffd9dda1",
+      "schemaSha256": "ecc74de01c4788fab96d16e99b5ca2e0ad9c62e6bb412c49dd055923a99b720e"
+    },
+    {
+      "caseId": "interpret-long",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_interpret_long_1",
+      "textFormat": "json_object",
+      "messagesSha256": "76872962237bc42847ddda0893ad57ae0869f2b0429a0f67f5b91631351e78b2",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-long",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_interpret_long_1",
+      "textFormat": "json_object",
+      "messagesSha256": "757044cc4db114e3c6d7f35797234fff0990496cc726c0d51e0c28b2a624d2cf",
+      "schemaSha256": "9736b7e8cf798f138ec1308f22a30a8eba53329866a3b6c9538a47bcf3ee2b5f"
+    },
+    {
+      "caseId": "interpret-long",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_interpret_long_2",
+      "textFormat": "json_object",
+      "messagesSha256": "76872962237bc42847ddda0893ad57ae0869f2b0429a0f67f5b91631351e78b2",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-long",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_interpret_long_2",
+      "textFormat": "json_object",
+      "messagesSha256": "6979b0e9a612c9be3f74cf125d7bfc27061a381c62213f96d9433dc8a0543cde",
+      "schemaSha256": "4ff492121e0b5c1531d8d8a2c06dfff69baa46eafbefa5291af3bb231abd5d35"
+    },
+    {
+      "caseId": "interpret-correction",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_interpret_correction_1",
+      "textFormat": "json_object",
+      "messagesSha256": "4832f5548e783c274e7acb9c89b956ff6732be477dadb0ac55587f8244c3e970",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-correction",
+      "operation": "interpret",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_interpret_correction_1",
+      "textFormat": "json_object",
+      "messagesSha256": "586d2f34ccbd0258c398b3606a9e93d6be5360ab10276930453c5927be32e7d7",
+      "schemaSha256": "d1c3f32eea8f20bb92750edc75cfc98822a946b35f88277b4b56b8d9cba5a7f5"
+    },
+    {
+      "caseId": "interpret-correction",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_interpret_correction_2",
+      "textFormat": "json_object",
+      "messagesSha256": "4832f5548e783c274e7acb9c89b956ff6732be477dadb0ac55587f8244c3e970",
+      "schemaSha256": "c5a5ae369ee74b580a93fba1961db58eccfb16652ba5988e6d6ccb1f757b57fb"
+    },
+    {
+      "caseId": "interpret-correction",
+      "operation": "interpret",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_interpret_correction_2",
+      "textFormat": "json_object",
+      "messagesSha256": "7472c991a4c61077fe08d5be2ab0598598d72d37b8e8ca017cccf1775df3c7c1",
+      "schemaSha256": "2b6b1dfc239b74dc602fa457e3a610febad0cb4943ecb7a45c2330e17cb10487"
+    },
+    {
+      "caseId": "tailor-named",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_tailor_named_1",
+      "textFormat": "text",
+      "messagesSha256": "17ef8091327d51595f5a27c9cca538c0efe79941346d47748f3206953b3c556b",
+      "schemaSha256": "182c9ff261f38546d418de83168fa919a8c256b02f34480ab6f69003bf2c2f34"
+    },
+    {
+      "caseId": "tailor-named",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_tailor_named_1",
+      "textFormat": "text",
+      "messagesSha256": "cd2d1097af412710c7dff72b3abd6982cb987330f4b130026ff7e807fbe73bef",
+      "schemaSha256": "182c9ff261f38546d418de83168fa919a8c256b02f34480ab6f69003bf2c2f34"
+    },
+    {
+      "caseId": "tailor-named",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_tailor_named_2",
+      "textFormat": "text",
+      "messagesSha256": "f7cc108bba397054dcda108f80ae5a1c8b65d5a16384aa8d89ae749dd98ee9a8",
+      "schemaSha256": "fe5836af39db185350b04b07f32b3d75ca95d63e8a150690f9b3f14d1a138e1f"
+    },
+    {
+      "caseId": "tailor-named",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_tailor_named_2",
+      "textFormat": "text",
+      "messagesSha256": "1161248b36f9d44a597936315a8ef051ed9754195b3d42b83de33de3d4e6733e",
+      "schemaSha256": "fe5836af39db185350b04b07f32b3d75ca95d63e8a150690f9b3f14d1a138e1f"
+    },
+    {
+      "caseId": "tailor-context",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_tailor_context_1",
+      "textFormat": "text",
+      "messagesSha256": "64e7e510975c9e243a77b243bf0f5f026884e64063dab5ae379c51cf70c429d1",
+      "schemaSha256": "7a21d0fe34f4362aaa7cfacfe03b263bc8282e0e9c098708d4a2c3e978fb089b"
+    },
+    {
+      "caseId": "tailor-context",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_tailor_context_1",
+      "textFormat": "text",
+      "messagesSha256": "715571e40f2a049ff59841d403aed216af03681d2a2bf467e11b206ba5943681",
+      "schemaSha256": "7a21d0fe34f4362aaa7cfacfe03b263bc8282e0e9c098708d4a2c3e978fb089b"
+    },
+    {
+      "caseId": "tailor-context",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_tailor_context_2",
+      "textFormat": "text",
+      "messagesSha256": "b92c90893fd299d119df877377bce5b3065ae1f64eb1248b0b3d94f528c9bb09",
+      "schemaSha256": "28f429366ba87802843097a3ed4180ac0038c763e45d0fd6c339e27811e7a618"
+    },
+    {
+      "caseId": "tailor-context",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_tailor_context_2",
+      "textFormat": "text",
+      "messagesSha256": "6961c35dd3380d832a89df7379d9b9a5ad28e87a52385e60953c859f2c1c3bb5",
+      "schemaSha256": "28f429366ba87802843097a3ed4180ac0038c763e45d0fd6c339e27811e7a618"
+    },
+    {
+      "caseId": "tailor-sections",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_tailor_sections_1",
+      "textFormat": "text",
+      "messagesSha256": "648bb255ebee0221bf2de6b3561dcd5f4626006d636b73bc79164316226273d1",
+      "schemaSha256": "41d4c8be8d1c33dfb67ce2c2bc7f983dcc4220aa67876b9477b122ce6542be8c"
+    },
+    {
+      "caseId": "tailor-sections",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_tailor_sections_1",
+      "textFormat": "text",
+      "messagesSha256": "0a0610fa0ca46f2c49eba5597c6b0aef7f97abc4b50f169e120b45b6d84261c0",
+      "schemaSha256": "41d4c8be8d1c33dfb67ce2c2bc7f983dcc4220aa67876b9477b122ce6542be8c"
+    },
+    {
+      "caseId": "tailor-sections",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_tailor_sections_2",
+      "textFormat": "text",
+      "messagesSha256": "9d6d07913cfa0c4360c28a4a45f5ae3fc0db56389c5d6e44015390bd856d688c",
+      "schemaSha256": "365d39900ccf3739950867cdee1dfa707caa383ea7cd45d71e5ca3cda43628c3"
+    },
+    {
+      "caseId": "tailor-sections",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_tailor_sections_2",
+      "textFormat": "text",
+      "messagesSha256": "6948eb6f19af52a365c7bda17c8f350f0987b68ccc26268b98ebeea5528e3262",
+      "schemaSha256": "365d39900ccf3739950867cdee1dfa707caa383ea7cd45d71e5ca3cda43628c3"
+    },
+    {
+      "caseId": "tailor-no-skip",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_tailor_no_skip_1",
+      "textFormat": "text",
+      "messagesSha256": "ce1d2f85f2b670ba205c768c60a1b47ae8ff70b5a521937ed7c2af0a491fde59",
+      "schemaSha256": "f336d03ae949ce4f276002f03f04f5f4865a1fc174df0bcc4aa683a858d66796"
+    },
+    {
+      "caseId": "tailor-no-skip",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_tailor_no_skip_1",
+      "textFormat": "text",
+      "messagesSha256": "a72c1ea7b7f227099120a914bd5d408bcc07db4d372a878c15902031118b8399",
+      "schemaSha256": "f336d03ae949ce4f276002f03f04f5f4865a1fc174df0bcc4aa683a858d66796"
+    },
+    {
+      "caseId": "tailor-no-skip",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_tailor_no_skip_2",
+      "textFormat": "text",
+      "messagesSha256": "c1569d271b9b59d2a8a6af8a359b2529ea123f0b78b30f8b42c8c700213e437c",
+      "schemaSha256": "a9bf8c2b592f5ec024b5589c4f85df3a4a8828846d29527f69e38da69194c59f"
+    },
+    {
+      "caseId": "tailor-no-skip",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_tailor_no_skip_2",
+      "textFormat": "text",
+      "messagesSha256": "b1e757b579f09f7687c9808e33b43a2d0f1de81ad81675ed9d93e745fad69a2a",
+      "schemaSha256": "a9bf8c2b592f5ec024b5589c4f85df3a4a8828846d29527f69e38da69194c59f"
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_tailor_new_entry_1",
+      "textFormat": "text",
+      "messagesSha256": "2ccdaf733380469c310206a1107b0533beaad7da50e12117548b85f0c852ee8d",
+      "schemaSha256": "32ce6e5cc40e6ad4ba4a404c0162b5f4c9a5bc162e3bdf8f08cfa234bcd1f86c"
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_tailor_new_entry_1",
+      "textFormat": "text",
+      "messagesSha256": "0095743d7471ff1c6b24bfd59c32cb5be592e7b676b204cbfbef87c4328d026d",
+      "schemaSha256": "32ce6e5cc40e6ad4ba4a404c0162b5f4c9a5bc162e3bdf8f08cfa234bcd1f86c"
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_tailor_new_entry_2",
+      "textFormat": "text",
+      "messagesSha256": "6e706b4d36e3997ef445042f8f5be7427676347f20964bb60b92250f66ab3dc3",
+      "schemaSha256": "7e4a213105d3338f8e53367e64b926a7a7c017fa6a41fa7bf4bfee0e9186bbe1"
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_tailor_new_entry_2",
+      "textFormat": "text",
+      "messagesSha256": "733938a678b5010b6bee400ecd9e104b9cfeb30732559683589133b3e62d5b1e",
+      "schemaSha256": "7e4a213105d3338f8e53367e64b926a7a7c017fa6a41fa7bf4bfee0e9186bbe1"
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "baseline",
+      "scope": "pilot_tailor_correction_freeze_1",
+      "textFormat": "text",
+      "messagesSha256": "78e2c1a827eddc3b7d7c11195577732d8ba6a7b2782489912e438b3ef554f356",
+      "schemaSha256": "6486117611348f4171347fe9c14cd6708e21ce04c0d3a2de2a30b9f5a9c656da"
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "operation": "tailor",
+      "repeat": 1,
+      "profile": "candidate",
+      "scope": "pilot_tailor_correction_freeze_1",
+      "textFormat": "text",
+      "messagesSha256": "70ab0df16ad5a69a044cd54bc8a73a88918a3fa97d7087592ccdf6140b11b388",
+      "schemaSha256": "6486117611348f4171347fe9c14cd6708e21ce04c0d3a2de2a30b9f5a9c656da"
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "baseline",
+      "scope": "pilot_tailor_correction_freeze_2",
+      "textFormat": "text",
+      "messagesSha256": "b58676c64e226c99f1369a71265ec6ff7ed3d7e16708be33e8c381567d6cd9e3",
+      "schemaSha256": "98c55b3d7159e8a95ec4a27c06fe9062686cf719cafced999e00976d8a607566"
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "operation": "tailor",
+      "repeat": 2,
+      "profile": "candidate",
+      "scope": "pilot_tailor_correction_freeze_2",
+      "textFormat": "text",
+      "messagesSha256": "3342b63ad56e68c0007fc1e00131396fd7f9da2cf264622b169bdbb6465bcb26",
+      "schemaSha256": "98c55b3d7159e8a95ec4a27c06fe9062686cf719cafced999e00976d8a607566"
+    }
+  ],
+  "manifestSha256": "3266793e1bcb2100caeaf89cfd72f39f0bd85b79b498ea606e0c0263a5eb3f09"
+}

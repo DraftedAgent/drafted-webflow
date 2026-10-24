@@ -28,7 +28,7 @@ test('correction invalidates an older pending response without losing the correc
  assert.equal(s.accounts().length,1);assert.equal(s.accounts()[0].currentRevision,2);assert.equal(s.accounts()[0].sourceText,'I helped run the workshop.');assert.equal(s.round().index,1);
 });
 test('background failure is attached to its own source; manual retry is deduplicated and does not move current question',async()=>{
- const {s,client,pending,respond}=setup();const work=client.submit(s,'I organised a workshop.');pending[0].reject(Error('unavailable'));await assert.rejects(work,/unavailable/);
+ const {s,client,pending,respond}=setup();const work=client.submit(s,'I organised a workshop.');pending[0].reject(Error('unavailable'));await assert.rejects(work,e=>e.code==='DISCOVERY_NETWORK_FAILED'&&!e.message.includes('unavailable'));assert.equal(client.failureFor(s,s.snapshot().answers[0].id).diagnostics.failureClass,'transport');
  assert.equal(s.round().index,1);assert.equal(s.round().phase,'question');assert.equal(s.results().failed,1);assert.equal(s.snapshot().answers[0].revisions[0].text,'I organised a workshop.');
  const answerId=s.snapshot().answers[0].id,one=client.retry(s,answerId),two=client.retry(s,answerId);assert.equal(one,two);assert.equal(pending.length,2);respond(1);await one;
  assert.equal(s.accounts().length,1);assert.equal(s.accounts()[0].currentRevision,1);assert.equal(s.round().index,1);assert.equal(s.results().failed,0);

@@ -1,0 +1,2 @@
+'use strict';
+module.exports=require('./model-contracts.cjs').create({discoveryOwner:require('./discovery-signal-questions-proposal.cjs'),discoveryPublic:require('../webflow/src/experience-discovery-contract.js'),tailorRefs:require('./tailor-source-references.cjs'),tailorRecovery:require('./tailor-context-recovery-proposal.cjs'),tailorProfile:require('../webflow/src/tailor-sources.js'),diagnostics:require('../webflow/src/model-diagnostics.js')});

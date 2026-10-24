@@ -1,8 +1,8 @@
-(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources);})(globalThis,function(sources){
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'),require('./model-diagnostics.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources,root.DraftedModelDiagnostics);})(globalThis,function(sources,D){
   'use strict';
   const backendCodes=new Set(['INVALID_SOURCE_OUTPUT','INVALID_SOURCE_REQUEST','MODEL_UNAVAILABLE','INPUT_TOO_LARGE']);
-  class Failure extends Error {
-    constructor(code,status=null,backendCode=null){super(code);this.name='TailorSourceError';this.code=code;this.status=status;this.backendCode=backendCodes.has(backendCode)?backendCode:null;}
+  class Failure extends D.Failure {
+    constructor(code,status=null,backendCode=null,details={}){super({...details,operation:'tailor',code,status,reason:details.reason||(backendCodes.has(backendCode)?backendCode:null)});this.name='TailorSourceError';this.backendCode=backendCodes.has(backendCode)?backendCode:null;}
   }
   async function fetchSuggestion(endpoint,payload,{fetch:fetcher=globalThis.fetch,timeoutMs=90000}={}){
     try{sources.validateRequest(payload);}catch{throw new Failure('SOURCE_REQUEST_INVALID');}
@@ -16,9 +16,9 @@
       try{
         if(!(response.headers.get('content-type')||'').includes('application/json'))throw Error();
         data=await response.json();
-      }catch{throw new Failure(response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED',response.status);}
-      if(!response.ok||data?.ok!==true)throw new Failure('SOURCE_HTTP_FAILED',response.status,data?.contractError?.code);
-      try{sources.validateCandidate(payload,data);}catch{throw new Failure('SOURCE_RESPONSE_INVALID',response.status);}
+      }catch{throw new Failure(response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED',response.status,null,D.fromResponse('tailor',null,response,response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED'));}
+      if(!response.ok||data?.ok!==true)throw new Failure('SOURCE_HTTP_FAILED',response.status,data?.contractError?.code,D.fromResponse('tailor',null,response,'SOURCE_HTTP_FAILED',data?.contractError?.code));
+      try{sources.validateCandidate(payload,data);}catch{throw new Failure('SOURCE_RESPONSE_INVALID',response.status,null,D.fromResponse('tailor',null,response,response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED'));}
       return data;
     })();
     try{return await Promise.race([request,timeout]);}finally{clearTimeout(timer);}

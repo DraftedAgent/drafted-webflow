@@ -1,0 +1,978 @@
+{
+  "synthetic": true,
+  "modelExecuted": false,
+  "examples": [
+    {
+      "operation": "plan",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "plan",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        }
+      },
+      "modelInput": {
+        "conversationLanguage": "en",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "signals": [
+          {
+            "id": "signal_topPriorities_0",
+            "field": "topPriorities",
+            "index": 0,
+            "text": "Plan product deliveries"
+          },
+          {
+            "id": "signal_topPriorities_1",
+            "field": "topPriorities",
+            "index": 1,
+            "text": "Collaborate and facilitate workshops"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "source_0",
+            "blockId": "summary-1",
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "id": "source_1",
+            "blockId": "experience-1",
+            "text": "Interviewed five users and shared their feedback."
+          },
+          {
+            "id": "source_2",
+            "blockId": "project-1",
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "id": "source_3",
+            "blockId": "skills-1",
+            "text": "User interviews."
+          }
+        ]
+      },
+      "modelOutput": {
+        "assessments": {
+          "signal_topPriorities_0": {
+            "kind": "question",
+            "question": "Have you helped plan a delivery?"
+          },
+          "signal_topPriorities_1": {
+            "kind": "question",
+            "question": "Have you helped people work together?"
+          }
+        }
+      },
+      "response": {
+        "ok": true,
+        "schemaVersion": "1.0",
+        "operation": "plan",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "result": {
+          "topics": [
+            {
+              "key": "question_signal_topPriorities_0",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "support": "unclear",
+              "evidence": []
+            },
+            {
+              "key": "question_signal_topPriorities_1",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "support": "unclear",
+              "evidence": []
+            }
+          ]
+        }
+      },
+      "outcome": "questions"
+    },
+    {
+      "operation": "interpret",
+      "request": {
+        "schemaVersion": "1.0",
+        "operation": "interpret",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "conversationLanguage": "en",
+        "cvVersionId": "pilot-cv",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "roundId": "pilot-round",
+        "questionId": "pilot-question-1",
+        "questions": [
+          {
+            "id": "pilot-question-1",
+            "topicKey": "planning",
+            "question": "Have you helped plan a delivery?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "id": "pilot-question-2",
+            "topicKey": "workshops",
+            "question": "Have you helped with a workshop?",
+            "signalRefs": [
+              {
+                "field": "topPriorities",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "sourceAnswer": {
+          "id": "pilot-answer",
+          "revision": 3,
+          "text": "At Example Studio, I supported internal workshops. I did not lead customer training."
+        }
+      },
+      "modelInput": {
+        "language": "en",
+        "questionKey": "q1_example_scope",
+        "questions": [
+          {
+            "key": "q1_example_scope",
+            "question": "Have you helped plan a delivery?"
+          },
+          {
+            "key": "q2_example_scope",
+            "question": "Have you helped with a workshop?"
+          }
+        ],
+        "answerText": "At Example Studio, I supported internal workshops. I did not lead customer training."
+      },
+      "modelOutput": {
+        "drafts": [
+          {
+            "proposedText": "At Example Studio, I supported internal workshops. I did not lead customer training.",
+            "coveredQuestionKeys": []
+          }
+        ]
+      },
+      "response": {
+        "ok": true,
+        "schemaVersion": "1.0",
+        "operation": "interpret",
+        "requestId": "pilot-request",
+        "contextRevision": "pilot-context",
+        "result": {
+          "roundId": "pilot-round",
+          "questionId": "pilot-question-1",
+          "answerId": "pilot-answer",
+          "answerRevision": 3,
+          "drafts": [
+            {
+              "proposedText": "At Example Studio, I supported internal workshops. I did not lead customer training.",
+              "sourceQuote": "At Example Studio, I supported internal workshops. I did not lead customer training.",
+              "coveredQuestionIds": []
+            }
+          ]
+        }
+      },
+      "outcome": "answer_accounts"
+    },
+    {
+      "operation": "tailor",
+      "request": {
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "targetRole": "Product Specialist",
+        "language": "en",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sourcesSchemaVersion": "1.0",
+        "sourceContext": {
+          "contextRevision": "ctx-1",
+          "roundId": "round-1",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "status": "recorded"
+            },
+            {
+              "id": "q2",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "status": "recorded"
+            }
+          ],
+          "answers": [
+            {
+              "id": "a1",
+              "questionId": "q1",
+              "revision": 1,
+              "text": "At Example Studio, I planned a release with two developers."
+            },
+            {
+              "id": "a2",
+              "questionId": "q2",
+              "revision": 1,
+              "text": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+            }
+          ],
+          "applications": []
+        }
+      },
+      "modelInput": {
+        "language": "en",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sources": [
+          {
+            "sourceKey": "s1_example_scope",
+            "text": "At Example Studio, I planned a release with two developers.",
+            "alreadyAppliedTargets": [],
+            "allowedTargets": [
+              "t1_example_scope",
+              "t2_example_scope",
+              "t4_example_scope"
+            ]
+          },
+          {
+            "sourceKey": "s2_example_scope",
+            "text": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions.",
+            "alreadyAppliedTargets": [],
+            "allowedTargets": [
+              "t1_example_scope",
+              "t3_example_scope",
+              "t4_example_scope"
+            ]
+          }
+        ],
+        "targets": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams.",
+            "targetKey": "t1_example_scope"
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024",
+            "targetKey": "t2_example_scope"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group.",
+            "targetKey": "t3_example_scope"
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews.",
+            "targetKey": "t4_example_scope"
+          }
+        ],
+        "constraints": [],
+        "reviewSections": []
+      },
+      "modelOutput": {
+        "additions": [
+          {
+            "sourceKey": "s1_example_scope",
+            "targetKey": "t2_example_scope",
+            "text": "I planned a release with two developers."
+          },
+          {
+            "sourceKey": "s2_example_scope",
+            "targetKey": "t3_example_scope",
+            "text": "I helped facilitate two internal workshops. I did not lead customer sessions."
+          }
+        ],
+        "contextQuestions": []
+      },
+      "response": {
+        "ok": true,
+        "blocksSchemaVersion": "1.0",
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "summaryOfChanges": "Review the proposed changes before applying.",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.\n\nI planned a release with two developers.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group.\n\nI helped facilitate two internal workshops. I did not lead customer sessions."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "rewrittenCv": "Product specialist working with digital teams.\n\nInterviewed five users and shared their feedback.\n\nI planned a release with two developers.\n\nVolunteered with a local community group.\n\nI helped facilitate two internal workshops. I did not lead customer sessions.\n\nUser interviews.",
+        "rewrittenCvLegacy": "Product specialist working with digital teams.\n\nInterviewed five users and shared their feedback.\n\nI planned a release with two developers.\n\nVolunteered with a local community group.\n\nI helped facilitate two internal workshops. I did not lead customer sessions.\n\nUser interviews.",
+        "sourcesSchemaVersion": "1.0",
+        "sourceContextRevision": "ctx-1",
+        "sourceRoundId": "round-1",
+        "sourceUsage": [
+          {
+            "applicationId": "example_application_1",
+            "blockId": "experience-1",
+            "answerId": "a1",
+            "answerRevision": 1,
+            "sourceQuote": "At Example Studio, I planned a release with two developers.",
+            "proposedQuote": "I planned a release with two developers.",
+            "contextQuote": "At Example Studio, I planned a release with two developers."
+          },
+          {
+            "applicationId": "example_application_2",
+            "blockId": "project-1",
+            "answerId": "a2",
+            "answerRevision": 1,
+            "sourceQuote": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions.",
+            "proposedQuote": "I helped facilitate two internal workshops. I did not lead customer sessions.",
+            "contextQuote": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+          }
+        ],
+        "sourceApplications": [
+          {
+            "blockId": "experience-1",
+            "checkpointText": "Interviewed five users and shared their feedback.\n\nI planned a release with two developers.",
+            "additions": [
+              {
+                "id": "example_application_1",
+                "start": 49,
+                "end": 91,
+                "text": "I planned a release with two developers.",
+                "source": {
+                  "answerId": "a1",
+                  "answerRevision": 1,
+                  "sourceQuote": "At Example Studio, I planned a release with two developers."
+                }
+              }
+            ]
+          },
+          {
+            "blockId": "project-1",
+            "checkpointText": "Volunteered with a local community group.\n\nI helped facilitate two internal workshops. I did not lead customer sessions.",
+            "additions": [
+              {
+                "id": "example_application_2",
+                "start": 41,
+                "end": 120,
+                "text": "I helped facilitate two internal workshops. I did not lead customer sessions.",
+                "source": {
+                  "answerId": "a2",
+                  "answerRevision": 1,
+                  "sourceQuote": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+                }
+              }
+            ]
+          }
+        ],
+        "sourceReview": [],
+        "contextQuestions": []
+      },
+      "outcome": "suggestion"
+    },
+    {
+      "operation": "tailor-missing-context",
+      "request": {
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "targetRole": "Product Specialist",
+        "language": "en",
+        "blocksSchemaVersion": "1.0",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "jobContextSchemaVersion": "1.0",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sourcesSchemaVersion": "1.0",
+        "sourceContext": {
+          "contextRevision": "ctx-1",
+          "roundId": "round-1",
+          "questions": [
+            {
+              "id": "q1",
+              "question": "Have you helped plan a delivery?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 0
+                }
+              ],
+              "status": "recorded"
+            },
+            {
+              "id": "q2",
+              "question": "Have you helped people work together?",
+              "signalRefs": [
+                {
+                  "field": "topPriorities",
+                  "index": 1
+                }
+              ],
+              "status": "recorded"
+            }
+          ],
+          "answers": [
+            {
+              "id": "a1",
+              "questionId": "q1",
+              "revision": 1,
+              "text": "I supported internal AI workshops, not customer training."
+            },
+            {
+              "id": "a2",
+              "questionId": "q2",
+              "revision": 1,
+              "text": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions."
+            }
+          ],
+          "applications": []
+        }
+      },
+      "modelInput": {
+        "language": "en",
+        "jobContext": {
+          "roleTitle": "Product Specialist",
+          "seniority": "mid",
+          "surfaces": [
+            "app"
+          ],
+          "tone": "balanced",
+          "topPriorities": [
+            {
+              "signal": "Plan product deliveries",
+              "weight": 5
+            },
+            {
+              "signal": "Collaborate and facilitate workshops",
+              "weight": 4
+            }
+          ],
+          "mustHave": [],
+          "successMetrics": [],
+          "keywords": [
+            "product",
+            "planning",
+            "delivery",
+            "workshops",
+            "collaboration",
+            "research",
+            "users",
+            "design",
+            "development",
+            "communication"
+          ]
+        },
+        "sources": [
+          {
+            "sourceKey": "s1_context_scope",
+            "text": "I supported internal AI workshops, not customer training.",
+            "alreadyAppliedTargets": [],
+            "allowedTargets": [
+              "t1_context_scope",
+              "t4_context_scope"
+            ]
+          },
+          {
+            "sourceKey": "s2_context_scope",
+            "text": "In Community Project, I helped facilitate two internal workshops. I did not lead customer sessions.",
+            "alreadyAppliedTargets": [],
+            "allowedTargets": [
+              "t1_context_scope",
+              "t3_context_scope",
+              "t4_context_scope"
+            ]
+          }
+        ],
+        "targets": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams.",
+            "targetKey": "t1_context_scope"
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024",
+            "targetKey": "t2_context_scope"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group.",
+            "targetKey": "t3_context_scope"
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews.",
+            "targetKey": "t4_context_scope"
+          }
+        ],
+        "constraints": [],
+        "reviewSections": []
+      },
+      "modelOutput": {
+        "additions": [],
+        "contextQuestions": [
+          {
+            "sourceKey": "s1_context_scope",
+            "reason": "context_unclear"
+          }
+        ]
+      },
+      "response": {
+        "ok": true,
+        "blocksSchemaVersion": "1.0",
+        "cvVersionId": "cv-1",
+        "cvTitle": "Alex Example",
+        "summaryOfChanges": "Review the proposed changes before applying.",
+        "blocks": [
+          {
+            "blockId": "summary-1",
+            "type": "summary",
+            "label": "Profile",
+            "order": 10,
+            "text": "Product specialist working with digital teams."
+          },
+          {
+            "blockId": "experience-1",
+            "type": "experience",
+            "label": "Experience",
+            "order": 20,
+            "text": "Interviewed five users and shared their feedback.",
+            "employer": "Example Studio",
+            "title": "Product Specialist",
+            "startDate": "2022",
+            "endDate": "2024"
+          },
+          {
+            "blockId": "project-1",
+            "type": "otherSections",
+            "label": "Community Project",
+            "order": 30,
+            "text": "Volunteered with a local community group."
+          },
+          {
+            "blockId": "skills-1",
+            "type": "skills",
+            "label": "Skills",
+            "order": 40,
+            "text": "User interviews."
+          }
+        ],
+        "rewrittenCv": "Product specialist working with digital teams.\n\nInterviewed five users and shared their feedback.\n\nVolunteered with a local community group.\n\nUser interviews.",
+        "rewrittenCvLegacy": "Product specialist working with digital teams.\n\nInterviewed five users and shared their feedback.\n\nVolunteered with a local community group.\n\nUser interviews.",
+        "sourcesSchemaVersion": "1.0",
+        "sourceContextRevision": "ctx-1",
+        "sourceRoundId": "round-1",
+        "sourceUsage": [],
+        "sourceApplications": [],
+        "sourceReview": [],
+        "contextQuestions": [
+          {
+            "answerId": "a1",
+            "answerRevision": 1,
+            "reason": "context_unclear"
+          }
+        ]
+      }
+    }
+  ]
+}

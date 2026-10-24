@@ -91,3 +91,12 @@ test('a provider that completes an aborted old plan cannot overwrite the replace
  const replacement=plan();replacement.topics=replacement.topics.slice(0,1);pending[1].resolve(new Response(JSON.stringify(c.modelResult(pending[1].request,replacement)),{status:200}));await current;assert.equal(s.round().total,1);
  pending[0].resolve(new Response(JSON.stringify(c.modelResult(pending[0].request,plan())),{status:200}));assert.deepEqual(await old,{stale:true});assert.equal(s.round().total,1);assert.equal(s.round().contextRevision,'new-context');assert.equal(pending.length,2);
 });
+
+test('safe diagnostics survive HTTP headers; missing/private headers stay neutral and response body timeouts end',async()=>{
+ const request=input();let calls=0;
+ const client=new Client({endpoint:'http://isolated.invalid',fetch:async()=>{calls++;return Response.json(c.error(request,'INVALID_MODEL_OUTPUT'),{status:422,headers:{'X-Drafted-Validation-Reason':'MODEL_SCHEMA_INVALID','X-Drafted-Validation-Path':'$.assessments','X-Drafted-Request-Id':request.requestId}});}});
+ await assert.rejects(client.call(request),e=>e.diagnostics.reason==='MODEL_SCHEMA_INVALID'&&e.diagnostics.path==='$.assessments'&&e.diagnostics.requestId===request.requestId);assert.equal(calls,1);
+ client.fetch=async()=>new Response('private gateway body',{status:524});await assert.rejects(client.call(request),e=>e.status===524&&e.diagnostics.failureClass==='transport'&&e.diagnostics.reason==='INVALID_RESPONSE'&&e.diagnostics.path===null&&!JSON.stringify(e).includes('private'));
+ let signal;const timeout=new Client({endpoint:'http://isolated.invalid',timeoutMs:10,fetch:async(_url,o)=>{signal=o.signal;return {ok:true,status:200,text:()=>new Promise(()=>{})};}});await assert.rejects(timeout.call(request),e=>e.diagnostics.failureClass==='timeout');assert.equal(signal.aborted,true);
+ const cancel=new AbortController();const aborted=new Client({endpoint:'http://isolated.invalid',fetch:()=>new Promise(()=>{})});const work=aborted.call(request,{signal:cancel.signal});cancel.abort();await assert.rejects(work,e=>e.diagnostics.failureClass==='aborted');
+});

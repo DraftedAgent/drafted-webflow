@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-24-question-actions */
+/* drafted-editor.css | build=2026-10-24-model-contracts */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -925,6 +925,11 @@ html,body {height:100%;overflow:hidden!important;}
 
 .tailor-context-question,.tailor-review-warning{padding:12px;margin:12px 0;border-left:3px solid #bd8538;background:#fff8e9;border-radius:4px}
 .tailor-context-question h3,.tailor-review-warning h3{font-size:14px;margin:0 0 6px}.tailor-context-question textarea{display:block;box-sizing:border-box;width:100%;font:14px/1.5 system-ui;padding:9px;border:1px solid #9ca5ab;border-radius:6px;resize:vertical;min-height:70px}.tailor-context-question textarea:focus-visible{outline:3px solid #416fbc;outline-offset:2px}
+
+.drafted-error-details{margin-top:12px;font-size:13px;min-width:0;max-width:100%;}
+.drafted-error-details summary{cursor:pointer;}
+.drafted-error-details pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;font-size:12px;}
+.drafted-error-details button{margin-top:8px;}
 /* --- end import: ./components/experience-discovery.css --- */
 
 

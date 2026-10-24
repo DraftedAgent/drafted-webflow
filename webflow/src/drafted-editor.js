@@ -599,12 +599,12 @@ maybeShowTailor();
        chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;
      }
 
-     function showTailorFeedback(text,retry=false) {
+     function showTailorFeedback(text,retry=false,error=null) {
        document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
        const feedback=document.createElement('div');feedback.className='tailor-feedback discovery-guidance';feedback.setAttribute('role','status');
        const message=document.createElement('p');message.textContent=text;feedback.append(message);
        if(retry){const button=document.createElement('button');button.type='button';button.className='discovery-primary';button.textContent='Try tailoring again';button.addEventListener('click',()=>runTailor());feedback.append(button);}
-       chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;refreshTailorPresentation();
+       if(error)feedback.append(DraftedModelDiagnostics.render(error,'tailor'));chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;refreshTailorPresentation();
      }
 
      async function fetchTailorSources(payload){
@@ -640,7 +640,7 @@ maybeShowTailor();
          // Log transport metadata only: no CV, answer text, arbitrary server message or response body.
          const endpoint=new URL(N8N_TAILOR_URL,location.href);
          console.error('Tailoring failed',{endpoint:endpoint.origin+endpoint.pathname,code:err instanceof DraftedTailorSourceClient.Failure?err.code:'TAILOR_FAILED',status:err instanceof DraftedTailorSourceClient.Failure?err.status:null,backendCode:err instanceof DraftedTailorSourceClient.Failure?err.backendCode:null});
-         showTailorFeedback(sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true);
+         showTailorFeedback(sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true,err);
        }
        finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();}
      }

@@ -1,0 +1,10 @@
+{
+  "approved": false,
+  "manifestSha256": "3266793e1bcb2100caeaf89cfd72f39f0bd85b79b498ea606e0c0263a5eb3f09",
+  "materialsSha256": "ac267b1d8725b9d6f1a1dcfacdabc6f19fbbc654d58a067baba9284e805805a9",
+  "sourcesSha256": "335feb3e59e2bb0bbdafc85e4d1b7b98dd82b0fbf870dd0fc793736e7568e279",
+  "maxCalls": 72,
+  "maxCostUSD": null,
+  "inputUSDPerMillion": null,
+  "outputUSDPerMillion": null
+}

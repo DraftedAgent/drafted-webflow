@@ -666,7 +666,7 @@
 ;
 (function(root){
   'use strict';
-  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready'}={}){
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getFailure=()=>null,getTailorState=()=> 'ready'}={}){
     const drafts=new Map(),mountedRound=session.round().id;
     let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
@@ -686,7 +686,7 @@
         if(latest.followupReply!==undefined){details.append(el('p',a.revisions.at(-2).text,'discovery-answer'),el('p','Your clarification','discovery-result-label'),el('p',latest.followupReply,'discovery-answer'));}else details.append(el('p',latest.text,'discovery-answer'));
         if(a.revisions.length>1){const revisions=el('details',null,'discovery-revisions');revisions.append(el('summary','Original answer and revisions'));for(const revision of a.revisions)revisions.append(el('p',`Revision ${revision.revision}`),el('blockquote',revision.text,'discovery-answer'));details.append(revisions);}
         if(a.status==='processing')details.append(el('p','Answer saved. Checking it in the background.','discovery-note'));
-        if(a.status==='error'){details.append(el('p','Your answer is saved. We could not check it.','discovery-note'));if(onRetry)details.append(button(`Retry answer ${r.queue.indexOf(q)+1}`,()=>onRetry(a.id)));}
+        if(a.status==='error'){details.append(el('p','Your answer is saved. We could not check it.','discovery-note'));if(onRetry)details.append(button(`Retry answer ${r.queue.indexOf(q)+1}`,()=>onRetry(a.id)));const failure=getFailure(a.id);if(failure)details.append(root.DraftedModelDiagnostics.render(failure,'interpret'));}
         details.append(button(`Correct answer ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,a.revisions.at(-1).text);session.correct(q.id);}));
       }
       for(const q of r.phase==='complete'?r.queue.filter(q=>!answers.some(a=>a.questionId===q.id)):[]){
@@ -830,23 +830,52 @@
 });
 
 ;
-(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./experience-discovery-contract.js'));else root.DraftedDiscoveryClient=factory(root.DraftedDiscoveryContract);})(globalThis,function(contract){
+/* Safe shared error metadata. Never serialize request payloads or arbitrary errors. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedModelDiagnostics=api;})(globalThis,function(){
+ 'use strict';
+ const reasons=new Set(('MODEL_SCHEMA_INVALID MODEL_JSON_INVALID MODEL_ENVELOPE_INVALID MODEL_REFUSAL MODEL_INCOMPLETE MODEL_UNAVAILABLE MODEL_OUTPUT_TEXT_MISSING MODEL_VALIDATION_UNCLASSIFIED INVALID_SIGNAL_QUESTION STALE_SIGNAL_QUESTIONS INVALID_QUESTION_OWNER QUESTION_PROMPT_CHANGED INVALID_SIGNAL_ASSESSMENT INCOMPLETE_SIGNAL_ASSESSMENT STALE_ASSESSMENT_PLAN DUPLICATE_TOPIC_ID UNKNOWN_ASSESSMENT_TOPIC MISSING_ASSESSMENT_EVIDENCE UNKNOWN_ASSESSMENT_EVIDENCE INVALID_NO_QUESTION_REASON UNASSIGNED_TOPIC INVALID_ANCHOR_PLAN DUPLICATE_SOURCE_REFERENCE UNKNOWN_SIGNAL_SOURCE UNKNOWN_EVIDENCE_SOURCE EVIDENCE_QUOTE_NOT_EXACT REF_INDEX_OUT_OF_RANGE REF_REUSED_ACROSS_TOPICS UNKNOWN_SOURCE_KEY UNKNOWN_TARGET_KEY UNSUPPORTED_SOURCE_TARGET CONFLICTING_SOURCE_SELECTION DUPLICATE_SOURCE_TARGET INVALID_SOURCE_SELECTION INVALID_SOURCE_QUOTE CONTEXT_REQUIRED INVALID_SOURCE_REFERENCE INVALID_SOURCE_CANDIDATE BLOCK_REQUIRES_REVIEW INVALID_SOURCE_OUTPUT INVALID_SOURCE_REQUEST INVALID_MODEL_OUTPUT INVALID_RESPONSE INVALID_REQUEST INPUT_TOO_LARGE RESPONSE_BINDING_INVALID NETWORK_FAILED REQUEST_TIMEOUT REQUEST_ABORTED').split(' '));
+ const codes=new Set(('INVALID_MODEL_OUTPUT MODEL_UNAVAILABLE INVALID_REQUEST INPUT_TOO_LARGE INVALID_RESPONSE INVALID_SOURCE_REQUEST INVALID_SOURCE_OUTPUT SOURCE_REQUEST_INVALID SOURCE_TIMEOUT SOURCE_NETWORK_FAILED SOURCE_HTTP_FAILED SOURCE_RESPONSE_INVALID DISCOVERY_HTTP_FAILED DISCOVERY_RESPONSE_INVALID DISCOVERY_NETWORK_FAILED DISCOVERY_TIMEOUT DISCOVERY_ABORTED UNKNOWN_FAILURE').split(' '));
+ const pathPattern=/^\$(?:(?:\.(?:assessments|topics|drafts|additions|contextQuestions|question|kind|questionSignalId|evidenceIds|explanation|reason|signalRefs|signalIds|evidence|quote|index|field|key|support|blockId|sourceKey|targetKey|text|coveredQuestionKeys|coveredQuestionIds|proposedText|sourceQuote|modelFormat|requestId|contextRevision|signal_(?:topPriorities|mustHave)_\d{1,2}))|(?:\[\d{1,3}\]))*$/;
+ function category(reason,code,status){if(/TIMEOUT/.test(code)||reason==='REQUEST_TIMEOUT')return 'timeout';if(/ABORTED/.test(code)||reason==='REQUEST_ABORTED')return 'aborted';if(status>=500)return 'transport';if(reason==='MODEL_REFUSAL')return 'model_refusal';if(reason==='MODEL_INCOMPLETE')return 'model_incomplete';if(/NETWORK/.test(code)||reason==='NETWORK_FAILED'||reason==='MODEL_UNAVAILABLE')return 'transport';if(/SOURCE_KEY|TARGET_KEY|SOURCE_TARGET|QUESTION_OWNER|REFERENCE|EVIDENCE|REF_|STALE|CONTEXT_REQUIRED/.test(reason||''))return 'model_reference';if(/INVALID_REQUEST|INPUT_TOO_LARGE|REQUEST_INVALID/.test(code))return 'input';return 'model_output';}
+ function safe({operation,requestId=null,status=null,code='UNKNOWN_FAILURE',reason=null,path=null}={}){
+  code=codes.has(code)?code:'UNKNOWN_FAILURE';reason=reasons.has(reason)?reason:null;
+  return {version:1,operation:['plan','interpret','tailor'].includes(operation)?operation:null,requestId:typeof requestId==='string'&&/^[a-zA-Z0-9_-]{1,200}$/.test(requestId)?requestId:null,status:Number.isInteger(status)&&status>=100&&status<=599?status:null,code,failureClass:category(reason,code,status),reason,path:typeof path==='string'&&path.length<=256&&pathPattern.test(path)?path:null};
+ }
+ function fromResponse(operation,requestId,response,code,reason=null){return safe({operation,requestId:requestId||response?.headers?.get('x-drafted-request-id'),status:response?.status,code,reason:response?.headers?.get('x-drafted-validation-reason')||reason,path:response?.headers?.get('x-drafted-validation-path')});}
+ class Failure extends Error{constructor(data){const details=safe(data);super(details.code);this.name='DraftedModelFailure';this.code=details.code;this.status=details.status;this.diagnostics=details;}}
+ function details(error,operation){return safe({...error?.diagnostics,operation:error?.diagnostics?.operation||operation});}
+ function render(error,operation){
+  const data=details(error,operation),box=document.createElement('details');box.className='drafted-error-details';const title=document.createElement('summary');title.textContent='Error details';const text=document.createElement('pre');text.textContent=JSON.stringify(data,null,2);const copy=document.createElement('button');copy.type='button';copy.textContent='Copy error details';copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(text.textContent);copy.textContent='Copied';}catch{copy.textContent='Select and copy the details above';}});box.append(title,text,copy);return box;
+ }
+ return {safe,fromResponse,Failure,details,render};
+});
+
+;
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./experience-discovery-contract.js'),require('./model-diagnostics.js'));else root.DraftedDiscoveryClient=factory(root.DraftedDiscoveryContract,root.DraftedModelDiagnostics);})(globalThis,function(contract,D){
   'use strict';
   class Client {
     constructor({endpoint,fetch:fetcher=globalThis.fetch,id=()=>crypto.randomUUID(),timeoutMs=30000,background=false}){
       if(!endpoint)throw new Error('Explicit discovery endpoint required');
-      this.endpoint=endpoint;this.fetch=(...args)=>fetcher(...args);this.id=id;this.timeoutMs=timeoutMs;this.background=background;this.inflight=new Map();
+      this.endpoint=endpoint;this.fetch=(...args)=>fetcher(...args);this.id=id;this.timeoutMs=timeoutMs;this.background=background;this.inflight=new Map();this.failures=new Map();
     }
     async call(request,{signal}={}){
-      contract.validateRequest(request);
-      const controller=new AbortController(),abort=()=>controller.abort(),timer=setTimeout(abort,this.timeoutMs);
+      try{contract.validateRequest(request);}catch{throw new D.Failure({operation:request?.operation,requestId:request?.requestId,code:'INVALID_REQUEST',reason:'INVALID_REQUEST'});}
+      const controller=new AbortController();let timer,abortReject,timedOut=false;
+      const aborted=new Promise((_,reject)=>abortReject=reject),abort=()=>{abortReject(new D.Failure({operation:request.operation,requestId:request.requestId,code:'DISCOVERY_ABORTED',reason:'REQUEST_ABORTED'}));controller.abort();};
+      const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;reject(new D.Failure({operation:request.operation,requestId:request.requestId,code:'DISCOVERY_TIMEOUT',reason:'REQUEST_TIMEOUT'}));controller.abort();},this.timeoutMs);});
       if(signal?.aborted)abort();else signal?.addEventListener('abort',abort,{once:true});
-      try{const response=await this.fetch(this.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request),signal:controller.signal});
-        const text=await response.text();if(new TextEncoder().encode(text).length>contract.LIMIT)throw new Error('INVALID_RESPONSE');
-        const body=JSON.parse(text);contract.validateResponse(request,body);
-        if(!response.ok||!body.ok)throw new Error(body.contractError?.code||'INVALID_RESPONSE');return body.result;
-      }finally{clearTimeout(timer);signal?.removeEventListener('abort',abort);}
+      const work=(async()=>{
+        let response;try{response=await this.fetch(this.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(request),signal:controller.signal});}
+        catch{throw new D.Failure({operation:request.operation,requestId:request.requestId,code:timedOut?'DISCOVERY_TIMEOUT':controller.signal.aborted?'DISCOVERY_ABORTED':'DISCOVERY_NETWORK_FAILED',reason:timedOut?'REQUEST_TIMEOUT':controller.signal.aborted?'REQUEST_ABORTED':'NETWORK_FAILED'});}
+        let body;
+        try{const text=await response.text();if(new TextEncoder().encode(text).length>contract.LIMIT)throw Error();body=JSON.parse(text);contract.validateResponse(request,body);}
+        catch{throw new D.Failure(D.fromResponse(request.operation,request.requestId,response,'DISCOVERY_RESPONSE_INVALID','INVALID_RESPONSE'));}
+        if(!response.ok||!body.ok){const code=['INVALID_MODEL_OUTPUT','MODEL_UNAVAILABLE','INVALID_REQUEST','INPUT_TOO_LARGE'].includes(body.contractError?.code)?body.contractError.code:'DISCOVERY_HTTP_FAILED';throw new D.Failure(D.fromResponse(request.operation,request.requestId,response,code,code));}
+        return body.result;
+      })();
+      try{return await Promise.race([work,timeout,aborted]);}finally{clearTimeout(timer);signal?.removeEventListener('abort',abort);}
     }
+    failureFor(session,answerId){const entry=this.failures.get(answerId),s=session.snapshot(),a=s.answers.find(a=>a.id===answerId);return entry&&entry.contextRevision===s.context?.revision&&entry.revision===a?.currentRevision?entry.error:null;}
     async plan(session,language,{signal}={}){
       const c=session.snapshot().context;
       const request={schemaVersion:'1.0',operation:'plan',requestId:this.id(),contextRevision:c.revision,conversationLanguage:language,cvVersionId:c.cvVersionId,blocksSchemaVersion:'1.0',blocks:c.blocks,jobContextSchemaVersion:'1.0',jobContext:c.jobContext};
@@ -862,10 +891,10 @@
       const snap=session.snapshot(),answer=snap.answers.find(a=>a.id===token.answerId);
       const c=snap.context,r=snap.round;
       const request={schemaVersion:'1.0',operation:'interpret',requestId:this.id(),contextRevision:c.revision,conversationLanguage:r.language,cvVersionId:c.cvVersionId,blocksSchemaVersion:'1.0',blocks:c.blocks,jobContextSchemaVersion:'1.0',jobContext:c.jobContext,roundId:r.id,questionId:answer.questionId,questions:session.allQuestions().map(q=>({id:q.id,topicKey:q.topicKey,question:q.question,signalRefs:q.signalRefs})),sourceAnswer:{id:answer.id,revision:answer.currentRevision,text:answer.revisions.at(-1).text}};
-      session.beginInterpret(token,{background:this.background});
+      this.failures.delete(token.answerId);session.beginInterpret(token,{background:this.background});
       const current=()=>{try{if(this.background){session.answerForToken(token);return true;}return JSON.stringify(session.token())===JSON.stringify(token);}catch{return false;}};
       try{const result=await this.call(request);if(!current())return {stale:true};session.reviewDrafts(token,result.drafts,{background:this.background});return result;}
-      catch(e){if(!current())return {stale:true};session.interpretFailed(token,{background:this.background});throw e;}
+      catch(e){if(!current())return {stale:true};this.failures.set(token.answerId,{contextRevision:token.contextRevision,revision:token.answerRevision,error:e});session.interpretFailed(token,{background:this.background});throw e;}
     }
   }
   return {Client};
@@ -917,9 +946,9 @@
     }
     function close(focus=false){if(planState==='ready'&&session.round().phase==='complete'){prepared=false;setLabel('Review your answers');}updateGuidance();opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
     function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
-    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=client.submit(session,t);if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>client.retry(session,id).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
+    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=client.submit(session,t);if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>client.retry(session,id).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,getFailure:id=>client.failureFor(session,id),onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
     function activate(){if(!session.round().total){body.replaceChildren(el('h2','No additional experience questions'),el('p','No further questions were identified for this CV and job ad. You can keep working in the editor.'));prepared=true;return;}if(session.round().phase==='offer')session.start();showRound();}
-    async function start(){if(pending)return;const epoch=generation,controller=new AbortController();planController=controller;pending=true;planState='loading';updatePlanIndicator();body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en',{signal:controller.signal});if(result.stale||epoch!==generation)return;planState='ready';updateGuidance();if(opened)activate();else body.replaceChildren();}catch{if(epoch!==generation)return;planState='error';body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){if(planController===controller)planController=null;pending=false;body.removeAttribute('aria-busy');updatePlanIndicator();}}}
+    async function start(){if(pending)return;const epoch=generation,controller=new AbortController();planController=controller;pending=true;planState='loading';updatePlanIndicator();body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en',{signal:controller.signal});if(result.stale||epoch!==generation)return;planState='ready';updateGuidance();if(opened)activate();else body.replaceChildren();}catch(error){if(epoch!==generation)return;planState='error';body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));body.append(root.DraftedModelDiagnostics.render(error,'plan'));focusQuestion();}finally{if(epoch===generation){if(planController===controller)planController=null;pending=false;body.removeAttribute('aria-busy');updatePlanIndicator();}}}
     function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
       if(planState==='ready'&&!prepared)activate();else focusQuestion();
     }
@@ -1039,11 +1068,11 @@
 });
 
 ;
-(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources);})(globalThis,function(sources){
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'),require('./model-diagnostics.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources,root.DraftedModelDiagnostics);})(globalThis,function(sources,D){
   'use strict';
   const backendCodes=new Set(['INVALID_SOURCE_OUTPUT','INVALID_SOURCE_REQUEST','MODEL_UNAVAILABLE','INPUT_TOO_LARGE']);
-  class Failure extends Error {
-    constructor(code,status=null,backendCode=null){super(code);this.name='TailorSourceError';this.code=code;this.status=status;this.backendCode=backendCodes.has(backendCode)?backendCode:null;}
+  class Failure extends D.Failure {
+    constructor(code,status=null,backendCode=null,details={}){super({...details,operation:'tailor',code,status,reason:details.reason||(backendCodes.has(backendCode)?backendCode:null)});this.name='TailorSourceError';this.backendCode=backendCodes.has(backendCode)?backendCode:null;}
   }
   async function fetchSuggestion(endpoint,payload,{fetch:fetcher=globalThis.fetch,timeoutMs=90000}={}){
     try{sources.validateRequest(payload);}catch{throw new Failure('SOURCE_REQUEST_INVALID');}
@@ -1057,9 +1086,9 @@
       try{
         if(!(response.headers.get('content-type')||'').includes('application/json'))throw Error();
         data=await response.json();
-      }catch{throw new Failure(response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED',response.status);}
-      if(!response.ok||data?.ok!==true)throw new Failure('SOURCE_HTTP_FAILED',response.status,data?.contractError?.code);
-      try{sources.validateCandidate(payload,data);}catch{throw new Failure('SOURCE_RESPONSE_INVALID',response.status);}
+      }catch{throw new Failure(response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED',response.status,null,D.fromResponse('tailor',null,response,response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED'));}
+      if(!response.ok||data?.ok!==true)throw new Failure('SOURCE_HTTP_FAILED',response.status,data?.contractError?.code,D.fromResponse('tailor',null,response,'SOURCE_HTTP_FAILED',data?.contractError?.code));
+      try{sources.validateCandidate(payload,data);}catch{throw new Failure('SOURCE_RESPONSE_INVALID',response.status,null,D.fromResponse('tailor',null,response,response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED'));}
       return data;
     })();
     try{return await Promise.race([request,timeout]);}finally{clearTimeout(timer);}
@@ -1085,7 +1114,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-24-question-actions");
+console.log("DRAFTED_JS_SOURCE", "2026-10-24-model-contracts");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1674,12 +1703,12 @@ maybeShowTailor();
        chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;
      }
 
-     function showTailorFeedback(text,retry=false) {
+     function showTailorFeedback(text,retry=false,error=null) {
        document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
        const feedback=document.createElement('div');feedback.className='tailor-feedback discovery-guidance';feedback.setAttribute('role','status');
        const message=document.createElement('p');message.textContent=text;feedback.append(message);
        if(retry){const button=document.createElement('button');button.type='button';button.className='discovery-primary';button.textContent='Try tailoring again';button.addEventListener('click',()=>runTailor());feedback.append(button);}
-       chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;refreshTailorPresentation();
+       if(error)feedback.append(DraftedModelDiagnostics.render(error,'tailor'));chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;refreshTailorPresentation();
      }
 
      async function fetchTailorSources(payload){
@@ -1715,7 +1744,7 @@ maybeShowTailor();
          // Log transport metadata only: no CV, answer text, arbitrary server message or response body.
          const endpoint=new URL(N8N_TAILOR_URL,location.href);
          console.error('Tailoring failed',{endpoint:endpoint.origin+endpoint.pathname,code:err instanceof DraftedTailorSourceClient.Failure?err.code:'TAILOR_FAILED',status:err instanceof DraftedTailorSourceClient.Failure?err.status:null,backendCode:err instanceof DraftedTailorSourceClient.Failure?err.backendCode:null});
-         showTailorFeedback(sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true);
+         showTailorFeedback(sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true,err);
        }
        finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();}
      }
