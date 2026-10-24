@@ -1,0 +1,587 @@
+{
+  "version": 1,
+  "manifestSha256": "690751f8f15367d7483fc4ed3963a375f5ea8d69105c22e9035c7281ef6b3288",
+  "modelCalls": 0,
+  "preparedNodeResults": 72,
+  "allMatched": true,
+  "inputMutations": 0,
+  "normalization": "Only fresh generated application IDs are compared through per-result aliases; original IDs/revisions/text remain exact.",
+  "rows": [
+    {
+      "caseId": "plan-overlap",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-overlap",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-overlap",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-overlap",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-covered",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-covered",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-covered",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-covered",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-sparse",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-sparse",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-sparse",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-sparse",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-condition",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-condition",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-condition",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-condition",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-long",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-long",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-long",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-long",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-negation",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-negation",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-negation",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "plan-negation",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-concrete",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-concrete",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-concrete",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-concrete",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-mixed",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 422,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-mixed",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-mixed",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 422,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-mixed",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-vague",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-vague",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-vague",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-vague",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-long",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 422,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-long",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-long",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 422,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-long",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-named",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-named",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-named",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-named",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-context",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-context",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-context",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-context",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-sections",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-sections",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-sections",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-sections",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "profile": "baseline",
+      "repeat": 1,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "profile": "candidate",
+      "repeat": 1,
+      "status": 422,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "profile": "baseline",
+      "repeat": 2,
+      "status": 200,
+      "matched": true,
+      "inputUnchanged": true
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "profile": "candidate",
+      "repeat": 2,
+      "status": 422,
+      "matched": true,
+      "inputUnchanged": true
+    }
+  ]
+}

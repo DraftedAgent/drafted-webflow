@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "runId": "3c3b6ffa-d233-41a7-8393-e0b7f0e5adcb",
+  "approvalSha256": "3b0a92e9806c8c8e3974bb851abf03f38b4bd70ce30e31417f8a28b8d131b0b0",
+  "manifestSha256": "690751f8f15367d7483fc4ed3963a375f5ea8d69105c22e9035c7281ef6b3288",
+  "reportCanonicalSha256": "d8db2c84048e5ca8328647240f0e7eff716756eb6af4d4a2f443226999359f33",
+  "resultsCanonicalSha256": "9c7101cb3f2c7e4c3bc2868fac03eb787006992d8fbfc175b6685a16be85d3d8",
+  "streamMatchesReport": true,
+  "actualModel": "gpt-4.1-mini-2025-04-14",
+  "serviceTiers": [
+    "default"
+  ],
+  "completedCalls": 72,
+  "externalCallsAttempted": 72,
+  "retries": 0,
+  "stopReason": "complete",
+  "ledgerClosed": true,
+  "slotsConsumed": 72,
+  "knownCostUSD": 0.04734160000000001,
+  "reservedCostUSD": 0,
+  "tokens": {
+    "input": 88310,
+    "output": 7511,
+    "cachedInput": 0
+  },
+  "latency": {
+    "sumCallMs": 95102,
+    "medianCallMs": 1091.5,
+    "p95CallMs": 4197,
+    "minCallMs": 577,
+    "maxCallMs": 6311
+  },
+  "groups": {
+    "plan:baseline": {
+      "attempts": 12,
+      "shapeValid": 12,
+      "referencesValid": 12,
+      "recovered": 0,
+      "technicalErrors": 0,
+      "checksPassed": 12
+    },
+    "plan:candidate": {
+      "attempts": 12,
+      "shapeValid": 12,
+      "referencesValid": 12,
+      "recovered": 0,
+      "technicalErrors": 0,
+      "checksPassed": 10
+    },
+    "interpret:baseline": {
+      "attempts": 12,
+      "shapeValid": 12,
+      "referencesValid": 8,
+      "recovered": 0,
+      "technicalErrors": 4,
+      "checksPassed": 6
+    },
+    "interpret:candidate": {
+      "attempts": 12,
+      "shapeValid": 12,
+      "referencesValid": 12,
+      "recovered": 0,
+      "technicalErrors": 0,
+      "checksPassed": 8
+    },
+    "tailor:baseline": {
+      "attempts": 12,
+      "shapeValid": 12,
+      "referencesValid": 12,
+      "recovered": 0,
+      "technicalErrors": 0,
+      "checksPassed": 7
+    },
+    "tailor:candidate": {
+      "attempts": 12,
+      "shapeValid": 10,
+      "referencesValid": 10,
+      "recovered": 0,
+      "technicalErrors": 2,
+      "checksPassed": 6
+    }
+  },
+  "backendRecovered": 0,
+  "modelCompleteResponses": 72,
+  "startedAtUTC": "2026-10-24T20:07:39.129Z",
+  "clientDate": "2026-10-24",
+  "clientTimezone": "Europe/Stockholm",
+  "productionWorkflowsChanged": false,
+  "deploymentApproved": false
+}

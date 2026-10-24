@@ -1,3 +1,5 @@
+> DEV-106: [Den genomförda modellpiloten](MODEL-PILOT-RESULTS.md) visar kvarvarande blockerande innehållsfel. Kandidaten rekommenderas inte för aktivering. Kontraktskoden och det godkända pilotmaterialet har inte ändrats i efterhand.
+
 > DEV-105: Granskningsfynd rättade lokalt. Godkännande v2 binds till beständigt förbrukat runId/platser/budget. Även rena borttagningsförslag klassificeras som förslag i båda profilerna. [Nytt konkret pilotunderlag](MODEL-PILOT-APPROVAL.md) ersätter DEV-104:s tidigare hashvärden och godkännandeutkast. Ingen modellkörning eller driftsättning.
 
 # DEV-104 — Gemensamma modellkontrakt för Discovery och Tailor

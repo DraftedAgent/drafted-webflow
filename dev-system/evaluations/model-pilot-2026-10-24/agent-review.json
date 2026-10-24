@@ -1,0 +1,1006 @@
+{
+  "version": 1,
+  "runId": "3c3b6ffa-d233-41a7-8393-e0b7f0e5adcb",
+  "manifestSha256": "690751f8f15367d7483fc4ed3963a375f5ea8d69105c22e9035c7281ef6b3288",
+  "reviewer": "Codex",
+  "method": "Separat läsning av samtliga 72 råresultat och jämförelse med syntetiska original, rubric och faktiskt slutresultat; ingen extra modellgranskare.",
+  "ownerReview": "pending",
+  "deploymentApproved": false,
+  "recommendDeployment": false,
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "plan-condition",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "plan-condition",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Tillgänglighet ger erfarenhetsfråga i stället för giltigt nollresultat.",
+      "evidence": "Are you available to work on site three days per week?"
+    },
+    {
+      "id": "F02",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "plan-long",
+          "profile": "baseline",
+          "repeat": 1
+        },
+        {
+          "caseId": "plan-long",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "plan-long",
+          "profile": "baseline",
+          "repeat": 2
+        },
+        {
+          "caseId": "plan-long",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Negerat/icke styrkt kundutbildningskrav bedöms fel: kandidaten väljer cv_supported; basen väljer not_actionable på grund av saknad erfarenhet.",
+      "evidence": "Kandidatens första förklaring antar some involvement in customer training från internal tests; andra förklaringen säger not evidenced men klassar ändå cv_supported."
+    },
+    {
+      "id": "F03",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "interpret-concrete",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "interpret-concrete",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Samordning av interna releasetester omtolkas till erfarenhet av leveransplanering.",
+      "evidence": "I have experience helping plan a delivery by coordinating internal release tests ..."
+    },
+    {
+      "id": "F04",
+      "severity": "technical_rejection",
+      "runs": [
+        {
+          "caseId": "interpret-mixed",
+          "profile": "baseline",
+          "repeat": 1
+        },
+        {
+          "caseId": "interpret-mixed",
+          "profile": "baseline",
+          "repeat": 2
+        },
+        {
+          "caseId": "interpret-long",
+          "profile": "baseline",
+          "repeat": 1
+        },
+        {
+          "caseId": "interpret-long",
+          "profile": "baseline",
+          "repeat": 2
+        }
+      ],
+      "finding": "Basen hämtar citat från CV:t i stället för det aktuella svaret. Backend avvisar samtliga fyra utan tom framgång.",
+      "evidence": "Interviewed five users and shared their feedback. finns inte i dessa aktuella originalsvar."
+    },
+    {
+      "id": "F05",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "interpret-vague",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "interpret-vague",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Yes, a little. blir påhittade konton om både planering och workshoparbete och markerar båda frågorna täckta.",
+      "evidence": "I have had some involvement in planning a delivery ... I have provided some assistance with a workshop ..."
+    },
+    {
+      "id": "F06",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "interpret-uncertain",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "interpret-uncertain",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Osäkerhet om vad frågan betyder blir påståenden om osäker egen erfarenhet och täcker båda frågorna i stället för följdfråga.",
+      "evidence": "Original: Jag är osäker på vad du menar med den erfarenheten. Output antar bland annat att användaren inte minns deltagande."
+    },
+    {
+      "id": "F07",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "interpret-long",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "interpret-long",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Not delivery ownership skärps till att inte ha deltagit i planering. Negationens omfattning ändras.",
+      "evidence": "I have not helped plan a delivery ... / have not been involved in planning a delivery."
+    },
+    {
+      "id": "F08",
+      "severity": "needs_review",
+      "runs": [
+        {
+          "caseId": "interpret-correction",
+          "profile": "baseline",
+          "repeat": 1
+        },
+        {
+          "caseId": "interpret-correction",
+          "profile": "baseline",
+          "repeat": 2
+        }
+      ],
+      "finding": "Tomma konton ger onödigt behov av förtydligande trots uttryckligt stöd för testarbete. Kandidaten bevarar här kollegans planeringsansvar och eget testbidrag.",
+      "evidence": "Basens båda råresultat: drafts:[]"
+    },
+    {
+      "id": "F09",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "tailor-named",
+          "profile": "baseline",
+          "repeat": 2
+        },
+        {
+          "caseId": "tailor-named",
+          "profile": "candidate",
+          "repeat": 1
+        }
+      ],
+      "finding": "Helped facilitate blir Facilitated; den personliga rollen förstärks.",
+      "evidence": "Original: I helped facilitate two internal workshops. Förslag: Facilitated two internal workshops ..."
+    },
+    {
+      "id": "F10",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "tailor-context",
+          "profile": "baseline",
+          "repeat": 1
+        },
+        {
+          "caseId": "tailor-context",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "tailor-context",
+          "profile": "baseline",
+          "repeat": 2
+        },
+        {
+          "caseId": "tailor-context",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Saknat arbetsplats-/projektsammanhang kringgås via Skills eller Summary i stället för context_unclear.",
+      "evidence": "Alla fyra råsvar har additions för s1 men contextQuestions:[]; kandidatupprepningarna väljer olika sektioner."
+    },
+    {
+      "id": "F11",
+      "severity": "observation",
+      "runs": [
+        {
+          "caseId": "tailor-sections",
+          "profile": "baseline",
+          "repeat": 1
+        },
+        {
+          "caseId": "tailor-sections",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "tailor-sections",
+          "profile": "baseline",
+          "repeat": 2
+        },
+        {
+          "caseId": "tailor-sections",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "S1 med Python och projektstöd används inte och får ingen angiven orsak. Materialet tillåter Skills/Project, men denna pilot visar inte att modellen väljer flera relevanta sektioner för den källan.",
+      "evidence": "Alla fyra råsvar innehåller endast s2. Orsaken till icke-användning är okänd; ingen påstådd förklaring tillskrivs modellen."
+    },
+    {
+      "id": "F12",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "tailor-new-entry",
+          "profile": "baseline",
+          "repeat": 1
+        },
+        {
+          "caseId": "tailor-new-entry",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "tailor-new-entry",
+          "profile": "baseline",
+          "repeat": 2
+        },
+        {
+          "caseId": "tailor-new-entry",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Another Company saknar befintlig anställning men modellen flyttar erfarenheten till Summary/Skills i stället för new_block_required; texten lägger också till planeringsbidrag.",
+      "evidence": "Alla fyra råsvar har contextQuestions:[] och tillägg i t1 eller t4."
+    },
+    {
+      "id": "F13",
+      "severity": "technical_rejection",
+      "runs": [
+        {
+          "caseId": "tailor-correction-freeze",
+          "profile": "candidate",
+          "repeat": 1
+        },
+        {
+          "caseId": "tailor-correction-freeze",
+          "profile": "candidate",
+          "repeat": 2
+        }
+      ],
+      "finding": "Modellen anger verkligt blockId project-1 som targetKey trots att blocket är fryst och inte finns i målkatalogen. Strikt validering avvisar båda.",
+      "evidence": "targetKey:project-1 i båda upprepningarna; MODEL_SCHEMA_INVALID. Inget fryst block ändras."
+    },
+    {
+      "id": "F14",
+      "severity": "blocking",
+      "runs": [
+        {
+          "caseId": "tailor-correction-freeze",
+          "profile": "baseline",
+          "repeat": 2
+        }
+      ],
+      "finding": "Basen kringgår fryst projektblock genom att lägga projektanknutet deltagande i Skills.",
+      "evidence": "t3 är Skills när project-1 är fryst; Attended internal workshops ... hamnar där."
+    },
+    {
+      "id": "F15",
+      "severity": "needs_review",
+      "runs": [
+        {
+          "caseId": "tailor-correction-freeze",
+          "profile": "baseline",
+          "repeat": 1
+        }
+      ],
+      "finding": "Basen ställer en kontextfråga om en redan uttryckligen angiven projektplacering. Problemet är fryst text för granskning, inte okänt sammanhang.",
+      "evidence": "context_unclear för s2 trots uttryckligt In Community Project."
+    }
+  ],
+  "perRun": [
+    {
+      "caseId": "plan-overlap",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-overlap",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-overlap",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-overlap",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-covered",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-covered",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-covered",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-covered",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-sparse",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-sparse",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-sparse",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-sparse",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-condition",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-condition",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F01"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "plan-condition",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-condition",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F01"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "plan-long",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F02"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "plan-long",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F02"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "plan-long",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F02"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "plan-long",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F02"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "plan-negation",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-negation",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-negation",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "plan-negation",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-concrete",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-concrete",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F03"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "interpret-concrete",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-concrete",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F03"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "interpret-mixed",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F04"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-mixed",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-mixed",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F04"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-mixed",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-vague",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-vague",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F05"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "interpret-vague",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-vague",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F05"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F06"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-uncertain",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F06"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "interpret-long",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F04"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-long",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F07"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "interpret-long",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F04"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-long",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F07"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F08"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F08"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-named",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-named",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F09"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-named",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F09"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-named",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-context",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F10"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-context",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F10"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-context",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F10"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-context",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F10"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-sections",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F11"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-sections",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F11"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-sections",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F11"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-sections",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F11"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F12"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F12"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F12"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-new-entry",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F12"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "profile": "baseline",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F15"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "profile": "candidate",
+      "repeat": 1,
+      "agentReview": "reviewed",
+      "findings": [
+        "F13"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "profile": "baseline",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F14"
+      ],
+      "disposition": "blocking_findings"
+    },
+    {
+      "caseId": "tailor-correction-freeze",
+      "profile": "candidate",
+      "repeat": 2,
+      "agentReview": "reviewed",
+      "findings": [
+        "F13"
+      ],
+      "disposition": "no_semantic_pass_claim"
+    }
+  ],
+  "positiveObservations": [
+    {
+      "caseId": "plan-overlap",
+      "runs": 4,
+      "observation": "Överlappande leveranskrav grupperades under samma frågeägare."
+    },
+    {
+      "caseId": "plan-covered",
+      "runs": 4,
+      "observation": "Kompletta bedömningar gav giltiga nollresultat."
+    },
+    {
+      "caseId": "tailor-withdraw-all",
+      "runs": 4,
+      "observation": "Tre exakt spårade tillägg togs bort i granskningsförslaget utan nya erfarenhetspåståenden; bägge profiler klassade detta som suggestion."
+    },
+    {
+      "caseId": "interpret-correction",
+      "profile": "candidate",
+      "runs": 2,
+      "observation": "Rättelsen bevarade kollegans planeringsansvar och det egna testbidraget."
+    }
+  ],
+  "limits": [
+    "18 syntetiska fall, två upprepningar och en faktisk modellversion; inga mått på produktionsstabilitet.",
+    "Teknisk validering av referenser/originalcitat garanterar inte innehållsligt stöd.",
+    "Grova automatiska utfalls-/antalskontroller missar flera semantiska fel.",
+    "Körgräns4000 är gemensam i piloten men inte explicit i driftsatt Discovery.",
+    "Agentens innehållsgranskning är inte ägarens leveransgodkännande."
+  ]
+}

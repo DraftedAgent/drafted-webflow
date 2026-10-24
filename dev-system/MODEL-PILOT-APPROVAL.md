@@ -1,3 +1,5 @@
+> DEV-106: Ägaren godkände detta exakta förslag och piloten är nu avslutad. [Läs resultatet](MODEL-PILOT-RESULTS.md). RunId är förbrukat och kan inte starta igen. Nedan behålls det ursprungliga förslaget som historiskt underlag; utkastets approved:false är inte den faktiska, separat sparade godkännandehandlingen.
+
 # Modellpilot för separat godkännande — DEV-105
 
 Förberedd 2026-10-24, **inte godkänd eller körd**. Ersätter DEV-104:s tidigare material och godkännandeutkast. Ingen driftsättning ingår.

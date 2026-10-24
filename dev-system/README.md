@@ -1,3 +1,5 @@
+> DEV-106: Den separat godkända modellpiloten är genomförd: 72 anrop, 0,0473416 USD enligt tokenförbrukning. [Resultat och blockerande innehållsfynd](MODEL-PILOT-RESULTS.md). Kandidaten rekommenderas inte för aktivering. Ingen driftsättning eller publicering; runId är förbrukat.
+
 > DEV-105: Reviewfynd rättade lokalt: beständigt engångsgodkännande med budgetjournal och korrekt klassificering av borttagningsförslag. [Nytt konkret pilotförslag: högst72 anrop, 1USD](MODEL-PILOT-APPROVAL.md), ännu inte godkänt eller kört.
 
 > DEV-104: [Gemensamma modellkontrakt för Discovery och Tailor](MODEL-CONTRACTS-2.md) är implementerade och verifierade lokalt. Samlad noddiff, säkra feldetaljer och spärrad syntetisk modellpilot är förberedda. Ingen ny backendaktivering, publicering eller extern modellkörning.
