@@ -1,0 +1,36 @@
+{
+  "executionId": "249",
+  "startedAtUTC": "2026-10-25T17:53:00.791Z",
+  "activeWorkflowId": "H8oAioy58R1v3PvRe3YUa",
+  "activeVersion": "c7503539-0e08-4a49-958b-6467aea8d911",
+  "sourceBranch": true,
+  "model": "gpt-6-luna",
+  "inputAnswerCount": 5,
+  "recordedAnswerCount": 3,
+  "rawOutputKeys": [
+    "additions",
+    "contextQuestions"
+  ],
+  "rawAdditionCount": 2,
+  "rawContextQuestionCount": 1,
+  "actualChangedBlockCount": 1,
+  "changedBlockTypes": [
+    "summary"
+  ],
+  "returnedSourceUsageCount": 2,
+  "sourceReviewCount": 0,
+  "existingApplications": 0,
+  "legacyTailorExecuted": false,
+  "nonAnswerEditsInModelOutput": false,
+  "originalTextsSaved": false,
+  "requestIdentityProvidedByUser": false,
+  "questionStatuses": [
+    "recorded",
+    "recorded",
+    "no",
+    "recorded",
+    "processing"
+  ],
+  "historicalBrowserStampAvailable": false,
+  "clientRaceReproducedSynthetically": true
+}

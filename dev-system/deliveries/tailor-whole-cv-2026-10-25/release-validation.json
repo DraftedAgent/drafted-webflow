@@ -1,0 +1,17 @@
+{
+  "build": "2026-10-25-tailor-whole-cv-11",
+  "baselineMain": "36ed5898e2ba29e53fccdcdc094ca12ba42966ee",
+  "backendActive": "8fc8385e-4bfa-4721-a934-1c160dcd2200",
+  "sourcesSchemaVersion": "1.1",
+  "model": "gpt-6-luna",
+  "unitTestsPassed": 30,
+  "wholeCvBrowserAgainstReleaseAssets": true,
+  "excluded": [
+    "unpublished model-diagnostics",
+    "V3",
+    "other workflow changes"
+  ],
+  "externalModelCalls": 0,
+  "cvChangesOnlyOnApply": true,
+  "ordinaryProductionFlowVerified": false
+}
