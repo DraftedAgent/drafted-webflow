@@ -1,4 +1,4 @@
-(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources);})(globalThis,function(sources){
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources-v11.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources);})(globalThis,function(sources){
   'use strict';
   const backendCodes=new Set(['INVALID_SOURCE_OUTPUT','INVALID_SOURCE_REQUEST','MODEL_UNAVAILABLE','INPUT_TOO_LARGE']);
   class Failure extends Error {

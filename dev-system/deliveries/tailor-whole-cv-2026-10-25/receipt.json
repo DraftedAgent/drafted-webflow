@@ -1,0 +1,89 @@
+{
+  "status": "published_verified",
+  "date": "2026-10-25",
+  "proof": {
+    "id": "H8oAioy58R1v3PvRe3YUa",
+    "savedVersionId": "8fc8385e-4bfa-4721-a934-1c160dcd2200",
+    "activeVersionId": "8fc8385e-4bfa-4721-a934-1c160dcd2200",
+    "active": true,
+    "projectionSha256": "30bede0bb8f2d0c89b89a7afd8ffce4aa9b6ef55e23c57b6ac21fe3f2a512537",
+    "changedNodes": [
+      "Validate + Normalize",
+      "Compose source suggestion"
+    ],
+    "proposalSha256": "923dea7a7a5e94bf9768ee85904cea5cd26b1e9419fcaac4ece368bb4b24ffae",
+    "model": "gpt-6-luna",
+    "sourcesSchemaVersions": [
+      "1.0",
+      "1.1"
+    ],
+    "modelExecutionsInitiated": 0
+  },
+  "approval": "Owner approved two Tailor Code nodes and corresponding frontend, Luna retained; no model calls.",
+  "snapshots": [
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261025T182929473Z__H8oAioy58R1v3PvRe3YUa__c7503539-0e08-4a49-958b-6467aea8d911__LUNA-TAILOR-before.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261025T182929473Z__H8oAioy58R1v3PvRe3YUa__c7503539-0e08-4a49-958b-6467aea8d911__LUNA-TAILOR-before.dpapi.manifest.json",
+      "plaintextSha256": "9cd2bce2ce7c730348e9a1f43f047a1b5bc0deb7cc1a26f34e2fd32d5330f524",
+      "verified": true,
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "c7503539-0e08-4a49-958b-6467aea8d911",
+      "label": "TAILOR-before",
+      "sourceGitCommit": "2d47651d3a33de7eb970532248e4358c706401a2",
+      "packageSha256": "923dea7a7a5e94bf9768ee85904cea5cd26b1e9419fcaac4ece368bb4b24ffae",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T18:29:35.9788597Z"
+    },
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261025T182936002Z__H8oAioy58R1v3PvRe3YUa__c7503539-0e08-4a49-958b-6467aea8d911__LUNA-TAILOR-candidate-and-binding.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261025T182936002Z__H8oAioy58R1v3PvRe3YUa__c7503539-0e08-4a49-958b-6467aea8d911__LUNA-TAILOR-candidate-and-binding.dpapi.manifest.json",
+      "plaintextSha256": "7e065a1caf596c37e49217c6788616fbfa757887a34d72f629b1fb42d568c4bb",
+      "verified": true,
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "c7503539-0e08-4a49-958b-6467aea8d911",
+      "label": "TAILOR-candidate-and-binding",
+      "sourceGitCommit": "2d47651d3a33de7eb970532248e4358c706401a2",
+      "packageSha256": "923dea7a7a5e94bf9768ee85904cea5cd26b1e9419fcaac4ece368bb4b24ffae",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T18:29:39.8199363Z"
+    },
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261025T182940865Z__H8oAioy58R1v3PvRe3YUa__8fc8385e-4bfa-4721-a934-1c160dcd2200__LUNA-TAILOR-saved-before-publish.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261025T182940865Z__H8oAioy58R1v3PvRe3YUa__8fc8385e-4bfa-4721-a934-1c160dcd2200__LUNA-TAILOR-saved-before-publish.dpapi.manifest.json",
+      "plaintextSha256": "08fb4aa869f6996e05109d1a906416fbaa374d9ec80bbadffab1858969212538",
+      "verified": true,
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "8fc8385e-4bfa-4721-a934-1c160dcd2200",
+      "label": "TAILOR-saved-before-publish",
+      "sourceGitCommit": "2d47651d3a33de7eb970532248e4358c706401a2",
+      "packageSha256": "923dea7a7a5e94bf9768ee85904cea5cd26b1e9419fcaac4ece368bb4b24ffae",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T18:29:47.4918486Z"
+    },
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261025T182948339Z__H8oAioy58R1v3PvRe3YUa__8fc8385e-4bfa-4721-a934-1c160dcd2200__LUNA-TAILOR-published.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261025T182948339Z__H8oAioy58R1v3PvRe3YUa__8fc8385e-4bfa-4721-a934-1c160dcd2200__LUNA-TAILOR-published.dpapi.manifest.json",
+      "plaintextSha256": "881f6037ce57cc9c673b11dfaa4daedcd807a92e30b1ff7873bf9c4c55bf274c",
+      "verified": true,
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "8fc8385e-4bfa-4721-a934-1c160dcd2200",
+      "label": "TAILOR-published",
+      "sourceGitCommit": "2d47651d3a33de7eb970532248e4358c706401a2",
+      "packageSha256": "923dea7a7a5e94bf9768ee85904cea5cd26b1e9419fcaac4ece368bb4b24ffae",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T18:29:56.3646505Z"
+    }
+  ],
+  "modelExecutionsInitiated": 0,
+  "v3Activated": false,
+  "verifierAdded": false,
+  "graphChanged": false,
+  "publicContractChanged": true,
+  "modelConfigurationChanged": false,
+  "interpretationChanged": false,
+  "diagnosticOnly": false,
+  "promptChanged": true,
+  "strictValidationUnchanged": true,
+  "ordinaryQuestionFlowVerified": false,
+  "proposalSha256": "923dea7a7a5e94bf9768ee85904cea5cd26b1e9419fcaac4ece368bb4b24ffae"
+}

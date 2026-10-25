@@ -1,0 +1,121 @@
+{
+  "status": "local-prepared-not-deployed",
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "expectedSavedVersion": "c7503539-0e08-4a49-958b-6467aea8d911",
+  "expectedActiveVersion": "c7503539-0e08-4a49-958b-6467aea8d911",
+  "build": "2026-10-25-tailor-whole-cv-11",
+  "sourcesSchemaVersion": "1.1",
+  "changedNodes": [
+    {
+      "id": "b770f40e-b1a0-49fe-94e6-e003c3f42b41",
+      "name": "Validate + Normalize",
+      "beforeSHA256": "8be45bbdfdf14d6695a7639bd17b9a654487b7644f7c6a1e6a0fc0c59770ac0a",
+      "afterSHA256": "bc8b0f661a901e5fcd315b3e2becd83dd2afec91a059fe8433ae444cce7acef0"
+    },
+    {
+      "id": "tailor-sources-compose-v1",
+      "name": "Compose source suggestion",
+      "beforeSHA256": "66f9b8c091477d171defd69afbb7c633176b3edc2966bf1e0aa7c790bd6e7c11",
+      "afterSHA256": "4737923339f71fdfa301fd2d5abd60b68bc68c988a903587b26b5489ae10bb25"
+    }
+  ],
+  "unchangedGraph": true,
+  "unchangedSettings": true,
+  "modelChanges": [],
+  "externalModelCalls": 0,
+  "productionWrites": 0,
+  "files": [
+    {
+      "file": "webflow/src/tailor-sources-v11.js",
+      "sha256": "ab46b8e62691b6012b15efdfc7c36993cb362fc71590f3180eb6935801ddeb32"
+    },
+    {
+      "file": "webflow/src/tailor-change-preview.js",
+      "sha256": "0f7576710d4b674593ef041016914ffcb0ad7791708bc53621e045142aaee223"
+    },
+    {
+      "file": "webflow/src/tailor-source-client.js",
+      "sha256": "f225aea6a5421a146301be7c87456cebda2ed6c0a2b65a46278b0a76065baf3b"
+    },
+    {
+      "file": "webflow/src/experience-discovery-editor.js",
+      "sha256": "8122692569913176ae8578adcb1e80098f2a8f6c7cac18f2c1b3748dba22bc02"
+    },
+    {
+      "file": "webflow/src/drafted-editor.js",
+      "sha256": "fda0d8dc87b48ab3f406e824f2ac33629d6bc1253fe09a4f9540bff329a0defd"
+    },
+    {
+      "file": "webflow/build.sh",
+      "sha256": "638401abc8ca787bd5b63acf00b55afcb6d8aa346f3713c5169eb9bba6a9f4f2"
+    },
+    {
+      "file": "backend/tailor-whole-cv/contract.cjs",
+      "sha256": "ed684ec3eec3de9617d352b27ca3f21d7135925888e0d84c0452f24ba8d9d466"
+    },
+    {
+      "file": "backend/tailor-whole-cv/runtime.cjs",
+      "sha256": "acbb393eba9ac1ec57b885e1bee463f4e9ebc7f57ca5c624d8f876b93e02a752"
+    },
+    {
+      "file": "backend/tailor-whole-cv/n8n.cjs",
+      "sha256": "0cf2d371f533723e5c45de9166db3bc47cbeac68b3ac1a37a97fc46891b8d1b8"
+    },
+    {
+      "file": "backend/tailor-whole-cv/prepare.cjs",
+      "sha256": "394f4f1263965ad939bb11f1cdb5342063774409e96e0812a4a718d6f725a80a"
+    },
+    {
+      "file": "drafted-editor.js",
+      "sha256": "5b70587ab915f7d14e4bd74e1d7beb878201e235dfb0af98f84768b519e717a6"
+    },
+    {
+      "file": "drafted-editor.css",
+      "sha256": "6a6e3c5b3cc25d0af0ef15316241accb7285aab9a02c8ed773c7e5b711e457dd"
+    },
+    {
+      "file": "latest.json",
+      "sha256": "b580478dcd8699e61021bcd5263f3e9039d861e508b1dfe6bbe738b04ead9395"
+    },
+    {
+      "file": "dev-system/prepared/tailor-whole-cv/baseline.safe.json",
+      "sha256": "49a6ba177d1cc4873333bb3cde556ca4f7988b0ab65535119f6821ed11589fee"
+    },
+    {
+      "file": "dev-system/prepared/tailor-whole-cv/candidate.safe.json",
+      "sha256": "50befbda8f6ffbcf1957c3e42f0dafe5e6e49384a2543dff6418147c191ebbe3"
+    },
+    {
+      "file": "dev-system/prepared/tailor-whole-cv/examples.synthetic.json",
+      "sha256": "7bbff452cd3130fd52ba2bd9341029e2decf692dda6c53112083808c2453d436"
+    },
+    {
+      "file": "dev-system/prepared/tailor-whole-cv/IMPLEMENTED.md",
+      "sha256": "4c957710ef5494c229bae138db8d9e57c326bf4b32acd71c9946404d0cc43d0e"
+    },
+    {
+      "file": "dev-system/prepared/tailor-whole-cv/execution-249.safe.json",
+      "sha256": "a3efd2249662c776f8056173ad64875641c46b560df092e21af8a98acc7ffdcc"
+    },
+    {
+      "file": "tests/tailor-whole-cv.test.cjs",
+      "sha256": "20f4ba1b68bbe9a4c8d086f03d3b9ede31056a1408365701da9a0082e4984833"
+    },
+    {
+      "file": "tests/tailor-whole-cv-code.test.cjs",
+      "sha256": "70252bd9e51f857733a1d80d370712d016e46e997adbb138ddd521387249b77d"
+    },
+    {
+      "file": "tests/tailor-whole-cv.browser.cjs",
+      "sha256": "93eba36d3a31630db012ca5280b9840733c72df64a8f9ced8f9f68ef8559ea5e"
+    },
+    {
+      "file": "tests/helpers/tailor-whole-cv-harness.cjs",
+      "sha256": "46dc5195b682e084910ebbe3cd5eb8fae08d44fbb7150837c8c663035471f46b"
+    },
+    {
+      "file": "tests/fixtures/tailor-whole-cv.cjs",
+      "sha256": "621fda653dd357caa7d9e66c83dd740cb3177faa7826c71792efcc20293f27a3"
+    }
+  ]
+}

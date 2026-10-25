@@ -883,6 +883,8 @@
 (function(root){
   'use strict';
   function create({host,getContext,endpoint,onTailor=()=>{},sourceTailoring=false,getTailorBusy=()=>false,getTailorState=()=>getTailorBusy()?'preparing':'ready',onSourceStateChange=()=>{},getSourceNotice=()=>''}){
+    const interpretations=new Set();
+    function track(promise){if(!promise?.then)return promise;interpretations.add(promise);promise.then(()=>interpretations.delete(promise),()=>interpretations.delete(promise));return promise;}
     const session=new root.DraftedExperienceDiscovery.Session(),client=new root.DraftedDiscoveryClient.Client({endpoint,background:true});
     const card=host.closest('.chat-card');
     host.closest('.section-editor')?.classList.add('discovery-enabled');
@@ -924,7 +926,7 @@
     }
     function close(focus=false){if(planState==='ready'&&session.round().phase==='complete'){prepared=false;setLabel('Review your answers');}updateGuidance();opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
     function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
-    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=client.submit(session,t);if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>client.retry(session,id).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
+    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=track(client.submit(session,t));if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>track(client.retry(session,id)).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
     function activate(){if(!session.round().total){body.replaceChildren(el('h2','No additional experience questions'),el('p','No further questions were identified for this CV and job ad. You can keep working in the editor.'));prepared=true;return;}if(session.round().phase==='offer')session.start();showRound();}
     async function start(){if(pending)return;const epoch=generation,controller=new AbortController();planController=controller;pending=true;planState='loading';updatePlanIndicator();body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en',{signal:controller.signal});if(result.stale||epoch!==generation)return;planState='ready';updateGuidance();if(opened)activate();else body.replaceChildren();}catch{if(epoch!==generation)return;planState='error';body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){if(planController===controller)planController=null;pending=false;body.removeAttribute('aria-busy');updatePlanIndicator();}}}
     function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
@@ -935,6 +937,7 @@
     function invalidate(){generation++;planController?.abort();planController=null;fingerprint='';prepared=false;pending=false;planState='idle';close();guidance.hidden=true;launcher.hidden=true;setLabel('Experience questions');count.hidden=true;launcher.removeAttribute('aria-busy');launcher.dataset.planState='idle';body.replaceChildren();body.removeAttribute('aria-busy');const c=session.snapshot().context;if(c)session.setContext({...c,revision:crypto.randomUUID()});}
     function sync(){const context=getContext();if(!context){if(fingerprint)invalidate();return;}const key=JSON.stringify(context);if(key===fingerprint)return;invalidate();fingerprint=key;session.setContext({...context,revision:crypto.randomUUID()});launcher.hidden=false;start();onSourceStateChange();}
     return {sync,invalidate,
+      waitForSources:async()=>{while(interpretations.size)await Promise.allSettled([...interpretations]);},
       refreshTailorState:updateGuidance,
       showChat:(processed=false)=>{if(processed){prepared=false;setLabel('Review your answers');}close(true);},
       sourceContext:applications=>planState==='ready'?session.sourceContext(applications):null,
@@ -1046,7 +1049,76 @@
 });
 
 ;
-(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources);})(globalThis,function(sources){
+/* Negotiated whole-CV edits plus answer-derived additions; shared browser/backend code. */
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'));else root.DraftedTailorSources=factory(root.DraftedTailorSources);})(globalThis,function(legacy){
+ 'use strict';
+ const copy=x=>JSON.parse(JSON.stringify(x)),old=r=>({...r,sourcesSchemaVersion:'1.0'});
+ function check(ok,code='INVALID_SOURCE_CANDIDATE'){if(!ok)throw Error(code);}
+ function exact(o,keys){check(o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===keys.length&&keys.every(k=>Object.hasOwn(o,k)));}
+ function validateRequest(r){check(['1.0','1.1'].includes(r?.sourcesSchemaVersion),'INVALID_SOURCE_REQUEST');return legacy.validateRequest(old(r));}
+ function prepare(r){validateRequest(r);return legacy.prepare(old(r));}
+ function cvCatalog(r){
+  const base=prepare(r),targets=[];
+  for(const b of base.blocks){if(base.review.some(x=>x.blockId===b.blockId))continue;const additions=base.applications.find(g=>g.blockId===b.blockId)?.additions||[];let start=0;
+   for(const a of [...additions,{start:b.text.length,end:b.text.length}]){if(a.start>start||!b.text.length)targets.push({blockId:b.blockId,start,end:a.start,originalText:b.text.slice(start,a.start)});start=a.end;}
+  }return {base,targets,evidence:targets.filter(t=>t.originalText.trim()).map(t=>({blockId:t.blockId,quote:t.originalText}))};
+ }
+ function rebase(blocks,applications,edits){
+  const next=copy(blocks),groups=copy(applications);
+  for(const b of next){const list=edits.filter(e=>e.blockId===b.blockId).sort((a,z)=>a.start-z.start);let cursor=0,text='';for(const e of list){check(e.start>=cursor);text+=b.text.slice(cursor,e.start)+e.proposedText;cursor=e.end;}text+=b.text.slice(cursor);check(text.length<=100000,'OUTPUT_TOO_LARGE');
+   const g=groups.find(g=>g.blockId===b.blockId);if(g){for(const a of g.additions){check(!list.some(e=>e.start<a.end&&e.end>a.start),'SOURCE_RANGE_OVERLAP');const shift=list.filter(e=>e.end<=a.start).reduce((n,e)=>n+e.proposedText.length-(e.end-e.start),0);a.start+=shift;a.end+=shift;}if(list.length)g.checkpointText=text;}b.text=text;
+  }return {blocks:next,applications:groups};
+ }
+ function removeReplaced(blocks,applications,additions,frozen){
+  const next=copy(blocks),groups=[];
+  for(const g of applications){const b=next.find(b=>b.blockId===g.blockId);if(frozen.some(x=>x.blockId===g.blockId)){groups.push(copy(g));continue;}const replacing=additions.filter(a=>a.blockId===g.blockId);let cursor=0,text='',kept=[];
+   for(const a of g.additions){text+=b.text.slice(cursor,a.start);const replacement=replacing.find(x=>x.answerId===a.source.answerId&&x.answerRevision===a.source.answerRevision);const same=replacement&&g.additions.filter(x=>x.source.answerId===replacement.answerId).length===1&&replacement.text===a.text;
+    if(!replacement||same){const start=text.length;text+=b.text.slice(a.start,a.end);kept.push({...copy(a),start,end:text.length});}cursor=a.end;
+   }text+=b.text.slice(cursor);b.text=text;if(kept.length)groups.push({blockId:g.blockId,checkpointText:text,additions:kept});
+  }return {blocks:next,applications:groups};
+ }
+ function candidate(r,model,options={}){
+  if(r.sourcesSchemaVersion==='1.0')return legacy.candidate(r,model,options);
+  validateRequest(r);exact(model,['cvEdits','additions','contextQuestions']);check(Array.isArray(model.cvEdits)&&model.cvEdits.length<=1000);const catalog=cvCatalog(r),seen=new Set(),cvEdits=[];
+  for(const e of model.cvEdits){exact(e,['blockId','start','end','originalText','proposedText','cvEvidence']);const target=catalog.targets.find(t=>t.blockId===e.blockId&&t.start===e.start&&t.end===e.end&&t.originalText===e.originalText);check(target,'INVALID_CV_TARGET');const key=e.blockId+':'+e.start+':'+e.end;check(!seen.has(key),'DUPLICATE_CV_TARGET');seen.add(key);check(typeof e.proposedText==='string'&&e.proposedText.length<=100000);check(Array.isArray(e.cvEvidence)&&e.cvEvidence.length>0&&e.cvEvidence.length<=100);const refs=new Set();for(const v of e.cvEvidence){exact(v,['blockId','quote']);check(catalog.evidence.some(s=>s.blockId===v.blockId&&s.quote===v.quote),'INVALID_CV_EVIDENCE');const key=v.blockId+':'+v.quote;check(!refs.has(key),'DUPLICATE_CV_EVIDENCE');refs.add(key);}if(e.originalText!==e.proposedText)cvEdits.push(copy(e));}
+  const edited=rebase(catalog.base.blocks,catalog.base.applications,cvEdits),replaced=removeReplaced(edited.blocks,edited.applications,model.additions,catalog.base.review);
+  const request={...old(r),blocks:replaced.blocks,sourceContext:{...r.sourceContext,applications:replaced.applications}};
+  const result=legacy.candidate(request,{additions:model.additions,contextQuestions:model.contextQuestions},options);
+  return {...result,sourcesSchemaVersion:'1.1',cvEdits};
+ }
+ function validateCandidate(r,data){
+  if(r.sourcesSchemaVersion==='1.0')return legacy.validateCandidate(r,data);
+  check(data?.sourcesSchemaVersion==='1.1');exact(data,['ok','blocksSchemaVersion','cvVersionId','cvTitle','summaryOfChanges','blocks','rewrittenCv','rewrittenCvLegacy','sourcesSchemaVersion','sourceContextRevision','sourceRoundId','sourceUsage','sourceApplications','sourceReview','contextQuestions','cvEdits']);check(Array.isArray(data.sourceUsage));
+  const ids=data.sourceUsage.map(u=>u.applicationId);check(new Set(ids).size===ids.length);let n=0;
+  const expected=candidate(r,{cvEdits:data.cvEdits,additions:data.sourceUsage.map(u=>({blockId:u.blockId,text:u.proposedQuote,answerId:u.answerId,answerRevision:u.answerRevision,sourceQuote:u.sourceQuote,contextQuote:u.contextQuote})),contextQuestions:data.contextQuestions},{id:()=>ids[n++]});
+  check(JSON.stringify(data)===JSON.stringify(expected));return data;
+ }
+ function withoutReceipt(data){const result=legacy.withoutReceipt(data);delete result.cvEdits;return result;}
+ class Ledger extends legacy.Ledger{
+  commit(r,data){if(r.sourcesSchemaVersion==='1.0')return super.commit(r,data);validateCandidate(r,data);const next=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const h of this.history)if(h.status==='active'&&!next.has(h.id))h.status='superseded';for(const u of data.sourceUsage)this.history.push({...copy(u),id:u.applicationId,status:'active'});for(const x of data.sourceReview)for(const h of this.history)if(x.applicationIds.includes(h.id))h.status='review';this.groups=copy(data.sourceApplications);}
+ }
+ return {...legacy,validateRequest,prepare,cvCatalog,candidate,validateCandidate,withoutReceipt,Ledger};
+});
+
+;
+/* Review actual CV text differences independently of answer receipts. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedTailorChangePreview=api;})(globalThis,function(){
+ 'use strict';
+ function paragraph(text,start,end){while(start<end&&/\s/.test(text[start]))start++;const before=text.lastIndexOf('\n\n',start),after=text.indexOf('\n\n',end);return text.slice(before<0?0:before+2,after<0?text.length:after);}
+ function changes(previous,next){
+  const out=[];
+  for(const b of next){const old=previous.find(p=>p.blockId===b.blockId);if(!old)throw Error('UNKNOWN_REVIEW_BLOCK');if(old.text===b.text)continue;
+   let from=0,end=0;while(from<old.text.length&&from<b.text.length&&old.text[from]===b.text[from])from++;
+   while(end<old.text.length-from&&end<b.text.length-from&&old.text[old.text.length-1-end]===b.text[b.text.length-1-end])end++;
+   const removed=old.text.slice(from,old.text.length-end),added=b.text.slice(from,b.text.length-end);
+   out.push({blockId:b.blockId,action:!added?'Remove':!removed?'Add':'Update',text:added?paragraph(b.text,from,b.text.length-end):paragraph(old.text,from,old.text.length-end)});
+  }return out;
+ }
+ return {changes};
+});
+
+;
+(function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources-v11.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources);})(globalThis,function(sources){
   'use strict';
   const backendCodes=new Set(['INVALID_SOURCE_OUTPUT','INVALID_SOURCE_REQUEST','MODEL_UNAVAILABLE','INPUT_TOO_LARGE']);
   class Failure extends Error {
@@ -1092,7 +1164,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-25-compact-followup");
+console.log("DRAFTED_JS_SOURCE", "2026-10-25-tailor-whole-cv-11");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1590,7 +1662,7 @@ maybeShowTailor();
      TAILOR HIGHLIGHT CARD UI
      =============================== */
 
-     function tailorContextStamp(sources=discoveryController?.sourceRevision()) {
+     function tailorContextStamp(sources=discoveryController?.sourceContentRevision()) {
        return JSON.stringify({blocks:documentBlocksState,title:documentTitle,version:cvVersionId,language:documentLanguage,
          job:jobAdInputEl?.value,role:targetRoleInput?.value,context:window.__DRAFTED_JOBCONTEXT__,
          file:!!discoveryCvFile && getFileInput()?.files?.[0]===discoveryCvFile,
@@ -1626,10 +1698,9 @@ maybeShowTailor();
        const changed=computeChangedBlockIds(documentBlocksState,data.blocks);
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
        add('h2','Review suggested changes');
-       const proposed=[];
-       for(const usage of data.sourceUsage||[]){const prior=request.sourceContext.applications.find(g=>g.blockId===usage.blockId)?.additions.some(a=>a.source.answerId===usage.answerId);proposed.push({blockId:usage.blockId,action:prior?'Update':'Add',text:usage.proposedQuote});}
-       if(data.sourcesSchemaVersion){const retained=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const group of request.sourceContext.applications)for(const prior of group.additions.filter(a=>!retained.has(a.id))){if(!data.sourceUsage.some(u=>u.blockId===group.blockId&&u.answerId===prior.source.answerId))proposed.push({blockId:group.blockId,action:'Remove',text:prior.text});}}
-       else for(const id of changed){const old=request.blocks.find(b=>b.blockId===id).text,next=data.blocks.find(b=>b.blockId===id).text;let from=0,end=0;while(from<old.length&&from<next.length&&old[from]===next[from])from++;while(end<old.length-from&&end<next.length-from&&old[old.length-1-end]===next[next.length-1-end])end++;proposed.push({blockId:id,action:'Update',text:next.slice(from,next.length-end)||old.slice(from,old.length-end)});}
+       // Review every actual text change, including CV/ad-based wording. Answer
+       // receipts explain provenance in details; they do not define the diff.
+       const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);
        if(proposed.length){const list=add('ul','');list.className='tailor-answer-changes';for(const change of proposed){const item=add('li','',list);add('h3',sectionName(data.blocks.find(b=>b.blockId===change.blockId)),item);add('p',`${change.action}: ${excerpt(change.text)}`,item);}}
        else add('p','No text changes were suggested.');
        add('p','Your CV will change when you apply.');
@@ -1656,6 +1727,7 @@ maybeShowTailor();
          const input=add('textarea','',box);input.rows=2;input.setAttribute('aria-label','Where did this experience take place?');const save=add('button','Save context',box);save.type='button';
          save.addEventListener('click',()=>{try{discoveryController.appendContext(question.answerId,question.answerRevision,input.value);card.remove();showTailorFeedback('Context saved. Choose Tailor my CV to prepare a new suggestion.');}catch{add('p','The context could not be saved. Keep your text and check that the answer is still current and within 50,000 characters.',box);}});
        }
+       for(const edit of data.cvEdits||[]){const box=add('section','',fullDetails);add('h3',`Existing CV support for ${sectionName(data.blocks.find(b=>b.blockId===edit.blockId))}`,box);for(const source of edit.cvEvidence){add('p',sectionName(request.blocks.find(b=>b.blockId===source.blockId)),box);add('blockquote',source.quote,box);}}
        for(const usage of data.sourceUsage||[]){const box=add('section','',fullDetails);add('h3',`Source for ${sectionName(documentBlocksState.find(b=>b.blockId===usage.blockId))}`,box);add('p',`User answer · revision ${usage.answerRevision}`,box);add('blockquote',usage.sourceQuote,box);if(usage.contextQuote&&usage.contextQuote!==usage.sourceQuote){add('p','Context from your answer',box);add('blockquote',usage.contextQuote,box);}add('p','Proposed wording',box);add('blockquote',usage.proposedQuote,box);}
        for(const id of changed){
          const old=documentBlocksState.find(b=>b.blockId===id),next=data.blocks.find(b=>b.blockId===id),details=add('section','',fullDetails);
@@ -1706,14 +1778,19 @@ maybeShowTailor();
        try {
          discoveryController?.showChat();
          refreshTailorPresentation();
+         // Finish can be clicked while the last answer is still interpreted.
+         // Wait for existing requests; do not launch Tailor from a partial source set.
+         const representationStamp=tailorContextStamp(null);
+         await discoveryController?.waitForSources();
+         if(representationStamp!==tailorContextStamp(null)||isPreviewingProposal){showTailorFeedback('Your CV or job ad changed. Prepare a new suggestion.',true);return;}
          const stamp=tailorContextStamp();
          const payload={cvVersionId:cvVersionId||null,cvTitle:documentTitle||'',targetRole:targetRoleInput?.value?.trim()||'',
            language:documentLanguage||'en',blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
          const sourceContext=tailorSourcesEnabled?discoveryController?.sourceContext(tailorSourceLedger.snapshot()):null;
          sourceRequest=!!sourceContext;
-         if(sourceContext){payload.sourcesSchemaVersion='1.0';payload.sourceContext=sourceContext;}
+         if(sourceContext){payload.sourcesSchemaVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):'1.1';payload.sourceContext=sourceContext;}
          const data=sourceContext?await fetchTailorSources(payload):await draftedFetchJson(N8N_TAILOR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)},'cv');
-         if(stamp!==tailorContextStamp()||isPreviewingProposal){showTailorFeedback('Context changed. Tailor again.');return;}
+         if(stamp!==tailorContextStamp()||isPreviewingProposal){showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}
          // Existing Tailor permits text changes only. Fail closed on structural drift.
          const metadata=b=>JSON.stringify(Object.fromEntries(Object.entries(b).filter(([key])=>key!=='text').sort(([a],[b])=>a.localeCompare(b))));
          if(data.blocks.length!==payload.blocks.length||data.blocks.some(b=>{const old=payload.blocks.find(o=>o.blockId===b.blockId);return !old||metadata(old)!==metadata(b);}))throw Error('Tailor changed block structure');

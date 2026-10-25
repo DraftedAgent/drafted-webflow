@@ -508,7 +508,7 @@ maybeShowTailor();
      TAILOR HIGHLIGHT CARD UI
      =============================== */
 
-     function tailorContextStamp(sources=discoveryController?.sourceRevision()) {
+     function tailorContextStamp(sources=discoveryController?.sourceContentRevision()) {
        return JSON.stringify({blocks:documentBlocksState,title:documentTitle,version:cvVersionId,language:documentLanguage,
          job:jobAdInputEl?.value,role:targetRoleInput?.value,context:window.__DRAFTED_JOBCONTEXT__,
          file:!!discoveryCvFile && getFileInput()?.files?.[0]===discoveryCvFile,
@@ -544,10 +544,9 @@ maybeShowTailor();
        const changed=computeChangedBlockIds(documentBlocksState,data.blocks);
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
        add('h2','Review suggested changes');
-       const proposed=[];
-       for(const usage of data.sourceUsage||[]){const prior=request.sourceContext.applications.find(g=>g.blockId===usage.blockId)?.additions.some(a=>a.source.answerId===usage.answerId);proposed.push({blockId:usage.blockId,action:prior?'Update':'Add',text:usage.proposedQuote});}
-       if(data.sourcesSchemaVersion){const retained=new Set(data.sourceApplications.flatMap(g=>g.additions.map(a=>a.id)));for(const group of request.sourceContext.applications)for(const prior of group.additions.filter(a=>!retained.has(a.id))){if(!data.sourceUsage.some(u=>u.blockId===group.blockId&&u.answerId===prior.source.answerId))proposed.push({blockId:group.blockId,action:'Remove',text:prior.text});}}
-       else for(const id of changed){const old=request.blocks.find(b=>b.blockId===id).text,next=data.blocks.find(b=>b.blockId===id).text;let from=0,end=0;while(from<old.length&&from<next.length&&old[from]===next[from])from++;while(end<old.length-from&&end<next.length-from&&old[old.length-1-end]===next[next.length-1-end])end++;proposed.push({blockId:id,action:'Update',text:next.slice(from,next.length-end)||old.slice(from,old.length-end)});}
+       // Review every actual text change, including CV/ad-based wording. Answer
+       // receipts explain provenance in details; they do not define the diff.
+       const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);
        if(proposed.length){const list=add('ul','');list.className='tailor-answer-changes';for(const change of proposed){const item=add('li','',list);add('h3',sectionName(data.blocks.find(b=>b.blockId===change.blockId)),item);add('p',`${change.action}: ${excerpt(change.text)}`,item);}}
        else add('p','No text changes were suggested.');
        add('p','Your CV will change when you apply.');
@@ -574,6 +573,7 @@ maybeShowTailor();
          const input=add('textarea','',box);input.rows=2;input.setAttribute('aria-label','Where did this experience take place?');const save=add('button','Save context',box);save.type='button';
          save.addEventListener('click',()=>{try{discoveryController.appendContext(question.answerId,question.answerRevision,input.value);card.remove();showTailorFeedback('Context saved. Choose Tailor my CV to prepare a new suggestion.');}catch{add('p','The context could not be saved. Keep your text and check that the answer is still current and within 50,000 characters.',box);}});
        }
+       for(const edit of data.cvEdits||[]){const box=add('section','',fullDetails);add('h3',`Existing CV support for ${sectionName(data.blocks.find(b=>b.blockId===edit.blockId))}`,box);for(const source of edit.cvEvidence){add('p',sectionName(request.blocks.find(b=>b.blockId===source.blockId)),box);add('blockquote',source.quote,box);}}
        for(const usage of data.sourceUsage||[]){const box=add('section','',fullDetails);add('h3',`Source for ${sectionName(documentBlocksState.find(b=>b.blockId===usage.blockId))}`,box);add('p',`User answer · revision ${usage.answerRevision}`,box);add('blockquote',usage.sourceQuote,box);if(usage.contextQuote&&usage.contextQuote!==usage.sourceQuote){add('p','Context from your answer',box);add('blockquote',usage.contextQuote,box);}add('p','Proposed wording',box);add('blockquote',usage.proposedQuote,box);}
        for(const id of changed){
          const old=documentBlocksState.find(b=>b.blockId===id),next=data.blocks.find(b=>b.blockId===id),details=add('section','',fullDetails);
@@ -624,14 +624,19 @@ maybeShowTailor();
        try {
          discoveryController?.showChat();
          refreshTailorPresentation();
+         // Finish can be clicked while the last answer is still interpreted.
+         // Wait for existing requests; do not launch Tailor from a partial source set.
+         const representationStamp=tailorContextStamp(null);
+         await discoveryController?.waitForSources();
+         if(representationStamp!==tailorContextStamp(null)||isPreviewingProposal){showTailorFeedback('Your CV or job ad changed. Prepare a new suggestion.',true);return;}
          const stamp=tailorContextStamp();
          const payload={cvVersionId:cvVersionId||null,cvTitle:documentTitle||'',targetRole:targetRoleInput?.value?.trim()||'',
            language:documentLanguage||'en',blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
          const sourceContext=tailorSourcesEnabled?discoveryController?.sourceContext(tailorSourceLedger.snapshot()):null;
          sourceRequest=!!sourceContext;
-         if(sourceContext){payload.sourcesSchemaVersion='1.0';payload.sourceContext=sourceContext;}
+         if(sourceContext){payload.sourcesSchemaVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):'1.1';payload.sourceContext=sourceContext;}
          const data=sourceContext?await fetchTailorSources(payload):await draftedFetchJson(N8N_TAILOR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)},'cv');
-         if(stamp!==tailorContextStamp()||isPreviewingProposal){showTailorFeedback('Context changed. Tailor again.');return;}
+         if(stamp!==tailorContextStamp()||isPreviewingProposal){showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}
          // Existing Tailor permits text changes only. Fail closed on structural drift.
          const metadata=b=>JSON.stringify(Object.fromEntries(Object.entries(b).filter(([key])=>key!=='text').sort(([a],[b])=>a.localeCompare(b))));
          if(data.blocks.length!==payload.blocks.length||data.blocks.some(b=>{const old=payload.blocks.find(o=>o.blockId===b.blockId);return !old||metadata(old)!==metadata(b);}))throw Error('Tailor changed block structure');
