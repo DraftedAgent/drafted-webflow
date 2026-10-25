@@ -1,3 +1,5 @@
+> Historiskt granskningsunderlag. Ägaren har därefter godkänt driftsättning. Aktiv backend och frontendleverans dokumenteras i ../../deliveries/tailor-whole-cv-2026-10-25/receipt.json och release-validation.json; slutlig publiceringsverifiering ligger i frontend.json. Offlinegeneratorn och versionslåsta deploy-adaptern finns kvar i det ursprungliga arbetscheckoutet; kandidatens exakta nodkod är sparad i candidate.safe.json.
+
 # Lokalt implementerat driftpaket — 2026-10-25
 
 Ägaren godkände lokal implementation av sourcesSchemaVersion1.1/cvEdits. Paketet är implementerat och isolerat verifierat, **inte driftsatt eller publicerat**. REVIEW.md beskriver det ursprungliga förslaget; dess dåvarande uppgift om ej implementerad backend är historisk. Fullständiga syntetiska request-, modellinput/-output- och response-exempel finns i examples.synthetic.json.

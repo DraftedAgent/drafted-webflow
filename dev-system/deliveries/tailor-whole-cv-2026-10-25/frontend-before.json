@@ -1,0 +1,22 @@
+{
+  "main": "36ed5898e2ba29e53fccdcdc094ca12ba42966ee",
+  "files": {
+    "latest.json": {
+      "sha256": "1016b2f812d52cd1c052d8aa1f4b9cbe78a90fd845897c36fdbad035cae174ad",
+      "bytes": 291,
+      "matchesBaselineCommit": true,
+      "build": "2026-10-25-compact-followup"
+    },
+    "drafted-editor.js": {
+      "sha256": "2c876af9ce370d9e299bf12053d1d938affafd2ae73c372511f4574cb8ff3f76",
+      "bytes": 191601,
+      "matchesBaselineCommit": true
+    },
+    "drafted-editor.css": {
+      "sha256": "5fbea7f90efed6fee81e3222a92b9b74753606d4c50f0f29c82684d8c4eda1b0",
+      "bytes": 57420,
+      "matchesBaselineCommit": true
+    }
+  },
+  "rollback": "Restore complete root assets and latest pointers from baseline main in a new commit; no reset or force push"
+}
