@@ -1,0 +1,385 @@
+{
+  "runId": "259c65fd-e2ae-47d1-a664-6c61ab0bd771",
+  "manifestSha256": "5017bb756bbc6e776eab0c4200a1f10564592514d1ba672d876f494fd3d7e5b1",
+  "extraGradingCalls": 0,
+  "grades": [
+    {
+      "slotId": "discovery-role-support:gpt-6-luna:1",
+      "caseId": "discovery-role-support",
+      "model": "gpt-6-luna",
+      "repeat": 1,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "pass",
+        "negationMeaningAndResponsibility": "not_applicable",
+        "placement": "not_applicable",
+        "followUp": "pass_short_relevant_question",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [],
+      "observedOutput": {
+        "assessments": {
+          "s1": {
+            "kind": "question",
+            "question": "Have you led training for external customers?"
+          }
+        }
+      }
+    },
+    {
+      "slotId": "discovery-role-support:gpt-6.1-sol:1",
+      "caseId": "discovery-role-support",
+      "model": "gpt-6.1-sol",
+      "repeat": 1,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "pass",
+        "negationMeaningAndResponsibility": "not_applicable",
+        "placement": "not_applicable",
+        "followUp": "pass_short_relevant_question",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [],
+      "observedOutput": {
+        "assessments": {
+          "s1": {
+            "kind": "question",
+            "question": "Have you led training sessions for external customers?"
+          }
+        }
+      }
+    },
+    {
+      "slotId": "interpret-vague-answer:gpt-6-luna:1",
+      "caseId": "interpret-vague-answer",
+      "model": "gpt-6-luna",
+      "repeat": 1,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "no_experience_assertion_created",
+        "negationMeaningAndResponsibility": "not_applicable",
+        "placement": "not_applicable",
+        "followUp": "correct_needs_detail_with_quality_warning",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [
+        "The follow-up repeats or closely paraphrases the original question.",
+        "The question retains the original unconfirmed coordination framing; a more neutral request for one concrete example would be preferable."
+      ],
+      "observedOutput": {
+        "kind": "needs_detail",
+        "followUp": "What did you personally do when coordinating release tests?"
+      }
+    },
+    {
+      "slotId": "interpret-vague-answer:gpt-6.1-sol:1",
+      "caseId": "interpret-vague-answer",
+      "model": "gpt-6.1-sol",
+      "repeat": 1,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "no_experience_assertion_created",
+        "negationMeaningAndResponsibility": "not_applicable",
+        "placement": "not_applicable",
+        "followUp": "correct_needs_detail_with_quality_warning",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [
+        "The follow-up repeats or closely paraphrases the original question.",
+        "The question retains the original unconfirmed coordination framing; a more neutral request for one concrete example would be preferable."
+      ],
+      "observedOutput": {
+        "kind": "needs_detail",
+        "followUp": "What tasks did you personally carry out when coordinating release tests?"
+      }
+    },
+    {
+      "slotId": "tailor-translation-role-negation:gpt-6-luna:1",
+      "caseId": "tailor-translation-role-negation",
+      "model": "gpt-6-luna",
+      "repeat": 1,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "pass",
+        "negationMeaningAndResponsibility": "pass_no_inflation_without_verbatim_negatives",
+        "placement": "pass_existing_project_t1",
+        "followUp": "not_applicable",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [
+        "The proposed addition repeats the existing project/volunteer heading; this is a presentation issue, not unsupported experience."
+      ],
+      "observedOutput": {
+        "decisions": {
+          "u1": {
+            "kind": "rewrite",
+            "targetRef": "t1",
+            "text": "Community Project — Volontär. Bidrog till genomförandet av två interna workshops och testade övningarna."
+          }
+        }
+      }
+    },
+    {
+      "slotId": "tailor-translation-role-negation:gpt-6.1-sol:1",
+      "caseId": "tailor-translation-role-negation",
+      "model": "gpt-6.1-sol",
+      "repeat": 1,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "pass",
+        "negationMeaningAndResponsibility": "pass_no_inflation_without_verbatim_negatives",
+        "placement": "pass_existing_project_t1",
+        "followUp": "not_applicable",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [
+        "The proposed addition repeats the existing project/volunteer heading; this is a presentation issue, not unsupported experience."
+      ],
+      "observedOutput": {
+        "decisions": {
+          "u1": {
+            "kind": "rewrite",
+            "targetRef": "t1",
+            "text": "Community Project — Volontär. Medverkade som stöd vid genomförandet av två interna workshoppar och testade övningarna."
+          }
+        }
+      }
+    },
+    {
+      "slotId": "discovery-role-support:gpt-6.1-sol:2",
+      "caseId": "discovery-role-support",
+      "model": "gpt-6.1-sol",
+      "repeat": 2,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "pass",
+        "negationMeaningAndResponsibility": "not_applicable",
+        "placement": "not_applicable",
+        "followUp": "pass_short_relevant_question",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [],
+      "observedOutput": {
+        "assessments": {
+          "s1": {
+            "kind": "question",
+            "question": "Have you led training sessions for external customers?"
+          }
+        }
+      }
+    },
+    {
+      "slotId": "discovery-role-support:gpt-6-luna:2",
+      "caseId": "discovery-role-support",
+      "model": "gpt-6-luna",
+      "repeat": 2,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "pass",
+        "negationMeaningAndResponsibility": "not_applicable",
+        "placement": "not_applicable",
+        "followUp": "pass_short_relevant_question",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [],
+      "observedOutput": {
+        "assessments": {
+          "s1": {
+            "kind": "question",
+            "question": "Have you led training for external customers?"
+          }
+        }
+      }
+    },
+    {
+      "slotId": "interpret-vague-answer:gpt-6.1-sol:2",
+      "caseId": "interpret-vague-answer",
+      "model": "gpt-6.1-sol",
+      "repeat": 2,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "no_experience_assertion_created",
+        "negationMeaningAndResponsibility": "not_applicable",
+        "placement": "not_applicable",
+        "followUp": "correct_needs_detail_with_quality_warning",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [
+        "The follow-up repeats or closely paraphrases the original question.",
+        "The question retains the original unconfirmed coordination framing; a more neutral request for one concrete example would be preferable."
+      ],
+      "observedOutput": {
+        "kind": "needs_detail",
+        "followUp": "What did you personally do to help coordinate release tests?"
+      }
+    },
+    {
+      "slotId": "interpret-vague-answer:gpt-6-luna:2",
+      "caseId": "interpret-vague-answer",
+      "model": "gpt-6-luna",
+      "repeat": 2,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "no_experience_assertion_created",
+        "negationMeaningAndResponsibility": "not_applicable",
+        "placement": "not_applicable",
+        "followUp": "correct_needs_detail_with_quality_warning",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [
+        "The follow-up repeats or closely paraphrases the original question.",
+        "The question retains the original unconfirmed coordination framing; a more neutral request for one concrete example would be preferable."
+      ],
+      "observedOutput": {
+        "kind": "needs_detail",
+        "followUp": "What did you personally do when coordinating release tests?"
+      }
+    },
+    {
+      "slotId": "tailor-translation-role-negation:gpt-6.1-sol:2",
+      "caseId": "tailor-translation-role-negation",
+      "model": "gpt-6.1-sol",
+      "repeat": 2,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "pass",
+        "negationMeaningAndResponsibility": "pass_no_inflation_without_verbatim_negatives",
+        "placement": "pass_existing_project_t1",
+        "followUp": "not_applicable",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [
+        "The proposed addition repeats the existing project/volunteer heading; this is a presentation issue, not unsupported experience."
+      ],
+      "observedOutput": {
+        "decisions": {
+          "u1": {
+            "kind": "rewrite",
+            "targetRef": "t1",
+            "text": "Community Project — Volontär. Bidrog till genomförandet av två interna workshoppar och testade övningarna."
+          }
+        }
+      }
+    },
+    {
+      "slotId": "tailor-translation-role-negation:gpt-6-luna:2",
+      "caseId": "tailor-translation-role-negation",
+      "model": "gpt-6-luna",
+      "repeat": 2,
+      "assessmentMethod": "Direct assessment of saved raw output against exact frozen original; no model grader call",
+      "technical": {
+        "httpStatus": 200,
+        "jsonValid": true,
+        "schemaValid": true,
+        "tokenCutoff": false
+      },
+      "content": {
+        "sourceSupport": "pass_no_unsupported_assertion",
+        "ownRole": "pass",
+        "negationMeaningAndResponsibility": "pass_no_inflation_without_verbatim_negatives",
+        "placement": "pass_existing_project_t1",
+        "followUp": "not_applicable",
+        "language": "pass"
+      },
+      "hardContentError": false,
+      "qualityWarnings": [],
+      "observedOutput": {
+        "decisions": {
+          "u1": {
+            "kind": "rewrite",
+            "targetRef": "t1",
+            "text": "Hjälpte till att facilitera två interna workshops i Community Project och testade övningarna."
+          }
+        }
+      }
+    }
+  ]
+}

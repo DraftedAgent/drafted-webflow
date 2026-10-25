@@ -1,0 +1,81 @@
+{
+  "reason": "Native n8n JSON output is sometimes already parsed to an object; accept object or string before unchanged validation.",
+  "scope": "Necessary API/response handling only; no prompt, model, product or contract change.",
+  "proof": {
+    "id": "zeIzzxPwD2Y91OyD",
+    "name": "Drafted Experience Discovery v1 (inactive development)",
+    "savedVersionId": "c1188d30-de7e-44a0-9fc3-f148a1929d05",
+    "activeVersionId": "c1188d30-de7e-44a0-9fc3-f148a1929d05",
+    "active": true,
+    "phase": "published",
+    "projectionVerified": true,
+    "activeProjectionVerified": true,
+    "projectionSha256": "1d99b54040e38444a2082a105edc5bc57ffe6a7884d726c35c2e9b6d99fa3591",
+    "modelNodes": [
+      {
+        "id": "9a79bee3-7feb-47aa-a263-3e1f1a9193fc",
+        "name": "Discovery model",
+        "model": "gpt-6-luna"
+      }
+    ],
+    "guardNodes": [
+      "Luna output - Discovery model"
+    ]
+  },
+  "changedGuards": [
+    "Luna output - Discovery model"
+  ],
+  "preSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T225045848Z__zeIzzxPwD2Y91OyD__454f3815-87e2-479e-ad8a-b1a9d5baa6b1__LUNA-pre-native-json-compat.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T225045848Z__zeIzzxPwD2Y91OyD__454f3815-87e2-479e-ad8a-b1a9d5baa6b1__LUNA-pre-native-json-compat.dpapi.manifest.json",
+    "plaintextSha256": "ce76a08a772dd48fde48893b319c87e2b0cf187c7fe75625d2f1f33134797979",
+    "verified": true,
+    "workflowId": "zeIzzxPwD2Y91OyD",
+    "versionId": "454f3815-87e2-479e-ad8a-b1a9d5baa6b1",
+    "label": "pre-native-json-compat",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:50:51.0897446Z"
+  },
+  "candidateSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T225051094Z__zeIzzxPwD2Y91OyD__454f3815-87e2-479e-ad8a-b1a9d5baa6b1__LUNA-native-json-compatible-candidate.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T225051094Z__zeIzzxPwD2Y91OyD__454f3815-87e2-479e-ad8a-b1a9d5baa6b1__LUNA-native-json-compatible-candidate.dpapi.manifest.json",
+    "plaintextSha256": "9bf618a02ac012647f85e57c86b9fbedd535a86413ff58f3e2cb3a19d4657c34",
+    "verified": true,
+    "workflowId": "zeIzzxPwD2Y91OyD",
+    "versionId": "454f3815-87e2-479e-ad8a-b1a9d5baa6b1",
+    "label": "native-json-compatible-candidate",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:50:53.6250045Z"
+  },
+  "savedSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T225054313Z__zeIzzxPwD2Y91OyD__c1188d30-de7e-44a0-9fc3-f148a1929d05__LUNA-native-json-saved-before-publish.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T225054313Z__zeIzzxPwD2Y91OyD__c1188d30-de7e-44a0-9fc3-f148a1929d05__LUNA-native-json-saved-before-publish.dpapi.manifest.json",
+    "plaintextSha256": "013b4299e3a2b521e91bbc8eb0add406cdf081ed70e2c4d90fb9e0724184776d",
+    "verified": true,
+    "workflowId": "zeIzzxPwD2Y91OyD",
+    "versionId": "c1188d30-de7e-44a0-9fc3-f148a1929d05",
+    "label": "native-json-saved-before-publish",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:50:59.4254202Z"
+  },
+  "postSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T225100099Z__zeIzzxPwD2Y91OyD__c1188d30-de7e-44a0-9fc3-f148a1929d05__LUNA-native-json-published.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T225100099Z__zeIzzxPwD2Y91OyD__c1188d30-de7e-44a0-9fc3-f148a1929d05__LUNA-native-json-published.dpapi.manifest.json",
+    "plaintextSha256": "48c90f253e5fcf8c3dec5a352c954a9f3762d35b6a707f369867e7b5f7bdf905",
+    "verified": true,
+    "workflowId": "zeIzzxPwD2Y91OyD",
+    "versionId": "c1188d30-de7e-44a0-9fc3-f148a1929d05",
+    "label": "native-json-published",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:51:05.1329230Z"
+  },
+  "modelExecutionsInitiated": 0
+}

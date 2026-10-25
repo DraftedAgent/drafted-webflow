@@ -1,0 +1,10 @@
+{
+  "runId": "259c65fd-e2ae-47d1-a664-6c61ab0bd771",
+  "manifestSha256": "5017bb756bbc6e776eab0c4200a1f10564592514d1ba672d876f494fd3d7e5b1",
+  "runnerSha256": "65ed3b69296d0579e91273963e52b8a9972b19c91323ab69c58233f3452b7693",
+  "approved": true,
+  "startedAt": "2026-10-24T21:58:00.961Z",
+  "network": "exact_manifest_endpoint",
+  "maxCalls": 12,
+  "maxCostUSD": 0.25
+}

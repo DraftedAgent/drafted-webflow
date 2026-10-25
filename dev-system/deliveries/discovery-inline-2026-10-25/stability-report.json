@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-25",
+  "status": "published_verified",
+  "activeVersionId": "063ed025-c1ee-4778-90cb-91b83e6f9be5",
+  "scope": "Discovery planning compilation only; no claimed extension to answer interpretation or Tailor",
+  "modelExecutionsInitiated": 0,
+  "backendConstructed": [
+    {
+      "failureClass": "INVALID_QUESTION_OWNER / dangling, self, chained, cyclic or non-question owner",
+      "since": "this change",
+      "guarantee": "For accepted inline plans, backend creates every owner from the first exact question-text occurrence and points later exact copies directly to that question. The model does not choose owner IDs.",
+      "boundary": "A model may still emit a forbidden legacy field; that is rejected as invalid format, never interpreted as a valid empty plan."
+    },
+    {
+      "failureClass": "UNASSIGNED_TOPIC",
+      "since": "prior signal-owned planner, retained",
+      "guarantee": "No independent topic drafts exist: each topic is created from an assessed question signal and owns at least that signal."
+    },
+    {
+      "failureClass": "REF_REUSED_ACROSS_TOPICS / model-chosen out-of-range signal index",
+      "since": "prior catalog/complete-assessment pipeline, retained",
+      "guarantee": "Each validated catalog signal has one assessment; field/index references come from its original validated catalog position. Accepted plans cannot assign one signal to multiple topics.",
+      "boundary": "Unknown/missing signal IDs still cause a strict error."
+    },
+    {
+      "failureClass": "EVIDENCE_QUOTE_NOT_EXACT from model-copied planning evidence",
+      "since": "prior source catalog, retained",
+      "guarantee": "Planning evidence quotes are copied by backend from the full current original block, not retyped by the model.",
+      "boundary": "This proves traceability, not that the quoted content substantiates the requirement; answer interpretation has separate unchanged rules."
+    }
+  ],
+  "remainingTechnicalStops": [
+    "Malformed/missing/extra fields, wrong kind, empty/oversized question or old-profile output.",
+    "Unknown/missing signal IDs, unknown/duplicate evidence IDs or absent evidence for cv_supported.",
+    "Model-copied requestId, contextRevision or modelFormat does not match the validated request.",
+    "Timeout, HTTP/provider error, refusal, token cutoff, missing text/usage or unexpected response shape. These must stop loading and remain errors."
+  ],
+  "remainingModelJudgments": [
+    "Which original CV text actually supports a requirement, including own role, negation and internal/external scope.",
+    "Whether a signal is relevant experience, administrative, genuinely too vague or a material gap needing a question.",
+    "Specific wording, useful follow-up, prioritization and whether two requirements need the same or different personal examples.",
+    "A completely assessed structurally valid zero-question result can still be semantically wrong if the model misclassifies every signal."
+  ],
+  "exactTextGrouping": {
+    "definition": "Same exact original question string; no normalization, similarity threshold or semantic merge.",
+    "knownLimits": [
+      "Equivalent paraphrases, punctuation/case/whitespace variants remain separate.",
+      "Identical generic wording can group distinct requirements incorrectly.",
+      "Question count and wording may vary between generations.",
+      "No claim to solve duplicate questions, variable questions or the historical 0–12 fluctuation."
+    ],
+    "signalPreservation": "All signal references are retained even when exact question text is grouped."
+  },
+  "strictFailurePolicy": {
+    "noDroppingSignals": true,
+    "noTechnicalErrorToZero": true,
+    "noOwnerGuessing": true,
+    "noAutomaticRetry": true,
+    "zeroGate": "The catalog must be empty or every signal must have a complete validated supported/not-actionable assessment. This is a structural gate, not semantic proof."
+  },
+  "evidence": {
+    "enumeratedAssignments": 81,
+    "rejectedInvalidCases": 10,
+    "actualCodePatchChecks": 5,
+    "unitTests": 5,
+    "limitationDemonstrations": {
+      "paraphrasedSameIntent": {
+        "topics": 2,
+        "meaning": "Not deduplicated; exact text is not semantic grouping."
+      },
+      "identicalGenericQuestionDifferentRequirements": {
+        "topics": 1,
+        "signalRefs": 2,
+        "meaning": "Can incorrectly group different requirements; the model must supply meaningful specific wording."
+      },
+      "whitespaceVariant": {
+        "topics": 2,
+        "meaning": "Even whitespace differences can produce separate topics."
+      },
+      "structurallyValidWrongCVSupport": {
+        "topics": 0,
+        "meaning": "Backend accepts well-formed source selection even when the CV does not substantiate these role/scope requirements. This is an explicit remaining semantic risk, not a correct-content success."
+      }
+    },
+    "realModelFailureRateMeasured": false
+  },
+  "nextMinimalProposals": [
+    {
+      "priority": 1,
+      "change": "Bind requestId, contextRevision and internal profile to the validated request/execution in backend; stop asking the model to copy them.",
+      "scope": "Plan model envelope and its two adapter Code stages; public response keeps the same IDs and schema. No extra model call.",
+      "benefit": "Removes model-originated stale/misspelled technical metadata; actual late/stale requests must still be rejected."
+    },
+    {
+      "priority": 2,
+      "change": "Send existing instruction and catalog as separate system/user messages instead of flattened SYSTEM:/USER: text in a single system message.",
+      "scope": "Message assembly and existing Discovery model input bindings only.",
+      "benefit": "Clear instruction/data boundary without changing questions, signals or public result."
+    },
+    {
+      "priority": 3,
+      "change": "Apply a request-specific strict JSON schema using current required signal keys and allowed evidence IDs, alongside the existing backend validator.",
+      "scope": "Existing model output-format option and generated schema; no retries or additional model pass.",
+      "benefit": "Reduces malformed fields/unknown references; does not validate meaning, relevance or correct grouping."
+    }
+  ],
+  "excludedNextWork": [
+    "No new pipeline/RAG/profile store, semantic merger, fallback model, verifier or automatic repair proposal.",
+    "No new broad evaluation or model execution is authorized by this report."
+  ],
+  "furtherChangesImplemented": false
+}

@@ -1,0 +1,133 @@
+{
+  "status": "active_verified",
+  "addedNodes": [
+    "Discovery planning?",
+    "Discovery plan model"
+  ],
+  "ordinaryUserFlowVerified": false,
+  "runtimeSchemaVerification": {
+    "syntheticOnly": true,
+    "source": "Existing manual n8n execution log and Discovery plan model output table inspected via UI; no second execution",
+    "savedVersion": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+    "requestId": "schema-smoke-454d3023-6858-425e-9ff1-20ec0db3748e",
+    "modelCalls": 1,
+    "apiResponseId": "resp_07ec922940f28a6d016addf661f8b087d2bf832e8e8f704936",
+    "apiStatus": "completed",
+    "model": "gpt-6-luna",
+    "apiEcho": {
+      "format": "json_schema",
+      "name": "drafted_discovery_plan_bound_1",
+      "strict": true,
+      "assessmentType": "object",
+      "required": [
+        "signal_topPriorities_0",
+        "signal_topPriorities_1",
+        "signal_mustHave_0"
+      ],
+      "additionalProperties": false,
+      "serviceTier": "default",
+      "store": false,
+      "maxOutputTokens": 3000
+    },
+    "usage": {
+      "inputTokens": 953,
+      "outputTokens": 195,
+      "reasoningTokens": 102,
+      "totalTokens": 1148
+    },
+    "httpNodeDurationMs": 3078,
+    "executedModelNode": "Discovery plan model",
+    "originalDiscoveryModelExecuted": false,
+    "successfulNodes": [
+      "Discovery webhook",
+      "Validate request",
+      "Input valid?",
+      "Build discovery prompt",
+      "Discovery planning?",
+      "Discovery plan model",
+      "Luna output - Discovery model",
+      "Validate model response",
+      "Respond discovery"
+    ],
+    "publicHTTPStatus": 200,
+    "publicResponseValidated": true,
+    "semanticQualityEvaluation": false,
+    "ordinaryUserFlowVerified": false
+  },
+  "snapshots": [
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122927320Z__zeIzzxPwD2Y91OyD__8c5750c8-370b-4829-941a-b64ce90ddf03__LUNA-BOUND-before.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122927320Z__zeIzzxPwD2Y91OyD__8c5750c8-370b-4829-941a-b64ce90ddf03__LUNA-BOUND-before.dpapi.manifest.json",
+      "plaintextSha256": "a9f219b91a16f772286e6b9eb554afc3a3f6763b8bfd369bd787b6a13efff2a4",
+      "verified": true,
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "versionId": "8c5750c8-370b-4829-941a-b64ce90ddf03",
+      "label": "BOUND-before",
+      "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+      "packageSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T12:29:33.1904853Z"
+    },
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122933199Z__zeIzzxPwD2Y91OyD__8c5750c8-370b-4829-941a-b64ce90ddf03__LUNA-BOUND-candidate.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122933199Z__zeIzzxPwD2Y91OyD__8c5750c8-370b-4829-941a-b64ce90ddf03__LUNA-BOUND-candidate.dpapi.manifest.json",
+      "plaintextSha256": "ab554b7be02b9062d5c38ad9b460738848454d8ee6dd2c312f46ab6fca1290ba",
+      "verified": true,
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "versionId": "8c5750c8-370b-4829-941a-b64ce90ddf03",
+      "label": "BOUND-candidate",
+      "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+      "packageSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T12:29:36.2541188Z"
+    },
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122937226Z__zeIzzxPwD2Y91OyD__5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5__LUNA-BOUND-saved-not-active.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122937226Z__zeIzzxPwD2Y91OyD__5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5__LUNA-BOUND-saved-not-active.dpapi.manifest.json",
+      "plaintextSha256": "60b7506d21b14cdf0ddf2d00f29c08bab96ede4da3c4c3aefd777ece8ace9272",
+      "verified": true,
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "versionId": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+      "label": "BOUND-saved-not-active",
+      "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+      "packageSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T12:29:47.0178231Z"
+    },
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T123133908Z__zeIzzxPwD2Y91OyD__5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5__LUNA-BOUND-active.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T123133908Z__zeIzzxPwD2Y91OyD__5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5__LUNA-BOUND-active.dpapi.manifest.json",
+      "plaintextSha256": "1c7dbf7432321fee0f4529944305c3606f61955aea74139f389568fdbf6f0d03",
+      "verified": true,
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "versionId": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+      "label": "BOUND-active",
+      "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+      "packageSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T12:31:40.4665302Z"
+    }
+  ],
+  "modelCallsInitiated": 1,
+  "changedNodes": [
+    "Build discovery prompt",
+    "Validate model response",
+    "Respond discovery"
+  ],
+  "proof": {
+    "id": "zeIzzxPwD2Y91OyD",
+    "savedVersionId": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+    "activeVersionId": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+    "activeProjectionVerified": true,
+    "savedProjectionVerified": true,
+    "candidateProjectionSha256": "63b2b35db93bf3b68f88ba5494a6bd39f9ff25f2ed2271a065c087463c60a8bb",
+    "proposalSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+    "model": "gpt-6-luna"
+  },
+  "syntheticVerification": {
+    "publicResponseValid": true,
+    "requestId": "schema-smoke-454d3023-6858-425e-9ff1-20ec0db3748e",
+    "contextRevision": "synthetic-schema-context",
+    "topics": 3
+  }
+}

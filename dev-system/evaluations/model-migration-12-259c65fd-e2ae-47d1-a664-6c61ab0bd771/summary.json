@@ -1,0 +1,67 @@
+{
+  "runId": "259c65fd-e2ae-47d1-a664-6c61ab0bd771",
+  "manifestSha256": "5017bb756bbc6e776eab0c4200a1f10564592514d1ba672d876f494fd3d7e5b1",
+  "complete": true,
+  "calls": 12,
+  "retries": 0,
+  "replacements": 0,
+  "extraModelCalls": 0,
+  "maxCostUSD": "0.25",
+  "actualTokenBasedCostUSD": "0.0070695",
+  "costSource": "Actual API usage with approved Standard input/output prices; cache read/write token counts were zero. Reasoning is included in output, not added twice. This is a token-based cost, not a billing statement.",
+  "inputTokens": 4340,
+  "outputTokensIncludingReasoning": 617,
+  "reasoningTokensIncludedInOutput": 160,
+  "costUncertain": false,
+  "remainingExposureUSD": "0",
+  "models": [
+    {
+      "model": "gpt-6-luna",
+      "calls": 6,
+      "inputTokens": 2170,
+      "outputTokensIncludingReasoning": 385,
+      "reasoningTokensIncludedInOutput": 160,
+      "cachedInputTokens": 0,
+      "cacheWriteTokens": 0,
+      "tokenBasedCostUSD": "0.0004095",
+      "medianLatencyMs": 1457.5,
+      "maxLatencyMs": 2127,
+      "schemaValid": 6,
+      "technicalBudgetOutcomes": 0,
+      "hardContentErrors": 0
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "calls": 6,
+      "inputTokens": 2170,
+      "outputTokensIncludingReasoning": 232,
+      "reasoningTokensIncludedInOutput": 0,
+      "cachedInputTokens": 0,
+      "cacheWriteTokens": 0,
+      "tokenBasedCostUSD": "0.00666",
+      "medianLatencyMs": 1917,
+      "maxLatencyMs": 2876,
+      "schemaValid": 6,
+      "technicalBudgetOutcomes": 0,
+      "hardContentErrors": 0
+    }
+  ],
+  "caseAssessment": {
+    "discovery": "Both models asked about external training leadership rather than treating feedback analysis or internal testing as sufficient evidence, in both repeats.",
+    "interpretation": "Both models selected needs_detail and created no experience account in either repeat. Follow-ups repeated the original question and retained its coordination framing: correct routing, weak clarification quality.",
+    "tailor": "Both models produced Swedish proposals for the supplied project, preserved assisting/testing/internal scope and did not introduce workshop planning or customer-training leadership. Omitting literal negative sentences did not change the claimed meaning or responsibility."
+  },
+  "limitations": [
+    "Only three cases and two repetitions; prompts explicitly highlight the central risks.",
+    "Interpretation uses raw-model diagnostic prompts and bypasses known-vague preflight; no end-to-end product stability is demonstrated.",
+    "No source revision/Apply/correction chain or n8n execution was tested by this screen.",
+    "Historical GPT-4.1 results use different material/contracts; no causal model-migration improvement is claimed.",
+    "No activation, deployment, publication or automatic follow-up evaluation."
+  ],
+  "ledger": {
+    "closed": true,
+    "consumedSlots": 12,
+    "restartPermitted": false
+  },
+  "releaseApproved": false
+}

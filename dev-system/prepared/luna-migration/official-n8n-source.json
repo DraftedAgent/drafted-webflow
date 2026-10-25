@@ -1,0 +1,16 @@
+{
+  "checkedDate": "2026-10-25",
+  "installedPackageEquivalenceVerified": false,
+  "files": [
+    {
+      "url": "https://raw.githubusercontent.com/n8n-io/n8n/master/packages/@n8n/nodes-langchain/nodes/vendors/OpenAi/v2/actions/text/response.operation.ts",
+      "sha256": "dd4b27a837b12659d5e4701178f583a6c6584e410341df29d855565bbed336ad",
+      "readOnly": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/n8n-io/n8n/master/packages/@n8n/nodes-langchain/nodes/vendors/OpenAi/v2/actions/text/helpers/responses.ts",
+      "sha256": "a7e2ff61cdccd882d81a2cad9011e7792fba5c7ca355d24e9968352c23b419aa",
+      "readOnly": true
+    }
+  ]
+}

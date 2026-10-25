@@ -1,0 +1,183 @@
+{
+  "phase": "published_verified",
+  "verifiedAtUtc": "2026-10-24T22:51:32.6286351Z",
+  "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+  "workflows": [
+    {
+      "id": "3fy8qAJngSRWzP35",
+      "name": "Editor Rewrite Section",
+      "savedVersionId": "644c0203-e7ca-4be8-b1c8-a1b16bf8b6ef",
+      "activeVersionId": "644c0203-e7ca-4be8-b1c8-a1b16bf8b6ef",
+      "active": true,
+      "phase": "published",
+      "projectionVerified": true,
+      "activeProjectionVerified": true,
+      "projectionSha256": "a19376f27fbe8444e3376775bd45edcee90c2569b98bdefaa6d9094569ced810",
+      "modelNodes": [
+        {
+          "id": "238e6b54-501d-4c89-84bd-c2d0ecfb206d",
+          "name": "SV-EditorRewriteModel",
+          "model": "gpt-6-luna"
+        },
+        {
+          "id": "f52754d0-eb66-4779-92e5-fff6adef6395",
+          "name": "LanguageDetectionModel",
+          "model": "gpt-6-luna"
+        },
+        {
+          "id": "7f696caa-9316-447f-a71e-7eedac47aac5",
+          "name": "EN-EditorRewriteModel",
+          "model": "gpt-6-luna"
+        }
+      ],
+      "guardNodes": [
+        "Luna output - SV-EditorRewriteModel",
+        "Luna output - LanguageDetectionModel",
+        "Luna output - EN-EditorRewriteModel"
+      ]
+    },
+    {
+      "id": "6Bvk0NYcElT9OirH",
+      "name": "Main-UploadPreview",
+      "savedVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a",
+      "activeVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a",
+      "active": true,
+      "phase": "published",
+      "projectionVerified": true,
+      "activeProjectionVerified": true,
+      "projectionSha256": "d5d4314df8115899b34f21327a8c33ee6a3503d844137490596b349f1bb97737",
+      "modelNodes": [
+        {
+          "id": "121e26a6-8f2a-4362-ade9-8dfee9463488",
+          "name": "LanguageDetectionModel",
+          "model": "gpt-6-luna"
+        },
+        {
+          "id": "22f90be5-10a7-4fe0-9565-9578e90328f0",
+          "name": "SV-CVParserModel",
+          "model": "gpt-6-luna"
+        },
+        {
+          "id": "b2c1542c-b7c4-4dd0-9d06-f1ac2e184784",
+          "name": "SV-CVRewriteModel",
+          "model": "gpt-6-luna"
+        },
+        {
+          "id": "1d899474-f37e-4901-bebb-8f975a6be4d1",
+          "name": "EN-CVParserModel1",
+          "model": "gpt-6-luna"
+        },
+        {
+          "id": "6a78d789-7efc-4c0c-ba4d-e049ab3778e2",
+          "name": "EN-CVRewriteModel",
+          "model": "gpt-6-luna"
+        }
+      ],
+      "guardNodes": [
+        "Luna output - LanguageDetectionModel",
+        "Luna output - SV-CVParserModel",
+        "Luna output - SV-CVRewriteModel",
+        "Luna output - EN-CVParserModel1",
+        "Luna output - EN-CVRewriteModel"
+      ]
+    },
+    {
+      "id": "H8oAioy58R1v3PvRe3YUa",
+      "name": "webflow-tailor-CV",
+      "savedVersionId": "c7503539-0e08-4a49-958b-6467aea8d911",
+      "activeVersionId": "c7503539-0e08-4a49-958b-6467aea8d911",
+      "active": true,
+      "phase": "published",
+      "projectionVerified": true,
+      "activeProjectionVerified": true,
+      "projectionSha256": "ed6a152d5c4d596f753dc00be41e1a12d5b87d74534df5bd12e607a51af76baa",
+      "modelNodes": [
+        {
+          "id": "a100ac5d-a861-43fa-ae17-2f2d56f78354",
+          "name": "TailorModel",
+          "model": "gpt-6-luna"
+        },
+        {
+          "id": "tailor-sources-model-v1",
+          "name": "Tailor sources model",
+          "model": "gpt-6-luna"
+        }
+      ],
+      "guardNodes": [
+        "Luna output - TailorModel",
+        "Luna output - Tailor sources model"
+      ]
+    },
+    {
+      "id": "QQGNXYv4hej0HBwc",
+      "name": "Editor Chat",
+      "savedVersionId": "ae916f25-ffac-4b84-8575-d2683ca46862",
+      "activeVersionId": "ae916f25-ffac-4b84-8575-d2683ca46862",
+      "active": true,
+      "phase": "published",
+      "projectionVerified": true,
+      "activeProjectionVerified": true,
+      "projectionSha256": "f040906dff17567ffb8792cf5799e7e71b2b95b60125d280bfe691718bcff94d",
+      "modelNodes": [
+        {
+          "id": "5b31ac7e-3de7-44b4-93dd-23debd78f15e",
+          "name": "AI Chat Model",
+          "model": "gpt-6-luna"
+        }
+      ],
+      "guardNodes": [
+        "Luna output - AI Chat Model"
+      ]
+    },
+    {
+      "id": "ytcb-PU8k9igpv5B7BmX7",
+      "name": "flow-jobcontext-extract",
+      "savedVersionId": "5f91b0bd-f187-4295-a66e-f0d5ce417625",
+      "activeVersionId": "5f91b0bd-f187-4295-a66e-f0d5ce417625",
+      "active": true,
+      "phase": "published",
+      "projectionVerified": true,
+      "activeProjectionVerified": true,
+      "projectionSha256": "1f0d0452e8ba48e062f825679681e74f23de2f4e1caca57a1ca3a5aac9630b79",
+      "modelNodes": [
+        {
+          "id": "15a56d66-182b-4229-8c76-020d05126c51",
+          "name": "JobContextExtractModel",
+          "model": "gpt-6-luna"
+        }
+      ],
+      "guardNodes": [
+        "Luna output - JobContextExtractModel"
+      ]
+    },
+    {
+      "id": "zeIzzxPwD2Y91OyD",
+      "name": "Drafted Experience Discovery v1 (inactive development)",
+      "savedVersionId": "c1188d30-de7e-44a0-9fc3-f148a1929d05",
+      "activeVersionId": "c1188d30-de7e-44a0-9fc3-f148a1929d05",
+      "active": true,
+      "phase": "published",
+      "projectionVerified": true,
+      "activeProjectionVerified": true,
+      "projectionSha256": "1d99b54040e38444a2082a105edc5bc57ffe6a7884d726c35c2e9b6d99fa3591",
+      "modelNodes": [
+        {
+          "id": "9a79bee3-7feb-47aa-a263-3e1f1a9193fc",
+          "name": "Discovery model",
+          "model": "gpt-6-luna"
+        }
+      ],
+      "guardNodes": [
+        "Luna output - Discovery model"
+      ]
+    }
+  ],
+  "modelCount": 13,
+  "modelExecutionsInitiated": 0,
+  "modelPilotRuns": 0,
+  "solFallback": false,
+  "v3Activated": false,
+  "verifierAdded": false,
+  "frontendPublished": false,
+  "pdfExportChanged": false
+}

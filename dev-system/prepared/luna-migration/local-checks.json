@@ -1,0 +1,389 @@
+{
+  "localOnly": true,
+  "externalModelCalls": 0,
+  "workflowWrites": 0,
+  "source": "actual published Code snapshots, prepared exact guard Code and saved synthetic pilot outputs",
+  "checks": [
+    {
+      "name": "Editor Rewrite Section/SV-EditorRewriteModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/SV-EditorRewriteModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/SV-EditorRewriteModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/SV-EditorRewriteModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/SV-EditorRewriteModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/SV-EditorRewriteModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/LanguageDetectionModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/LanguageDetectionModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/LanguageDetectionModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/LanguageDetectionModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/LanguageDetectionModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/LanguageDetectionModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/EN-EditorRewriteModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/EN-EditorRewriteModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/EN-EditorRewriteModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/EN-EditorRewriteModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/EN-EditorRewriteModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/EN-EditorRewriteModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "Editor Rewrite Section/guard reaches all original downstream edges",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/LanguageDetectionModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/LanguageDetectionModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/LanguageDetectionModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/LanguageDetectionModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/LanguageDetectionModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/LanguageDetectionModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVParserModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVParserModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVParserModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVParserModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVParserModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVParserModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVRewriteModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVRewriteModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVRewriteModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVRewriteModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVRewriteModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/SV-CVRewriteModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVParserModel1/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVParserModel1/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVParserModel1/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVParserModel1/refusal",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVParserModel1/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVParserModel1/transport error",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVRewriteModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVRewriteModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVRewriteModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVRewriteModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVRewriteModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/EN-CVRewriteModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "Main-UploadPreview/guard reaches all original downstream edges",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/TailorModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/TailorModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/TailorModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/TailorModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/TailorModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/TailorModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/Tailor sources model/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/Tailor sources model/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/Tailor sources model/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/Tailor sources model/refusal",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/Tailor sources model/invalid text",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/Tailor sources model/transport error",
+      "pass": true
+    },
+    {
+      "name": "webflow-tailor-CV/guard reaches all original downstream edges",
+      "pass": true
+    },
+    {
+      "name": "Editor Chat/AI Chat Model/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Editor Chat/AI Chat Model/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Editor Chat/AI Chat Model/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Editor Chat/AI Chat Model/refusal",
+      "pass": true
+    },
+    {
+      "name": "Editor Chat/AI Chat Model/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Editor Chat/AI Chat Model/transport error",
+      "pass": true
+    },
+    {
+      "name": "Editor Chat/guard reaches all original downstream edges",
+      "pass": true
+    },
+    {
+      "name": "flow-jobcontext-extract/JobContextExtractModel/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "flow-jobcontext-extract/JobContextExtractModel/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "flow-jobcontext-extract/JobContextExtractModel/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "flow-jobcontext-extract/JobContextExtractModel/refusal",
+      "pass": true
+    },
+    {
+      "name": "flow-jobcontext-extract/JobContextExtractModel/invalid text",
+      "pass": true
+    },
+    {
+      "name": "flow-jobcontext-extract/JobContextExtractModel/transport error",
+      "pass": true
+    },
+    {
+      "name": "flow-jobcontext-extract/guard reaches all original downstream edges",
+      "pass": true
+    },
+    {
+      "name": "Drafted Experience Discovery v1 (inactive development)/Discovery model/exact configuration and messages",
+      "pass": true
+    },
+    {
+      "name": "Drafted Experience Discovery v1 (inactive development)/Discovery model/actual Code guard matches shared function",
+      "pass": true
+    },
+    {
+      "name": "Drafted Experience Discovery v1 (inactive development)/Discovery model/token cutoff",
+      "pass": true
+    },
+    {
+      "name": "Drafted Experience Discovery v1 (inactive development)/Discovery model/refusal",
+      "pass": true
+    },
+    {
+      "name": "Drafted Experience Discovery v1 (inactive development)/Discovery model/invalid text",
+      "pass": true
+    },
+    {
+      "name": "Drafted Experience Discovery v1 (inactive development)/Discovery model/transport error",
+      "pass": true
+    },
+    {
+      "name": "Drafted Experience Discovery v1 (inactive development)/guard reaches all original downstream edges",
+      "pass": true
+    },
+    {
+      "name": "unknown language requires context, not English fall-through",
+      "pass": true
+    },
+    {
+      "name": "per-operation defaults have no automatic Sol fallback",
+      "pass": true
+    },
+    {
+      "name": "published upload normalizer/sanitizer/canonical composer sv",
+      "pass": true
+    },
+    {
+      "name": "published upload normalizer/sanitizer/canonical composer en",
+      "pass": true
+    },
+    {
+      "name": "published section rewrite preserves non-selected blocks ",
+      "pass": true
+    },
+    {
+      "name": "published section rewrite preserves non-selected blocks 1",
+      "pass": true
+    },
+    {
+      "name": "published job normalizer and strict contract",
+      "pass": true
+    },
+    {
+      "name": "published advisory chat remains advisory",
+      "pass": true
+    },
+    {
+      "name": "saved six Luna outputs replay unchanged through guard and frozen pilot schema",
+      "pass": true
+    }
+  ],
+  "total": 93,
+  "passed": 93,
+  "failed": [],
+  "limits": [
+    "VM replay is not n8n runtime execution.",
+    "Prepared mock model replies do not measure real Luna content quality.",
+    "Saved Luna replies follow the frozen diagnostic pilot schema, not the active Discovery/Tailor internal formats.",
+    "PDF extraction itself and n8n account/tool permissions are not exercised here."
+  ]
+}

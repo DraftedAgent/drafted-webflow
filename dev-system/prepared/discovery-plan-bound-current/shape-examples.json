@@ -1,0 +1,49 @@
+{
+  "syntheticOnly": true,
+  "wrongContainer": {
+    "containerType": "array",
+    "expectedKeys": [
+      "signal_topPriorities_0",
+      "signal_mustHave_0"
+    ],
+    "actualKeyCount": null,
+    "missingKeys": null,
+    "unexpectedSignalKeys": null,
+    "redactedUnexpectedKeyCount": 0,
+    "omittedUnexpectedSignalKeyCount": 0
+  },
+  "missingAndUnexpected": {
+    "containerType": "object",
+    "expectedKeys": [
+      "signal_topPriorities_0",
+      "signal_mustHave_0"
+    ],
+    "actualKeyCount": 2,
+    "missingKeys": [
+      "signal_mustHave_0"
+    ],
+    "unexpectedSignalKeys": [
+      "signal_mustHave_9"
+    ],
+    "redactedUnexpectedKeyCount": 0,
+    "omittedUnexpectedSignalKeyCount": 0
+  },
+  "freeKeyRedacted": {
+    "containerType": "object",
+    "expectedKeys": [
+      "signal_topPriorities_0",
+      "signal_mustHave_0"
+    ],
+    "actualKeyCount": 3,
+    "missingKeys": [
+      "signal_mustHave_0"
+    ],
+    "unexpectedSignalKeys": [
+      "signal_mustHave_9"
+    ],
+    "redactedUnexpectedKeyCount": 1,
+    "omittedUnexpectedSignalKeyCount": 0
+  },
+  "header": "X-Drafted-Assessment-Shape",
+  "whenNotApplicable": "null"
+}

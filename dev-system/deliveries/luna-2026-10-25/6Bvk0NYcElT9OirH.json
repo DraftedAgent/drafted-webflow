@@ -1,0 +1,87 @@
+{
+  "proof": {
+    "id": "6Bvk0NYcElT9OirH",
+    "name": "Main-UploadPreview",
+    "savedVersionId": "c73b210d-3bac-4750-8753-4530b10fb671",
+    "activeVersionId": "c73b210d-3bac-4750-8753-4530b10fb671",
+    "active": true,
+    "phase": "published",
+    "projectionVerified": true,
+    "activeProjectionVerified": true,
+    "projectionSha256": "c7045b1c9d1bb16239427b4914098116858ddb1ee3197b0526e52997008eb53a",
+    "modelNodes": [
+      {
+        "id": "121e26a6-8f2a-4362-ade9-8dfee9463488",
+        "name": "LanguageDetectionModel",
+        "model": "gpt-6-luna"
+      },
+      {
+        "id": "22f90be5-10a7-4fe0-9565-9578e90328f0",
+        "name": "SV-CVParserModel",
+        "model": "gpt-6-luna"
+      },
+      {
+        "id": "b2c1542c-b7c4-4dd0-9d06-f1ac2e184784",
+        "name": "SV-CVRewriteModel",
+        "model": "gpt-6-luna"
+      },
+      {
+        "id": "1d899474-f37e-4901-bebb-8f975a6be4d1",
+        "name": "EN-CVParserModel1",
+        "model": "gpt-6-luna"
+      },
+      {
+        "id": "6a78d789-7efc-4c0c-ba4d-e049ab3778e2",
+        "name": "EN-CVRewriteModel",
+        "model": "gpt-6-luna"
+      }
+    ],
+    "guardNodes": [
+      "Luna output - LanguageDetectionModel",
+      "Luna output - SV-CVParserModel",
+      "Luna output - SV-CVRewriteModel",
+      "Luna output - EN-CVParserModel1",
+      "Luna output - EN-CVRewriteModel"
+    ]
+  },
+  "preSaveSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T224716697Z__6Bvk0NYcElT9OirH__8c44dfe5-0fb8-4ea8-a25f-81b2f9080485__LUNA-pre-save.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T224716697Z__6Bvk0NYcElT9OirH__8c44dfe5-0fb8-4ea8-a25f-81b2f9080485__LUNA-pre-save.dpapi.manifest.json",
+    "plaintextSha256": "4a4203101a19d219ffa944278d103d5e465faacb5def7ebe89e8d9859b338b97",
+    "verified": true,
+    "workflowId": "6Bvk0NYcElT9OirH",
+    "versionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+    "label": "pre-save",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:47:23.1161678Z"
+  },
+  "savedSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T224723615Z__6Bvk0NYcElT9OirH__c73b210d-3bac-4750-8753-4530b10fb671__LUNA-saved-before-publish.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T224723615Z__6Bvk0NYcElT9OirH__c73b210d-3bac-4750-8753-4530b10fb671__LUNA-saved-before-publish.dpapi.manifest.json",
+    "plaintextSha256": "d4f83279f94f6455cbe21f0c5bb8243cf915e84370d9d5f106fdd8958ccd285b",
+    "verified": true,
+    "workflowId": "6Bvk0NYcElT9OirH",
+    "versionId": "c73b210d-3bac-4750-8753-4530b10fb671",
+    "label": "saved-before-publish",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:47:30.2665772Z"
+  },
+  "postPublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T224730967Z__6Bvk0NYcElT9OirH__c73b210d-3bac-4750-8753-4530b10fb671__LUNA-published.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T224730967Z__6Bvk0NYcElT9OirH__c73b210d-3bac-4750-8753-4530b10fb671__LUNA-published.dpapi.manifest.json",
+    "plaintextSha256": "281e681f00d47ff7888128a1ed00676700c1f929a92b8019faefc17c04dc13ec",
+    "verified": true,
+    "workflowId": "6Bvk0NYcElT9OirH",
+    "versionId": "c73b210d-3bac-4750-8753-4530b10fb671",
+    "label": "published",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:47:38.3680147Z"
+  },
+  "modelExecutionsInitiated": 0
+}

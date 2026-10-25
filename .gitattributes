@@ -1,0 +1,18 @@
+# Preserve exact bytes in hash-locked migration packages and synthetic receipts.
+/migration/** -text whitespace=cr-at-eol
+/evaluation/migration12/** -text whitespace=cr-at-eol
+/dev-system/deliveries/** -text whitespace=cr-at-eol
+/dev-system/prepared/luna-migration/** -text whitespace=cr-at-eol
+/dev-system/prepared/model-migration-12/** -text whitespace=cr-at-eol
+/dev-system/prepared/discovery-inline-fix/** -text whitespace=cr-at-eol
+/dev-system/prepared/discovery-inline-diagnostics/** -text whitespace=cr-at-eol
+/dev-system/prepared/discovery-plan-bound/** -text whitespace=cr-at-eol
+/dev-system/prepared/discovery-plan-bound-current/** -text whitespace=cr-at-eol
+/dev-system/prepared/discovery-rollback-review/** -text whitespace=cr-at-eol
+/dev-system/evaluations/model-migration-12-259c65fd-e2ae-47d1-a664-6c61ab0bd771/** -text whitespace=cr-at-eol
+/tests/discovery-assessment-shape.test.cjs -text whitespace=cr-at-eol
+/tests/discovery-inline-diagnostics.test.cjs -text whitespace=cr-at-eol
+/tests/discovery-inline-proposal.test.cjs -text whitespace=cr-at-eol
+/tests/discovery-plan-bound.test.cjs -text whitespace=cr-at-eol
+/tests/luna-migration.test.cjs -text whitespace=cr-at-eol
+/tests/migration12-run.test.cjs -text whitespace=cr-at-eol

@@ -1,0 +1,16 @@
+'use strict';
+const crypto=require('node:crypto'),config=require('./config.cjs'),guard=require('./guard.cjs');
+const sort=x=>Array.isArray(x)?x.map(sort):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,sort(x[k])])):x;
+const sha=x=>crypto.createHash('sha256').update(typeof x==='string'?x:JSON.stringify(sort(x))).digest('hex');
+const isModel=n=>n.type==='@n8n/n8n-nodes-langchain.openAi';
+const guardName=n=>'Luna output - '+n.name;
+function refString(s,models){for(const n of models){for(const [a,b] of [["$('"+n.name+"')","$('"+guardName(n)+"')"],['$("'+n.name+'")','$("'+guardName(n)+'")'],["$node['"+n.name+"']","$node['"+guardName(n)+"']"],['$node["'+n.name+'"]','$node["'+guardName(n)+'"]']])s=s.split(a).join(b);}return s;}
+function refs(v,models){if(typeof v==='string')return refString(v,models);if(Array.isArray(v))return v.map(x=>refs(x,models));if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).map(([k,x])=>[k,refs(x,models)]));return v;}
+function project(workflow){const w=structuredClone(workflow),models=w.nodes.filter(isModel);for(const n of w.nodes)if(!isModel(n))n.parameters=refs(n.parameters,models);
+ for(const n of models){const s=config.spec(w.id,n);n.parameters.modelId={...n.parameters.modelId,value:s.model,cachedResultName:'GPT-6-LUNA'};n.parameters.options=config.options(n.parameters.options,s);n.parameters.simplify=false;n.retryOnFail=false;
+  const name=guardName(n),g={id:'luna-guard-'+n.id,name,type:'n8n-nodes-base.code',typeVersion:2,position:[(n.position?.[0]||0)+180,n.position?.[1]||0],parameters:{mode:'runOnceForAllItems',jsCode:guard.code(s)}};
+  if(w.nodes.some(x=>x.name===name||x.id===g.id))throw Error('DUPLICATE_MIGRATION');const outgoing=w.connections[n.name];if(!outgoing?.main?.length)throw Error('MODEL_OUTPUT_EDGE_MISSING');w.connections[name]=structuredClone(outgoing);w.connections[n.name]={main:[[{node:name,type:'main',index:0}]]};w.nodes.push(g);
+ }return w;}
+function prepare(current,inventory){const baseline=inventory.workflows.find(w=>w.id===current.id);if(!baseline||!current.active||current.activeVersionId!==baseline.activeVersionId||sha(current.activeVersion?.nodes)!==baseline.publishedNodesSha256||sha(current.activeVersion?.connections)!==baseline.publishedGraphSha256)throw Error('PUBLISHED_BASELINE_CHANGED');if(sha({nodes:current.activeVersion.nodes,connections:current.activeVersion.connections,settings:current.settings})!==baseline.activeProjectionSha256)throw Error('WORKFLOW_SETTINGS_CHANGED');if(current.versionId!==baseline.savedVersionId)throw Error('SAVED_BASELINE_CHANGED');if(sha(current.nodes)!==baseline.publishedNodesSha256||sha(current.connections)!==baseline.publishedGraphSha256)throw Error('UNPUBLISHED_EDIT_REQUIRES_REVIEW');return project({...structuredClone(current),nodes:current.activeVersion.nodes,connections:current.activeVersion.connections});}
+function changes(before,next){return next.nodes.flatMap(n=>{const b=before.nodes.find(x=>x.id===n.id);if(!b)return [{node:n.name,id:n.id,kind:'new_response_guard',parameters:n.parameters}];if(sha(n.parameters)!==sha(b.parameters))return [{node:n.name,id:n.id,kind:isModel(n)?'model_configuration':'guard_reference_update',before:b.parameters,after:n.parameters}];return [];});}
+module.exports={sha,project,prepare,changes,guardName};

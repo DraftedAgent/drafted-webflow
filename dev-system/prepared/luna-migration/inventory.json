@@ -1,0 +1,2111 @@
+{
+  "inspectedAt": "2026-10-24T22:19:53.4739753Z",
+  "source": "fresh GET official n8n management API; activeVersion nodes",
+  "workflowWrites": 0,
+  "modelCalls": 0,
+  "workflows": [
+    {
+      "id": "1A7qi-6lVQ9gf_KNc5ZD3",
+      "name": "webflow-export-pdf",
+      "active": true,
+      "savedVersionId": "31f02be6-c4c3-4bdd-8072-0b8666595612",
+      "activeVersionId": "31f02be6-c4c3-4bdd-8072-0b8666595612",
+      "savedEqualsPublishedNodes": true,
+      "savedEqualsPublishedGraph": true,
+      "activeProjectionSha256": "dd13cb9495415d54aebcde893a385c600b2c2411f7053a72cdba07cfbe097dfb",
+      "savedProjectionSha256": "dd13cb9495415d54aebcde893a385c600b2c2411f7053a72cdba07cfbe097dfb",
+      "publishedNodesSha256": "f2f18cc0713db6aa04375d8c9f7746e0057530d443debcb8186301f7478b6474",
+      "publishedGraphSha256": "70365a031df8eed6df51c3c274d54b4c03f06105fd8c01b51986f5c598049e8b",
+      "models": [],
+      "nonModels": [
+        {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 2.1,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "ValidateExportInput",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1466,
+          "codeSha256": "872a1f8d21ef408d2a4a4eca3242a7884fc321e729e16df8f75be84fd36144c9",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "RenderHtmlClassicV1",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 3861,
+          "codeSha256": "0a2714b927c0bf4da1bab0d7b7c0fe5764995f29e24b40d04038da6daa41517f",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "HTTP Request CustomJS",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 4.3,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Respond to Webhook",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "BuildExportErrorResponse",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 2021,
+          "codeSha256": "d4f32e5257243ce3516bc6c1cec8b15ee5ac380f9bff471962843f4c4dfa53fe",
+          "codeHints": []
+        },
+        {
+          "name": "Respond to Webhook (Error)",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "IF Validate has error?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.3,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "IF Render has error?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.3,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "IF PDF has error?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.3,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "ValidateExportInput",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "ValidateExportInput": {
+          "main": [
+            [
+              {
+                "node": "RenderHtmlClassicV1",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "IF Validate has error?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "RenderHtmlClassicV1": {
+          "main": [
+            [
+              {
+                "node": "HTTP Request CustomJS",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "IF Render has error?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "HTTP Request CustomJS": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "IF PDF has error?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "IF Validate has error?": {
+          "main": [
+            [
+              {
+                "node": "BuildExportErrorResponse",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "RenderHtmlClassicV1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildExportErrorResponse": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook (Error)",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "IF Render has error?": {
+          "main": [
+            [
+              {
+                "node": "BuildExportErrorResponse",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "HTTP Request CustomJS",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "IF PDF has error?": {
+          "main": [
+            [
+              {
+                "node": "BuildExportErrorResponse",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "webhooks": [
+        {
+          "node": "Webhook",
+          "path": "webflow-export-pdf",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "id": "3fy8qAJngSRWzP35",
+      "name": "Editor Rewrite Section",
+      "active": true,
+      "savedVersionId": "39d17aac-c638-48ac-b48f-5f51a99e34e4",
+      "activeVersionId": "fb91e3d1-44a6-4224-a5c5-9ba08b8d1ba4",
+      "savedEqualsPublishedNodes": true,
+      "savedEqualsPublishedGraph": true,
+      "activeProjectionSha256": "243bf2f7cea027a8069292881dad87329495943e4ee961444b0376efc750c96f",
+      "savedProjectionSha256": "243bf2f7cea027a8069292881dad87329495943e4ee961444b0376efc750c96f",
+      "publishedNodesSha256": "2259827ab34ab10e274f2d07e41b540808eecdb54953c2aa789a2f6e3dfb01f8",
+      "publishedGraphSha256": "0aa12ad8458c75d04daef2ca5db017e5a4b2b17cf9240f4fbb9f5931c577897b",
+      "models": [
+        {
+          "id": "238e6b54-501d-4c89-84bd-c2d0ecfb206d",
+          "name": "SV-EditorRewriteModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2.1,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "options": {}
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "e2516550bc4d508a961ee0e49c5e8a4896ea85e425327359cb29cda735ea5031",
+          "messageFields": [
+            "responses"
+          ]
+        },
+        {
+          "id": "f52754d0-eb66-4779-92e5-fff6adef6395",
+          "name": "LanguageDetectionModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "options": {}
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "1618655e776fc5ed5c8edc527e18846e5a3a6546989fe4ec18d5412a2d83abe0",
+          "messageFields": [
+            "responses"
+          ]
+        },
+        {
+          "id": "7f696caa-9316-447f-a71e-7eedac47aac5",
+          "name": "EN-EditorRewriteModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2.1,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "options": {}
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "39b6787ccd7af8efddf8d6df2edf2bd2892541fa59f00406c6331831deb1d654",
+          "messageFields": [
+            "responses"
+          ]
+        }
+      ],
+      "nonModels": [
+        {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 2.1,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Normalize output",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1205,
+          "codeSha256": "85ef81380afd92d5f8510d9cdc8614f71f97c5ff6438026b049e6657961f67f9",
+          "codeHints": [
+            "JSON.parse",
+            "output_text",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Respond to Webhook",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Validation + Normalization",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 3149,
+          "codeSha256": "83c859e2e950afe5e097f2b2b32e21eaebfa37dbf937091aef34530bb2c1538b",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Apply updates + Return main-format",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1499,
+          "codeSha256": "173f91dd6655406d3ac1818573e2296060737d10a6c7eafa0202e603527ffa46",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "If",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Normalize output1",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1205,
+          "codeSha256": "85ef81380afd92d5f8510d9cdc8614f71f97c5ff6438026b049e6657961f67f9",
+          "codeHints": [
+            "JSON.parse",
+            "output_text",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Respond to Webhook1",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Apply updates + Return main-format1",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1499,
+          "codeSha256": "173f91dd6655406d3ac1818573e2296060737d10a6c7eafa0202e603527ffa46",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Merge",
+          "type": "n8n-nodes-base.merge",
+          "typeVersion": 3.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validation + Normalization",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-EditorRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize output": {
+          "main": [
+            [
+              {
+                "node": "Apply updates + Return main-format",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validation + Normalization": {
+          "main": [
+            [
+              {
+                "node": "LanguageDetectionModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Apply updates + Return main-format": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "LanguageDetectionModel": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Normalize output1": {
+          "main": [
+            [
+              {
+                "node": "Apply updates + Return main-format1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Apply updates + Return main-format1": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-EditorRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize output1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "If": {
+          "main": [
+            [
+              {
+                "node": "SV-EditorRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "EN-EditorRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "If",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "webhooks": [
+        {
+          "node": "Webhook",
+          "path": "webflow-editor-rewrite",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "id": "6Bvk0NYcElT9OirH",
+      "name": "Main-UploadPreview",
+      "active": true,
+      "savedVersionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+      "activeVersionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+      "savedEqualsPublishedNodes": true,
+      "savedEqualsPublishedGraph": true,
+      "activeProjectionSha256": "a0ae2c21ff06121107b1519a418c6f5ebf6cc36222b38540d71daeefe0e93216",
+      "savedProjectionSha256": "a0ae2c21ff06121107b1519a418c6f5ebf6cc36222b38540d71daeefe0e93216",
+      "publishedNodesSha256": "bfa2b3a45a3bfed141ec82c98446368dce897575b5b1630560c7174dec0746b4",
+      "publishedGraphSha256": "b5512a0acaf057d816de46b0c8678bdac32b3a85c02e36aa71377dadade5ec09",
+      "models": [
+        {
+          "id": "121e26a6-8f2a-4362-ade9-8dfee9463488",
+          "name": "LanguageDetectionModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "simplify": false,
+            "options": {}
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "adf33e274add661c0017965d9033ffdcd988c977d0b4fc027e58089482be5527",
+          "messageFields": [
+            "responses"
+          ]
+        },
+        {
+          "id": "22f90be5-10a7-4fe0-9565-9578e90328f0",
+          "name": "SV-CVParserModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "simplify": false,
+            "options": {}
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "58c55278f3c4bb728b41aa8d0ee85ab88cfa360fcfae46bc9ae12f308b68d7cb",
+          "messageFields": [
+            "responses"
+          ]
+        },
+        {
+          "id": "b2c1542c-b7c4-4dd0-9d06-f1ac2e184784",
+          "name": "SV-CVRewriteModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "simplify": false,
+            "options": {
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_schema",
+                  "schema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\"cvVersionId\", \"blocks\", \"summaryOfChanges\"],\n  \"properties\": {\n    \"cvVersionId\": { \"type\": \"string\" },\n    \"summaryOfChanges\": { \"type\": \"string\" },\n    \"blocks\": {\n      \"type\": \"array\",\n      \"minItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\"blockId\", \"type\", \"label\", \"order\", \"text\"],\n        \"properties\": {\n          \"blockId\": { \"type\": \"string\" },\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"summary\",\n              \"profileText\",\n              \"experience\",\n              \"education\",\n              \"certifications\",\n              \"skills\",\n              \"languages\",\n              \"otherSections\"\n            ]\n          },\n          \"label\": { \"type\": \"string\" },\n          \"order\": { \"type\": \"number\" },\n          \"text\": { \"type\": \"string\" }\n        }\n      }\n    }\n  }\n}\n",
+                  "strict": true
+                }
+              }
+            }
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "9f48ee394d99a3eea5583303a560945dcf7884f48904f056450cf3569bec9841",
+          "messageFields": [
+            "responses"
+          ]
+        },
+        {
+          "id": "1d899474-f37e-4901-bebb-8f975a6be4d1",
+          "name": "EN-CVParserModel1",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "simplify": false,
+            "options": {}
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "ca63832cfe44c49219c5b931c47b40bc602365963ff6d51bdeb455441a2d23b6",
+          "messageFields": [
+            "responses"
+          ]
+        },
+        {
+          "id": "6a78d789-7efc-4c0c-ba4d-e049ab3778e2",
+          "name": "EN-CVRewriteModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "simplify": false,
+            "options": {
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_schema",
+                  "schema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\"cvVersionId\", \"blocks\", \"summaryOfChanges\"],\n  \"properties\": {\n    \"cvVersionId\": { \"type\": \"string\" },\n    \"summaryOfChanges\": { \"type\": \"string\" },\n    \"blocks\": {\n      \"type\": \"array\",\n      \"minItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\"blockId\", \"type\", \"label\", \"order\", \"text\"],\n        \"properties\": {\n          \"blockId\": { \"type\": \"string\" },\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"summary\",\n              \"profileText\",\n              \"experience\",\n              \"education\",\n              \"certifications\",\n              \"skills\",\n              \"languages\",\n              \"otherSections\"\n            ]\n          },\n          \"label\": { \"type\": \"string\" },\n          \"order\": { \"type\": \"number\" },\n          \"text\": { \"type\": \"string\" }\n        }\n      }\n    }\n  }\n}\n",
+                  "strict": true
+                }
+              }
+            }
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "0e32e5ed952e6e887a465df4ca637d75e28dd361a1a43c66ba9adf93d184908e",
+          "messageFields": [
+            "responses"
+          ]
+        }
+      ],
+      "nonModels": [
+        {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 2.1,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Extract from File",
+          "type": "n8n-nodes-base.extractFromFile",
+          "typeVersion": 1.1,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Edit Fields",
+          "type": "n8n-nodes-base.set",
+          "typeVersion": 3.4,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "If",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Normalize model output",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1569,
+          "codeSha256": "62adb89c99f8f85d36c77ce06fd7067b9e86fc5334ea5cffa3282525e2929114",
+          "codeHints": [
+            "JSON.parse",
+            "output_text",
+            "output[",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Respond to Webhook",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "NormalizeBinary",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 367,
+          "codeSha256": "3131c9b9eddff6861af6c14986ce0faf517b99a0c8e5a3f403d90cfed037c6be",
+          "codeHints": []
+        },
+        {
+          "name": "SV-ExtractParsedCv",
+          "type": "n8n-nodes-base.set",
+          "typeVersion": 3.4,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "EnsureBlocksAndJoin",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 20794,
+          "codeSha256": "0f0e306e03ca4d4b87108a7615a803faf685f5498910546a4d19a88794dc1cee",
+          "codeHints": [
+            "JSON.parse",
+            "blocks"
+          ]
+        },
+        {
+          "name": "BuildResponse",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1517,
+          "codeSha256": "9341160c1785037cca9b8b148790c506229a7cf0b4764a4cc38f4492b0c9bf24",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Merge",
+          "type": "n8n-nodes-base.merge",
+          "typeVersion": 3.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "ValidateAndSanitizeBlocks",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 4553,
+          "codeSha256": "10e2d45ba7f6a005f8bc56b7903b56fdad30f758fa2e114b1bbf5526949a6f94",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Normalize model output1",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1569,
+          "codeSha256": "62adb89c99f8f85d36c77ce06fd7067b9e86fc5334ea5cffa3282525e2929114",
+          "codeHints": [
+            "JSON.parse",
+            "output_text",
+            "output[",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Respond to Webhook1",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "EnsureBlocksAndJoin1",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 21274,
+          "codeSha256": "65e888d56e458407c3211ffcbcd02a325cd5fa0109474b2c02e28bc97d011872",
+          "codeHints": [
+            "JSON.parse",
+            "blocks"
+          ]
+        },
+        {
+          "name": "BuildResponse1",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1517,
+          "codeSha256": "9341160c1785037cca9b8b148790c506229a7cf0b4764a4cc38f4492b0c9bf24",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Merge1",
+          "type": "n8n-nodes-base.merge",
+          "typeVersion": 3.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "ValidateAndSanitizeBlocks1",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 3591,
+          "codeSha256": "ea5b97823a21cda8b3c8fde80f19d24b988a6b64625b8f93744ba1d0daff1a3f",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "EN-ExtractParsedCv",
+          "type": "n8n-nodes-base.set",
+          "typeVersion": 3.4,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "NormalizeBinary",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Extract from File": {
+          "main": [
+            [
+              {
+                "node": "Edit Fields",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Edit Fields": {
+          "main": [
+            [
+              {
+                "node": "LanguageDetectionModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "LanguageDetectionModel": {
+          "main": [
+            [
+              {
+                "node": "If",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "If": {
+          "main": [
+            [
+              {
+                "node": "SV-CVParserModel",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "EN-CVParserModel1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-CVParserModel": {
+          "main": [
+            [
+              {
+                "node": "SV-ExtractParsedCv",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-CVRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize model output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize model output": {
+          "main": [
+            [
+              {
+                "node": "ValidateAndSanitizeBlocks",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Respond to Webhook": {
+          "main": [
+            []
+          ]
+        },
+        "NormalizeBinary": {
+          "main": [
+            [
+              {
+                "node": "Extract from File",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-ExtractParsedCv": {
+          "main": [
+            [
+              {
+                "node": "SV-CVRewriteModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EnsureBlocksAndJoin": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "EnsureBlocksAndJoin",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "ValidateAndSanitizeBlocks": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Normalize model output1": {
+          "main": [
+            [
+              {
+                "node": "ValidateAndSanitizeBlocks1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EnsureBlocksAndJoin1": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse1": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge1": {
+          "main": [
+            [
+              {
+                "node": "EnsureBlocksAndJoin1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "ValidateAndSanitizeBlocks1": {
+          "main": [
+            [
+              {
+                "node": "Merge1",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "EN-CVParserModel1": {
+          "main": [
+            [
+              {
+                "node": "EN-ExtractParsedCv",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-ExtractParsedCv": {
+          "main": [
+            [
+              {
+                "node": "EN-CVRewriteModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-CVRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize model output1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "webhooks": [
+        {
+          "node": "Webhook",
+          "path": "webflow-upload-cv",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "id": "H8oAioy58R1v3PvRe3YUa",
+      "name": "webflow-tailor-CV",
+      "active": true,
+      "savedVersionId": "a5196f17-4ccc-41db-8993-9b6c5fe466dd",
+      "activeVersionId": "a5196f17-4ccc-41db-8993-9b6c5fe466dd",
+      "savedEqualsPublishedNodes": true,
+      "savedEqualsPublishedGraph": true,
+      "activeProjectionSha256": "e6ff225845693f1ce500f165d096edf83d00c11185f69cf79122c1f6baee41de",
+      "savedProjectionSha256": "e6ff225845693f1ce500f165d096edf83d00c11185f69cf79122c1f6baee41de",
+      "publishedNodesSha256": "1380819a06909b8ffe37f4ff788cb9fd8b5a56c4d1bda3df76674766ff524c0a",
+      "publishedGraphSha256": "da511982053b941d22a9cc84e3e609752f8be3e303dea49e6517681a0399f7ec",
+      "models": [
+        {
+          "id": "a100ac5d-a861-43fa-ae17-2f2d56f78354",
+          "name": "TailorModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2.1,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "options": {
+              "maxTokens": 1200,
+              "temperature": 0.2
+            }
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "b50d02a0f9541cf0c357c99220212cf9d76a6fac24d7ebf229954eecad2748c9",
+          "messageFields": [
+            "responses"
+          ]
+        },
+        {
+          "id": "tailor-sources-model-v1",
+          "name": "Tailor sources model",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2.1,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "simplify": false,
+            "options": {
+              "maxTokens": 4000,
+              "temperature": 0.2,
+              "store": false
+            }
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": "continueRegularOutput",
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "4dc1a5f2ca9aad83277d07169d5b0284de765b0c9e573210b78c05914806e9a9",
+          "messageFields": [
+            "responses"
+          ]
+        }
+      ],
+      "nonModels": [
+        {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 2.1,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Validate + Normalize",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 34988,
+          "codeSha256": "8be45bbdfdf14d6695a7639bd17b9a654487b7644f7c6a1e6a0fc0c59770ac0a",
+          "codeHints": [
+            "JSON.parse",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Build Tailor",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 3826,
+          "codeSha256": "0d7fcbc64a4b93910f5a65e2a8ad7c2f64069bbfcd610c3f67722e6edd23acdc",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Normalize Output",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 2069,
+          "codeSha256": "57efcdee60e0984d2dbeea819dc1690492889069dfb3f94e1801e477f8855108",
+          "codeHints": [
+            "JSON.parse",
+            "output_text",
+            "output[",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Deterministic Apply + Canonicalize",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 3473,
+          "codeSha256": "59fa3bbd0a979c7933c1c1ab3cef4b89afb52394e78af73c26979787828ec94b",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "BuildResponse",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 970,
+          "codeSha256": "34161f4160ceeb347067012c8f28e683616e0d48eb6a67165e966f998bb315c1",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Respond to Webhook",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Merge",
+          "type": "n8n-nodes-base.merge",
+          "typeVersion": 3.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Tailor Guard",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 6269,
+          "codeSha256": "faee45312f4e6f1eed4a70da793cbf2351e0c45b3e444476a30a4fabda02765c",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Tailor has answer sources?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Tailor source input valid?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Compose source suggestion",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 35106,
+          "codeSha256": "66f9b8c091477d171defd69afbb7c633176b3edc2966bf1e0aa7c790bd6e7c11",
+          "codeHints": [
+            "JSON.parse",
+            "output_text",
+            "output[",
+            "blocks",
+            "incomplete"
+          ]
+        },
+        {
+          "name": "Respond with source suggestion",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate + Normalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate + Normalize": {
+          "main": [
+            [
+              {
+                "node": "Tailor has answer sources?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build Tailor": {
+          "main": [
+            [
+              {
+                "node": "TailorModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "TailorModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize Output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize Output": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Deterministic Apply + Canonicalize": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "Tailor Guard",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor Guard": {
+          "main": [
+            [
+              {
+                "node": "Deterministic Apply + Canonicalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor has answer sources?": {
+          "main": [
+            [
+              {
+                "node": "Tailor source input valid?",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Build Tailor",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor source input valid?": {
+          "main": [
+            [
+              {
+                "node": "Tailor sources model",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Respond with source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor sources model": {
+          "main": [
+            [
+              {
+                "node": "Compose source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Compose source suggestion": {
+          "main": [
+            [
+              {
+                "node": "Respond with source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "webhooks": [
+        {
+          "node": "Webhook",
+          "path": "tailor-cv",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "id": "QQGNXYv4hej0HBwc",
+      "name": "Editor Chat",
+      "active": true,
+      "savedVersionId": "05267b96-2433-4c2e-965b-31b61358855a",
+      "activeVersionId": "05267b96-2433-4c2e-965b-31b61358855a",
+      "savedEqualsPublishedNodes": true,
+      "savedEqualsPublishedGraph": true,
+      "activeProjectionSha256": "80945fb0cd88729fc6c1eb9a6ffdf1cef684ba3a443964a6622354f5befa5897",
+      "savedProjectionSha256": "80945fb0cd88729fc6c1eb9a6ffdf1cef684ba3a443964a6622354f5befa5897",
+      "publishedNodesSha256": "1e9c13415a39fd497243e3d3f862ba1210b309dcd88ea04749054ddc781319c4",
+      "publishedGraphSha256": "5e37ce67d17bbc777cae1ba37761d62c89f7dd03000cee5fdb64333a9ad15e2d",
+      "models": [
+        {
+          "id": "5b31ac7e-3de7-44b4-93dd-23debd78f15e",
+          "name": "AI Chat Model",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2.1,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "options": {}
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "a83aafc3829d137d278d0066de161b1a5b12497fc557cf739983cc8d30473c78",
+          "messageFields": [
+            "responses"
+          ]
+        }
+      ],
+      "nonModels": [
+        {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 2.1,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Validate + Normalize",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 2836,
+          "codeSha256": "5fc1819559a2f363373a06d936d18f9f4c8f168a7760bc88cd0b6cf6ee1bfbf5",
+          "codeHints": [
+            "JSON.parse",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Build LLM Messages",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 5830,
+          "codeSha256": "b10095a5e0ec0eeec2106878c13485ef58de1ce7e181f4584caf9df337ede589",
+          "codeHints": [
+            "blocks"
+          ]
+        },
+        {
+          "name": "Parse + Build Response",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 2723,
+          "codeSha256": "76eb189c67cd82bbe1157a4e346ec36d98d6ba2b79c1617e516983a1761cbb70",
+          "codeHints": [
+            "JSON.parse",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Respond to Webhook",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Merge",
+          "type": "n8n-nodes-base.merge",
+          "typeVersion": 3.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Debug AI Output Size",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1395,
+          "codeSha256": "b6f808265a6b04d5f445c81256bf104d8401c1dc9e154c8d5c4abc57d10d0ae0",
+          "codeHints": [
+            "JSON.parse",
+            "blocks"
+          ]
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate + Normalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate + Normalize": {
+          "main": [
+            [
+              {
+                "node": "Build LLM Messages",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build LLM Messages": {
+          "main": [
+            [
+              {
+                "node": "AI Chat Model",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "AI Chat Model": {
+          "main": [
+            [
+              {
+                "node": "Debug AI Output Size",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Parse + Build Response": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "Parse + Build Response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Debug AI Output Size": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        }
+      },
+      "webhooks": [
+        {
+          "node": "Webhook",
+          "path": "webflow-chat-cv",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "id": "ytcb-PU8k9igpv5B7BmX7",
+      "name": "flow-jobcontext-extract",
+      "active": true,
+      "savedVersionId": "f308bdb8-5ec5-4db6-a105-faf4c134bec2",
+      "activeVersionId": "f308bdb8-5ec5-4db6-a105-faf4c134bec2",
+      "savedEqualsPublishedNodes": true,
+      "savedEqualsPublishedGraph": true,
+      "activeProjectionSha256": "6b76a9bab55e56541caa0eb797ba60c369ac0a19d22f30dd6052b0bfe9825cc4",
+      "savedProjectionSha256": "6b76a9bab55e56541caa0eb797ba60c369ac0a19d22f30dd6052b0bfe9825cc4",
+      "publishedNodesSha256": "f015f0822485ed82ece8ed72d3ff58c67d073a682fe0da74d5a5249e16e90cfd",
+      "publishedGraphSha256": "fac70f2f3632bcdeb049eac67fa4821487ef666077a34ed7174fb29f48705ebc",
+      "models": [
+        {
+          "id": "15a56d66-182b-4229-8c76-020d05126c51",
+          "name": "JobContextExtractModel",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2.1,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "options": {
+              "temperature": 0.2
+            }
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": null,
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "6183864968916a2210477dd6c76ba64cbd1c302bd9d2732ce173b92ea1c6576e",
+          "messageFields": [
+            "responses"
+          ]
+        }
+      ],
+      "nonModels": [
+        {
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 2.1,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Validation + Normalization",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 367,
+          "codeSha256": "254b2967b2276d6bb3c01fcab485396c3dbe959c7fa66e51025b17312979a3f0",
+          "codeHints": []
+        },
+        {
+          "name": "Normalize Model Output",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 1038,
+          "codeSha256": "4b5cbf7de8316ef51569b9dc704273cba375b6a0d5918b95eb6d997b0c084531",
+          "codeHints": [
+            "output["
+          ]
+        },
+        {
+          "name": "Validate + Enforce Contract",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 6190,
+          "codeSha256": "ad6e2bb8d451527cc73a101e81656d4a444edbf3b6bc03bcd690236c4c7f33bc",
+          "codeHints": [
+            "JSON.parse"
+          ]
+        },
+        {
+          "name": "Respond to Webhook",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.5,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Merge (Combine)",
+          "type": "n8n-nodes-base.merge",
+          "typeVersion": 3.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validation + Normalization",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validation + Normalization": {
+          "main": [
+            [
+              {
+                "node": "JobContextExtractModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge (Combine)",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "JobContextExtractModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize Model Output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize Model Output": {
+          "main": [
+            [
+              {
+                "node": "Merge (Combine)",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Validate + Enforce Contract": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge (Combine)": {
+          "main": [
+            [
+              {
+                "node": "Validate + Enforce Contract",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "webhooks": [
+        {
+          "node": "Webhook",
+          "path": "webflow-jobcontext-extract",
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "id": "zeIzzxPwD2Y91OyD",
+      "name": "Drafted Experience Discovery v1 (inactive development)",
+      "active": true,
+      "savedVersionId": "6336f54e-9913-4976-bd32-78d8508338d5",
+      "activeVersionId": "6336f54e-9913-4976-bd32-78d8508338d5",
+      "savedEqualsPublishedNodes": true,
+      "savedEqualsPublishedGraph": true,
+      "activeProjectionSha256": "a3d028c090cfd2490a37a8070819154e86f308445b7b730889494a4363f203cd",
+      "savedProjectionSha256": "a3d028c090cfd2490a37a8070819154e86f308445b7b730889494a4363f203cd",
+      "publishedNodesSha256": "b71b602274e3ac25c982ba2519547947369e5b22465c5f4c835e62e30239f703",
+      "publishedGraphSha256": "c4db6ec1e528309b4652b29819201b64a491eccf0bf1adab0dbda46a3940dc6b",
+      "models": [
+        {
+          "id": "9a79bee3-7feb-47aa-a263-3e1f1a9193fc",
+          "name": "Discovery model",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 2.1,
+          "parameters": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "options": {
+              "temperature": 0.2,
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_object"
+                }
+              }
+            }
+          },
+          "retryOnFail": false,
+          "maxTries": null,
+          "onError": "continueRegularOutput",
+          "disabled": false,
+          "hasCredentialReference": true,
+          "parameterSha256": "90ff7de4bbc65be92cb6ae1d99c4cc832f72e1e1a00337c02f9d523ad9321df8",
+          "messageFields": [
+            "responses"
+          ]
+        }
+      ],
+      "nonModels": [
+        {
+          "name": "Discovery webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Validate request",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 8656,
+          "codeSha256": "94ca649699205445350cfcc19a3b764ace795b35746f96ba3d13162aec30559f",
+          "codeHints": [
+            "JSON.parse",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Input valid?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 2.2,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        },
+        {
+          "name": "Build discovery prompt",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 35461,
+          "codeSha256": "268a14275cc89d8fcd37cffbc987b354dcb3b00ded769a8ae0c13dea0a32a6a4",
+          "codeHints": [
+            "JSON.parse",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Validate model response",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "codeBytes": 33795,
+          "codeSha256": "4e34a079c280835660a1dbf27f93b82346222c3a49b4fbe841f270670f8d66e0",
+          "codeHints": [
+            "JSON.parse",
+            "output[",
+            "blocks"
+          ]
+        },
+        {
+          "name": "Respond discovery",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1.4,
+          "codeBytes": 0,
+          "codeSha256": null,
+          "codeHints": []
+        }
+      ],
+      "connections": {
+        "Discovery webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate request",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate request": {
+          "main": [
+            [
+              {
+                "node": "Input valid?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Input valid?": {
+          "main": [
+            [
+              {
+                "node": "Build discovery prompt",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Respond discovery",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build discovery prompt": {
+          "main": [
+            [
+              {
+                "node": "Discovery model",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Discovery model": {
+          "main": [
+            [
+              {
+                "node": "Validate model response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate model response": {
+          "main": [
+            [
+              {
+                "node": "Respond discovery",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "webhooks": [
+        {
+          "node": "Discovery webhook",
+          "path": "webflow-experience-discovery",
+          "method": "POST"
+        }
+      ]
+    }
+  ]
+}

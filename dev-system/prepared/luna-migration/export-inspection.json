@@ -1,0 +1,17 @@
+{
+  "workflowId": "1A7qi-6lVQ9gf_KNc5ZD3",
+  "activeVersionId": "31f02be6-c4c3-4bdd-8072-0b8666595612",
+  "source": "read-only active definition",
+  "requests": [
+    {
+      "name": "HTTP Request CustomJS",
+      "type": "n8n-nodes-base.httpRequest",
+      "hasPdfRenderingCode": true,
+      "hasModelCallReferences": false,
+      "endpointOrigin": "https://e.customjs.io"
+    }
+  ],
+  "workflowWrites": 0,
+  "modelCalls": 0,
+  "remoteCustomJSImplementationExecuted": false
+}

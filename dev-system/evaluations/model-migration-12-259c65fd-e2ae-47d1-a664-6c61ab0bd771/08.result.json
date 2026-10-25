@@ -1,0 +1,142 @@
+{
+  "slotId": "discovery-role-support:gpt-6-luna:2",
+  "caseId": "discovery-role-support",
+  "model": "gpt-6-luna",
+  "repeat": 2,
+  "requestSha256": "dd3834cf65072b4e773f19dd92b543d0046f25cdd5f492f495b6aaeaacafb48d",
+  "reservationUSD": 0.001275,
+  "startedAt": "2026-10-24T21:58:14.047Z",
+  "httpStatus": 200,
+  "usage": {
+    "input_tokens": 359,
+    "input_tokens_details": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0
+    },
+    "output_tokens": 63,
+    "output_tokens_details": {
+      "reasoning_tokens": 30
+    },
+    "total_tokens": 422
+  },
+  "costUSD": 0.00006740000000000001,
+  "requestId": "req_f89214cdbb1144fcbac23f22cbe3bbe4",
+  "rawResponseText": "{\n  \"id\": \"resp_05b11ceb9330ae65016add29f6d07087d2a48dca8913a8b47c\",\n  \"object\": \"response\",\n  \"created_at\": 1792879094,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879095,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6-luna\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"rs_05b11ceb9330ae65016add29f7371087d28dfcd5e1fd37ca4e\",\n      \"type\": \"reasoning\",\n      \"content\": [],\n      \"encrypted_content\": \"gAAAAABq3Sn3b-JPT3lAexHLmuEqPDyn6A7xuH08Vu0KV1ZM3W0Itw2boRIMxsz7zZopQGOZ6jaRqy_tNvmqWNQDvuNHdu4W0otkorM6AB3k6eLBtPBtfbqpgJmq1r9SFG_OOGukHhiFs7meY6fxBDJGszVS2uVnqXFE4YN3bPdXXjL1yVsDBbo7rS5upnmrmofP6FFt4xvI0IDYRvvzG0W6g72jrVmDZ5Q9KsOobzyee10ck1vaP69FwbKe_E9AZ5CZq8AQO0Tp0PyYozX9f-668IS3dK_XfSHKXunGeST7BzK23S4iyBKxkJO_pfg9iQ88OSZkYdD3uZ6N8kTW6JTZ2GZjBBctqtu-T3N9zD3rznNQvSEZokhAbOhVUPguFyX0FvZKv34qoYVCxux6hND4O5qEK7aAIaHV2pHG4Gylln2sQCK6WVsXfz-f_2Yy0Bbu3dMeimEyi55ZMCEztJyGQtlmCEI_oBro7wbTy_L-p991O-xbQdyKbQSZooLbhd9BkAFc_sI7B3uSVd2jTE7gLprM0l4bqPILz5UFVATbqPj1YzGKE3sAj8qpApkQbDIJyQvQLXQNXLvxeZEqQxo7Xd68fb-vchCmQJlHEPb9bcCMTKA6rHGGdETqj4AZ4pRqlerZCz0Mf8VIib_pgxg__FfZIsc4n2731Lu-dcJqS4cRjxznL3EAjnxy2D2B_bFwS08uqqkIDL6ln9AbCsRQBr-LiAHrfnUwSYmDvuL84j6OEcZSzF9SfPIqFcGr87T1SFo3hNmkYZ5Vg-CJgjWVtJO7rODCP4eacz8GFPmPkHrh8FRfy_9GMGjyRVwglVbVDV0B-9IertWojHDKGklMbCHiF-61KMXe2DHxebO77hmRFm-BBpVBzPeZYGR7pqPy30ScY1fXUB050d2RFAp8d8l1MLyJ87Ids7jJv17UKELYIN1y8YUAr_cLHNnh7-VaCKGG6ZMPEEB3EShZceHRi0CLxGyvQ2EgXaqU_Z1xd0UNf-alTBzJql1AyOuMU7rqsw-CZ9KxoPGhsubVLTpOp0-yL2F8mymtxP9e_5RXcgab48qaGNtEBRUlzujFhF3KNFsQ_3hnc-BAzM1I23X5CCi4K0D2WjHcVk02HHXKTUd3O_BB34FGRKKYr5tty1Xog373etch7alPORA3L1a_X8w1Bh5UsLe6olwlf97uPjbWhh0y725ggK7MJKsiF0DjZjarMXvIl_a167NFjQf-om-4Z53z2q9d3yP8WmjLXPKviPHGGDkPPHAPOmClpr-q-88rIxV8a5ifVEQW2WawTLGFGB4ZOk6M6huk-uK18tqFwba4qQWhnKAxen2eCJwD23FaXzCZWtZ7G-jOHUYIPFRnuHDlehkX4ZOWw84T1ybw6jGClTjphl7xxwID0w3MBjUDmxacdvDpTtGe2MLSS1ZW1DV8BRRZg50ZfbQJRcYQaSpRfIlOr8Bh52U50sluTgLl3STXp0mLg3Ngsv155QOXIKRNy8wSkohIeOOixImaKGVhD4yKG5E_eL-0653HQoA3j9M8R7AMslZcahoRdrfKOKIqCmdP_7zfZpfBkVk2Rl0wv24HLDvYdBBTqcTMatMfI6ZNmIRgfKySJBU2VYZyRgq7JqnmlZu_EgseW3J_BceXar9Exdz3aUFLwGefstzn5xkA2sOy_Pvi4VfVgHXkVGBOdDG5WJMWJHM2Pa2Gu0v03ANDPbH-0y3_yVNFZNM0oN_h2ZQFSjngCQfisr2ceWHMYdMOh1JBTpcQc2PtYw54iOR9yuQNBWu__efpar_YcAbOlP9c-UwxhELc9UIhxtfo8Xq9H3r3xlukBYYu7e0pWtbgJbMUQu0SjLZBT1uo-8IQ\",\n      \"summary\": []\n    },\n    {\n      \"id\": \"msg_05b11ceb9330ae65016add29f7896087d2bfa1ce35ba17f842\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"assessments\\\":{\\\"s1\\\":{\\\"kind\\\":\\\"question\\\",\\\"question\\\":\\\"Have you led training for external customers?\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 359,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 63,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 30\n    },\n    \"total_tokens\": 422\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+  "envelope": {
+    "id": "resp_05b11ceb9330ae65016add29f6d07087d2a48dca8913a8b47c",
+    "object": "response",
+    "created_at": 1792879094,
+    "status": "completed",
+    "access_programs": null,
+    "background": false,
+    "billing": {
+      "payer": "developer"
+    },
+    "completed_at": 1792879095,
+    "error": null,
+    "frequency_penalty": 0,
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": 1800,
+    "max_tool_calls": null,
+    "model": "gpt-6-luna",
+    "moderation": null,
+    "output": [
+      {
+        "id": "rs_05b11ceb9330ae65016add29f7371087d28dfcd5e1fd37ca4e",
+        "type": "reasoning",
+        "content": [],
+        "encrypted_content": "gAAAAABq3Sn3b-JPT3lAexHLmuEqPDyn6A7xuH08Vu0KV1ZM3W0Itw2boRIMxsz7zZopQGOZ6jaRqy_tNvmqWNQDvuNHdu4W0otkorM6AB3k6eLBtPBtfbqpgJmq1r9SFG_OOGukHhiFs7meY6fxBDJGszVS2uVnqXFE4YN3bPdXXjL1yVsDBbo7rS5upnmrmofP6FFt4xvI0IDYRvvzG0W6g72jrVmDZ5Q9KsOobzyee10ck1vaP69FwbKe_E9AZ5CZq8AQO0Tp0PyYozX9f-668IS3dK_XfSHKXunGeST7BzK23S4iyBKxkJO_pfg9iQ88OSZkYdD3uZ6N8kTW6JTZ2GZjBBctqtu-T3N9zD3rznNQvSEZokhAbOhVUPguFyX0FvZKv34qoYVCxux6hND4O5qEK7aAIaHV2pHG4Gylln2sQCK6WVsXfz-f_2Yy0Bbu3dMeimEyi55ZMCEztJyGQtlmCEI_oBro7wbTy_L-p991O-xbQdyKbQSZooLbhd9BkAFc_sI7B3uSVd2jTE7gLprM0l4bqPILz5UFVATbqPj1YzGKE3sAj8qpApkQbDIJyQvQLXQNXLvxeZEqQxo7Xd68fb-vchCmQJlHEPb9bcCMTKA6rHGGdETqj4AZ4pRqlerZCz0Mf8VIib_pgxg__FfZIsc4n2731Lu-dcJqS4cRjxznL3EAjnxy2D2B_bFwS08uqqkIDL6ln9AbCsRQBr-LiAHrfnUwSYmDvuL84j6OEcZSzF9SfPIqFcGr87T1SFo3hNmkYZ5Vg-CJgjWVtJO7rODCP4eacz8GFPmPkHrh8FRfy_9GMGjyRVwglVbVDV0B-9IertWojHDKGklMbCHiF-61KMXe2DHxebO77hmRFm-BBpVBzPeZYGR7pqPy30ScY1fXUB050d2RFAp8d8l1MLyJ87Ids7jJv17UKELYIN1y8YUAr_cLHNnh7-VaCKGG6ZMPEEB3EShZceHRi0CLxGyvQ2EgXaqU_Z1xd0UNf-alTBzJql1AyOuMU7rqsw-CZ9KxoPGhsubVLTpOp0-yL2F8mymtxP9e_5RXcgab48qaGNtEBRUlzujFhF3KNFsQ_3hnc-BAzM1I23X5CCi4K0D2WjHcVk02HHXKTUd3O_BB34FGRKKYr5tty1Xog373etch7alPORA3L1a_X8w1Bh5UsLe6olwlf97uPjbWhh0y725ggK7MJKsiF0DjZjarMXvIl_a167NFjQf-om-4Z53z2q9d3yP8WmjLXPKviPHGGDkPPHAPOmClpr-q-88rIxV8a5ifVEQW2WawTLGFGB4ZOk6M6huk-uK18tqFwba4qQWhnKAxen2eCJwD23FaXzCZWtZ7G-jOHUYIPFRnuHDlehkX4ZOWw84T1ybw6jGClTjphl7xxwID0w3MBjUDmxacdvDpTtGe2MLSS1ZW1DV8BRRZg50ZfbQJRcYQaSpRfIlOr8Bh52U50sluTgLl3STXp0mLg3Ngsv155QOXIKRNy8wSkohIeOOixImaKGVhD4yKG5E_eL-0653HQoA3j9M8R7AMslZcahoRdrfKOKIqCmdP_7zfZpfBkVk2Rl0wv24HLDvYdBBTqcTMatMfI6ZNmIRgfKySJBU2VYZyRgq7JqnmlZu_EgseW3J_BceXar9Exdz3aUFLwGefstzn5xkA2sOy_Pvi4VfVgHXkVGBOdDG5WJMWJHM2Pa2Gu0v03ANDPbH-0y3_yVNFZNM0oN_h2ZQFSjngCQfisr2ceWHMYdMOh1JBTpcQc2PtYw54iOR9yuQNBWu__efpar_YcAbOlP9c-UwxhELc9UIhxtfo8Xq9H3r3xlukBYYu7e0pWtbgJbMUQu0SjLZBT1uo-8IQ",
+        "summary": []
+      },
+      {
+        "id": "msg_05b11ceb9330ae65016add29f7896087d2bfa1ce35ba17f842",
+        "type": "message",
+        "status": "completed",
+        "content": [
+          {
+            "type": "output_text",
+            "annotations": [],
+            "logprobs": [],
+            "text": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training for external customers?\"}}}"
+          }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+      }
+    ],
+    "parallel_tool_calls": true,
+    "presence_penalty": 0,
+    "previous_response_id": null,
+    "prompt_cache_key": null,
+    "prompt_cache_retention": "24h",
+    "reasoning": {
+      "context": "all_turns",
+      "effort": "low",
+      "mode": "standard",
+      "summary": null
+    },
+    "safety_identifier": null,
+    "service_tier": "default",
+    "store": false,
+    "temperature": 1,
+    "text": {
+      "format": {
+        "type": "json_object"
+      },
+      "verbosity": "medium"
+    },
+    "tool_choice": "auto",
+    "tool_usage": {
+      "image_gen": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 0
+        },
+        "total_tokens": 0
+      },
+      "web_search": {
+        "num_requests": 0
+      }
+    },
+    "tools": [],
+    "top_logprobs": 0,
+    "top_p": 0.98,
+    "truncation": "disabled",
+    "usage": {
+      "input_tokens": 359,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 63,
+      "output_tokens_details": {
+        "reasoning_tokens": 30
+      },
+      "total_tokens": 422
+    },
+    "user": null,
+    "metadata": {}
+  },
+  "actualModel": "gpt-6-luna",
+  "outputText": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training for external customers?\"}}}",
+  "refusals": [],
+  "parsedOutput": {
+    "assessments": {
+      "s1": {
+        "kind": "question",
+        "question": "Have you led training for external customers?"
+      }
+    }
+  },
+  "technicalOutcome": "completed_json",
+  "schemaValid": true,
+  "contentAssessment": "pending_direct_original_review",
+  "durationMs": 1151
+}

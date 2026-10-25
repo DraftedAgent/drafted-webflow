@@ -1,0 +1,10 @@
+{
+  "modelCalls": 0,
+  "externalTraffic": 0,
+  "passed": [
+    "tests/tailor-source-errors.browser.cjs",
+    "tests/tailor-chat-lifecycle.browser.cjs",
+    "tests/discovery-batches.browser.cjs"
+  ],
+  "scope": "Existing frontend behavior with isolated synthetic localhost providers; not a native n8n/Luna integration test."
+}

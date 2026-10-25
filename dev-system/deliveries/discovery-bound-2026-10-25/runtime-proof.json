@@ -1,0 +1,49 @@
+{
+  "syntheticOnly": true,
+  "source": "Existing manual n8n execution log and Discovery plan model output table inspected via UI; no second execution",
+  "savedVersion": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+  "requestId": "schema-smoke-454d3023-6858-425e-9ff1-20ec0db3748e",
+  "modelCalls": 1,
+  "apiResponseId": "resp_07ec922940f28a6d016addf661f8b087d2bf832e8e8f704936",
+  "apiStatus": "completed",
+  "model": "gpt-6-luna",
+  "apiEcho": {
+    "format": "json_schema",
+    "name": "drafted_discovery_plan_bound_1",
+    "strict": true,
+    "assessmentType": "object",
+    "required": [
+      "signal_topPriorities_0",
+      "signal_topPriorities_1",
+      "signal_mustHave_0"
+    ],
+    "additionalProperties": false,
+    "serviceTier": "default",
+    "store": false,
+    "maxOutputTokens": 3000
+  },
+  "usage": {
+    "inputTokens": 953,
+    "outputTokens": 195,
+    "reasoningTokens": 102,
+    "totalTokens": 1148
+  },
+  "httpNodeDurationMs": 3078,
+  "executedModelNode": "Discovery plan model",
+  "originalDiscoveryModelExecuted": false,
+  "successfulNodes": [
+    "Discovery webhook",
+    "Validate request",
+    "Input valid?",
+    "Build discovery prompt",
+    "Discovery planning?",
+    "Discovery plan model",
+    "Luna output - Discovery model",
+    "Validate model response",
+    "Respond discovery"
+  ],
+  "publicHTTPStatus": 200,
+  "publicResponseValidated": true,
+  "semanticQualityEvaluation": false,
+  "ordinaryUserFlowVerified": false
+}

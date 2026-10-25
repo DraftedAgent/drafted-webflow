@@ -1,0 +1,29 @@
+{
+  "localOnly": true,
+  "externalModelCalls": 0,
+  "workflowWrites": 0,
+  "actualPublishedCodeAndGraph": true,
+  "modelTransport": "synthetic in-process only",
+  "checks": [
+    {
+      "name": "actual published planning graph with candidate Luna response guard",
+      "pass": true
+    },
+    {
+      "name": "actual published interpretation graph with candidate Luna response guard",
+      "pass": true
+    },
+    {
+      "name": "actual published Discovery invalid format is not a zero-success",
+      "pass": true
+    },
+    {
+      "name": "actual published Tailor source composer preserves original answers and detached input",
+      "pass": true
+    },
+    {
+      "name": "actual published Tailor unknown source ref rejects without ordinary Tailor fallback",
+      "pass": true
+    }
+  ]
+}

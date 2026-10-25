@@ -1,0 +1,2808 @@
+{
+  "localOnly": true,
+  "workflowWrites": 0,
+  "modelCalls": 0,
+  "plans": [
+    {
+      "workflowId": "3fy8qAJngSRWzP35",
+      "name": "Editor Rewrite Section",
+      "activeVersionId": "fb91e3d1-44a6-4224-a5c5-9ba08b8d1ba4",
+      "beforeGraphSha256": "0aa12ad8458c75d04daef2ca5db017e5a4b2b17cf9240f4fbb9f5931c577897b",
+      "afterGraphSha256": "071a25a0ef3d3fd1c0a59228cc6a1b1452a1d90e01a401e768df0931891d0eab",
+      "changes": [
+        {
+          "node": "SV-EditorRewriteModel",
+          "id": "238e6b54-501d-4c89-84bd-c2d0ecfb206d",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "Du är en professionell CV-redaktör för svenska CV:n.\n\nInput är JSON med:\n- mode: \"blocks\" eller \"full\"\n- instruction: användarens önskemål\n- targetRole: målroll (kan vara tom)\n- blocks: lista av block som ska skrivas om (vid mode=\"blocks\" är detta endast valda block; vid mode=\"full\" är det alla)\nVarje block har: blockId, type, label, order, text (+ ev metadatafält)\n\nRegler:\n- Du får inte hitta på nya fakta, siffror, företag, datum, titlar, verktyg, utbildningar eller certifieringar.\n- Behåll språk, person, tempus och övergripande stil.\n- Ändra endast textfältet i de block du får.\n- Returnera endast ändringar för block som faktiskt behöver ändras.\n\nOutput (ENDAST giltig JSON, ingen annan text):\n{\n  \"updates\": [\n    { \"blockId\": \"…\", \"replacementText\": \"…\" }\n  ]\n}\n\nKrav:\n- updates får bara innehålla blockId som finns i input.blocks\n- replacementText ersätter hela block.text\n- Behåll radbrytningar i replacementText\n"
+                },
+                {
+                  "content": "=Här är input (JSON):\n{{ JSON.stringify($json) }}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {}
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "Du är en professionell CV-redaktör för svenska CV:n.\n\nInput är JSON med:\n- mode: \"blocks\" eller \"full\"\n- instruction: användarens önskemål\n- targetRole: målroll (kan vara tom)\n- blocks: lista av block som ska skrivas om (vid mode=\"blocks\" är detta endast valda block; vid mode=\"full\" är det alla)\nVarje block har: blockId, type, label, order, text (+ ev metadatafält)\n\nRegler:\n- Du får inte hitta på nya fakta, siffror, företag, datum, titlar, verktyg, utbildningar eller certifieringar.\n- Behåll språk, person, tempus och övergripande stil.\n- Ändra endast textfältet i de block du får.\n- Returnera endast ändringar för block som faktiskt behöver ändras.\n\nOutput (ENDAST giltig JSON, ingen annan text):\n{\n  \"updates\": [\n    { \"blockId\": \"…\", \"replacementText\": \"…\" }\n  ]\n}\n\nKrav:\n- updates får bara innehålla blockId som finns i input.blocks\n- replacementText ersätter hela block.text\n- Behåll radbrytningar i replacementText\n"
+                },
+                {
+                  "content": "=Här är input (JSON):\n{{ JSON.stringify($json) }}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 4000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            },
+            "simplify": false
+          }
+        },
+        {
+          "node": "LanguageDetectionModel",
+          "id": "f52754d0-eb66-4779-92e5-fff6adef6395",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "You detect the main language of the given CV text.\n\nRules:\n- If the text is mostly Swedish, output exactly: sv\n- If the text is mostly English, output exactly: en\n- Otherwise, output: unknown\n\nOutput only the language code (sv, en, or unknown) and nothing else.\n"
+                },
+                {
+                  "content": "={{ ($json.blocks || []).map(b => b.text).join('\\n\\n') }}\n"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {}
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "You detect the main language of the given CV text.\n\nRules:\n- If the text is mostly Swedish, output exactly: sv\n- If the text is mostly English, output exactly: en\n- Otherwise, output: unknown\n\nOutput only the language code (sv, en, or unknown) and nothing else.\n"
+                },
+                {
+                  "content": "={{ ($json.blocks || []).map(b => b.text).join('\\n\\n') }}\n"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 256,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            },
+            "simplify": false
+          }
+        },
+        {
+          "node": "If",
+          "id": "f9016d8d-30e0-4797-b3aa-7eb9c19a10ed",
+          "kind": "guard_reference_update",
+          "before": {
+            "conditions": {
+              "options": {
+                "caseSensitive": true,
+                "leftValue": "",
+                "typeValidation": "strict",
+                "version": 2
+              },
+              "conditions": [
+                {
+                  "id": "689de260-189e-44f4-b899-84c74c95084c",
+                  "leftValue": "={{ $('LanguageDetectionModel').item.json.output[0].content[0].text }}",
+                  "rightValue": "sv",
+                  "operator": {
+                    "type": "string",
+                    "operation": "equals",
+                    "name": "filter.operator.equals"
+                  }
+                }
+              ],
+              "combinator": "and"
+            },
+            "options": {}
+          },
+          "after": {
+            "conditions": {
+              "options": {
+                "caseSensitive": true,
+                "leftValue": "",
+                "typeValidation": "strict",
+                "version": 2
+              },
+              "conditions": [
+                {
+                  "id": "689de260-189e-44f4-b899-84c74c95084c",
+                  "leftValue": "={{ $('Luna output - LanguageDetectionModel').item.json.output[0].content[0].text }}",
+                  "rightValue": "sv",
+                  "operator": {
+                    "type": "string",
+                    "operation": "equals",
+                    "name": "filter.operator.equals"
+                  }
+                }
+              ],
+              "combinator": "and"
+            },
+            "options": {}
+          }
+        },
+        {
+          "node": "EN-EditorRewriteModel",
+          "id": "7f696caa-9316-447f-a71e-7eedac47aac5",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "You are a professional CV editor for English CVs.\n\nInput is JSON containing:\n- mode: \"blocks\" or \"full\"\n- instruction: the user’s request\n- targetRole: target role (may be empty)\n- blocks: list of blocks to be rewritten (for mode=\"blocks\" this contains only selected blocks; for mode=\"full\" it contains all blocks)\nEach block includes: blockId, type, label, order, text (+ any metadata fields)\n\nRules:\n- You MUST NOT invent new facts, numbers, employers, dates, titles, tools, educations, or certifications.\n- Preserve language, person, tense, and overall style.\n- Modify ONLY the text field of the blocks you are given.\n- Return updates ONLY for blocks that actually need to change.\n\nOutput (VALID JSON ONLY, no other text):\n{\n  \"updates\": [\n    { \"blockId\": \"…\", \"replacementText\": \"…\" }\n  ]\n}\n\nRequirements:\n- updates may ONLY contain blockIds that exist in input.blocks\n- replacementText replaces the entire block.text\n- Preserve line breaks in replacementText\n"
+                },
+                {
+                  "content": "=Here is the input (JSON):\n{{ JSON.stringify($json) }}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {}
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "You are a professional CV editor for English CVs.\n\nInput is JSON containing:\n- mode: \"blocks\" or \"full\"\n- instruction: the user’s request\n- targetRole: target role (may be empty)\n- blocks: list of blocks to be rewritten (for mode=\"blocks\" this contains only selected blocks; for mode=\"full\" it contains all blocks)\nEach block includes: blockId, type, label, order, text (+ any metadata fields)\n\nRules:\n- You MUST NOT invent new facts, numbers, employers, dates, titles, tools, educations, or certifications.\n- Preserve language, person, tense, and overall style.\n- Modify ONLY the text field of the blocks you are given.\n- Return updates ONLY for blocks that actually need to change.\n\nOutput (VALID JSON ONLY, no other text):\n{\n  \"updates\": [\n    { \"blockId\": \"…\", \"replacementText\": \"…\" }\n  ]\n}\n\nRequirements:\n- updates may ONLY contain blockIds that exist in input.blocks\n- replacementText replaces the entire block.text\n- Preserve line breaks in replacementText\n"
+                },
+                {
+                  "content": "=Here is the input (JSON):\n{{ JSON.stringify($json) }}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 4000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            },
+            "simplify": false
+          }
+        },
+        {
+          "node": "Luna output - SV-EditorRewriteModel",
+          "id": "luna-guard-238e6b54-501d-4c89-84bd-c2d0ecfb206d",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"editor_rewrite_sv\",\"inputTokenBudget\":16000,\"maxOutputTokens\":4000,\"format\":\"json\",\"operationKey\":\"3fy8qAJngSRWzP35:editor_rewrite_sv\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        },
+        {
+          "node": "Luna output - LanguageDetectionModel",
+          "id": "luna-guard-f52754d0-eb66-4779-92e5-fff6adef6395",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"language_detection\",\"inputTokenBudget\":12000,\"maxOutputTokens\":256,\"format\":\"language\",\"operationKey\":\"3fy8qAJngSRWzP35:language_detection\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        },
+        {
+          "node": "Luna output - EN-EditorRewriteModel",
+          "id": "luna-guard-7f696caa-9316-447f-a71e-7eedac47aac5",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"editor_rewrite_en\",\"inputTokenBudget\":16000,\"maxOutputTokens\":4000,\"format\":\"json\",\"operationKey\":\"3fy8qAJngSRWzP35:editor_rewrite_en\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        }
+      ],
+      "connectionsBefore": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validation + Normalization",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-EditorRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize output": {
+          "main": [
+            [
+              {
+                "node": "Apply updates + Return main-format",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validation + Normalization": {
+          "main": [
+            [
+              {
+                "node": "LanguageDetectionModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Apply updates + Return main-format": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "LanguageDetectionModel": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Normalize output1": {
+          "main": [
+            [
+              {
+                "node": "Apply updates + Return main-format1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Apply updates + Return main-format1": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-EditorRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize output1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "If": {
+          "main": [
+            [
+              {
+                "node": "SV-EditorRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "EN-EditorRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "If",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "connectionsAfter": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validation + Normalization",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-EditorRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - SV-EditorRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize output": {
+          "main": [
+            [
+              {
+                "node": "Apply updates + Return main-format",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validation + Normalization": {
+          "main": [
+            [
+              {
+                "node": "LanguageDetectionModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Apply updates + Return main-format": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "LanguageDetectionModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - LanguageDetectionModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize output1": {
+          "main": [
+            [
+              {
+                "node": "Apply updates + Return main-format1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Apply updates + Return main-format1": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-EditorRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - EN-EditorRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "If": {
+          "main": [
+            [
+              {
+                "node": "SV-EditorRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "EN-EditorRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "If",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - SV-EditorRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - LanguageDetectionModel": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Luna output - EN-EditorRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize output1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "workflowId": "6Bvk0NYcElT9OirH",
+      "name": "Main-UploadPreview",
+      "activeVersionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+      "beforeGraphSha256": "b5512a0acaf057d816de46b0c8678bdac32b3a85c02e36aa71377dadade5ec09",
+      "afterGraphSha256": "e01ba6d976b8582c33e94ebe0b2597e0972dd0cb1fa5e5ba5583bb4aca3166a9",
+      "changes": [
+        {
+          "node": "LanguageDetectionModel",
+          "id": "121e26a6-8f2a-4362-ade9-8dfee9463488",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "You detect the main language of the given CV text.\n\nRules:\n- If the text is mostly Swedish, output exactly: sv\n- If the text is mostly English, output exactly: en\n- Otherwise, output: unknown\n\nOutput only the language code (sv, en, or unknown) and nothing else.\n"
+                },
+                {
+                  "content": "={{ $('Edit Fields').item.json.cv_text }}\n"
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {}
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "You detect the main language of the given CV text.\n\nRules:\n- If the text is mostly Swedish, output exactly: sv\n- If the text is mostly English, output exactly: en\n- Otherwise, output: unknown\n\nOutput only the language code (sv, en, or unknown) and nothing else.\n"
+                },
+                {
+                  "content": "={{ $('Edit Fields').item.json.cv_text }}\n"
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 256,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            }
+          }
+        },
+        {
+          "node": "If",
+          "id": "00f2130d-7c76-42bc-877e-3f5066ee016f",
+          "kind": "guard_reference_update",
+          "before": {
+            "conditions": {
+              "options": {
+                "caseSensitive": true,
+                "leftValue": "",
+                "typeValidation": "strict",
+                "version": 2
+              },
+              "conditions": [
+                {
+                  "id": "689de260-189e-44f4-b899-84c74c95084c",
+                  "leftValue": "={{ $('LanguageDetectionModel').item.json.output[0].content[0].text }}",
+                  "rightValue": "sv",
+                  "operator": {
+                    "type": "string",
+                    "operation": "equals",
+                    "name": "filter.operator.equals"
+                  }
+                }
+              ],
+              "combinator": "and"
+            },
+            "options": {}
+          },
+          "after": {
+            "conditions": {
+              "options": {
+                "caseSensitive": true,
+                "leftValue": "",
+                "typeValidation": "strict",
+                "version": 2
+              },
+              "conditions": [
+                {
+                  "id": "689de260-189e-44f4-b899-84c74c95084c",
+                  "leftValue": "={{ $('Luna output - LanguageDetectionModel').item.json.output[0].content[0].text }}",
+                  "rightValue": "sv",
+                  "operator": {
+                    "type": "string",
+                    "operation": "equals",
+                    "name": "filter.operator.equals"
+                  }
+                }
+              ],
+              "combinator": "and"
+            },
+            "options": {}
+          }
+        },
+        {
+          "node": "SV-CVParserModel",
+          "id": "22f90be5-10a7-4fe0-9565-9578e90328f0",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "Du är en noggrann CV-parser som ska strukturera ett svenskt CV till tydlig, korrekt och STABIL JSON-data.\n\nInput:\n- Du får ett textblock som innehåller CV-text (fritt formaterad, ofta med rubriker som \"Erfarenhet\", \"Utbildning\", \"Språk\", etc.).\n- Ignorera target role och profile text om de råkar finnas i input. Du får INTE använda dem som källa till fakta.\n\nHuvudregler:\n- Ignorera layout, typografi och visuell formatering.\n- Identifiera och strukturera endast information som uttryckligen står i CV-texten.\n- Du får INTE hitta på ny information.\n- Om ett värde saknas eller är otydligt: använd null (inte tom sträng).\n- Listor utan innehåll: [].\n- Behåll originalformuleringar exakt i alla *Raw*-fält. Normalisera INTE datum.\n- Returnera ENDAST ett JSON-objekt enligt schema nedan. Inga extra fält, ingen text, ingen markdown.\n\nVIKTIG REGEL – REPARATION AV TRASIG TEXT:\n- Om text innehåller uppenbar bokstavsseparering orsakad av layout- eller PDF-fel (t.ex. \"D IG I TAL IS ER ING\", \"M AS TER OF AR TS\"),\n  ska du återställa texten till korrekt sammansatt ord/fras (t.ex. \"DIGITALISERING\", \"MASTER OF ARTS\").\n- Detta gäller ENDAST när det är entydigt att bokstäverna tillhör samma ord.\n- Behåll originalspråk (svenska förblir svenska, engelska förblir engelska).\n- Ändra INTE betydelse, endast återställ spacing.\n- Om du inte med hög säkerhet kan återställa: behåll originaltexten oförändrad.\n\nVIKTIGT – UTBILDNING: SEPARERA \"degree\" OCH \"program\" KONSISTENT\n\nDefinitioner:\n- degree = examensnivå / grad (själva graden), t.ex.\n  \"Master of Arts\", \"Master of Science\", \"Master of Engineering\",\n  \"Bachelor of Arts\", \"Bachelor of Science\", \"Bachelor of Engineering\",\n  \"Kandidatexamen\", \"Magisterexamen\", \"Masterexamen\",\n  \"Civilingenjörsexamen\", \"Högskoleingenjörsexamen\",\n  \"Doktorsexamen\", \"PhD\", \"Doctorate\".\n- program = programnamn / utbildningsnamn / ämnesområde, t.ex.\n  \"Digital Management\", \"Computer Science\", \"Industriell ekonomi\",\n  \"Accelererat IT Program – C# Utveckling\", \"Business Developer\".\n\nExamen anses \"tydlig\" ENDAST om den matchar någon av dessa prefix (case-insensitive):\n- master of arts, master of science, master of engineering\n- bachelor of arts, bachelor of science, bachelor of engineering\n- ph.d, phd, doktor, doktorsexamen, doctorate\n- kandidatexamen, magisterexamen, masterexamen, civilingenjörsexamen, högskoleingenjörsexamen\n\nHård minimiregel per education-post:\n- För varje education-post måste minst ett av dessa vara ifyllt: institution eller program eller degree.\n- Det är förbjudet att lämna både degree och program null om det finns ett utbildningsnamn i texten.\n\nVIKTIGT – UTBILDNING: SKILJ PÅ \"NAMNRAD\" OCH \"BESKRIVNINGSRADER\"\n\nFör varje education-post ska du tolka posten som en grupp rader:\n\nA) NAMNRAD (första raden i posten)\n- Den innehåller utbildningens namn: antingen\n  1) degree + program, t.ex. \"MASTER OF ARTS, DIGITAL MANAGEMENT\"\n  2) bara program (kurs/bootcamp/utbildningsprogram), t.ex. \"ACCELERERAT IT PROGRAM – C# UTVECKLING\"\n  3) degree + program kan vara på svenska eller engelska.\n\nB) BESKRIVNINGSRADER (rader efter namnraden)\n- Rader som börjar med eller innehåller \"Inriktning:\", \"Fokus:\", \"Specialisering:\", \"Inom:\", \"Kursinnehåll:\", \"Innehåll:\", \"Highlights:\"\n  ska ALLTID hamna i education.descriptionRaw (utan prefixet om prefix finns), ALDRIG i program.\n- Om en rad efter namnraden är en ämneslista (t.ex. flera kommatecken) är det nästan alltid BESKRIVNING, inte programnamn.\n\nHård regel:\n- program får INTE vara en ämneslista.\n  Om program innehåller 2+ kommatecken eller ser ut som en lista av ämnen, behandla det som descriptionRaw och sätt program=null\n  (om du inte uttryckligen ser att det är ett programnamn).\n\nSeparationsregler (följ i ordning):\n1) Reparera trasig text först (se reparationsregeln).\n2) Bestäm NAMNRAD och extrahera degree/program därifrån.\n3) Om NAMNRAD innehåller både degree och program, separera:\n   - \"Master of Arts, Digital Management\" -> degree=\"Master of Arts\", program=\"Digital Management\"\n   - \"Master of Science in Computer Science\" -> degree=\"Master of Science\", program=\"Computer Science\"\n   - \"Kandidatexamen i systemvetenskap\" -> degree=\"Kandidatexamen\", program=\"Systemvetenskap\"\n4) Program får INTE innehålla degree-lik text om det går att separera.\n5) Om posten är en kurs/bootcamp/utbildningsprogram och ingen examensnivå uttryckligen står på NAMNRAD:\n   sätt degree=null och program till NAMNRAD (utbildningens namn).\n   Exempel:\n   - \"ACCELERERAT IT PROGRAM – C# UTVECKLING\" -> degree=null, program=\"Accelererat IT Program – C# Utveckling\"\n   - \"YH-utbildning i ...\" -> degree=null (om \"examen\" inte uttryckligen står), program=\"...\"\n6) Om endast program är tydligt på NAMNRAD: degree=null, program=\"...\"\n7) Om endast degree är tydligt på NAMNRAD: degree=\"...\", program=null\n8) Sätt ALDRIG degree=null om texten tydligt innehåller en degree enligt listan ovan.\n\nPrioriteringsregel:\n- Om NAMNRAD innehåller ett programnamn (t.ex. efter komma eller efter \"in/i\"),\n  då ska program alltid tas därifrån.\n- Du får ALDRIG ta program från en \"Inriktning:\"-rad om NAMNRAD redan gav ett programnamn.\n\nErfarenheter:\n- descriptionRaw: behåll beskrivning som fri text.\n- bulletsRaw: fyll endast om CV:t redan har punktlista eller tydliga separata bullet-liknande rader. Annars [].\n- Om en titel är uppenbart trasig eller meningslös (t.ex. \"D\"): sätt title=null.\n- city/country endast om det uttryckligen står.\n\nSkills:\n- Lägg tekniker/verktyg i skillsRaw.tools.\n- Lägg metodik/domänkunskap i skillsRaw.hard.\n- Soft skills endast om uttryckligen listade.\n\nOther sections:\n- Sektioner som inte passar in i schema ska läggas i otherSections med title och contentRaw (råtext).\n\nOutput:\nSvara med ENBART ett JSON-objekt enligt exakt denna struktur (inga extra fält, ingen text, ingen markdown):\n\n{\n  \"personalInfo\": {\n    \"fullName\": string | null,\n    \"currentTitle\": string | null,\n    \"location\": string | null,\n    \"email\": string | null,\n    \"phone\": string | null,\n    \"otherContacts\": string[]\n  },\n  \"experiences\": [\n    {\n      \"employer\": string | null,\n      \"title\": string | null,\n      \"startDateRaw\": string | null,\n      \"endDateRaw\": string | null,\n      \"city\": string | null,\n      \"country\": string | null,\n      \"descriptionRaw\": string | null,\n      \"bulletsRaw\": string[]\n    }\n  ],\n  \"education\": [\n    {\n      \"institution\": string | null,\n      \"program\": string | null,\n      \"degree\": string | null,\n      \"startDateRaw\": string | null,\n      \"endDateRaw\": string | null,\n      \"descriptionRaw\": string | null\n    }\n  ],\n  \"certifications\": [\n    {\n      \"name\": string | null,\n      \"issuer\": string | null,\n      \"dateRaw\": string | null,\n      \"descriptionRaw\": string | null\n    }\n  ],\n  \"languages\": [\n    {\n      \"name\": string,\n      \"levelRaw\": string | null\n    }\n  ],\n  \"skillsRaw\": {\n    \"hard\": string[],\n    \"soft\": string[],\n    \"tools\": string[]\n  },\n  \"otherSections\": [\n    {\n      \"title\": string,\n      \"contentRaw\": string\n    }\n  ]\n}\n"
+                },
+                {
+                  "content": "=Här är CV:t i råtext. Strukturera endast den här texten till JSON enligt dina instruktioner ovan. Ändra inget innehåll, bara strukturera.\n\nCV:\n{{ $('Edit Fields').item.json.cv_text }}\n"
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {}
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "Du är en noggrann CV-parser som ska strukturera ett svenskt CV till tydlig, korrekt och STABIL JSON-data.\n\nInput:\n- Du får ett textblock som innehåller CV-text (fritt formaterad, ofta med rubriker som \"Erfarenhet\", \"Utbildning\", \"Språk\", etc.).\n- Ignorera target role och profile text om de råkar finnas i input. Du får INTE använda dem som källa till fakta.\n\nHuvudregler:\n- Ignorera layout, typografi och visuell formatering.\n- Identifiera och strukturera endast information som uttryckligen står i CV-texten.\n- Du får INTE hitta på ny information.\n- Om ett värde saknas eller är otydligt: använd null (inte tom sträng).\n- Listor utan innehåll: [].\n- Behåll originalformuleringar exakt i alla *Raw*-fält. Normalisera INTE datum.\n- Returnera ENDAST ett JSON-objekt enligt schema nedan. Inga extra fält, ingen text, ingen markdown.\n\nVIKTIG REGEL – REPARATION AV TRASIG TEXT:\n- Om text innehåller uppenbar bokstavsseparering orsakad av layout- eller PDF-fel (t.ex. \"D IG I TAL IS ER ING\", \"M AS TER OF AR TS\"),\n  ska du återställa texten till korrekt sammansatt ord/fras (t.ex. \"DIGITALISERING\", \"MASTER OF ARTS\").\n- Detta gäller ENDAST när det är entydigt att bokstäverna tillhör samma ord.\n- Behåll originalspråk (svenska förblir svenska, engelska förblir engelska).\n- Ändra INTE betydelse, endast återställ spacing.\n- Om du inte med hög säkerhet kan återställa: behåll originaltexten oförändrad.\n\nVIKTIGT – UTBILDNING: SEPARERA \"degree\" OCH \"program\" KONSISTENT\n\nDefinitioner:\n- degree = examensnivå / grad (själva graden), t.ex.\n  \"Master of Arts\", \"Master of Science\", \"Master of Engineering\",\n  \"Bachelor of Arts\", \"Bachelor of Science\", \"Bachelor of Engineering\",\n  \"Kandidatexamen\", \"Magisterexamen\", \"Masterexamen\",\n  \"Civilingenjörsexamen\", \"Högskoleingenjörsexamen\",\n  \"Doktorsexamen\", \"PhD\", \"Doctorate\".\n- program = programnamn / utbildningsnamn / ämnesområde, t.ex.\n  \"Digital Management\", \"Computer Science\", \"Industriell ekonomi\",\n  \"Accelererat IT Program – C# Utveckling\", \"Business Developer\".\n\nExamen anses \"tydlig\" ENDAST om den matchar någon av dessa prefix (case-insensitive):\n- master of arts, master of science, master of engineering\n- bachelor of arts, bachelor of science, bachelor of engineering\n- ph.d, phd, doktor, doktorsexamen, doctorate\n- kandidatexamen, magisterexamen, masterexamen, civilingenjörsexamen, högskoleingenjörsexamen\n\nHård minimiregel per education-post:\n- För varje education-post måste minst ett av dessa vara ifyllt: institution eller program eller degree.\n- Det är förbjudet att lämna både degree och program null om det finns ett utbildningsnamn i texten.\n\nVIKTIGT – UTBILDNING: SKILJ PÅ \"NAMNRAD\" OCH \"BESKRIVNINGSRADER\"\n\nFör varje education-post ska du tolka posten som en grupp rader:\n\nA) NAMNRAD (första raden i posten)\n- Den innehåller utbildningens namn: antingen\n  1) degree + program, t.ex. \"MASTER OF ARTS, DIGITAL MANAGEMENT\"\n  2) bara program (kurs/bootcamp/utbildningsprogram), t.ex. \"ACCELERERAT IT PROGRAM – C# UTVECKLING\"\n  3) degree + program kan vara på svenska eller engelska.\n\nB) BESKRIVNINGSRADER (rader efter namnraden)\n- Rader som börjar med eller innehåller \"Inriktning:\", \"Fokus:\", \"Specialisering:\", \"Inom:\", \"Kursinnehåll:\", \"Innehåll:\", \"Highlights:\"\n  ska ALLTID hamna i education.descriptionRaw (utan prefixet om prefix finns), ALDRIG i program.\n- Om en rad efter namnraden är en ämneslista (t.ex. flera kommatecken) är det nästan alltid BESKRIVNING, inte programnamn.\n\nHård regel:\n- program får INTE vara en ämneslista.\n  Om program innehåller 2+ kommatecken eller ser ut som en lista av ämnen, behandla det som descriptionRaw och sätt program=null\n  (om du inte uttryckligen ser att det är ett programnamn).\n\nSeparationsregler (följ i ordning):\n1) Reparera trasig text först (se reparationsregeln).\n2) Bestäm NAMNRAD och extrahera degree/program därifrån.\n3) Om NAMNRAD innehåller både degree och program, separera:\n   - \"Master of Arts, Digital Management\" -> degree=\"Master of Arts\", program=\"Digital Management\"\n   - \"Master of Science in Computer Science\" -> degree=\"Master of Science\", program=\"Computer Science\"\n   - \"Kandidatexamen i systemvetenskap\" -> degree=\"Kandidatexamen\", program=\"Systemvetenskap\"\n4) Program får INTE innehålla degree-lik text om det går att separera.\n5) Om posten är en kurs/bootcamp/utbildningsprogram och ingen examensnivå uttryckligen står på NAMNRAD:\n   sätt degree=null och program till NAMNRAD (utbildningens namn).\n   Exempel:\n   - \"ACCELERERAT IT PROGRAM – C# UTVECKLING\" -> degree=null, program=\"Accelererat IT Program – C# Utveckling\"\n   - \"YH-utbildning i ...\" -> degree=null (om \"examen\" inte uttryckligen står), program=\"...\"\n6) Om endast program är tydligt på NAMNRAD: degree=null, program=\"...\"\n7) Om endast degree är tydligt på NAMNRAD: degree=\"...\", program=null\n8) Sätt ALDRIG degree=null om texten tydligt innehåller en degree enligt listan ovan.\n\nPrioriteringsregel:\n- Om NAMNRAD innehåller ett programnamn (t.ex. efter komma eller efter \"in/i\"),\n  då ska program alltid tas därifrån.\n- Du får ALDRIG ta program från en \"Inriktning:\"-rad om NAMNRAD redan gav ett programnamn.\n\nErfarenheter:\n- descriptionRaw: behåll beskrivning som fri text.\n- bulletsRaw: fyll endast om CV:t redan har punktlista eller tydliga separata bullet-liknande rader. Annars [].\n- Om en titel är uppenbart trasig eller meningslös (t.ex. \"D\"): sätt title=null.\n- city/country endast om det uttryckligen står.\n\nSkills:\n- Lägg tekniker/verktyg i skillsRaw.tools.\n- Lägg metodik/domänkunskap i skillsRaw.hard.\n- Soft skills endast om uttryckligen listade.\n\nOther sections:\n- Sektioner som inte passar in i schema ska läggas i otherSections med title och contentRaw (råtext).\n\nOutput:\nSvara med ENBART ett JSON-objekt enligt exakt denna struktur (inga extra fält, ingen text, ingen markdown):\n\n{\n  \"personalInfo\": {\n    \"fullName\": string | null,\n    \"currentTitle\": string | null,\n    \"location\": string | null,\n    \"email\": string | null,\n    \"phone\": string | null,\n    \"otherContacts\": string[]\n  },\n  \"experiences\": [\n    {\n      \"employer\": string | null,\n      \"title\": string | null,\n      \"startDateRaw\": string | null,\n      \"endDateRaw\": string | null,\n      \"city\": string | null,\n      \"country\": string | null,\n      \"descriptionRaw\": string | null,\n      \"bulletsRaw\": string[]\n    }\n  ],\n  \"education\": [\n    {\n      \"institution\": string | null,\n      \"program\": string | null,\n      \"degree\": string | null,\n      \"startDateRaw\": string | null,\n      \"endDateRaw\": string | null,\n      \"descriptionRaw\": string | null\n    }\n  ],\n  \"certifications\": [\n    {\n      \"name\": string | null,\n      \"issuer\": string | null,\n      \"dateRaw\": string | null,\n      \"descriptionRaw\": string | null\n    }\n  ],\n  \"languages\": [\n    {\n      \"name\": string,\n      \"levelRaw\": string | null\n    }\n  ],\n  \"skillsRaw\": {\n    \"hard\": string[],\n    \"soft\": string[],\n    \"tools\": string[]\n  },\n  \"otherSections\": [\n    {\n      \"title\": string,\n      \"contentRaw\": string\n    }\n  ]\n}\n"
+                },
+                {
+                  "content": "=Här är CV:t i råtext. Strukturera endast den här texten till JSON enligt dina instruktioner ovan. Ändra inget innehåll, bara strukturera.\n\nCV:\n{{ $('Edit Fields').item.json.cv_text }}\n"
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 6000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            }
+          }
+        },
+        {
+          "node": "SV-CVRewriteModel",
+          "id": "b2c1542c-b7c4-4dd0-9d06-f1ac2e184784",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "content": "Du är en CV-redigeringsmodell för SVENSKA CV:n i alla roller och branscher.\n\nInput:\n- targetRole: användarens måltjänst (text).\n- parsedCvJson: strukturerad CV-data (sanningen).\n\nOFÖRHANDLINGSBARA REGLER:\n1) parsedCvJson är sanningen.\n   - Du får INTE hitta på nya titlar, företag, datum, siffror, tekniker, ansvar, utbildningar eller projekt.\n2) Erfarenheter (experiences) behåller exakt samma ordning som parsedCvJson.experiences.\n3) Du ska skapa EXAKT ett \"experience\"-block per item i parsedCvJson.experiences.\n   - Ingen sammanslagning, ingen uppdelning.\n4) Varje \"experience\"-block MÅSTE innehålla följande fält på toppnivå:\n   - \"employer\": exakt värde från parsedCvJson (eller tom sträng om det saknas).\n   - \"title\": exakt värde från parsedCvJson (eller tom sträng om det saknas).\n   - \"startDate\": exakt värde från parsedCvJson (eller tom sträng om det saknas).\n   - \"endDate\": exakt värde från parsedCvJson. Om parsedCvJson säger att rollen är pågående och saknar slutdatum, använd strängen \"Nuvarande\".\n   Dessa fält får inte utelämnas i något experience-block.\n5) \"text\" i ett experience-block får INTE upprepa employer/title/period.\n   - Texten ska direkt bestå av bullets om vad kandidaten gjort och uppnått.\n6) Du får inte ändra antalet experiences, utbildningar, skills, languages eller certifications jämfört med parsedCvJson.\n\nKRITISK NO-LEAK REGEL (gäller ALLA blocks.text):\n- Inget blocks.text får innehålla metadata-rader eller nyckel-värde rader.\n- Följande är FÖRBJUDET att skriva någonstans i text:\n  \"employer:\", \"title:\", \"startDate:\", \"endDate:\", \"degree:\", \"program:\", \"institution:\", \"order:\", \"type:\", \"label:\", \"blockId:\"\n- Du får inte skriva rubriker som ser ut som datafält. Inga rader som börjar med någon av ovan nycklar följt av \":\".\n\nMÅL:\n- Göra CV:t mer senioritetsstarkt, affärsrelevant och lättskummat.\n- Tydliggöra ägarskap, ansvar, beslut och resultat.\n- Anpassa språk och prioriteringar mot targetRole utan att manipulera fakta.\n\nSTIL:\n- Kort, aktivt, konkret svenska.\n- Undvik subjektiva värdeord utan stöd (“fantastisk”, “mycket bra”).\n- Om parsedCvJson antyder effekt men saknar siffror: beskriv effekten generellt (t.ex. “förbättrad tydlighet”, “minskat manuellt arbete”) utan att hitta på tal.\n- Använd endast placeholders som [X] om parsedCvJson uttryckligen säger att en mätbar effekt finns men saknar siffra.\n\nMETA-REGLER FÖR ALL TEXT:\n- All text (summary, experience, education, skills, languages, certifications) ska skrivas som färdig CV-text.\n- Du får INTE skriva om:\n  - reglerna i denna prompt\n  - modellen, JSON, parsedCvJson, \"output\" eller \"denna text\"\n- Inga meta-kommentarer eller resonemang i texten (inga \"OBS\", inga \"ej i texten\", inga hänvisningar till regler).\n- Skriv som om du formaterar ett färdigt CV åt en kandidat, inte som ett analysdokument.\n\nSTRUKTUR PER EXPERIENCE (\"text\"):\n- 3–6 bullets (inte fler än 6).\n- Bullets ska täcka (när information finns i parsedCvJson):\n  - Scope/ansvar (ägarskap, team, budget, roadmap, stakeholders).\n  - Nyckelinitiativ (vad kandidaten faktiskt gjorde).\n  - Resultat/effekt (utan påhitt).\n  - Samarbete/ledarskap (tvärfunktionellt, kunder, interna intressenter).\n- Om parsedCvJson har tydliga projekt/initiativ: gör en bullet per initiativ där det är rimligt.\n\nBLOCKS OCH ORDNING (order med steg om 10):\n  10: summary (ALLTID om parsedCvJson innehåller någon experience eller profileText – gör en kort, sanningsenlig sammanfattning)\n  20: profileText (om finns)\n  30–: experiences (i exakt samma ordning som parsedCvJson.experiences)\n  200–: education (en block per utbildning)\n  220: certifications (om finns)\n  240: skills\n  260: languages\n  280–: otherSections\n\nLABELS (MÅSTE vara svenska och EXAKT dessa värden):\n- summary: \"Sammanfattning\"\n- profileText: \"Profil\"\n- experience: \"Erfarenheter\"\n- education: \"Utbildning\"\n- certifications: \"Certifieringar\"\n- skills: \"Kompetenser\"\n- languages: \"Språk\"\n- otherSections: \"Övrigt\"\n\nSUMMARY:\n- Du SKA skapa ett \"summary\"-block om parsedCvJson innehåller minst en experience eller profileText.\n- Blocket ska ha:\n  - \"type\": \"summary\"\n  - \"label\": \"Sammanfattning\"\n  - \"order\": 10\n  - \"text\": 3–6 meningar som sammanfattar kandidatens profil, styrkor och fokus kopplat till targetRole.\n- Ingen upprepning av ren kontaktinfo i summary.\n\nUTBILDNING (education):\n- Om parsedCvJson har flera utbildningar ska du skapa EXAKT ett \"education\"-block per utbildningspost.\n- Du får INTE slå ihop flera utbildningar till ett enda textblock.\n- Varje education-block ska ha dessa fält på toppnivå (om datan finns i parsedCvJson):\n  - \"type\": \"education\"\n  - \"label\": \"Utbildning\"\n  - \"order\": stigande (t.ex. 200, 210, 220…)\n  - \"degree\": exakt grad/titel från parsedCvJson (eller tom sträng om saknas).\n  - \"program\": exakt program/inriktning från parsedCvJson (eller tom sträng om saknas).\n  - \"institution\": exakt namn på skola/universitet från parsedCvJson (eller tom sträng om saknas).\n  - \"startDate\": exakt startdatum/raw (t.ex. \"Aug 2020\") eller tom sträng om saknas.\n  - \"endDate\": exakt slutdatum/raw (t.ex. \"Jan 2022\") eller \"Nuvarande\" om utbildningen pågår.\n  - \"text\": ENDAST en kort beskrivning/inriktning för utbildningen.\n\nHÅRDA REGLER FÖR education.text:\n- \"text\" får INTE upprepa \"degree\", \"program\", \"institution\" eller datum/period.\n- \"text\" ska vara 1–2 meningar, max 3.\n- \"text\" får INTE innehålla förbjudna nyckel-rader (se NO-LEAK).\n\nSKILLS / LANGUAGES / CERTIFICATIONS:\n- \"skills\": lista relevanta hard skills, soft skills och verktyg från parsedCvJson (utan att hitta på nya tekniker).\n- \"languages\": lista språk och nivåer som i parsedCvJson.\n- \"certifications\": lista certifieringar som i parsedCvJson.\n\nOUTPUT (endast JSON, ingen text utanför):\n\n{\n  \"cvVersionId\": \"cv_v1\",\n  \"cvTitle\": \"\",\n  \"blocks\": [\n    {\n      \"blockId\": \"experience_00_ab12cd\",\n      \"type\": \"experience\",\n      \"label\": \"Erfarenheter\",\n      \"order\": 30,\n      \"employer\": \"\",\n      \"title\": \"\",\n      \"startDate\": \"\",\n      \"endDate\": \"\",\n      \"text\": \"• Bullet...\\n• Bullet...\"\n    }\n  ],\n  \"summaryOfChanges\": \"3–6 meningar som beskriver förbättringarna\"\n}\n\nblockId-regel:\n- blockId = \"<type>_<index>_<hash6>\"\n- index = 00, 01, 02, ...\n- hash6 = 6 tecken baserat på blockets identitet:\n  - experiences: hash på employer + title + startDate + endDate\n  - education: hash på institution + degree + startDate + endDate\n  - övriga: hash på type + label\n- Om du är osäker på hash: följ ändå formatet; backend kan ersätta värdet senare.\n\nSLUTKONTROLL (tyst, innan output):\n- Skanna varje blocks.text: ta bort rader som börjar med förbjudna nycklar (t.ex. \"employer:\").\n- Säkerställ att experience.text inte innehåller employer/title/datum.\n- Säkerställ att education.text inte innehåller degree/program/institution/datum.\n- Säkerställ att label följer LABELS-listan ovan (svenska, exakt stavning).\n"
+                },
+                {
+                  "content": "=Jobbkontext (read-only):\n{{ JSON.stringify($json.jobContext?.signals || {}, null, 2) }}\n\nUträknad målroll (för referens):\n{{ ($json.jobContext && $json.jobContext.signals && $json.jobContext.signals.roleTitle) ? $json.jobContext.signals.roleTitle : ($json.target_role || \"Product Manager\") }}\n\nRegler:\n- Använd jobContext ENDAST för att prioritera och formulera innehåll (nyckelord, seniority, ansvar).\n- Hitta inte på erfarenheter eller resultat.\n- Ändra inte blockId-logik eller ordering (hanteras av EnsureBlocksAndJoin).\n- Om jobContext är tomt: utgå endast från target_role.\n\nparsedCvJson (som text):\n{{ $json.parsedCvJson }}\n\nUppgift:\nSkriv en omarbetad version av CV:t som blockbaserat innehåll, riktad mot den uträknade målrollen ovan.\nAnvänd en tydlig Problem → Åtgärd → Resultat → Lärdom-struktur där det passar.\nFölj systeminstruktionerna exakt."
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_schema",
+                  "schema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\"cvVersionId\", \"blocks\", \"summaryOfChanges\"],\n  \"properties\": {\n    \"cvVersionId\": { \"type\": \"string\" },\n    \"summaryOfChanges\": { \"type\": \"string\" },\n    \"blocks\": {\n      \"type\": \"array\",\n      \"minItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\"blockId\", \"type\", \"label\", \"order\", \"text\"],\n        \"properties\": {\n          \"blockId\": { \"type\": \"string\" },\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"summary\",\n              \"profileText\",\n              \"experience\",\n              \"education\",\n              \"certifications\",\n              \"skills\",\n              \"languages\",\n              \"otherSections\"\n            ]\n          },\n          \"label\": { \"type\": \"string\" },\n          \"order\": { \"type\": \"number\" },\n          \"text\": { \"type\": \"string\" }\n        }\n      }\n    }\n  }\n}\n",
+                  "strict": true
+                }
+              }
+            }
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "content": "Du är en CV-redigeringsmodell för SVENSKA CV:n i alla roller och branscher.\n\nInput:\n- targetRole: användarens måltjänst (text).\n- parsedCvJson: strukturerad CV-data (sanningen).\n\nOFÖRHANDLINGSBARA REGLER:\n1) parsedCvJson är sanningen.\n   - Du får INTE hitta på nya titlar, företag, datum, siffror, tekniker, ansvar, utbildningar eller projekt.\n2) Erfarenheter (experiences) behåller exakt samma ordning som parsedCvJson.experiences.\n3) Du ska skapa EXAKT ett \"experience\"-block per item i parsedCvJson.experiences.\n   - Ingen sammanslagning, ingen uppdelning.\n4) Varje \"experience\"-block MÅSTE innehålla följande fält på toppnivå:\n   - \"employer\": exakt värde från parsedCvJson (eller tom sträng om det saknas).\n   - \"title\": exakt värde från parsedCvJson (eller tom sträng om det saknas).\n   - \"startDate\": exakt värde från parsedCvJson (eller tom sträng om det saknas).\n   - \"endDate\": exakt värde från parsedCvJson. Om parsedCvJson säger att rollen är pågående och saknar slutdatum, använd strängen \"Nuvarande\".\n   Dessa fält får inte utelämnas i något experience-block.\n5) \"text\" i ett experience-block får INTE upprepa employer/title/period.\n   - Texten ska direkt bestå av bullets om vad kandidaten gjort och uppnått.\n6) Du får inte ändra antalet experiences, utbildningar, skills, languages eller certifications jämfört med parsedCvJson.\n\nKRITISK NO-LEAK REGEL (gäller ALLA blocks.text):\n- Inget blocks.text får innehålla metadata-rader eller nyckel-värde rader.\n- Följande är FÖRBJUDET att skriva någonstans i text:\n  \"employer:\", \"title:\", \"startDate:\", \"endDate:\", \"degree:\", \"program:\", \"institution:\", \"order:\", \"type:\", \"label:\", \"blockId:\"\n- Du får inte skriva rubriker som ser ut som datafält. Inga rader som börjar med någon av ovan nycklar följt av \":\".\n\nMÅL:\n- Göra CV:t mer senioritetsstarkt, affärsrelevant och lättskummat.\n- Tydliggöra ägarskap, ansvar, beslut och resultat.\n- Anpassa språk och prioriteringar mot targetRole utan att manipulera fakta.\n\nSTIL:\n- Kort, aktivt, konkret svenska.\n- Undvik subjektiva värdeord utan stöd (“fantastisk”, “mycket bra”).\n- Om parsedCvJson antyder effekt men saknar siffror: beskriv effekten generellt (t.ex. “förbättrad tydlighet”, “minskat manuellt arbete”) utan att hitta på tal.\n- Använd endast placeholders som [X] om parsedCvJson uttryckligen säger att en mätbar effekt finns men saknar siffra.\n\nMETA-REGLER FÖR ALL TEXT:\n- All text (summary, experience, education, skills, languages, certifications) ska skrivas som färdig CV-text.\n- Du får INTE skriva om:\n  - reglerna i denna prompt\n  - modellen, JSON, parsedCvJson, \"output\" eller \"denna text\"\n- Inga meta-kommentarer eller resonemang i texten (inga \"OBS\", inga \"ej i texten\", inga hänvisningar till regler).\n- Skriv som om du formaterar ett färdigt CV åt en kandidat, inte som ett analysdokument.\n\nSTRUKTUR PER EXPERIENCE (\"text\"):\n- 3–6 bullets (inte fler än 6).\n- Bullets ska täcka (när information finns i parsedCvJson):\n  - Scope/ansvar (ägarskap, team, budget, roadmap, stakeholders).\n  - Nyckelinitiativ (vad kandidaten faktiskt gjorde).\n  - Resultat/effekt (utan påhitt).\n  - Samarbete/ledarskap (tvärfunktionellt, kunder, interna intressenter).\n- Om parsedCvJson har tydliga projekt/initiativ: gör en bullet per initiativ där det är rimligt.\n\nBLOCKS OCH ORDNING (order med steg om 10):\n  10: summary (ALLTID om parsedCvJson innehåller någon experience eller profileText – gör en kort, sanningsenlig sammanfattning)\n  20: profileText (om finns)\n  30–: experiences (i exakt samma ordning som parsedCvJson.experiences)\n  200–: education (en block per utbildning)\n  220: certifications (om finns)\n  240: skills\n  260: languages\n  280–: otherSections\n\nLABELS (MÅSTE vara svenska och EXAKT dessa värden):\n- summary: \"Sammanfattning\"\n- profileText: \"Profil\"\n- experience: \"Erfarenheter\"\n- education: \"Utbildning\"\n- certifications: \"Certifieringar\"\n- skills: \"Kompetenser\"\n- languages: \"Språk\"\n- otherSections: \"Övrigt\"\n\nSUMMARY:\n- Du SKA skapa ett \"summary\"-block om parsedCvJson innehåller minst en experience eller profileText.\n- Blocket ska ha:\n  - \"type\": \"summary\"\n  - \"label\": \"Sammanfattning\"\n  - \"order\": 10\n  - \"text\": 3–6 meningar som sammanfattar kandidatens profil, styrkor och fokus kopplat till targetRole.\n- Ingen upprepning av ren kontaktinfo i summary.\n\nUTBILDNING (education):\n- Om parsedCvJson har flera utbildningar ska du skapa EXAKT ett \"education\"-block per utbildningspost.\n- Du får INTE slå ihop flera utbildningar till ett enda textblock.\n- Varje education-block ska ha dessa fält på toppnivå (om datan finns i parsedCvJson):\n  - \"type\": \"education\"\n  - \"label\": \"Utbildning\"\n  - \"order\": stigande (t.ex. 200, 210, 220…)\n  - \"degree\": exakt grad/titel från parsedCvJson (eller tom sträng om saknas).\n  - \"program\": exakt program/inriktning från parsedCvJson (eller tom sträng om saknas).\n  - \"institution\": exakt namn på skola/universitet från parsedCvJson (eller tom sträng om saknas).\n  - \"startDate\": exakt startdatum/raw (t.ex. \"Aug 2020\") eller tom sträng om saknas.\n  - \"endDate\": exakt slutdatum/raw (t.ex. \"Jan 2022\") eller \"Nuvarande\" om utbildningen pågår.\n  - \"text\": ENDAST en kort beskrivning/inriktning för utbildningen.\n\nHÅRDA REGLER FÖR education.text:\n- \"text\" får INTE upprepa \"degree\", \"program\", \"institution\" eller datum/period.\n- \"text\" ska vara 1–2 meningar, max 3.\n- \"text\" får INTE innehålla förbjudna nyckel-rader (se NO-LEAK).\n\nSKILLS / LANGUAGES / CERTIFICATIONS:\n- \"skills\": lista relevanta hard skills, soft skills och verktyg från parsedCvJson (utan att hitta på nya tekniker).\n- \"languages\": lista språk och nivåer som i parsedCvJson.\n- \"certifications\": lista certifieringar som i parsedCvJson.\n\nOUTPUT (endast JSON, ingen text utanför):\n\n{\n  \"cvVersionId\": \"cv_v1\",\n  \"cvTitle\": \"\",\n  \"blocks\": [\n    {\n      \"blockId\": \"experience_00_ab12cd\",\n      \"type\": \"experience\",\n      \"label\": \"Erfarenheter\",\n      \"order\": 30,\n      \"employer\": \"\",\n      \"title\": \"\",\n      \"startDate\": \"\",\n      \"endDate\": \"\",\n      \"text\": \"• Bullet...\\n• Bullet...\"\n    }\n  ],\n  \"summaryOfChanges\": \"3–6 meningar som beskriver förbättringarna\"\n}\n\nblockId-regel:\n- blockId = \"<type>_<index>_<hash6>\"\n- index = 00, 01, 02, ...\n- hash6 = 6 tecken baserat på blockets identitet:\n  - experiences: hash på employer + title + startDate + endDate\n  - education: hash på institution + degree + startDate + endDate\n  - övriga: hash på type + label\n- Om du är osäker på hash: följ ändå formatet; backend kan ersätta värdet senare.\n\nSLUTKONTROLL (tyst, innan output):\n- Skanna varje blocks.text: ta bort rader som börjar med förbjudna nycklar (t.ex. \"employer:\").\n- Säkerställ att experience.text inte innehåller employer/title/datum.\n- Säkerställ att education.text inte innehåller degree/program/institution/datum.\n- Säkerställ att label följer LABELS-listan ovan (svenska, exakt stavning).\n"
+                },
+                {
+                  "content": "=Jobbkontext (read-only):\n{{ JSON.stringify($json.jobContext?.signals || {}, null, 2) }}\n\nUträknad målroll (för referens):\n{{ ($json.jobContext && $json.jobContext.signals && $json.jobContext.signals.roleTitle) ? $json.jobContext.signals.roleTitle : ($json.target_role || \"Product Manager\") }}\n\nRegler:\n- Använd jobContext ENDAST för att prioritera och formulera innehåll (nyckelord, seniority, ansvar).\n- Hitta inte på erfarenheter eller resultat.\n- Ändra inte blockId-logik eller ordering (hanteras av EnsureBlocksAndJoin).\n- Om jobContext är tomt: utgå endast från target_role.\n\nparsedCvJson (som text):\n{{ $json.parsedCvJson }}\n\nUppgift:\nSkriv en omarbetad version av CV:t som blockbaserat innehåll, riktad mot den uträknade målrollen ovan.\nAnvänd en tydlig Problem → Åtgärd → Resultat → Lärdom-struktur där det passar.\nFölj systeminstruktionerna exakt."
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_schema",
+                  "schema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\"cvVersionId\", \"blocks\", \"summaryOfChanges\"],\n  \"properties\": {\n    \"cvVersionId\": { \"type\": \"string\" },\n    \"summaryOfChanges\": { \"type\": \"string\" },\n    \"blocks\": {\n      \"type\": \"array\",\n      \"minItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\"blockId\", \"type\", \"label\", \"order\", \"text\"],\n        \"properties\": {\n          \"blockId\": { \"type\": \"string\" },\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"summary\",\n              \"profileText\",\n              \"experience\",\n              \"education\",\n              \"certifications\",\n              \"skills\",\n              \"languages\",\n              \"otherSections\"\n            ]\n          },\n          \"label\": { \"type\": \"string\" },\n          \"order\": { \"type\": \"number\" },\n          \"text\": { \"type\": \"string\" }\n        }\n      }\n    }\n  }\n}\n",
+                  "strict": true
+                }
+              },
+              "maxTokens": 6000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            }
+          }
+        },
+        {
+          "node": "EN-CVParserModel1",
+          "id": "1d899474-f37e-4901-bebb-8f975a6be4d1",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "You are a precise CV parser whose task is to structure a CV into clear, correct, and STABLE JSON data.\n\nInput:\n- You receive a text block containing CV text (freely formatted, often with headings such as \"Experience\", \"Education\", \"Languages\", etc.).\n- Ignore target role and profile text if they appear in the input. You MUST NOT use them as a source of facts.\n\nCore rules:\n- Ignore layout, typography, and visual formatting.\n- Identify and structure ONLY information that is explicitly present in the CV text.\n- You MUST NOT invent new information.\n- If a value is missing or unclear: use null (not an empty string).\n- Empty lists must be [].\n- Preserve original phrasing EXACTLY in all *Raw* fields. Do NOT normalize dates.\n- Return ONLY a single JSON object according to the schema below. No extra fields, no text, no markdown.\n\nCRITICAL RULE – REPAIRING BROKEN TEXT:\n- If the text contains obvious letter separation caused by layout or PDF errors (e.g. \"D IG I TAL IS AT ION\", \"M AS TER OF AR TS\"),\n  you must restore the text into the correct combined word or phrase (e.g. \"DIGITALISATION\", \"MASTER OF ARTS\").\n- This applies ONLY when it is unambiguous that the letters belong to the same word.\n- Preserve the original language (Swedish remains Swedish, English remains English).\n- Do NOT change meaning, only restore spacing.\n- If you cannot restore with high confidence: keep the original text unchanged.\n\nCRITICAL – EDUCATION: CONSISTENTLY SEPARATE \"degree\" AND \"program\"\n\nDefinitions:\n- degree = the academic degree / level itself, e.g.\n  \"Master of Arts\", \"Master of Science\", \"Master of Engineering\",\n  \"Bachelor of Arts\", \"Bachelor of Science\", \"Bachelor of Engineering\",\n  \"Kandidatexamen\", \"Magisterexamen\", \"Masterexamen\",\n  \"Civilingenjörsexamen\", \"Högskoleingenjörsexamen\",\n  \"Doctorate\", \"PhD\".\n- program = the program name / field of study / education name, e.g.\n  \"Digital Management\", \"Computer Science\", \"Industrial Engineering\",\n  \"Accelerated IT Program – C# Development\", \"Business Developer\".\n\nA degree is considered \"explicit\" ONLY if it matches one of these prefixes (case-insensitive):\n- master of arts, master of science, master of engineering\n- bachelor of arts, bachelor of science, bachelor of engineering\n- ph.d, phd, doctorate, doctor\n- kandidatexamen, magisterexamen, masterexamen, civilingenjörsexamen, högskoleingenjörsexamen\n\nHard minimum rule per education entry:\n- For each education entry, at least ONE of the following must be present: institution or program or degree.\n- It is forbidden to leave both degree and program as null if an education name exists in the text.\n\nCRITICAL – EDUCATION: DISTINGUISH BETWEEN \"NAME LINE\" AND \"DESCRIPTION LINES\"\n\nFor each education entry, interpret it as a group of lines:\n\nA) NAME LINE (first line of the entry)\n- Contains the education name, either:\n  1) degree + program, e.g. \"MASTER OF ARTS, DIGITAL MANAGEMENT\"\n  2) program only (course / bootcamp / education program), e.g. \"ACCELERATED IT PROGRAM – C# DEVELOPMENT\"\n  3) degree + program may be in Swedish or English.\n\nB) DESCRIPTION LINES (lines following the name line)\n- Lines starting with or containing \"Focus:\", \"Specialization:\", \"Track:\", \"Field:\", \"Course content:\", \"Content:\", \"Highlights:\"\n  must ALWAYS go into education.descriptionRaw (without the prefix if present), NEVER into program.\n- If a line after the name line is a subject list (e.g. many comma-separated items), it is almost always DESCRIPTION, not a program name.\n\nHard rule:\n- program MUST NOT be a subject list.\n  If program contains 2+ commas or looks like a list of subjects, treat it as descriptionRaw and set program = null\n  (unless it is explicitly clear that it is a program name).\n\nSeparation rules (apply in order):\n1) Repair broken text first (see repair rule).\n2) Identify the NAME LINE and extract degree / program from it.\n3) If NAME LINE contains both degree and program, separate them:\n   - \"Master of Arts, Digital Management\" → degree=\"Master of Arts\", program=\"Digital Management\"\n   - \"Master of Science in Computer Science\" → degree=\"Master of Science\", program=\"Computer Science\"\n   - \"Kandidatexamen i systemvetenskap\" → degree=\"Kandidatexamen\", program=\"Systemvetenskap\"\n4) program MUST NOT contain degree-like text if it can be separated.\n5) If the entry is a course / bootcamp / education program and no degree is explicitly stated on the NAME LINE:\n   set degree = null and program = NAME LINE (education name).\n   Examples:\n   - \"ACCELERATED IT PROGRAM – C# DEVELOPMENT\" → degree=null, program=\"Accelerated IT Program – C# Development\"\n   - \"Vocational education in ...\" → degree=null (if no explicit degree), program=\"...\"\n6) If only program is clearly present on the NAME LINE: degree=null, program=\"...\"\n7) If only degree is clearly present on the NAME LINE: degree=\"...\", program=null\n8) NEVER set degree = null if the text clearly contains a degree according to the list above.\n\nPriority rule:\n- If the NAME LINE contains a program name (e.g. after a comma or after \"in\"),\n  the program must always be taken from there.\n- You MUST NEVER extract program from a \"Focus:\" or similar line if the NAME LINE already provided a program.\n\nExperience:\n- descriptionRaw: preserve description as free text.\n- bulletsRaw: populate ONLY if the CV already contains bullet points or clearly separated bullet-like lines. Otherwise [].\n- If a title is obviously broken or meaningless (e.g. \"D\"): set title = null.\n- city / country only if explicitly stated.\n\nSkills:\n- Put technologies / tools in skillsRaw.tools.\n- Put methodologies / domain knowledge in skillsRaw.hard.\n- Soft skills ONLY if explicitly listed.\n\nOther sections:\n- Sections that do not fit the schema must be placed in otherSections with title and contentRaw (raw text).\n\nOutput:\nRespond with ONLY a JSON object in EXACTLY this structure (no extra fields, no text, no markdown):\n\n{\n  \"personalInfo\": {\n    \"fullName\": string | null,\n    \"currentTitle\": string | null,\n    \"location\": string | null,\n    \"email\": string | null,\n    \"phone\": string | null,\n    \"otherContacts\": string[]\n  },\n  \"experiences\": [\n    {\n      \"employer\": string | null,\n      \"title\": string | null,\n      \"startDateRaw\": string | null,\n      \"endDateRaw\": string | null,\n      \"city\": string | null,\n      \"country\": string | null,\n      \"descriptionRaw\": string | null,\n      \"bulletsRaw\": string[]\n    }\n  ],\n  \"education\": [\n    {\n      \"institution\": string | null,\n      \"program\": string | null,\n      \"degree\": string | null,\n      \"startDateRaw\": string | null,\n      \"endDateRaw\": string | null,\n      \"descriptionRaw\": string | null\n    }\n  ],\n  \"certifications\": [\n    {\n      \"name\": string | null,\n      \"issuer\": string | null,\n      \"dateRaw\": string | null,\n      \"descriptionRaw\": string | null\n    }\n  ],\n  \"languages\": [\n    {\n      \"name\": string,\n      \"levelRaw\": string | null\n    }\n  ],\n  \"skillsRaw\": {\n    \"hard\": string[],\n    \"soft\": string[],\n    \"tools\": string[]\n  },\n  \"otherSections\": [\n    {\n      \"title\": string,\n      \"contentRaw\": string\n    }\n  ]\n}\n"
+                },
+                {
+                  "content": "=Here is the CV in raw text. Structure ONLY this text into JSON according to the instructions above.\nDo not change any content, only structure it.\n\nCV:\n{{ $('Edit Fields').item.json.cv_text }}\n"
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {}
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "You are a precise CV parser whose task is to structure a CV into clear, correct, and STABLE JSON data.\n\nInput:\n- You receive a text block containing CV text (freely formatted, often with headings such as \"Experience\", \"Education\", \"Languages\", etc.).\n- Ignore target role and profile text if they appear in the input. You MUST NOT use them as a source of facts.\n\nCore rules:\n- Ignore layout, typography, and visual formatting.\n- Identify and structure ONLY information that is explicitly present in the CV text.\n- You MUST NOT invent new information.\n- If a value is missing or unclear: use null (not an empty string).\n- Empty lists must be [].\n- Preserve original phrasing EXACTLY in all *Raw* fields. Do NOT normalize dates.\n- Return ONLY a single JSON object according to the schema below. No extra fields, no text, no markdown.\n\nCRITICAL RULE – REPAIRING BROKEN TEXT:\n- If the text contains obvious letter separation caused by layout or PDF errors (e.g. \"D IG I TAL IS AT ION\", \"M AS TER OF AR TS\"),\n  you must restore the text into the correct combined word or phrase (e.g. \"DIGITALISATION\", \"MASTER OF ARTS\").\n- This applies ONLY when it is unambiguous that the letters belong to the same word.\n- Preserve the original language (Swedish remains Swedish, English remains English).\n- Do NOT change meaning, only restore spacing.\n- If you cannot restore with high confidence: keep the original text unchanged.\n\nCRITICAL – EDUCATION: CONSISTENTLY SEPARATE \"degree\" AND \"program\"\n\nDefinitions:\n- degree = the academic degree / level itself, e.g.\n  \"Master of Arts\", \"Master of Science\", \"Master of Engineering\",\n  \"Bachelor of Arts\", \"Bachelor of Science\", \"Bachelor of Engineering\",\n  \"Kandidatexamen\", \"Magisterexamen\", \"Masterexamen\",\n  \"Civilingenjörsexamen\", \"Högskoleingenjörsexamen\",\n  \"Doctorate\", \"PhD\".\n- program = the program name / field of study / education name, e.g.\n  \"Digital Management\", \"Computer Science\", \"Industrial Engineering\",\n  \"Accelerated IT Program – C# Development\", \"Business Developer\".\n\nA degree is considered \"explicit\" ONLY if it matches one of these prefixes (case-insensitive):\n- master of arts, master of science, master of engineering\n- bachelor of arts, bachelor of science, bachelor of engineering\n- ph.d, phd, doctorate, doctor\n- kandidatexamen, magisterexamen, masterexamen, civilingenjörsexamen, högskoleingenjörsexamen\n\nHard minimum rule per education entry:\n- For each education entry, at least ONE of the following must be present: institution or program or degree.\n- It is forbidden to leave both degree and program as null if an education name exists in the text.\n\nCRITICAL – EDUCATION: DISTINGUISH BETWEEN \"NAME LINE\" AND \"DESCRIPTION LINES\"\n\nFor each education entry, interpret it as a group of lines:\n\nA) NAME LINE (first line of the entry)\n- Contains the education name, either:\n  1) degree + program, e.g. \"MASTER OF ARTS, DIGITAL MANAGEMENT\"\n  2) program only (course / bootcamp / education program), e.g. \"ACCELERATED IT PROGRAM – C# DEVELOPMENT\"\n  3) degree + program may be in Swedish or English.\n\nB) DESCRIPTION LINES (lines following the name line)\n- Lines starting with or containing \"Focus:\", \"Specialization:\", \"Track:\", \"Field:\", \"Course content:\", \"Content:\", \"Highlights:\"\n  must ALWAYS go into education.descriptionRaw (without the prefix if present), NEVER into program.\n- If a line after the name line is a subject list (e.g. many comma-separated items), it is almost always DESCRIPTION, not a program name.\n\nHard rule:\n- program MUST NOT be a subject list.\n  If program contains 2+ commas or looks like a list of subjects, treat it as descriptionRaw and set program = null\n  (unless it is explicitly clear that it is a program name).\n\nSeparation rules (apply in order):\n1) Repair broken text first (see repair rule).\n2) Identify the NAME LINE and extract degree / program from it.\n3) If NAME LINE contains both degree and program, separate them:\n   - \"Master of Arts, Digital Management\" → degree=\"Master of Arts\", program=\"Digital Management\"\n   - \"Master of Science in Computer Science\" → degree=\"Master of Science\", program=\"Computer Science\"\n   - \"Kandidatexamen i systemvetenskap\" → degree=\"Kandidatexamen\", program=\"Systemvetenskap\"\n4) program MUST NOT contain degree-like text if it can be separated.\n5) If the entry is a course / bootcamp / education program and no degree is explicitly stated on the NAME LINE:\n   set degree = null and program = NAME LINE (education name).\n   Examples:\n   - \"ACCELERATED IT PROGRAM – C# DEVELOPMENT\" → degree=null, program=\"Accelerated IT Program – C# Development\"\n   - \"Vocational education in ...\" → degree=null (if no explicit degree), program=\"...\"\n6) If only program is clearly present on the NAME LINE: degree=null, program=\"...\"\n7) If only degree is clearly present on the NAME LINE: degree=\"...\", program=null\n8) NEVER set degree = null if the text clearly contains a degree according to the list above.\n\nPriority rule:\n- If the NAME LINE contains a program name (e.g. after a comma or after \"in\"),\n  the program must always be taken from there.\n- You MUST NEVER extract program from a \"Focus:\" or similar line if the NAME LINE already provided a program.\n\nExperience:\n- descriptionRaw: preserve description as free text.\n- bulletsRaw: populate ONLY if the CV already contains bullet points or clearly separated bullet-like lines. Otherwise [].\n- If a title is obviously broken or meaningless (e.g. \"D\"): set title = null.\n- city / country only if explicitly stated.\n\nSkills:\n- Put technologies / tools in skillsRaw.tools.\n- Put methodologies / domain knowledge in skillsRaw.hard.\n- Soft skills ONLY if explicitly listed.\n\nOther sections:\n- Sections that do not fit the schema must be placed in otherSections with title and contentRaw (raw text).\n\nOutput:\nRespond with ONLY a JSON object in EXACTLY this structure (no extra fields, no text, no markdown):\n\n{\n  \"personalInfo\": {\n    \"fullName\": string | null,\n    \"currentTitle\": string | null,\n    \"location\": string | null,\n    \"email\": string | null,\n    \"phone\": string | null,\n    \"otherContacts\": string[]\n  },\n  \"experiences\": [\n    {\n      \"employer\": string | null,\n      \"title\": string | null,\n      \"startDateRaw\": string | null,\n      \"endDateRaw\": string | null,\n      \"city\": string | null,\n      \"country\": string | null,\n      \"descriptionRaw\": string | null,\n      \"bulletsRaw\": string[]\n    }\n  ],\n  \"education\": [\n    {\n      \"institution\": string | null,\n      \"program\": string | null,\n      \"degree\": string | null,\n      \"startDateRaw\": string | null,\n      \"endDateRaw\": string | null,\n      \"descriptionRaw\": string | null\n    }\n  ],\n  \"certifications\": [\n    {\n      \"name\": string | null,\n      \"issuer\": string | null,\n      \"dateRaw\": string | null,\n      \"descriptionRaw\": string | null\n    }\n  ],\n  \"languages\": [\n    {\n      \"name\": string,\n      \"levelRaw\": string | null\n    }\n  ],\n  \"skillsRaw\": {\n    \"hard\": string[],\n    \"soft\": string[],\n    \"tools\": string[]\n  },\n  \"otherSections\": [\n    {\n      \"title\": string,\n      \"contentRaw\": string\n    }\n  ]\n}\n"
+                },
+                {
+                  "content": "=Here is the CV in raw text. Structure ONLY this text into JSON according to the instructions above.\nDo not change any content, only structure it.\n\nCV:\n{{ $('Edit Fields').item.json.cv_text }}\n"
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 6000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            }
+          }
+        },
+        {
+          "node": "EN-CVRewriteModel",
+          "id": "6a78d789-7efc-4c0c-ba4d-e049ab3778e2",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "content": "You are a CV editing model for Swedish and English CVs across all roles and industries.\n\nInput:\n- targetRole: the user’s target role (text).\n- parsedCvJson: structured CV data (the source of truth).\n\nNON-NEGOTIABLE RULES:\n1) parsedCvJson is the truth.\n   - You MUST NOT invent new titles, employers, dates, numbers, technologies, responsibilities, education, or projects.\n2) Experiences must keep the EXACT same order as parsedCvJson.experiences.\n3) You must create EXACTLY one \"experience\" block per item in parsedCvJson.experiences.\n   - No merging, no splitting.\n4) Each \"experience\" block MUST contain the following top-level fields:\n   - \"employer\": exact value from parsedCvJson (or empty string if missing).\n   - \"title\": exact value from parsedCvJson (or empty string if missing).\n   - \"startDate\": exact value from parsedCvJson (or empty string if missing).\n   - \"endDate\": exact value from parsedCvJson. If parsedCvJson indicates the role is ongoing and has no end date, use the string \"Present\".\n   These fields must never be omitted in any experience block.\n5) The \"text\" field in an experience block MUST NOT repeat employer / title / time period.\n   - The text must consist directly of bullets describing what the candidate did and achieved.\n6) You must NOT change the number of experiences, educations, skills, or languages compared to parsedCvJson.\n\nCRITICAL NO-LEAK RULE (applies to ALL blocks.text):\n- No blocks.text may contain metadata rows or key–value rows.\n- The following are FORBIDDEN anywhere in text:\n  \"employer:\", \"title:\", \"startDate:\", \"endDate:\", \"degree:\", \"institution:\", \"order:\", \"type:\", \"label:\", \"blockId:\"\n- You must NOT write headings that look like data fields. No lines starting with any of the above keys followed by \":\".\n\nGOAL:\n- Make the CV appear more senior, business-relevant, and easy to scan.\n- Clarify ownership, responsibility, decisions, and outcomes.\n- Adapt language and prioritization toward the targetRole without manipulating facts.\n\nSTYLE:\n- Short, active, concrete language.\n- Avoid subjective adjectives without evidence (“excellent”, “very good”).\n- If parsedCvJson implies impact but lacks numbers: describe impact generically (e.g. “improved clarity”, “reduced manual work”) without inventing metrics.\n- Use placeholders like [X] ONLY if parsedCvJson explicitly states that a measurable effect exists but does not provide a number.\n\nMETA-RULES FOR ALL TEXT:\n- All text (summary, experience, education, skills, languages) must be written as finished CV content.\n- You MUST NOT write about:\n  - the rules in this prompt\n  - the model, JSON, parsedCvJson, “output”, “this text”, “this model”, etc.\n- No meta-comments or reasoning in the text (no “NOTE”, no “not in text”, no references to rules).\n- Write as if formatting a finished CV for a candidate, not an analysis document.\n\nSTRUCTURE PER EXPERIENCE (\"text\"):\n- 3–6 bullets (no more than 6).\n- Bullets should cover:\n  - Scope / responsibility (ownership, team, budget, roadmap, stakeholders – when present).\n  - Key initiatives (what the candidate actually did).\n  - Results / impact (without fabrication).\n  - Collaboration / leadership (cross-functional, customers, internal stakeholders).\n- If parsedCvJson contains clear projects / initiatives: create one bullet per initiative where reasonable.\n\nBLOCKS AND ORDERING (order in steps of 10):\n  10: summary (ALWAYS if parsedCvJson contains any experience or profileText – create a short, factual summary)\n  20: profileText (if present)\n  30–: experiences (in EXACT same order as parsedCvJson.experiences)\n  200–: education (one block per education entry)\n  220: certifications (if present)\n  240: skills (hard + soft + tools, grouped consistently)\n  260: languages\n  280–: otherSections\n\nSUMMARY:\n- You MUST create a \"summary\" block if parsedCvJson contains at least one experience or profileText.\n- The block must have:\n  - \"type\": \"summary\"\n  - \"label\": e.g. \"Sammanfattning\" (Swedish) or \"Summary\" (English)\n  - \"order\": 10\n  - \"text\": 3–6 sentences summarizing the candidate’s profile, strengths, and focus relative to the targetRole.\n- Do not repeat raw contact information in the summary.\n\nEDUCATION:\n- If parsedCvJson contains multiple educations, you must create EXACTLY one \"education\" block per education entry.\n- You MUST NOT merge multiple educations into a single text block.\n- Each education block must contain these top-level fields (if present in parsedCvJson):\n  - \"type\": \"education\"\n  - \"label\": e.g. \"Utbildning\" (Swedish) or \"Education\" (English)\n  - \"order\": ascending (e.g. 200, 210, 220…)\n  - \"degree\": exact degree from parsedCvJson (or empty string if missing).\n  - \"institution\": exact institution name from parsedCvJson (or empty string if missing).\n  - \"startDate\": exact raw start date (e.g. \"Aug 2020\") or empty string if missing.\n  - \"endDate\": exact raw end date (e.g. \"Jan 2022\") or \"Ongoing\" / \"Present\" if the education is ongoing.\n  - \"text\": ONLY a short description / focus of the education.\n\nHARD RULES FOR education.text:\n- \"text\" MUST NOT repeat degree, institution, or dates / period.\n- \"text\" must be 1–2 sentences, max 3.\n- \"text\" MUST NOT contain forbidden key rows (see NO-LEAK rule).\n\nSKILLS AND LANGUAGES:\n- \"skills\": collect relevant hard skills, soft skills, and tools from parsedCvJson into one or more blocks – do not change facts or invent technologies.\n- \"languages\": list languages and proficiency levels exactly as in parsedCvJson.\n\nOUTPUT (JSON ONLY, no text outside):\n\n{\n  \"cvVersionId\": \"cv_v1\",\n  \"cvTitle\": \"OPTIONAL: Candidate Name – Title (if present in parsedCvJson, otherwise empty string)\",\n  \"blocks\": [\n    {\n      \"blockId\": \"experience_00_ab12cd\",\n      \"type\": \"experience\",\n      \"label\": \"Experience\",\n      \"order\": 30,\n      \"employer\": \"...\",\n      \"title\": \"...\",\n      \"startDate\": \"...\",\n      \"endDate\": \"...\",\n      \"text\": \"• Bullet...\\n• Bullet...\"\n    }\n  ],\n  \"summaryOfChanges\": \"3–6 sentences describing the improvements\"\n}\n\nblockId rule:\n- blockId = \"<type>_<index>_<hash6>\"\n- index = 00, 01, 02, ...\n- hash6 = 6 characters based on block identity:\n  - experiences: hash of employer + title + startDate + endDate\n  - education: hash of institution + degree + startDate + endDate\n  - others: hash of type + label\n- If you are unsure about the hash: still follow the format; the backend may replace the value later.\n\nFINAL SILENT CHECK (before output):\n- Scan each blocks.text: remove any lines starting with forbidden keys (e.g. \"employer:\").\n- Ensure experience.text does not contain employer / title / dates.\n- Ensure education.text does not contain degree / institution / dates.\n"
+                },
+                {
+                  "content": "=Job context (read-only):\n{{ JSON.stringify($json.jobContext?.signals || {}, null, 2) }}\n\nResolved target role (for reference):\n{{ ($json.jobContext && $json.jobContext.signals && $json.jobContext.signals.roleTitle) ? $json.jobContext.signals.roleTitle : ($json.target_role || \"Product Manager\") }}\n\nRules:\n- Use jobContext ONLY to prioritize and phrase content (keywords, seniority, responsibilities).\n- Do NOT invent experience.\n- Do NOT change blockId rules or ordering (handled elsewhere).\n- If jobContext is empty, proceed using target_role only.\n\nparsedCvJson (as text):\n{{ $json.parsedCvJson }}\n\nTask:\nRewrite the CV as blocks-based content, targeting the resolved role above.\nUse a clear Problem → Action → Result → Learning structure where possible.\nFollow the system instructions exactly."
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_schema",
+                  "schema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\"cvVersionId\", \"blocks\", \"summaryOfChanges\"],\n  \"properties\": {\n    \"cvVersionId\": { \"type\": \"string\" },\n    \"summaryOfChanges\": { \"type\": \"string\" },\n    \"blocks\": {\n      \"type\": \"array\",\n      \"minItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\"blockId\", \"type\", \"label\", \"order\", \"text\"],\n        \"properties\": {\n          \"blockId\": { \"type\": \"string\" },\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"summary\",\n              \"profileText\",\n              \"experience\",\n              \"education\",\n              \"certifications\",\n              \"skills\",\n              \"languages\",\n              \"otherSections\"\n            ]\n          },\n          \"label\": { \"type\": \"string\" },\n          \"order\": { \"type\": \"number\" },\n          \"text\": { \"type\": \"string\" }\n        }\n      }\n    }\n  }\n}\n",
+                  "strict": true
+                }
+              }
+            }
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "content": "You are a CV editing model for Swedish and English CVs across all roles and industries.\n\nInput:\n- targetRole: the user’s target role (text).\n- parsedCvJson: structured CV data (the source of truth).\n\nNON-NEGOTIABLE RULES:\n1) parsedCvJson is the truth.\n   - You MUST NOT invent new titles, employers, dates, numbers, technologies, responsibilities, education, or projects.\n2) Experiences must keep the EXACT same order as parsedCvJson.experiences.\n3) You must create EXACTLY one \"experience\" block per item in parsedCvJson.experiences.\n   - No merging, no splitting.\n4) Each \"experience\" block MUST contain the following top-level fields:\n   - \"employer\": exact value from parsedCvJson (or empty string if missing).\n   - \"title\": exact value from parsedCvJson (or empty string if missing).\n   - \"startDate\": exact value from parsedCvJson (or empty string if missing).\n   - \"endDate\": exact value from parsedCvJson. If parsedCvJson indicates the role is ongoing and has no end date, use the string \"Present\".\n   These fields must never be omitted in any experience block.\n5) The \"text\" field in an experience block MUST NOT repeat employer / title / time period.\n   - The text must consist directly of bullets describing what the candidate did and achieved.\n6) You must NOT change the number of experiences, educations, skills, or languages compared to parsedCvJson.\n\nCRITICAL NO-LEAK RULE (applies to ALL blocks.text):\n- No blocks.text may contain metadata rows or key–value rows.\n- The following are FORBIDDEN anywhere in text:\n  \"employer:\", \"title:\", \"startDate:\", \"endDate:\", \"degree:\", \"institution:\", \"order:\", \"type:\", \"label:\", \"blockId:\"\n- You must NOT write headings that look like data fields. No lines starting with any of the above keys followed by \":\".\n\nGOAL:\n- Make the CV appear more senior, business-relevant, and easy to scan.\n- Clarify ownership, responsibility, decisions, and outcomes.\n- Adapt language and prioritization toward the targetRole without manipulating facts.\n\nSTYLE:\n- Short, active, concrete language.\n- Avoid subjective adjectives without evidence (“excellent”, “very good”).\n- If parsedCvJson implies impact but lacks numbers: describe impact generically (e.g. “improved clarity”, “reduced manual work”) without inventing metrics.\n- Use placeholders like [X] ONLY if parsedCvJson explicitly states that a measurable effect exists but does not provide a number.\n\nMETA-RULES FOR ALL TEXT:\n- All text (summary, experience, education, skills, languages) must be written as finished CV content.\n- You MUST NOT write about:\n  - the rules in this prompt\n  - the model, JSON, parsedCvJson, “output”, “this text”, “this model”, etc.\n- No meta-comments or reasoning in the text (no “NOTE”, no “not in text”, no references to rules).\n- Write as if formatting a finished CV for a candidate, not an analysis document.\n\nSTRUCTURE PER EXPERIENCE (\"text\"):\n- 3–6 bullets (no more than 6).\n- Bullets should cover:\n  - Scope / responsibility (ownership, team, budget, roadmap, stakeholders – when present).\n  - Key initiatives (what the candidate actually did).\n  - Results / impact (without fabrication).\n  - Collaboration / leadership (cross-functional, customers, internal stakeholders).\n- If parsedCvJson contains clear projects / initiatives: create one bullet per initiative where reasonable.\n\nBLOCKS AND ORDERING (order in steps of 10):\n  10: summary (ALWAYS if parsedCvJson contains any experience or profileText – create a short, factual summary)\n  20: profileText (if present)\n  30–: experiences (in EXACT same order as parsedCvJson.experiences)\n  200–: education (one block per education entry)\n  220: certifications (if present)\n  240: skills (hard + soft + tools, grouped consistently)\n  260: languages\n  280–: otherSections\n\nSUMMARY:\n- You MUST create a \"summary\" block if parsedCvJson contains at least one experience or profileText.\n- The block must have:\n  - \"type\": \"summary\"\n  - \"label\": e.g. \"Sammanfattning\" (Swedish) or \"Summary\" (English)\n  - \"order\": 10\n  - \"text\": 3–6 sentences summarizing the candidate’s profile, strengths, and focus relative to the targetRole.\n- Do not repeat raw contact information in the summary.\n\nEDUCATION:\n- If parsedCvJson contains multiple educations, you must create EXACTLY one \"education\" block per education entry.\n- You MUST NOT merge multiple educations into a single text block.\n- Each education block must contain these top-level fields (if present in parsedCvJson):\n  - \"type\": \"education\"\n  - \"label\": e.g. \"Utbildning\" (Swedish) or \"Education\" (English)\n  - \"order\": ascending (e.g. 200, 210, 220…)\n  - \"degree\": exact degree from parsedCvJson (or empty string if missing).\n  - \"institution\": exact institution name from parsedCvJson (or empty string if missing).\n  - \"startDate\": exact raw start date (e.g. \"Aug 2020\") or empty string if missing.\n  - \"endDate\": exact raw end date (e.g. \"Jan 2022\") or \"Ongoing\" / \"Present\" if the education is ongoing.\n  - \"text\": ONLY a short description / focus of the education.\n\nHARD RULES FOR education.text:\n- \"text\" MUST NOT repeat degree, institution, or dates / period.\n- \"text\" must be 1–2 sentences, max 3.\n- \"text\" MUST NOT contain forbidden key rows (see NO-LEAK rule).\n\nSKILLS AND LANGUAGES:\n- \"skills\": collect relevant hard skills, soft skills, and tools from parsedCvJson into one or more blocks – do not change facts or invent technologies.\n- \"languages\": list languages and proficiency levels exactly as in parsedCvJson.\n\nOUTPUT (JSON ONLY, no text outside):\n\n{\n  \"cvVersionId\": \"cv_v1\",\n  \"cvTitle\": \"OPTIONAL: Candidate Name – Title (if present in parsedCvJson, otherwise empty string)\",\n  \"blocks\": [\n    {\n      \"blockId\": \"experience_00_ab12cd\",\n      \"type\": \"experience\",\n      \"label\": \"Experience\",\n      \"order\": 30,\n      \"employer\": \"...\",\n      \"title\": \"...\",\n      \"startDate\": \"...\",\n      \"endDate\": \"...\",\n      \"text\": \"• Bullet...\\n• Bullet...\"\n    }\n  ],\n  \"summaryOfChanges\": \"3–6 sentences describing the improvements\"\n}\n\nblockId rule:\n- blockId = \"<type>_<index>_<hash6>\"\n- index = 00, 01, 02, ...\n- hash6 = 6 characters based on block identity:\n  - experiences: hash of employer + title + startDate + endDate\n  - education: hash of institution + degree + startDate + endDate\n  - others: hash of type + label\n- If you are unsure about the hash: still follow the format; the backend may replace the value later.\n\nFINAL SILENT CHECK (before output):\n- Scan each blocks.text: remove any lines starting with forbidden keys (e.g. \"employer:\").\n- Ensure experience.text does not contain employer / title / dates.\n- Ensure education.text does not contain degree / institution / dates.\n"
+                },
+                {
+                  "content": "=Job context (read-only):\n{{ JSON.stringify($json.jobContext?.signals || {}, null, 2) }}\n\nResolved target role (for reference):\n{{ ($json.jobContext && $json.jobContext.signals && $json.jobContext.signals.roleTitle) ? $json.jobContext.signals.roleTitle : ($json.target_role || \"Product Manager\") }}\n\nRules:\n- Use jobContext ONLY to prioritize and phrase content (keywords, seniority, responsibilities).\n- Do NOT invent experience.\n- Do NOT change blockId rules or ordering (handled elsewhere).\n- If jobContext is empty, proceed using target_role only.\n\nparsedCvJson (as text):\n{{ $json.parsedCvJson }}\n\nTask:\nRewrite the CV as blocks-based content, targeting the resolved role above.\nUse a clear Problem → Action → Result → Learning structure where possible.\nFollow the system instructions exactly."
+                }
+              ]
+            },
+            "simplify": false,
+            "builtInTools": {},
+            "options": {
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_schema",
+                  "schema": "{\n  \"type\": \"object\",\n  \"additionalProperties\": false,\n  \"required\": [\"cvVersionId\", \"blocks\", \"summaryOfChanges\"],\n  \"properties\": {\n    \"cvVersionId\": { \"type\": \"string\" },\n    \"summaryOfChanges\": { \"type\": \"string\" },\n    \"blocks\": {\n      \"type\": \"array\",\n      \"minItems\": 1,\n      \"items\": {\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n        \"required\": [\"blockId\", \"type\", \"label\", \"order\", \"text\"],\n        \"properties\": {\n          \"blockId\": { \"type\": \"string\" },\n          \"type\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"summary\",\n              \"profileText\",\n              \"experience\",\n              \"education\",\n              \"certifications\",\n              \"skills\",\n              \"languages\",\n              \"otherSections\"\n            ]\n          },\n          \"label\": { \"type\": \"string\" },\n          \"order\": { \"type\": \"number\" },\n          \"text\": { \"type\": \"string\" }\n        }\n      }\n    }\n  }\n}\n",
+                  "strict": true
+                }
+              },
+              "maxTokens": 6000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            }
+          }
+        },
+        {
+          "node": "Luna output - LanguageDetectionModel",
+          "id": "luna-guard-121e26a6-8f2a-4362-ade9-8dfee9463488",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"language_detection\",\"inputTokenBudget\":12000,\"maxOutputTokens\":256,\"format\":\"language\",\"operationKey\":\"6Bvk0NYcElT9OirH:language_detection\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        },
+        {
+          "node": "Luna output - SV-CVParserModel",
+          "id": "luna-guard-22f90be5-10a7-4fe0-9565-9578e90328f0",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"cv_parse_sv\",\"inputTokenBudget\":24000,\"maxOutputTokens\":6000,\"format\":\"json\",\"operationKey\":\"6Bvk0NYcElT9OirH:cv_parse_sv\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        },
+        {
+          "node": "Luna output - SV-CVRewriteModel",
+          "id": "luna-guard-b2c1542c-b7c4-4dd0-9d06-f1ac2e184784",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"cv_initial_rewrite_sv\",\"inputTokenBudget\":24000,\"maxOutputTokens\":6000,\"format\":\"json\",\"operationKey\":\"6Bvk0NYcElT9OirH:cv_initial_rewrite_sv\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        },
+        {
+          "node": "Luna output - EN-CVParserModel1",
+          "id": "luna-guard-1d899474-f37e-4901-bebb-8f975a6be4d1",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"cv_parse_en\",\"inputTokenBudget\":24000,\"maxOutputTokens\":6000,\"format\":\"json\",\"operationKey\":\"6Bvk0NYcElT9OirH:cv_parse_en\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        },
+        {
+          "node": "Luna output - EN-CVRewriteModel",
+          "id": "luna-guard-6a78d789-7efc-4c0c-ba4d-e049ab3778e2",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"cv_initial_rewrite_en\",\"inputTokenBudget\":24000,\"maxOutputTokens\":6000,\"format\":\"json\",\"operationKey\":\"6Bvk0NYcElT9OirH:cv_initial_rewrite_en\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        }
+      ],
+      "connectionsBefore": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "NormalizeBinary",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Extract from File": {
+          "main": [
+            [
+              {
+                "node": "Edit Fields",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Edit Fields": {
+          "main": [
+            [
+              {
+                "node": "LanguageDetectionModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "LanguageDetectionModel": {
+          "main": [
+            [
+              {
+                "node": "If",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "If": {
+          "main": [
+            [
+              {
+                "node": "SV-CVParserModel",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "EN-CVParserModel1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-CVParserModel": {
+          "main": [
+            [
+              {
+                "node": "SV-ExtractParsedCv",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-CVRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize model output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize model output": {
+          "main": [
+            [
+              {
+                "node": "ValidateAndSanitizeBlocks",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Respond to Webhook": {
+          "main": [
+            []
+          ]
+        },
+        "NormalizeBinary": {
+          "main": [
+            [
+              {
+                "node": "Extract from File",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-ExtractParsedCv": {
+          "main": [
+            [
+              {
+                "node": "SV-CVRewriteModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EnsureBlocksAndJoin": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "EnsureBlocksAndJoin",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "ValidateAndSanitizeBlocks": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Normalize model output1": {
+          "main": [
+            [
+              {
+                "node": "ValidateAndSanitizeBlocks1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EnsureBlocksAndJoin1": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse1": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge1": {
+          "main": [
+            [
+              {
+                "node": "EnsureBlocksAndJoin1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "ValidateAndSanitizeBlocks1": {
+          "main": [
+            [
+              {
+                "node": "Merge1",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "EN-CVParserModel1": {
+          "main": [
+            [
+              {
+                "node": "EN-ExtractParsedCv",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-ExtractParsedCv": {
+          "main": [
+            [
+              {
+                "node": "EN-CVRewriteModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-CVRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize model output1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "connectionsAfter": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "NormalizeBinary",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Extract from File": {
+          "main": [
+            [
+              {
+                "node": "Edit Fields",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Edit Fields": {
+          "main": [
+            [
+              {
+                "node": "LanguageDetectionModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "LanguageDetectionModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - LanguageDetectionModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "If": {
+          "main": [
+            [
+              {
+                "node": "SV-CVParserModel",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "EN-CVParserModel1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-CVParserModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - SV-CVParserModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-CVRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - SV-CVRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize model output": {
+          "main": [
+            [
+              {
+                "node": "ValidateAndSanitizeBlocks",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Respond to Webhook": {
+          "main": [
+            []
+          ]
+        },
+        "NormalizeBinary": {
+          "main": [
+            [
+              {
+                "node": "Extract from File",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "SV-ExtractParsedCv": {
+          "main": [
+            [
+              {
+                "node": "SV-CVRewriteModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EnsureBlocksAndJoin": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "EnsureBlocksAndJoin",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "ValidateAndSanitizeBlocks": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Normalize model output1": {
+          "main": [
+            [
+              {
+                "node": "ValidateAndSanitizeBlocks1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EnsureBlocksAndJoin1": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse1": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge1": {
+          "main": [
+            [
+              {
+                "node": "EnsureBlocksAndJoin1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "ValidateAndSanitizeBlocks1": {
+          "main": [
+            [
+              {
+                "node": "Merge1",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "EN-CVParserModel1": {
+          "main": [
+            [
+              {
+                "node": "Luna output - EN-CVParserModel1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-ExtractParsedCv": {
+          "main": [
+            [
+              {
+                "node": "EN-CVRewriteModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "EN-CVRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - EN-CVRewriteModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - LanguageDetectionModel": {
+          "main": [
+            [
+              {
+                "node": "If",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - SV-CVParserModel": {
+          "main": [
+            [
+              {
+                "node": "SV-ExtractParsedCv",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - SV-CVRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize model output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - EN-CVParserModel1": {
+          "main": [
+            [
+              {
+                "node": "EN-ExtractParsedCv",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - EN-CVRewriteModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize model output1",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "name": "webflow-tailor-CV",
+      "activeVersionId": "a5196f17-4ccc-41db-8993-9b6c5fe466dd",
+      "beforeGraphSha256": "da511982053b941d22a9cc84e3e609752f8be3e303dea49e6517681a0399f7ec",
+      "afterGraphSha256": "aa1a313debef2836bf256139cb1a02d16456236fea6b8ac8b659bd679a181562",
+      "changes": [
+        {
+          "node": "TailorModel",
+          "id": "a100ac5d-a861-43fa-ae17-2f2d56f78354",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "={{$json.llmMessages[0].content}}"
+                },
+                {
+                  "content": "={{$json.llmMessages[1].content}}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 1200,
+              "temperature": 0.2
+            }
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "={{$json.llmMessages[0].content}}"
+                },
+                {
+                  "content": "={{$json.llmMessages[1].content}}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 3000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            },
+            "simplify": false
+          }
+        },
+        {
+          "node": "Tailor sources model",
+          "id": "tailor-sources-model-v1",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "={{$json.llmMessages[0].content}}"
+                },
+                {
+                  "content": "={{$json.llmMessages[1].content}}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 4000,
+              "temperature": 0.2,
+              "store": false
+            },
+            "simplify": false
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "={{$json.llmMessages[0].content}}"
+                },
+                {
+                  "content": "={{$json.llmMessages[1].content}}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 4000,
+              "store": false,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default"
+            },
+            "simplify": false
+          }
+        },
+        {
+          "node": "Luna output - TailorModel",
+          "id": "luna-guard-a100ac5d-a861-43fa-ae17-2f2d56f78354",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"tailor_cv_ad\",\"inputTokenBudget\":24000,\"maxOutputTokens\":3000,\"format\":\"json\",\"operationKey\":\"H8oAioy58R1v3PvRe3YUa:tailor_cv_ad\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        },
+        {
+          "node": "Luna output - Tailor sources model",
+          "id": "luna-guard-tailor-sources-model-v1",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"tailor_sources\",\"inputTokenBudget\":32000,\"maxOutputTokens\":4000,\"format\":\"json\",\"operationKey\":\"H8oAioy58R1v3PvRe3YUa:tailor_sources\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        }
+      ],
+      "connectionsBefore": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate + Normalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate + Normalize": {
+          "main": [
+            [
+              {
+                "node": "Tailor has answer sources?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build Tailor": {
+          "main": [
+            [
+              {
+                "node": "TailorModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "TailorModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize Output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize Output": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Deterministic Apply + Canonicalize": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "Tailor Guard",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor Guard": {
+          "main": [
+            [
+              {
+                "node": "Deterministic Apply + Canonicalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor has answer sources?": {
+          "main": [
+            [
+              {
+                "node": "Tailor source input valid?",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Build Tailor",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor source input valid?": {
+          "main": [
+            [
+              {
+                "node": "Tailor sources model",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Respond with source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor sources model": {
+          "main": [
+            [
+              {
+                "node": "Compose source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Compose source suggestion": {
+          "main": [
+            [
+              {
+                "node": "Respond with source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "connectionsAfter": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate + Normalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate + Normalize": {
+          "main": [
+            [
+              {
+                "node": "Tailor has answer sources?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build Tailor": {
+          "main": [
+            [
+              {
+                "node": "TailorModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "TailorModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - TailorModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize Output": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Deterministic Apply + Canonicalize": {
+          "main": [
+            [
+              {
+                "node": "BuildResponse",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "BuildResponse": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "Tailor Guard",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor Guard": {
+          "main": [
+            [
+              {
+                "node": "Deterministic Apply + Canonicalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor has answer sources?": {
+          "main": [
+            [
+              {
+                "node": "Tailor source input valid?",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Build Tailor",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor source input valid?": {
+          "main": [
+            [
+              {
+                "node": "Tailor sources model",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Respond with source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Tailor sources model": {
+          "main": [
+            [
+              {
+                "node": "Luna output - Tailor sources model",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Compose source suggestion": {
+          "main": [
+            [
+              {
+                "node": "Respond with source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - TailorModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize Output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - Tailor sources model": {
+          "main": [
+            [
+              {
+                "node": "Compose source suggestion",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "workflowId": "QQGNXYv4hej0HBwc",
+      "name": "Editor Chat",
+      "activeVersionId": "05267b96-2433-4c2e-965b-31b61358855a",
+      "beforeGraphSha256": "5e37ce67d17bbc777cae1ba37761d62c89f7dd03000cee5fdb64333a9ad15e2d",
+      "afterGraphSha256": "abb9597a869ee4231c266489464f7756c488cb09975a5b7c12c16550269ceb6f",
+      "changes": [
+        {
+          "node": "AI Chat Model",
+          "id": "5b31ac7e-3de7-44b4-93dd-23debd78f15e",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "content": "={{$json.promptText}}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {}
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "content": "={{$json.promptText}}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 2000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            },
+            "simplify": false
+          }
+        },
+        {
+          "node": "Luna output - AI Chat Model",
+          "id": "luna-guard-5b31ac7e-3de7-44b4-93dd-23debd78f15e",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"advisory_chat\",\"inputTokenBudget\":16000,\"maxOutputTokens\":2000,\"format\":\"json\",\"operationKey\":\"QQGNXYv4hej0HBwc:advisory_chat\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        }
+      ],
+      "connectionsBefore": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate + Normalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate + Normalize": {
+          "main": [
+            [
+              {
+                "node": "Build LLM Messages",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build LLM Messages": {
+          "main": [
+            [
+              {
+                "node": "AI Chat Model",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "AI Chat Model": {
+          "main": [
+            [
+              {
+                "node": "Debug AI Output Size",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Parse + Build Response": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "Parse + Build Response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Debug AI Output Size": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        }
+      },
+      "connectionsAfter": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate + Normalize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate + Normalize": {
+          "main": [
+            [
+              {
+                "node": "Build LLM Messages",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build LLM Messages": {
+          "main": [
+            [
+              {
+                "node": "AI Chat Model",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "AI Chat Model": {
+          "main": [
+            [
+              {
+                "node": "Luna output - AI Chat Model",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Parse + Build Response": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge": {
+          "main": [
+            [
+              {
+                "node": "Parse + Build Response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Debug AI Output Size": {
+          "main": [
+            [
+              {
+                "node": "Merge",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Luna output - AI Chat Model": {
+          "main": [
+            [
+              {
+                "node": "Debug AI Output Size",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "workflowId": "ytcb-PU8k9igpv5B7BmX7",
+      "name": "flow-jobcontext-extract",
+      "activeVersionId": "f308bdb8-5ec5-4db6-a105-faf4c134bec2",
+      "beforeGraphSha256": "fac70f2f3632bcdeb049eac67fa4821487ef666077a34ed7174fb29f48705ebc",
+      "afterGraphSha256": "fb3ad9ba6793b3f414333320b6bd61ba1571ac514dbfda1ff66d80031bc8d746",
+      "changes": [
+        {
+          "node": "JobContextExtractModel",
+          "id": "15a56d66-182b-4229-8c76-020d05126c51",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "=You are a strict information extraction engine.\n\nTASK\nExtract a structured job context from the job advertisement text provided below.\nYou must only use information explicitly present in the text.\nDo not guess. Do not infer details that are not stated.\nDo not invent success metrics.\nDo not add commentary or explanations.\n\nOUTPUT RULES (ABSOLUTE)\n- Output ONLY valid JSON.\n- Output MUST match the schema exactly.\n- No extra top-level keys.\n- No extra keys inside jobContext.\n- All arrays must be deduplicated (case-insensitive), trimmed, and must not contain empty strings.\n- If the job ad does not provide enough information for a field, use safe defaults:\n  - roleTitle: \"\" (empty string)\n  - seniority: \"unknown\"\n  - surfaces: [\"other\"] if none explicitly stated\n  - successMetrics: [] if none explicitly stated\n  - tone: \"unknown\"\n- Never include null values.\n\nSCHEMA (MUST MATCH)\n{\n  \"ok\": true,\n  \"jobContextSchemaVersion\": \"1.0\",\n  \"language\": \"en\",\n  \"jobContext\": {\n    \"roleTitle\": \"string\",\n    \"seniority\": \"junior\" | \"mid\" | \"senior\" | \"lead\" | \"unknown\",\n    \"surfaces\": [\"app\" | \"web\" | \"kiosk\" | \"other\"],\n    \"topPriorities\": [\n      { \"signal\": \"string\", \"weight\": 1|2|3|4|5 }\n    ],\n    \"mustHave\": [\"string\"],\n    \"successMetrics\": [\"string\"],\n    \"keywords\": [\"string\"],\n    \"tone\": \"commercial\" | \"data-driven\" | \"operational\" | \"brand\" | \"balanced\" | \"unknown\"\n  }\n}\n\nFIELD EXTRACTION RULES\n1) roleTitle\n- Use the explicit role title from the job ad (e.g., \"Product Manager\", \"AI Delivery Lead\").\n- If multiple titles appear, choose the primary advertised role.\n- If not explicit, set \"\".\n\n2) seniority\n- Map explicit seniority terms:\n  junior/intern/entry -> \"junior\"\n  mid/intermediate -> \"mid\"\n  senior/staff/principal -> \"senior\"\n  lead/head/manager/director -> \"lead\"\n- If not explicit, \"unknown\".\n\n3) surfaces\n- Include only surfaces explicitly mentioned:\n  - \"app\" if mobile app / iOS / Android is explicitly mentioned\n  - \"web\" if web / browser / frontend / website is explicitly mentioned\n  - \"kiosk\" if kiosk / in-store terminal / POS kiosk is explicitly mentioned\n  - otherwise \"other\"\n- surfaces must contain 1–4 items.\n\n4) topPriorities\n- Provide 3–8 items.\n- Each signal must be a short, concrete priority stated or clearly described in the job ad (responsibilities, outcomes, focus areas).\n- Assign weight as integer 1–5:\n  5 = core repeated/primary responsibility\n  4 = strongly emphasized responsibility\n  3 = important but secondary\n  2 = minor responsibility\n  1 = barely mentioned\n- Sort by weight desc, then by signal asc.\n- Do not duplicate signals.\n\n5) mustHave\n- Provide 5–12 items.\n- Only include explicit requirements, qualifications, or “must” criteria from the job ad.\n- If the job ad contains fewer than 5 explicit requirements, include what exists and add only strictly implied universal requirements from the text (e.g., if it says “work with stakeholders” you may include “Stakeholder management”). Do NOT invent tools, years of experience, or degrees not stated.\n\n6) successMetrics\n- Include only explicit metrics / KPIs / measurable outcomes mentioned (e.g., “increase retention”, “reduce churn”, “improve conversion”).\n- If none are explicitly mentioned, return [].\n\n7) keywords\n- Provide 10–40 items.\n- Keywords must be single words or short phrases directly from the job ad (skills, tools, methods, domains).\n- Deduplicate and sort alphabetically.\n\n8) tone\n- Determine tone from language emphasis:\n  commercial = revenue, growth, sales, go-to-market, pipeline, market expansion\n  data-driven = analytics, experimentation, KPIs, measurement, dashboards, metrics\n  operational = process, delivery, execution, governance, coordination, efficiency\n  brand = storytelling, narrative, creative, marketing, brand building, content\n  balanced = mixed emphasis across multiple areas\n  unknown = cannot determine\n\nJOB AD TEXT (ENGLISH)\n\"\"\"\n{{$json.jobAdText}}\n\"\"\"\n"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "temperature": 0.2
+            }
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "=You are a strict information extraction engine.\n\nTASK\nExtract a structured job context from the job advertisement text provided below.\nYou must only use information explicitly present in the text.\nDo not guess. Do not infer details that are not stated.\nDo not invent success metrics.\nDo not add commentary or explanations.\n\nOUTPUT RULES (ABSOLUTE)\n- Output ONLY valid JSON.\n- Output MUST match the schema exactly.\n- No extra top-level keys.\n- No extra keys inside jobContext.\n- All arrays must be deduplicated (case-insensitive), trimmed, and must not contain empty strings.\n- If the job ad does not provide enough information for a field, use safe defaults:\n  - roleTitle: \"\" (empty string)\n  - seniority: \"unknown\"\n  - surfaces: [\"other\"] if none explicitly stated\n  - successMetrics: [] if none explicitly stated\n  - tone: \"unknown\"\n- Never include null values.\n\nSCHEMA (MUST MATCH)\n{\n  \"ok\": true,\n  \"jobContextSchemaVersion\": \"1.0\",\n  \"language\": \"en\",\n  \"jobContext\": {\n    \"roleTitle\": \"string\",\n    \"seniority\": \"junior\" | \"mid\" | \"senior\" | \"lead\" | \"unknown\",\n    \"surfaces\": [\"app\" | \"web\" | \"kiosk\" | \"other\"],\n    \"topPriorities\": [\n      { \"signal\": \"string\", \"weight\": 1|2|3|4|5 }\n    ],\n    \"mustHave\": [\"string\"],\n    \"successMetrics\": [\"string\"],\n    \"keywords\": [\"string\"],\n    \"tone\": \"commercial\" | \"data-driven\" | \"operational\" | \"brand\" | \"balanced\" | \"unknown\"\n  }\n}\n\nFIELD EXTRACTION RULES\n1) roleTitle\n- Use the explicit role title from the job ad (e.g., \"Product Manager\", \"AI Delivery Lead\").\n- If multiple titles appear, choose the primary advertised role.\n- If not explicit, set \"\".\n\n2) seniority\n- Map explicit seniority terms:\n  junior/intern/entry -> \"junior\"\n  mid/intermediate -> \"mid\"\n  senior/staff/principal -> \"senior\"\n  lead/head/manager/director -> \"lead\"\n- If not explicit, \"unknown\".\n\n3) surfaces\n- Include only surfaces explicitly mentioned:\n  - \"app\" if mobile app / iOS / Android is explicitly mentioned\n  - \"web\" if web / browser / frontend / website is explicitly mentioned\n  - \"kiosk\" if kiosk / in-store terminal / POS kiosk is explicitly mentioned\n  - otherwise \"other\"\n- surfaces must contain 1–4 items.\n\n4) topPriorities\n- Provide 3–8 items.\n- Each signal must be a short, concrete priority stated or clearly described in the job ad (responsibilities, outcomes, focus areas).\n- Assign weight as integer 1–5:\n  5 = core repeated/primary responsibility\n  4 = strongly emphasized responsibility\n  3 = important but secondary\n  2 = minor responsibility\n  1 = barely mentioned\n- Sort by weight desc, then by signal asc.\n- Do not duplicate signals.\n\n5) mustHave\n- Provide 5–12 items.\n- Only include explicit requirements, qualifications, or “must” criteria from the job ad.\n- If the job ad contains fewer than 5 explicit requirements, include what exists and add only strictly implied universal requirements from the text (e.g., if it says “work with stakeholders” you may include “Stakeholder management”). Do NOT invent tools, years of experience, or degrees not stated.\n\n6) successMetrics\n- Include only explicit metrics / KPIs / measurable outcomes mentioned (e.g., “increase retention”, “reduce churn”, “improve conversion”).\n- If none are explicitly mentioned, return [].\n\n7) keywords\n- Provide 10–40 items.\n- Keywords must be single words or short phrases directly from the job ad (skills, tools, methods, domains).\n- Deduplicate and sort alphabetically.\n\n8) tone\n- Determine tone from language emphasis:\n  commercial = revenue, growth, sales, go-to-market, pipeline, market expansion\n  data-driven = analytics, experimentation, KPIs, measurement, dashboards, metrics\n  operational = process, delivery, execution, governance, coordination, efficiency\n  brand = storytelling, narrative, creative, marketing, brand building, content\n  balanced = mixed emphasis across multiple areas\n  unknown = cannot determine\n\nJOB AD TEXT (ENGLISH)\n\"\"\"\n{{$json.jobAdText}}\n\"\"\"\n"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "maxTokens": 3000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            },
+            "simplify": false
+          }
+        },
+        {
+          "node": "Luna output - JobContextExtractModel",
+          "id": "luna-guard-15a56d66-182b-4229-8c76-020d05126c51",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"job_analysis\",\"inputTokenBudget\":16000,\"maxOutputTokens\":3000,\"format\":\"json\",\"operationKey\":\"ytcb-PU8k9igpv5B7BmX7:job_analysis\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        }
+      ],
+      "connectionsBefore": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validation + Normalization",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validation + Normalization": {
+          "main": [
+            [
+              {
+                "node": "JobContextExtractModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge (Combine)",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "JobContextExtractModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize Model Output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize Model Output": {
+          "main": [
+            [
+              {
+                "node": "Merge (Combine)",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Validate + Enforce Contract": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge (Combine)": {
+          "main": [
+            [
+              {
+                "node": "Validate + Enforce Contract",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "connectionsAfter": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Validation + Normalization",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validation + Normalization": {
+          "main": [
+            [
+              {
+                "node": "JobContextExtractModel",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Merge (Combine)",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "JobContextExtractModel": {
+          "main": [
+            [
+              {
+                "node": "Luna output - JobContextExtractModel",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Normalize Model Output": {
+          "main": [
+            [
+              {
+                "node": "Merge (Combine)",
+                "type": "main",
+                "index": 1
+              }
+            ]
+          ]
+        },
+        "Validate + Enforce Contract": {
+          "main": [
+            [
+              {
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Merge (Combine)": {
+          "main": [
+            [
+              {
+                "node": "Validate + Enforce Contract",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - JobContextExtractModel": {
+          "main": [
+            [
+              {
+                "node": "Normalize Model Output",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "name": "Drafted Experience Discovery v1 (inactive development)",
+      "activeVersionId": "6336f54e-9913-4976-bd32-78d8508338d5",
+      "beforeGraphSha256": "c4db6ec1e528309b4652b29819201b64a491eccf0bf1adab0dbda46a3940dc6b",
+      "afterGraphSha256": "7b6a85ad72a54fb329fa90a6be7efc52133c118ffa64ab6e11fbea2cb4ad7f76",
+      "changes": [
+        {
+          "node": "Discovery model",
+          "id": "9a79bee3-7feb-47aa-a263-3e1f1a9193fc",
+          "kind": "model_configuration",
+          "before": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-4.1-mini",
+              "mode": "list",
+              "cachedResultName": "GPT-4.1-MINI"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "={{$json.promptText}}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "temperature": 0.2,
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_object"
+                }
+              }
+            }
+          },
+          "after": {
+            "modelId": {
+              "__rl": true,
+              "value": "gpt-6-luna",
+              "mode": "list",
+              "cachedResultName": "GPT-6-LUNA"
+            },
+            "responses": {
+              "values": [
+                {
+                  "role": "system",
+                  "content": "={{$json.promptText}}"
+                }
+              ]
+            },
+            "builtInTools": {},
+            "options": {
+              "textFormat": {
+                "textOptions": {
+                  "type": "json_object"
+                }
+              },
+              "maxTokens": 3000,
+              "reasoning": {
+                "reasoningOptions": {
+                  "effort": "low",
+                  "summary": "none"
+                }
+              },
+              "serviceTier": "default",
+              "store": false
+            },
+            "simplify": false
+          }
+        },
+        {
+          "node": "Luna output - Discovery model",
+          "id": "luna-guard-9a79bee3-7feb-47aa-a263-3e1f1a9193fc",
+          "kind": "new_response_guard",
+          "parameters": {
+            "mode": "runOnceForAllItems",
+            "jsCode": "const normalize = function normalize(envelope,spec){\n const fail=code=>{const e=Error(code);e.code=code;throw e;};\n if(!envelope||envelope.error)fail('MODEL_UNAVAILABLE');\n if(envelope.status==='incomplete'&&envelope.incomplete_details?.reason==='max_output_tokens')fail('MODEL_TOKEN_BUDGET');\n if(envelope.status!=='completed')fail('MODEL_NOT_COMPLETED');\n if(typeof envelope.model!=='string'||!(envelope.model===(spec.model||'gpt-6-luna')||envelope.model.startsWith((spec.model||'gpt-6-luna')+'-')))fail('MODEL_CHANGED');\n if(envelope.service_tier!=='default')fail('MODEL_SERVICE_TIER_CHANGED');\n if(!envelope.usage||!Number.isInteger(envelope.usage.input_tokens)||!Number.isInteger(envelope.usage.output_tokens)||envelope.usage.input_tokens<0||envelope.usage.output_tokens<0||envelope.usage.output_tokens>spec.maxOutputTokens)fail('MODEL_USAGE_INVALID');\n if(envelope.usage.input_tokens>spec.inputTokenBudget)fail('MODEL_INPUT_BUDGET_EXCEEDED_AFTER_RESPONSE');\n const output=Array.isArray(envelope.output)?envelope.output:[],parts=[];let messages=0;\n for(const item of output){if(item.type==='reasoning')continue;if(item.type!=='message')fail('UNEXPECTED_MODEL_ITEM');messages++;if(item.status&&item.status!=='completed')fail('MODEL_NOT_COMPLETED');for(const c of item.content||[]){if(c.type==='refusal')fail('MODEL_REFUSAL');if(c.type!=='output_text'||typeof c.text!=='string')fail('INVALID_MODEL_CONTENT');parts.push(c.text);}}\n if(messages!==1||!parts.length)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');const text=parts.join('\\n').trim();if(!text)fail('MODEL_TEXT_MISSING_OR_AMBIGUOUS');\n if(spec.format==='language'){if(text==='unknown')fail('LANGUAGE_CONTEXT_REQUIRED');if(text!=='sv'&&text!=='en')fail('INVALID_LANGUAGE_OUTPUT');}\n else{let parsed;try{parsed=JSON.parse(text);}catch{fail('MODEL_INVALID_JSON');}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('MODEL_INVALID_JSON_ROOT');}\n return {...envelope,output:[{type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text}]}]};\n};\nreturn $input.all().map(item=>({...item,json:normalize(item.json,{\"operation\":\"discovery_plan_or_interpret\",\"inputTokenBudget\":24000,\"maxOutputTokens\":3000,\"format\":\"json\",\"operationKey\":\"zeIzzxPwD2Y91OyD:discovery_plan_or_interpret\",\"model\":\"gpt-6-luna\",\"reasoning\":\"low\",\"serviceTier\":\"default\",\"store\":false,\"retries\":0,\"fallback\":null,\"inputLimitEnforcement\":\"proposed admission layer; NOT enforced by this node-config patch\"})}));"
+          }
+        }
+      ],
+      "connectionsBefore": {
+        "Discovery webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate request",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate request": {
+          "main": [
+            [
+              {
+                "node": "Input valid?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Input valid?": {
+          "main": [
+            [
+              {
+                "node": "Build discovery prompt",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Respond discovery",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build discovery prompt": {
+          "main": [
+            [
+              {
+                "node": "Discovery model",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Discovery model": {
+          "main": [
+            [
+              {
+                "node": "Validate model response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate model response": {
+          "main": [
+            [
+              {
+                "node": "Respond discovery",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "connectionsAfter": {
+        "Discovery webhook": {
+          "main": [
+            [
+              {
+                "node": "Validate request",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate request": {
+          "main": [
+            [
+              {
+                "node": "Input valid?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Input valid?": {
+          "main": [
+            [
+              {
+                "node": "Build discovery prompt",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "Respond discovery",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Build discovery prompt": {
+          "main": [
+            [
+              {
+                "node": "Discovery model",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Discovery model": {
+          "main": [
+            [
+              {
+                "node": "Luna output - Discovery model",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Validate model response": {
+          "main": [
+            [
+              {
+                "node": "Respond discovery",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Luna output - Discovery model": {
+          "main": [
+            [
+              {
+                "node": "Validate model response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    }
+  ]
+}

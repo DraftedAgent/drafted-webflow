@@ -1,0 +1,142 @@
+{
+  "slotId": "discovery-role-support:gpt-6-luna:1",
+  "caseId": "discovery-role-support",
+  "model": "gpt-6-luna",
+  "repeat": 1,
+  "requestSha256": "dd3834cf65072b4e773f19dd92b543d0046f25cdd5f492f495b6aaeaacafb48d",
+  "reservationUSD": 0.001275,
+  "startedAt": "2026-10-24T21:58:00.963Z",
+  "httpStatus": 200,
+  "usage": {
+    "input_tokens": 359,
+    "input_tokens_details": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0
+    },
+    "output_tokens": 58,
+    "output_tokens_details": {
+      "reasoning_tokens": 25
+    },
+    "total_tokens": 417
+  },
+  "costUSD": 0.0000649,
+  "requestId": "req_6fca4dd46fb24440ac1acb2aa89e1981",
+  "rawResponseText": "{\n  \"id\": \"resp_0a7b7d42bf597649016add29ea3e9087d28eb9067689e37fd0\",\n  \"object\": \"response\",\n  \"created_at\": 1792879082,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879083,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6-luna\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"rs_0a7b7d42bf597649016add29eadd3087d281a7c1aee4e29a8f\",\n      \"type\": \"reasoning\",\n      \"content\": [],\n      \"encrypted_content\": \"gAAAAABq3SnrLs6shiqglX7aayIbtNNCopTKu0uacv2W9BrC9eXLI0HVJWWdv1mfbzOLU-Ph-v70cqDI_eopBmBIaHYt4Rbr0K3ylkzDyxjK6bdTGpbg-QF4uOIbT9KQ8m545pkL0x9ZQ7NQ4ok2SWusro2iU-jyD8g3qgaVcGPbi6guqAwFjBajg020qXyeoYJhUspp34qMpwWUaq0s-eHCAlEgvxfNsD5tlCYU86q3ko48ZvGgQh4e2_tE9t4TDaVXX6qxCmEUw2d2FluhWr_wmu7ASZ9FAq5gsWqlo2h5B1YOtGX8YpWKEP5OFWXXj0s2ZwegXTW7fKKgT_l5nf_Ndc7FjulnHdgY_Gz-ser58ICtYre9YrrETlIS0E4XJKAolDTbht1IATh9vWVm6vKO0UGkdVsZthnmBr6FF-T63t7kS2NkEZK4afL5wene1YlWaGBO4aZZWvNxY2TcwcT43jlmA_Rtp31sBG2Xk-dfKN2PeWUdvgCQuVtvugwrHs-k0nglHMHM9YoCCzMwVNtp_Q3sJi34Ij1fe5kpjFgjJXaWdro0ppYSXIcM2WTTE2ZKgzF6ViAJQbpaFsyZ6Udq3xoNluPqmbl1yGvnc0dbsEmjULzJYRbHVu386bZJqYeyqJjGkKr0Rg2dImuZaqm7jTXX4pzp1CswRb4AudSIZDR9vS_xNovcFiktGlpmNEDxyfKggcOLHP0syVbh_KqME6xHsIA-IsW3UM5h5gmQD6WCYmDASbbea9vE0fqhSh0GHWGDX3XvGAsOV1exEFkqg_6saiFbKw1mjPi6QFsFSghsZNiooe1GpWe3LlbQ6uaK-OmzE6DIY793HaYhATIQc8g-_-OiufvYxRa5JP88IjbcnRaR3RRcNfU9nLO_dY3JPLEqzel--36ceN921BJDgvjP-jPqaweIEBRetE6Hrei3xlZFi7QsGAglAIb82R-AtrQaKG2dtgFLDCihhn19AWfdZhg82YsQGOXA-Ki9RN6FdCUYqyrZA0dPi5sYyXd5EARWPuslir49X0qK81A_0ik0DC6Z1plIQ-hsag72iayHDRtctCQpETg3UILItwKTnf4aGX2koGKSUb8cBNZzs8ao5pmmiG6XBKuGeftbVJM5_xX_3DQr-E-hkv8GTQsLAVvoo8WaMtKArKeOFW2Jivd5qa6JTjlAvXt7TvPB9ZYgpd9GKK4ZHmRMztyWi4mkjmO8tu6S2gT4V2qziNtTuXM2h5O9bQT0SdxxAmrrZD7AUx-MRNi6N_wcFnjSFt0ONK5hpMLwaJw8aySlALtnDe4a8QyIts-BBDLbLp6Ie9urT26G8dmoAGptwOQRPeC0VmmBzrrtpe7NeXym6YKcMBd09fhzi5zJGq5yrNmW4EMOsLORKtKZqclFbxMx46GgnLFNLh5V40CvKpGIHyeRpH6IFrHuNb1cUOAMygsl0z79WJCA6E7PnP_mMvf1B-NvIoHzphJ8AYu-xUQ1nJLjT3ylU-vbKVsWgh5xaZ2QMFpRyMz_rCa1olzqemY2oCK2GKzKdShBlGhVOcevl7pr7cxuwhQXI8lkQ4nabho4AVVQMPv0VQwe6Lk3xbn0RUFJkGgK4Vi4SjTLHLsERe3Xln_ZEiKF0ac-u7uZBjOOBU5xkx1Jwb9r_uDwJN0-ahz3oqw0oAbgSKTObX_tLEDV1fsIR4DEFOH_dOxgoXSug5VvceDFAYbazpI0Z0djKH-ZupEZHXPbkggCtH1tpBhM0f4mm_MdXxp96T5HsShPK_w0w_TkJdU=\",\n      \"summary\": []\n    },\n    {\n      \"id\": \"msg_0a7b7d42bf597649016add29eb345c87d2bcc4f63b90663cd4\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"assessments\\\":{\\\"s1\\\":{\\\"kind\\\":\\\"question\\\",\\\"question\\\":\\\"Have you led training for external customers?\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 359,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 58,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 25\n    },\n    \"total_tokens\": 417\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+  "envelope": {
+    "id": "resp_0a7b7d42bf597649016add29ea3e9087d28eb9067689e37fd0",
+    "object": "response",
+    "created_at": 1792879082,
+    "status": "completed",
+    "access_programs": null,
+    "background": false,
+    "billing": {
+      "payer": "developer"
+    },
+    "completed_at": 1792879083,
+    "error": null,
+    "frequency_penalty": 0,
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": 1800,
+    "max_tool_calls": null,
+    "model": "gpt-6-luna",
+    "moderation": null,
+    "output": [
+      {
+        "id": "rs_0a7b7d42bf597649016add29eadd3087d281a7c1aee4e29a8f",
+        "type": "reasoning",
+        "content": [],
+        "encrypted_content": "gAAAAABq3SnrLs6shiqglX7aayIbtNNCopTKu0uacv2W9BrC9eXLI0HVJWWdv1mfbzOLU-Ph-v70cqDI_eopBmBIaHYt4Rbr0K3ylkzDyxjK6bdTGpbg-QF4uOIbT9KQ8m545pkL0x9ZQ7NQ4ok2SWusro2iU-jyD8g3qgaVcGPbi6guqAwFjBajg020qXyeoYJhUspp34qMpwWUaq0s-eHCAlEgvxfNsD5tlCYU86q3ko48ZvGgQh4e2_tE9t4TDaVXX6qxCmEUw2d2FluhWr_wmu7ASZ9FAq5gsWqlo2h5B1YOtGX8YpWKEP5OFWXXj0s2ZwegXTW7fKKgT_l5nf_Ndc7FjulnHdgY_Gz-ser58ICtYre9YrrETlIS0E4XJKAolDTbht1IATh9vWVm6vKO0UGkdVsZthnmBr6FF-T63t7kS2NkEZK4afL5wene1YlWaGBO4aZZWvNxY2TcwcT43jlmA_Rtp31sBG2Xk-dfKN2PeWUdvgCQuVtvugwrHs-k0nglHMHM9YoCCzMwVNtp_Q3sJi34Ij1fe5kpjFgjJXaWdro0ppYSXIcM2WTTE2ZKgzF6ViAJQbpaFsyZ6Udq3xoNluPqmbl1yGvnc0dbsEmjULzJYRbHVu386bZJqYeyqJjGkKr0Rg2dImuZaqm7jTXX4pzp1CswRb4AudSIZDR9vS_xNovcFiktGlpmNEDxyfKggcOLHP0syVbh_KqME6xHsIA-IsW3UM5h5gmQD6WCYmDASbbea9vE0fqhSh0GHWGDX3XvGAsOV1exEFkqg_6saiFbKw1mjPi6QFsFSghsZNiooe1GpWe3LlbQ6uaK-OmzE6DIY793HaYhATIQc8g-_-OiufvYxRa5JP88IjbcnRaR3RRcNfU9nLO_dY3JPLEqzel--36ceN921BJDgvjP-jPqaweIEBRetE6Hrei3xlZFi7QsGAglAIb82R-AtrQaKG2dtgFLDCihhn19AWfdZhg82YsQGOXA-Ki9RN6FdCUYqyrZA0dPi5sYyXd5EARWPuslir49X0qK81A_0ik0DC6Z1plIQ-hsag72iayHDRtctCQpETg3UILItwKTnf4aGX2koGKSUb8cBNZzs8ao5pmmiG6XBKuGeftbVJM5_xX_3DQr-E-hkv8GTQsLAVvoo8WaMtKArKeOFW2Jivd5qa6JTjlAvXt7TvPB9ZYgpd9GKK4ZHmRMztyWi4mkjmO8tu6S2gT4V2qziNtTuXM2h5O9bQT0SdxxAmrrZD7AUx-MRNi6N_wcFnjSFt0ONK5hpMLwaJw8aySlALtnDe4a8QyIts-BBDLbLp6Ie9urT26G8dmoAGptwOQRPeC0VmmBzrrtpe7NeXym6YKcMBd09fhzi5zJGq5yrNmW4EMOsLORKtKZqclFbxMx46GgnLFNLh5V40CvKpGIHyeRpH6IFrHuNb1cUOAMygsl0z79WJCA6E7PnP_mMvf1B-NvIoHzphJ8AYu-xUQ1nJLjT3ylU-vbKVsWgh5xaZ2QMFpRyMz_rCa1olzqemY2oCK2GKzKdShBlGhVOcevl7pr7cxuwhQXI8lkQ4nabho4AVVQMPv0VQwe6Lk3xbn0RUFJkGgK4Vi4SjTLHLsERe3Xln_ZEiKF0ac-u7uZBjOOBU5xkx1Jwb9r_uDwJN0-ahz3oqw0oAbgSKTObX_tLEDV1fsIR4DEFOH_dOxgoXSug5VvceDFAYbazpI0Z0djKH-ZupEZHXPbkggCtH1tpBhM0f4mm_MdXxp96T5HsShPK_w0w_TkJdU=",
+        "summary": []
+      },
+      {
+        "id": "msg_0a7b7d42bf597649016add29eb345c87d2bcc4f63b90663cd4",
+        "type": "message",
+        "status": "completed",
+        "content": [
+          {
+            "type": "output_text",
+            "annotations": [],
+            "logprobs": [],
+            "text": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training for external customers?\"}}}"
+          }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+      }
+    ],
+    "parallel_tool_calls": true,
+    "presence_penalty": 0,
+    "previous_response_id": null,
+    "prompt_cache_key": null,
+    "prompt_cache_retention": "24h",
+    "reasoning": {
+      "context": "all_turns",
+      "effort": "low",
+      "mode": "standard",
+      "summary": null
+    },
+    "safety_identifier": null,
+    "service_tier": "default",
+    "store": false,
+    "temperature": 1,
+    "text": {
+      "format": {
+        "type": "json_object"
+      },
+      "verbosity": "medium"
+    },
+    "tool_choice": "auto",
+    "tool_usage": {
+      "image_gen": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 0
+        },
+        "total_tokens": 0
+      },
+      "web_search": {
+        "num_requests": 0
+      }
+    },
+    "tools": [],
+    "top_logprobs": 0,
+    "top_p": 0.98,
+    "truncation": "disabled",
+    "usage": {
+      "input_tokens": 359,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 58,
+      "output_tokens_details": {
+        "reasoning_tokens": 25
+      },
+      "total_tokens": 417
+    },
+    "user": null,
+    "metadata": {}
+  },
+  "actualModel": "gpt-6-luna",
+  "outputText": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training for external customers?\"}}}",
+  "refusals": [],
+  "parsedOutput": {
+    "assessments": {
+      "s1": {
+        "kind": "question",
+        "question": "Have you led training for external customers?"
+      }
+    }
+  },
+  "technicalOutcome": "completed_json",
+  "schemaValid": true,
+  "contentAssessment": "pending_direct_original_review",
+  "durationMs": 2127
+}

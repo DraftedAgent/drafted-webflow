@@ -1,0 +1,180 @@
+{
+  "localOnly": true,
+  "externalModelCalls": 0,
+  "workflowWrites": 0,
+  "total": 41,
+  "passed": 41,
+  "failed": [],
+  "checks": [
+    {
+      "name": "delivery preparation rejects same-version code drift and inherits only existing credential reference",
+      "pass": true
+    },
+    {
+      "name": "direct HTTP uses API fields, no native-only sentinel or extra call machinery",
+      "pass": true
+    },
+    {
+      "name": "exactly two existing Code nodes change; original model, guard, interpretation config, settings unchanged",
+      "pass": true
+    },
+    {
+      "name": "compiled Build uses exactly shared factory; actual two API roles; strict wire body and unchanged Luna limits",
+      "pass": true
+    },
+    {
+      "name": "actual graph sends exactly one planning call and returns unchanged public 1.0 composition",
+      "pass": true
+    },
+    {
+      "name": "all saved synthetic interpretation requests retain byte-identical prompt, native API configuration and output",
+      "pass": true
+    },
+    {
+      "name": "same public invalid-input response without model call",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: missing signal",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: unknown signal",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: null assessment",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: model question owner",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: hidden owner field",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: identity override",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: format override",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: blank question",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: oversized question",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: unknown source",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: duplicate source",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: invented zero excuse",
+      "pass": true
+    },
+    {
+      "name": "strict rejection: empty success",
+      "pass": true
+    },
+    {
+      "name": "stale binding: request identity",
+      "pass": true
+    },
+    {
+      "name": "stale binding: context revision",
+      "pass": true
+    },
+    {
+      "name": "stale binding: CV text",
+      "pass": true
+    },
+    {
+      "name": "stale binding: job ad signal",
+      "pass": true
+    },
+    {
+      "name": "parallel/stale execution IDs cannot reuse binding",
+      "pass": true
+    },
+    {
+      "name": "server binding does not mutate original input, raw model result, or original CV text",
+      "pass": true
+    },
+    {
+      "name": "complete valid zero survives; omission never becomes zero",
+      "pass": true
+    },
+    {
+      "name": "evidence audit still copies exact full original source with whitespace",
+      "pass": true
+    },
+    {
+      "name": "no evidence omits cv_supported branch, no empty enums; empty signal catalog accepted",
+      "pass": true
+    },
+    {
+      "name": "maximum public catalog shares evidence enum once and requires all 20 signal keys",
+      "pass": true
+    },
+    {
+      "name": "exact text grouping retained; paraphrase/whitespace variation not deduplicated",
+      "pass": true
+    },
+    {
+      "name": "27 complete question assignments retain every signal once with backend-created owners",
+      "pass": true
+    },
+    {
+      "name": "transport/guard stops, never empty success: timeout",
+      "pass": true
+    },
+    {
+      "name": "transport/guard stops, never empty success: HTTP 429",
+      "pass": true
+    },
+    {
+      "name": "transport/guard stops, never empty success: HTTP 500",
+      "pass": true
+    },
+    {
+      "name": "transport/guard stops, never empty success: token cutoff",
+      "pass": true
+    },
+    {
+      "name": "transport/guard stops, never empty success: refusal",
+      "pass": true
+    },
+    {
+      "name": "transport/guard stops, never empty success: invalid JSON",
+      "pass": true
+    },
+    {
+      "name": "transport/guard stops, never empty success: missing output",
+      "pass": true
+    },
+    {
+      "name": "transport/guard stops, never empty success: aborted response",
+      "pass": true
+    },
+    {
+      "name": "compiled validator accepts normalized native object and raw HTTP text identically",
+      "pass": true
+    }
+  ],
+  "limits": [
+    "VM graph replay substitutes model transport and IF evaluation; not a live n8n execution.",
+    "Existing shared guard fails hard on transport/refusal/truncation, as before; no client or guard changes in this package.",
+    "Schema acceptance and HTTP credential wiring require controlled deployment verification; no model request was made.",
+    "Structural acceptance does not prove source entailment, question relevance or stable question counts."
+  ]
+}

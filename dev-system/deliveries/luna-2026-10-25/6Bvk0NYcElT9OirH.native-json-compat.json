@@ -1,0 +1,106 @@
+{
+  "reason": "Native n8n JSON output is sometimes already parsed to an object; accept object or string before unchanged validation.",
+  "scope": "Necessary API/response handling only; no prompt, model, product or contract change.",
+  "proof": {
+    "id": "6Bvk0NYcElT9OirH",
+    "name": "Main-UploadPreview",
+    "savedVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a",
+    "activeVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a",
+    "active": true,
+    "phase": "published",
+    "projectionVerified": true,
+    "activeProjectionVerified": true,
+    "projectionSha256": "d5d4314df8115899b34f21327a8c33ee6a3503d844137490596b349f1bb97737",
+    "modelNodes": [
+      {
+        "id": "121e26a6-8f2a-4362-ade9-8dfee9463488",
+        "name": "LanguageDetectionModel",
+        "model": "gpt-6-luna"
+      },
+      {
+        "id": "22f90be5-10a7-4fe0-9565-9578e90328f0",
+        "name": "SV-CVParserModel",
+        "model": "gpt-6-luna"
+      },
+      {
+        "id": "b2c1542c-b7c4-4dd0-9d06-f1ac2e184784",
+        "name": "SV-CVRewriteModel",
+        "model": "gpt-6-luna"
+      },
+      {
+        "id": "1d899474-f37e-4901-bebb-8f975a6be4d1",
+        "name": "EN-CVParserModel1",
+        "model": "gpt-6-luna"
+      },
+      {
+        "id": "6a78d789-7efc-4c0c-ba4d-e049ab3778e2",
+        "name": "EN-CVRewriteModel",
+        "model": "gpt-6-luna"
+      }
+    ],
+    "guardNodes": [
+      "Luna output - LanguageDetectionModel",
+      "Luna output - SV-CVParserModel",
+      "Luna output - SV-CVRewriteModel",
+      "Luna output - EN-CVParserModel1",
+      "Luna output - EN-CVRewriteModel"
+    ]
+  },
+  "changedGuards": [
+    "Luna output - SV-CVRewriteModel",
+    "Luna output - EN-CVRewriteModel"
+  ],
+  "preSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T225006510Z__6Bvk0NYcElT9OirH__c73b210d-3bac-4750-8753-4530b10fb671__LUNA-pre-native-json-compat.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T225006510Z__6Bvk0NYcElT9OirH__c73b210d-3bac-4750-8753-4530b10fb671__LUNA-pre-native-json-compat.dpapi.manifest.json",
+    "plaintextSha256": "281e681f00d47ff7888128a1ed00676700c1f929a92b8019faefc17c04dc13ec",
+    "verified": true,
+    "workflowId": "6Bvk0NYcElT9OirH",
+    "versionId": "c73b210d-3bac-4750-8753-4530b10fb671",
+    "label": "pre-native-json-compat",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:50:13.9270958Z"
+  },
+  "candidateSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T225013942Z__6Bvk0NYcElT9OirH__c73b210d-3bac-4750-8753-4530b10fb671__LUNA-native-json-compatible-candidate.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T225013942Z__6Bvk0NYcElT9OirH__c73b210d-3bac-4750-8753-4530b10fb671__LUNA-native-json-compatible-candidate.dpapi.manifest.json",
+    "plaintextSha256": "e22cdc3a085a9facac41e5348f31ae669d211125dea77a259a18b8bbf8951b9e",
+    "verified": true,
+    "workflowId": "6Bvk0NYcElT9OirH",
+    "versionId": "c73b210d-3bac-4750-8753-4530b10fb671",
+    "label": "native-json-compatible-candidate",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:50:17.5450489Z"
+  },
+  "savedSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T225018596Z__6Bvk0NYcElT9OirH__dbaffef6-c149-4bad-a016-83269c50e47a__LUNA-native-json-saved-before-publish.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T225018596Z__6Bvk0NYcElT9OirH__dbaffef6-c149-4bad-a016-83269c50e47a__LUNA-native-json-saved-before-publish.dpapi.manifest.json",
+    "plaintextSha256": "8dcc08c07274190f6e64d5ee1d1a83e30b53101b5ef33a3bb8e045fba8e30a98",
+    "verified": true,
+    "workflowId": "6Bvk0NYcElT9OirH",
+    "versionId": "dbaffef6-c149-4bad-a016-83269c50e47a",
+    "label": "native-json-saved-before-publish",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:50:25.9102370Z"
+  },
+  "postSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T225026688Z__6Bvk0NYcElT9OirH__dbaffef6-c149-4bad-a016-83269c50e47a__LUNA-native-json-published.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T225026688Z__6Bvk0NYcElT9OirH__dbaffef6-c149-4bad-a016-83269c50e47a__LUNA-native-json-published.dpapi.manifest.json",
+    "plaintextSha256": "eac5eb73d11a385e0375de08f0c695b01e50cad0dbf922be6d83123a817a7021",
+    "verified": true,
+    "workflowId": "6Bvk0NYcElT9OirH",
+    "versionId": "dbaffef6-c149-4bad-a016-83269c50e47a",
+    "label": "native-json-published",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:50:34.0879073Z"
+  },
+  "modelExecutionsInitiated": 0
+}

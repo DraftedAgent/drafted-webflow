@@ -1,0 +1,49 @@
+{
+  "localOnly": true,
+  "externalModelCalls": 0,
+  "enumeratedValidQuestionAssignments": 81,
+  "acceptedPlanInvariants": {
+    "everySignalRetainedExactlyOnce": true,
+    "noSignalRefReusedAcrossTopics": true,
+    "everyTopicHasAtLeastOneSignal": true,
+    "questionOwnersCreatedByBackend": true,
+    "originalRequestAndModelTextUnchanged": true
+  },
+  "rejectedCases": [
+    "missing_signal",
+    "unknown_signal",
+    "null_assessment",
+    "legacy_model_owner",
+    "unknown_evidence",
+    "duplicate_evidence",
+    "stale_request",
+    "stale_context",
+    "wrong_profile",
+    "invalid_no_question_excuse"
+  ],
+  "evidenceQuotes": "Backend copies full original CV block including whitespace; exact quote does not establish semantic support.",
+  "limitationsDemonstrated": {
+    "paraphrasedSameIntent": {
+      "topics": 2,
+      "meaning": "Not deduplicated; exact text is not semantic grouping."
+    },
+    "identicalGenericQuestionDifferentRequirements": {
+      "topics": 1,
+      "signalRefs": 2,
+      "meaning": "Can incorrectly group different requirements; the model must supply meaningful specific wording."
+    },
+    "whitespaceVariant": {
+      "topics": 2,
+      "meaning": "Even whitespace differences can produce separate topics."
+    },
+    "structurallyValidWrongCVSupport": {
+      "topics": 0,
+      "meaning": "Backend accepts well-formed source selection even when the CV does not substantiate these role/scope requirements. This is an explicit remaining semantic risk, not a correct-content success."
+    }
+  },
+  "notClaimed": [
+    "No observed model failure rate or count stability measured.",
+    "No fix for duplicated/paraphrased/variable questions claimed.",
+    "No guarantees extended to answer interpretation or Tailor."
+  ]
+}

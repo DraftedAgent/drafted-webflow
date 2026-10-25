@@ -1,0 +1,63 @@
+{
+  "proof": {
+    "id": "zeIzzxPwD2Y91OyD",
+    "name": "Drafted Experience Discovery v1 (inactive development)",
+    "savedVersionId": "454f3815-87e2-479e-ad8a-b1a9d5baa6b1",
+    "activeVersionId": "454f3815-87e2-479e-ad8a-b1a9d5baa6b1",
+    "active": true,
+    "phase": "published",
+    "projectionVerified": true,
+    "activeProjectionVerified": true,
+    "projectionSha256": "26eec5034d05d10b97f643e1fc4800b37db3bae29571769246a70ac90f96f3a1",
+    "modelNodes": [
+      {
+        "id": "9a79bee3-7feb-47aa-a263-3e1f1a9193fc",
+        "name": "Discovery model",
+        "model": "gpt-6-luna"
+      }
+    ],
+    "guardNodes": [
+      "Luna output - Discovery model"
+    ]
+  },
+  "preSaveSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T224853372Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__LUNA-pre-save.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T224853372Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__LUNA-pre-save.dpapi.manifest.json",
+    "plaintextSha256": "d808b7adb68621f05310f9c3a6ca0b76a25805b9cde4acddfde55c370b00f5be",
+    "verified": true,
+    "workflowId": "zeIzzxPwD2Y91OyD",
+    "versionId": "6336f54e-9913-4976-bd32-78d8508338d5",
+    "label": "pre-save",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:48:58.3594614Z"
+  },
+  "savedSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T224858903Z__zeIzzxPwD2Y91OyD__454f3815-87e2-479e-ad8a-b1a9d5baa6b1__LUNA-saved-before-publish.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T224858903Z__zeIzzxPwD2Y91OyD__454f3815-87e2-479e-ad8a-b1a9d5baa6b1__LUNA-saved-before-publish.dpapi.manifest.json",
+    "plaintextSha256": "b48cd89e4a974f24fb769f074290a8a78cc1e4484266d7c79b4be060808043c3",
+    "verified": true,
+    "workflowId": "zeIzzxPwD2Y91OyD",
+    "versionId": "454f3815-87e2-479e-ad8a-b1a9d5baa6b1",
+    "label": "saved-before-publish",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:49:03.9004631Z"
+  },
+  "postPublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T224904602Z__zeIzzxPwD2Y91OyD__454f3815-87e2-479e-ad8a-b1a9d5baa6b1__LUNA-published.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T224904602Z__zeIzzxPwD2Y91OyD__454f3815-87e2-479e-ad8a-b1a9d5baa6b1__LUNA-published.dpapi.manifest.json",
+    "plaintextSha256": "ce76a08a772dd48fde48893b319c87e2b0cf187c7fe75625d2f1f33134797979",
+    "verified": true,
+    "workflowId": "zeIzzxPwD2Y91OyD",
+    "versionId": "454f3815-87e2-479e-ad8a-b1a9d5baa6b1",
+    "label": "published",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:49:09.7267664Z"
+  },
+  "modelExecutionsInitiated": 0
+}

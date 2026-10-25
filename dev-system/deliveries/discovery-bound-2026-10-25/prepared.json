@@ -1,0 +1,55 @@
+{
+  "snapshots": [
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122927320Z__zeIzzxPwD2Y91OyD__8c5750c8-370b-4829-941a-b64ce90ddf03__LUNA-BOUND-before.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122927320Z__zeIzzxPwD2Y91OyD__8c5750c8-370b-4829-941a-b64ce90ddf03__LUNA-BOUND-before.dpapi.manifest.json",
+      "plaintextSha256": "a9f219b91a16f772286e6b9eb554afc3a3f6763b8bfd369bd787b6a13efff2a4",
+      "verified": true,
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "versionId": "8c5750c8-370b-4829-941a-b64ce90ddf03",
+      "label": "BOUND-before",
+      "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+      "packageSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T12:29:33.1904853Z"
+    },
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122933199Z__zeIzzxPwD2Y91OyD__8c5750c8-370b-4829-941a-b64ce90ddf03__LUNA-BOUND-candidate.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122933199Z__zeIzzxPwD2Y91OyD__8c5750c8-370b-4829-941a-b64ce90ddf03__LUNA-BOUND-candidate.dpapi.manifest.json",
+      "plaintextSha256": "ab554b7be02b9062d5c38ad9b460738848454d8ee6dd2c312f46ab6fca1290ba",
+      "verified": true,
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "versionId": "8c5750c8-370b-4829-941a-b64ce90ddf03",
+      "label": "BOUND-candidate",
+      "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+      "packageSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T12:29:36.2541188Z"
+    },
+    {
+      "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122937226Z__zeIzzxPwD2Y91OyD__5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5__LUNA-BOUND-saved-not-active.dpapi",
+      "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261025T122937226Z__zeIzzxPwD2Y91OyD__5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5__LUNA-BOUND-saved-not-active.dpapi.manifest.json",
+      "plaintextSha256": "60b7506d21b14cdf0ddf2d00f29c08bab96ede4da3c4c3aefd777ece8ace9272",
+      "verified": true,
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "versionId": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+      "label": "BOUND-saved-not-active",
+      "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+      "packageSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+      "instanceHost": "drafted.app.n8n.cloud",
+      "createdUtc": "2026-10-25T12:29:47.0178231Z"
+    }
+  ],
+  "proof": {
+    "id": "zeIzzxPwD2Y91OyD",
+    "savedVersionId": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+    "activeVersionId": "8c5750c8-370b-4829-941a-b64ce90ddf03",
+    "activeProjectionVerified": false,
+    "savedProjectionVerified": true,
+    "candidateProjectionSha256": "63b2b35db93bf3b68f88ba5494a6bd39f9ff25f2ed2271a065c087463c60a8bb",
+    "proposalSha256": "92c2634907b46e8ce421fe8f816f2d21024acb0116481df746ab6b008daa4f20",
+    "model": "gpt-6-luna"
+  },
+  "modelCallsInitiated": 0,
+  "status": "saved_not_active"
+}

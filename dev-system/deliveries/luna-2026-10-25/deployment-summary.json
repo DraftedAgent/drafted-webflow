@@ -1,0 +1,193 @@
+{
+  "date": "2026-10-25",
+  "status": "deployed_and_active_verified",
+  "approvedBasePackageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+  "workflowCount": 6,
+  "modelCount": 13,
+  "models": [
+    {
+      "workflow": "Editor Rewrite Section",
+      "node": "SV-EditorRewriteModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "644c0203-e7ca-4be8-b1c8-a1b16bf8b6ef"
+    },
+    {
+      "workflow": "Editor Rewrite Section",
+      "node": "LanguageDetectionModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "644c0203-e7ca-4be8-b1c8-a1b16bf8b6ef"
+    },
+    {
+      "workflow": "Editor Rewrite Section",
+      "node": "EN-EditorRewriteModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "644c0203-e7ca-4be8-b1c8-a1b16bf8b6ef"
+    },
+    {
+      "workflow": "Main-UploadPreview",
+      "node": "LanguageDetectionModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a"
+    },
+    {
+      "workflow": "Main-UploadPreview",
+      "node": "SV-CVParserModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a"
+    },
+    {
+      "workflow": "Main-UploadPreview",
+      "node": "SV-CVRewriteModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a"
+    },
+    {
+      "workflow": "Main-UploadPreview",
+      "node": "EN-CVParserModel1",
+      "model": "gpt-6-luna",
+      "activeVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a"
+    },
+    {
+      "workflow": "Main-UploadPreview",
+      "node": "EN-CVRewriteModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "dbaffef6-c149-4bad-a016-83269c50e47a"
+    },
+    {
+      "workflow": "webflow-tailor-CV",
+      "node": "TailorModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "c7503539-0e08-4a49-958b-6467aea8d911"
+    },
+    {
+      "workflow": "webflow-tailor-CV",
+      "node": "Tailor sources model",
+      "model": "gpt-6-luna",
+      "activeVersionId": "c7503539-0e08-4a49-958b-6467aea8d911"
+    },
+    {
+      "workflow": "Editor Chat",
+      "node": "AI Chat Model",
+      "model": "gpt-6-luna",
+      "activeVersionId": "ae916f25-ffac-4b84-8575-d2683ca46862"
+    },
+    {
+      "workflow": "flow-jobcontext-extract",
+      "node": "JobContextExtractModel",
+      "model": "gpt-6-luna",
+      "activeVersionId": "5f91b0bd-f187-4295-a66e-f0d5ce417625"
+    },
+    {
+      "workflow": "Drafted Experience Discovery v1 (inactive development)",
+      "node": "Discovery model",
+      "model": "gpt-6-luna",
+      "activeVersionId": "c1188d30-de7e-44a0-9fc3-f148a1929d05"
+    }
+  ],
+  "rollback": {
+    "verifiedEncryptedSnapshots": 38,
+    "root": "C:/Users/wallg/AppData/Local/Drafted/dev-system-backups/n8n",
+    "originalSnapshots": [
+      {
+        "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\3fy8qAJngSRWzP35\\20261024T224546820Z__3fy8qAJngSRWzP35__39d17aac-c638-48ac-b48f-5f51a99e34e4__LUNA-before.dpapi",
+        "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\3fy8qAJngSRWzP35\\20261024T224546820Z__3fy8qAJngSRWzP35__39d17aac-c638-48ac-b48f-5f51a99e34e4__LUNA-before.dpapi.manifest.json",
+        "plaintextSha256": "b8bbfcd7265e2dc2996df2aa36153537a66f9173bf6bbc72d07017088f6ae188",
+        "verified": true,
+        "workflowId": "3fy8qAJngSRWzP35",
+        "versionId": "39d17aac-c638-48ac-b48f-5f51a99e34e4",
+        "label": "before",
+        "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+        "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+        "instanceHost": "drafted.app.n8n.cloud",
+        "createdUtc": "2026-10-24T22:45:47.9472286Z"
+      },
+      {
+        "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T224548543Z__6Bvk0NYcElT9OirH__8c44dfe5-0fb8-4ea8-a25f-81b2f9080485__LUNA-before.dpapi",
+        "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261024T224548543Z__6Bvk0NYcElT9OirH__8c44dfe5-0fb8-4ea8-a25f-81b2f9080485__LUNA-before.dpapi.manifest.json",
+        "plaintextSha256": "4a4203101a19d219ffa944278d103d5e465faacb5def7ebe89e8d9859b338b97",
+        "verified": true,
+        "workflowId": "6Bvk0NYcElT9OirH",
+        "versionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+        "label": "before",
+        "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+        "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+        "instanceHost": "drafted.app.n8n.cloud",
+        "createdUtc": "2026-10-24T22:45:54.8171170Z"
+      },
+      {
+        "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T224558435Z__H8oAioy58R1v3PvRe3YUa__a5196f17-4ccc-41db-8993-9b6c5fe466dd__LUNA-before.dpapi",
+        "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\H8oAioy58R1v3PvRe3YUa\\20261024T224558435Z__H8oAioy58R1v3PvRe3YUa__a5196f17-4ccc-41db-8993-9b6c5fe466dd__LUNA-before.dpapi.manifest.json",
+        "plaintextSha256": "41e0de78f0079d7d18c9e7e62e5a5fc7420357cd9f4908685e6d50e18b204734",
+        "verified": true,
+        "workflowId": "H8oAioy58R1v3PvRe3YUa",
+        "versionId": "a5196f17-4ccc-41db-8993-9b6c5fe466dd",
+        "label": "before",
+        "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+        "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+        "instanceHost": "drafted.app.n8n.cloud",
+        "createdUtc": "2026-10-24T22:46:04.1041892Z"
+      },
+      {
+        "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261024T224607083Z__QQGNXYv4hej0HBwc__05267b96-2433-4c2e-965b-31b61358855a__LUNA-before.dpapi",
+        "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261024T224607083Z__QQGNXYv4hej0HBwc__05267b96-2433-4c2e-965b-31b61358855a__LUNA-before.dpapi.manifest.json",
+        "plaintextSha256": "ee526177feb26a13d19b400d22d87048912f66a8ddfeeb4647d6bc0615106f67",
+        "verified": true,
+        "workflowId": "QQGNXYv4hej0HBwc",
+        "versionId": "05267b96-2433-4c2e-965b-31b61358855a",
+        "label": "before",
+        "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+        "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+        "instanceHost": "drafted.app.n8n.cloud",
+        "createdUtc": "2026-10-24T22:46:08.1116139Z"
+      },
+      {
+        "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\ytcb-PU8k9igpv5B7BmX7\\20261024T224608479Z__ytcb-PU8k9igpv5B7BmX7__f308bdb8-5ec5-4db6-a105-faf4c134bec2__LUNA-before.dpapi",
+        "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\ytcb-PU8k9igpv5B7BmX7\\20261024T224608479Z__ytcb-PU8k9igpv5B7BmX7__f308bdb8-5ec5-4db6-a105-faf4c134bec2__LUNA-before.dpapi.manifest.json",
+        "plaintextSha256": "50e87785b347a9431c414743103940bd534fb98d4f1b22fa14dd725fbb104529",
+        "verified": true,
+        "workflowId": "ytcb-PU8k9igpv5B7BmX7",
+        "versionId": "f308bdb8-5ec5-4db6-a105-faf4c134bec2",
+        "label": "before",
+        "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+        "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+        "instanceHost": "drafted.app.n8n.cloud",
+        "createdUtc": "2026-10-24T22:46:09.2221530Z"
+      },
+      {
+        "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T224609539Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__LUNA-before.dpapi",
+        "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\zeIzzxPwD2Y91OyD\\20261024T224609539Z__zeIzzxPwD2Y91OyD__6336f54e-9913-4976-bd32-78d8508338d5__LUNA-before.dpapi.manifest.json",
+        "plaintextSha256": "d808b7adb68621f05310f9c3a6ca0b76a25805b9cde4acddfde55c370b00f5be",
+        "verified": true,
+        "workflowId": "zeIzzxPwD2Y91OyD",
+        "versionId": "6336f54e-9913-4976-bd32-78d8508338d5",
+        "label": "before",
+        "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+        "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+        "instanceHost": "drafted.app.n8n.cloud",
+        "createdUtc": "2026-10-24T22:46:14.5063868Z"
+      }
+    ]
+  },
+  "responseCompatibility": {
+    "reason": "n8n may parse json_object/json_schema output_text to an object; three guards now accept object or string before unchanged validation.",
+    "changedGuards": [
+      "Luna output - SV-CVRewriteModel",
+      "Luna output - EN-CVRewriteModel",
+      "Luna output - Discovery model"
+    ],
+    "localChecks": "Three compiled guards accept native JSON objects and reject null/array/scalar values; no model calls.",
+    "patchSha256": "98b68b843930aee1c3290b27b1d1c0204e50f9557a8bf8d25a417b5185194789"
+  },
+  "noAutomaticSolFallback": true,
+  "v3Activated": false,
+  "verifierAdded": false,
+  "newProductFeatures": false,
+  "modelExecutionsInitiated": 0,
+  "additionalPilotRuns": 0,
+  "webflowPublished": false,
+  "githubWrites": false,
+  "pdfExportChanged": false,
+  "verification": "Fresh management API read of saved and active definitions; full node/connection/settings projection matches deployed candidate. This is not a model quality test.",
+  "workflowUpdateCalls": 8,
+  "activationCalls": 8
+}

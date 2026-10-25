@@ -1,0 +1,6 @@
+{
+  "helper.cjs": "c8bf1890b62dd0c25a3ec618c7145a28ba99dda1173089268cf2da16e79d1518",
+  "deploy.ps1": "3b65594b87b31ec75646bb7ec392db1accfaf716f462ffa6fd4d52af96d7bb3b",
+  "native-json-compat.cjs": "98b68b843930aee1c3290b27b1d1c0204e50f9557a8bf8d25a417b5185194789",
+  "finalize.cjs": "c19e9f975d5557beb96b320c7fe4d1bbeed89438156ea5a3aa43ba1e6a36d493"
+}

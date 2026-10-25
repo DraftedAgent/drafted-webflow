@@ -1,0 +1,103 @@
+{
+  "response": {
+    "ok": true,
+    "schemaVersion": "1.0",
+    "operation": "plan",
+    "requestId": "schema-smoke-454d3023-6858-425e-9ff1-20ec0db3748e",
+    "contextRevision": "synthetic-schema-context",
+    "result": {
+      "topics": [
+        {
+          "key": "question_signal_topPriorities_0",
+          "question": "Have you helped plan the work needed to deliver a product or project?",
+          "signalRefs": [
+            {
+              "field": "topPriorities",
+              "index": 0
+            }
+          ],
+          "support": "unclear",
+          "evidence": []
+        },
+        {
+          "key": "question_signal_topPriorities_1",
+          "question": "Have you run a training workshop?",
+          "signalRefs": [
+            {
+              "field": "topPriorities",
+              "index": 1
+            }
+          ],
+          "support": "unclear",
+          "evidence": []
+        },
+        {
+          "key": "question_signal_mustHave_0",
+          "question": "Are you willing to travel for work?",
+          "signalRefs": [
+            {
+              "field": "mustHave",
+              "index": 0
+            }
+          ],
+          "support": "unclear",
+          "evidence": []
+        }
+      ]
+    }
+  },
+  "status": 200,
+  "request": {
+    "schemaVersion": "1.0",
+    "operation": "plan",
+    "requestId": "schema-smoke-454d3023-6858-425e-9ff1-20ec0db3748e",
+    "contextRevision": "synthetic-schema-context",
+    "conversationLanguage": "en",
+    "cvVersionId": "synthetic-schema-cv",
+    "blocksSchemaVersion": "1.0",
+    "blocks": [
+      {
+        "blockId": "synthetic-summary",
+        "type": "summary",
+        "label": "Profile",
+        "order": 10,
+        "text": "Software tester. Tested internal releases. Did not lead delivery planning."
+      }
+    ],
+    "jobContextSchemaVersion": "1.0",
+    "jobContext": {
+      "roleTitle": "Product Specialist",
+      "seniority": "mid",
+      "surfaces": [
+        "app"
+      ],
+      "tone": "balanced",
+      "topPriorities": [
+        {
+          "signal": "Lead delivery planning",
+          "weight": 5
+        },
+        {
+          "signal": "Run training workshops",
+          "weight": 4
+        }
+      ],
+      "mustHave": [
+        "Willingness to travel"
+      ],
+      "successMetrics": [],
+      "keywords": [
+        "product",
+        "planning",
+        "delivery",
+        "workshops",
+        "collaboration",
+        "research",
+        "users",
+        "design",
+        "development",
+        "communication"
+      ]
+    }
+  }
+}

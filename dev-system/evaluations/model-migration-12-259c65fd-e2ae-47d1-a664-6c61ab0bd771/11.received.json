@@ -1,0 +1,109 @@
+{
+  "slotId": "tailor-translation-role-negation:gpt-6.1-sol:2",
+  "caseId": "tailor-translation-role-negation",
+  "model": "gpt-6.1-sol",
+  "repeat": 2,
+  "requestSha256": "e1d53ffd6c7dc0820aad2b2e9b5a2f152b1706aeaee59841e764116f0880382f",
+  "reservationUSD": 0.0255,
+  "startedAt": "2026-10-24T21:58:18.042Z",
+  "httpStatus": 200,
+  "usage": null,
+  "costUSD": null,
+  "requestId": "req_70778f365f164aec83a9ffcef8787568",
+  "rawResponseText": "{\n  \"id\": \"resp_0fb97fd2dcee2a8d016add29fad34487d2821f0c69e7840496\",\n  \"object\": \"response\",\n  \"created_at\": 1792879098,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879101,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6.1-sol\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_0fb97fd2dcee2a8d016add29fc65e087d2ad3d1f16eb008099\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"decisions\\\":{\\\"u1\\\":{\\\"kind\\\":\\\"rewrite\\\",\\\"targetRef\\\":\\\"t1\\\",\\\"text\\\":\\\"Community Project \\u2014 Volont\\u00e4r. Bidrog till genomf\\u00f6randet av tv\\u00e5 interna workshoppar och testade \\u00f6vningarna.\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 427,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 54,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 481\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+  "envelope": {
+    "id": "resp_0fb97fd2dcee2a8d016add29fad34487d2821f0c69e7840496",
+    "object": "response",
+    "created_at": 1792879098,
+    "status": "completed",
+    "access_programs": null,
+    "background": false,
+    "billing": {
+      "payer": "developer"
+    },
+    "completed_at": 1792879101,
+    "error": null,
+    "frequency_penalty": 0,
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": 1800,
+    "max_tool_calls": null,
+    "model": "gpt-6.1-sol",
+    "moderation": null,
+    "output": [
+      {
+        "id": "msg_0fb97fd2dcee2a8d016add29fc65e087d2ad3d1f16eb008099",
+        "type": "message",
+        "status": "completed",
+        "content": [
+          {
+            "type": "output_text",
+            "annotations": [],
+            "logprobs": [],
+            "text": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Community Project — Volontär. Bidrog till genomförandet av två interna workshoppar och testade övningarna.\"}}}"
+          }
+        ],
+        "phase": "final_answer",
+        "role": "assistant"
+      }
+    ],
+    "parallel_tool_calls": true,
+    "presence_penalty": 0,
+    "previous_response_id": null,
+    "prompt_cache_key": null,
+    "prompt_cache_retention": "24h",
+    "reasoning": {
+      "context": "all_turns",
+      "effort": "low",
+      "mode": "standard",
+      "summary": null
+    },
+    "safety_identifier": null,
+    "service_tier": "default",
+    "store": false,
+    "temperature": 1,
+    "text": {
+      "format": {
+        "type": "json_object"
+      },
+      "verbosity": "medium"
+    },
+    "tool_choice": "auto",
+    "tool_usage": {
+      "image_gen": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "image_tokens": 0,
+          "text_tokens": 0
+        },
+        "total_tokens": 0
+      },
+      "web_search": {
+        "num_requests": 0
+      }
+    },
+    "tools": [],
+    "top_logprobs": 0,
+    "top_p": 0.98,
+    "truncation": "disabled",
+    "usage": {
+      "input_tokens": 427,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      },
+      "output_tokens": 54,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 481
+    },
+    "user": null,
+    "metadata": {}
+  }
+}

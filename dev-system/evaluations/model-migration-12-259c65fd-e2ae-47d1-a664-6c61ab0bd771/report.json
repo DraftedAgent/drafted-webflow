@@ -1,0 +1,1659 @@
+{
+  "runId": "259c65fd-e2ae-47d1-a664-6c61ab0bd771",
+  "manifestSha256": "5017bb756bbc6e776eab0c4200a1f10564592514d1ba672d876f494fd3d7e5b1",
+  "finishedAt": "2026-10-24T21:58:22.669Z",
+  "stopReason": "complete",
+  "externalCallsAttempted": 12,
+  "transportCalls": 12,
+  "knownCostUSD": 0.007069500000000001,
+  "unaccountedExposureUSD": 0,
+  "costUncertain": false,
+  "complete": true,
+  "modelVersions": {
+    "gpt-6-luna": "gpt-6-luna",
+    "gpt-6.1-sol": "gpt-6.1-sol"
+  },
+  "executionReceipt": {
+    "runId": "259c65fd-e2ae-47d1-a664-6c61ab0bd771",
+    "approvalSha256": "a1bd0e0d8659b9db4efe4964d08a22af00348c7daf081c5ae90a1dcee8493e8c",
+    "manifestSha256": "5017bb756bbc6e776eab0c4200a1f10564592514d1ba672d876f494fd3d7e5b1",
+    "slotsConsumed": 12,
+    "knownCostUSD": 0.007069500000000001,
+    "reservedCostUSD": 0,
+    "active": false,
+    "blocked": false
+  },
+  "results": [
+    {
+      "slotId": "discovery-role-support:gpt-6-luna:1",
+      "caseId": "discovery-role-support",
+      "model": "gpt-6-luna",
+      "repeat": 1,
+      "requestSha256": "dd3834cf65072b4e773f19dd92b543d0046f25cdd5f492f495b6aaeaacafb48d",
+      "reservationUSD": 0.001275,
+      "startedAt": "2026-10-24T21:58:00.963Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 359,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 58,
+        "output_tokens_details": {
+          "reasoning_tokens": 25
+        },
+        "total_tokens": 417
+      },
+      "costUSD": 0.0000649,
+      "requestId": "req_6fca4dd46fb24440ac1acb2aa89e1981",
+      "rawResponseText": "{\n  \"id\": \"resp_0a7b7d42bf597649016add29ea3e9087d28eb9067689e37fd0\",\n  \"object\": \"response\",\n  \"created_at\": 1792879082,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879083,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6-luna\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"rs_0a7b7d42bf597649016add29eadd3087d281a7c1aee4e29a8f\",\n      \"type\": \"reasoning\",\n      \"content\": [],\n      \"encrypted_content\": \"gAAAAABq3SnrLs6shiqglX7aayIbtNNCopTKu0uacv2W9BrC9eXLI0HVJWWdv1mfbzOLU-Ph-v70cqDI_eopBmBIaHYt4Rbr0K3ylkzDyxjK6bdTGpbg-QF4uOIbT9KQ8m545pkL0x9ZQ7NQ4ok2SWusro2iU-jyD8g3qgaVcGPbi6guqAwFjBajg020qXyeoYJhUspp34qMpwWUaq0s-eHCAlEgvxfNsD5tlCYU86q3ko48ZvGgQh4e2_tE9t4TDaVXX6qxCmEUw2d2FluhWr_wmu7ASZ9FAq5gsWqlo2h5B1YOtGX8YpWKEP5OFWXXj0s2ZwegXTW7fKKgT_l5nf_Ndc7FjulnHdgY_Gz-ser58ICtYre9YrrETlIS0E4XJKAolDTbht1IATh9vWVm6vKO0UGkdVsZthnmBr6FF-T63t7kS2NkEZK4afL5wene1YlWaGBO4aZZWvNxY2TcwcT43jlmA_Rtp31sBG2Xk-dfKN2PeWUdvgCQuVtvugwrHs-k0nglHMHM9YoCCzMwVNtp_Q3sJi34Ij1fe5kpjFgjJXaWdro0ppYSXIcM2WTTE2ZKgzF6ViAJQbpaFsyZ6Udq3xoNluPqmbl1yGvnc0dbsEmjULzJYRbHVu386bZJqYeyqJjGkKr0Rg2dImuZaqm7jTXX4pzp1CswRb4AudSIZDR9vS_xNovcFiktGlpmNEDxyfKggcOLHP0syVbh_KqME6xHsIA-IsW3UM5h5gmQD6WCYmDASbbea9vE0fqhSh0GHWGDX3XvGAsOV1exEFkqg_6saiFbKw1mjPi6QFsFSghsZNiooe1GpWe3LlbQ6uaK-OmzE6DIY793HaYhATIQc8g-_-OiufvYxRa5JP88IjbcnRaR3RRcNfU9nLO_dY3JPLEqzel--36ceN921BJDgvjP-jPqaweIEBRetE6Hrei3xlZFi7QsGAglAIb82R-AtrQaKG2dtgFLDCihhn19AWfdZhg82YsQGOXA-Ki9RN6FdCUYqyrZA0dPi5sYyXd5EARWPuslir49X0qK81A_0ik0DC6Z1plIQ-hsag72iayHDRtctCQpETg3UILItwKTnf4aGX2koGKSUb8cBNZzs8ao5pmmiG6XBKuGeftbVJM5_xX_3DQr-E-hkv8GTQsLAVvoo8WaMtKArKeOFW2Jivd5qa6JTjlAvXt7TvPB9ZYgpd9GKK4ZHmRMztyWi4mkjmO8tu6S2gT4V2qziNtTuXM2h5O9bQT0SdxxAmrrZD7AUx-MRNi6N_wcFnjSFt0ONK5hpMLwaJw8aySlALtnDe4a8QyIts-BBDLbLp6Ie9urT26G8dmoAGptwOQRPeC0VmmBzrrtpe7NeXym6YKcMBd09fhzi5zJGq5yrNmW4EMOsLORKtKZqclFbxMx46GgnLFNLh5V40CvKpGIHyeRpH6IFrHuNb1cUOAMygsl0z79WJCA6E7PnP_mMvf1B-NvIoHzphJ8AYu-xUQ1nJLjT3ylU-vbKVsWgh5xaZ2QMFpRyMz_rCa1olzqemY2oCK2GKzKdShBlGhVOcevl7pr7cxuwhQXI8lkQ4nabho4AVVQMPv0VQwe6Lk3xbn0RUFJkGgK4Vi4SjTLHLsERe3Xln_ZEiKF0ac-u7uZBjOOBU5xkx1Jwb9r_uDwJN0-ahz3oqw0oAbgSKTObX_tLEDV1fsIR4DEFOH_dOxgoXSug5VvceDFAYbazpI0Z0djKH-ZupEZHXPbkggCtH1tpBhM0f4mm_MdXxp96T5HsShPK_w0w_TkJdU=\",\n      \"summary\": []\n    },\n    {\n      \"id\": \"msg_0a7b7d42bf597649016add29eb345c87d2bcc4f63b90663cd4\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"assessments\\\":{\\\"s1\\\":{\\\"kind\\\":\\\"question\\\",\\\"question\\\":\\\"Have you led training for external customers?\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 359,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 58,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 25\n    },\n    \"total_tokens\": 417\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_0a7b7d42bf597649016add29ea3e9087d28eb9067689e37fd0",
+        "object": "response",
+        "created_at": 1792879082,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879083,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6-luna",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_0a7b7d42bf597649016add29eadd3087d281a7c1aee4e29a8f",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABq3SnrLs6shiqglX7aayIbtNNCopTKu0uacv2W9BrC9eXLI0HVJWWdv1mfbzOLU-Ph-v70cqDI_eopBmBIaHYt4Rbr0K3ylkzDyxjK6bdTGpbg-QF4uOIbT9KQ8m545pkL0x9ZQ7NQ4ok2SWusro2iU-jyD8g3qgaVcGPbi6guqAwFjBajg020qXyeoYJhUspp34qMpwWUaq0s-eHCAlEgvxfNsD5tlCYU86q3ko48ZvGgQh4e2_tE9t4TDaVXX6qxCmEUw2d2FluhWr_wmu7ASZ9FAq5gsWqlo2h5B1YOtGX8YpWKEP5OFWXXj0s2ZwegXTW7fKKgT_l5nf_Ndc7FjulnHdgY_Gz-ser58ICtYre9YrrETlIS0E4XJKAolDTbht1IATh9vWVm6vKO0UGkdVsZthnmBr6FF-T63t7kS2NkEZK4afL5wene1YlWaGBO4aZZWvNxY2TcwcT43jlmA_Rtp31sBG2Xk-dfKN2PeWUdvgCQuVtvugwrHs-k0nglHMHM9YoCCzMwVNtp_Q3sJi34Ij1fe5kpjFgjJXaWdro0ppYSXIcM2WTTE2ZKgzF6ViAJQbpaFsyZ6Udq3xoNluPqmbl1yGvnc0dbsEmjULzJYRbHVu386bZJqYeyqJjGkKr0Rg2dImuZaqm7jTXX4pzp1CswRb4AudSIZDR9vS_xNovcFiktGlpmNEDxyfKggcOLHP0syVbh_KqME6xHsIA-IsW3UM5h5gmQD6WCYmDASbbea9vE0fqhSh0GHWGDX3XvGAsOV1exEFkqg_6saiFbKw1mjPi6QFsFSghsZNiooe1GpWe3LlbQ6uaK-OmzE6DIY793HaYhATIQc8g-_-OiufvYxRa5JP88IjbcnRaR3RRcNfU9nLO_dY3JPLEqzel--36ceN921BJDgvjP-jPqaweIEBRetE6Hrei3xlZFi7QsGAglAIb82R-AtrQaKG2dtgFLDCihhn19AWfdZhg82YsQGOXA-Ki9RN6FdCUYqyrZA0dPi5sYyXd5EARWPuslir49X0qK81A_0ik0DC6Z1plIQ-hsag72iayHDRtctCQpETg3UILItwKTnf4aGX2koGKSUb8cBNZzs8ao5pmmiG6XBKuGeftbVJM5_xX_3DQr-E-hkv8GTQsLAVvoo8WaMtKArKeOFW2Jivd5qa6JTjlAvXt7TvPB9ZYgpd9GKK4ZHmRMztyWi4mkjmO8tu6S2gT4V2qziNtTuXM2h5O9bQT0SdxxAmrrZD7AUx-MRNi6N_wcFnjSFt0ONK5hpMLwaJw8aySlALtnDe4a8QyIts-BBDLbLp6Ie9urT26G8dmoAGptwOQRPeC0VmmBzrrtpe7NeXym6YKcMBd09fhzi5zJGq5yrNmW4EMOsLORKtKZqclFbxMx46GgnLFNLh5V40CvKpGIHyeRpH6IFrHuNb1cUOAMygsl0z79WJCA6E7PnP_mMvf1B-NvIoHzphJ8AYu-xUQ1nJLjT3ylU-vbKVsWgh5xaZ2QMFpRyMz_rCa1olzqemY2oCK2GKzKdShBlGhVOcevl7pr7cxuwhQXI8lkQ4nabho4AVVQMPv0VQwe6Lk3xbn0RUFJkGgK4Vi4SjTLHLsERe3Xln_ZEiKF0ac-u7uZBjOOBU5xkx1Jwb9r_uDwJN0-ahz3oqw0oAbgSKTObX_tLEDV1fsIR4DEFOH_dOxgoXSug5VvceDFAYbazpI0Z0djKH-ZupEZHXPbkggCtH1tpBhM0f4mm_MdXxp96T5HsShPK_w0w_TkJdU=",
+            "summary": []
+          },
+          {
+            "id": "msg_0a7b7d42bf597649016add29eb345c87d2bcc4f63b90663cd4",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training for external customers?\"}}}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 359,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 58,
+          "output_tokens_details": {
+            "reasoning_tokens": 25
+          },
+          "total_tokens": 417
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6-luna",
+      "outputText": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training for external customers?\"}}}",
+      "refusals": [],
+      "parsedOutput": {
+        "assessments": {
+          "s1": {
+            "kind": "question",
+            "question": "Have you led training for external customers?"
+          }
+        }
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 2127
+    },
+    {
+      "slotId": "discovery-role-support:gpt-6.1-sol:1",
+      "caseId": "discovery-role-support",
+      "model": "gpt-6.1-sol",
+      "repeat": 1,
+      "requestSha256": "0787b1b579e500f1461d3b69380141c7d4502d6ccc591d204a1b7c1e22a9770e",
+      "reservationUSD": 0.0255,
+      "startedAt": "2026-10-24T21:58:03.093Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 359,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 32,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 391
+      },
+      "costUSD": 0.001038,
+      "requestId": "req_150859aac9c54cd4954f4e7eed2ab593",
+      "rawResponseText": "{\n  \"id\": \"resp_0d279047b5612e18016add29ebe24887d2a3bdd98a0ab26de8\",\n  \"object\": \"response\",\n  \"created_at\": 1792879083,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879085,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6.1-sol\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_0d279047b5612e18016add29ed148887d29fd4a5143adbc098\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"assessments\\\":{\\\"s1\\\":{\\\"kind\\\":\\\"question\\\",\\\"question\\\":\\\"Have you led training sessions for external customers?\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 359,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 32,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 391\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_0d279047b5612e18016add29ebe24887d2a3bdd98a0ab26de8",
+        "object": "response",
+        "created_at": 1792879083,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879085,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6.1-sol",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_0d279047b5612e18016add29ed148887d29fd4a5143adbc098",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training sessions for external customers?\"}}}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 359,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 32,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 391
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6.1-sol",
+      "outputText": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training sessions for external customers?\"}}}",
+      "refusals": [],
+      "parsedOutput": {
+        "assessments": {
+          "s1": {
+            "kind": "question",
+            "question": "Have you led training sessions for external customers?"
+          }
+        }
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 1883
+    },
+    {
+      "slotId": "interpret-vague-answer:gpt-6-luna:1",
+      "caseId": "interpret-vague-answer",
+      "model": "gpt-6-luna",
+      "repeat": 1,
+      "requestSha256": "a416f81d28794bb61fa7eb6245e980b6e054401cdad6facffef01fbdf910cb77",
+      "reservationUSD": 0.001275,
+      "startedAt": "2026-10-24T21:58:04.980Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 299,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 27,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 326
+      },
+      "costUSD": 0.000043400000000000005,
+      "requestId": "req_5c93ba2d3c144c519b9bf382f852fa5a",
+      "rawResponseText": "{\n  \"id\": \"resp_08923ce60acb0c58016add29edc74c87d2881673fb4c5f5de3\",\n  \"object\": \"response\",\n  \"created_at\": 1792879085,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879086,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6-luna\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_08923ce60acb0c58016add29ee79c887d28c17aac4ae3a10b0\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"kind\\\":\\\"needs_detail\\\",\\\"followUp\\\":\\\"What did you personally do when coordinating release tests?\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 299,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 27,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 326\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_08923ce60acb0c58016add29edc74c87d2881673fb4c5f5de3",
+        "object": "response",
+        "created_at": 1792879085,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879086,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6-luna",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_08923ce60acb0c58016add29ee79c887d28c17aac4ae3a10b0",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"kind\":\"needs_detail\",\"followUp\":\"What did you personally do when coordinating release tests?\"}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 299,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 27,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 326
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6-luna",
+      "outputText": "{\"kind\":\"needs_detail\",\"followUp\":\"What did you personally do when coordinating release tests?\"}",
+      "refusals": [],
+      "parsedOutput": {
+        "kind": "needs_detail",
+        "followUp": "What did you personally do when coordinating release tests?"
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 1280
+    },
+    {
+      "slotId": "interpret-vague-answer:gpt-6.1-sol:1",
+      "caseId": "interpret-vague-answer",
+      "model": "gpt-6.1-sol",
+      "repeat": 1,
+      "requestSha256": "3034e9b25a3190e6ce9e872bc67be069ee9001f90ff7d025d169b7d5c08bac5e",
+      "reservationUSD": 0.0255,
+      "startedAt": "2026-10-24T21:58:06.264Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 299,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 29,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 328
+      },
+      "costUSD": 0.000888,
+      "requestId": "req_27c4e7a7655d4a81827dbed4037275a3",
+      "rawResponseText": "{\n  \"id\": \"resp_04ed2380ea870b5c016add29ef073087d2b0fee75050320f48\",\n  \"object\": \"response\",\n  \"created_at\": 1792879087,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879088,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6.1-sol\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_04ed2380ea870b5c016add29f038ac87d284a477611b3a0556\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"kind\\\":\\\"needs_detail\\\",\\\"followUp\\\":\\\"What tasks did you personally carry out when coordinating release tests?\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 299,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 29,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 328\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_04ed2380ea870b5c016add29ef073087d2b0fee75050320f48",
+        "object": "response",
+        "created_at": 1792879087,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879088,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6.1-sol",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_04ed2380ea870b5c016add29f038ac87d284a477611b3a0556",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"kind\":\"needs_detail\",\"followUp\":\"What tasks did you personally carry out when coordinating release tests?\"}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 299,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 29,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 328
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6.1-sol",
+      "outputText": "{\"kind\":\"needs_detail\",\"followUp\":\"What tasks did you personally carry out when coordinating release tests?\"}",
+      "refusals": [],
+      "parsedOutput": {
+        "kind": "needs_detail",
+        "followUp": "What tasks did you personally carry out when coordinating release tests?"
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 1951
+    },
+    {
+      "slotId": "tailor-translation-role-negation:gpt-6-luna:1",
+      "caseId": "tailor-translation-role-negation",
+      "model": "gpt-6-luna",
+      "repeat": 1,
+      "requestSha256": "b1e447996cc933ae42bae458d7b48c6254c690bc3a99646aca3328094d765625",
+      "reservationUSD": 0.001275,
+      "startedAt": "2026-10-24T21:58:08.218Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 427,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 53,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 480
+      },
+      "costUSD": 0.0000692,
+      "requestId": "req_6d9c83a94f6c4ffabc8ba5d3bd689519",
+      "rawResponseText": "{\n  \"id\": \"resp_073daa7a453d238e016add29f1033887d2b524614381a3bf02\",\n  \"object\": \"response\",\n  \"created_at\": 1792879089,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879090,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6-luna\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_073daa7a453d238e016add29f1ca0c87d29909e0762818bdea\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"decisions\\\":{\\\"u1\\\":{\\\"kind\\\":\\\"rewrite\\\",\\\"targetRef\\\":\\\"t1\\\",\\\"text\\\":\\\"Community Project \\u2014 Volont\\u00e4r. Bidrog till genomf\\u00f6randet av tv\\u00e5 interna workshops och testade \\u00f6vningarna.\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 427,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 53,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 480\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_073daa7a453d238e016add29f1033887d2b524614381a3bf02",
+        "object": "response",
+        "created_at": 1792879089,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879090,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6-luna",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_073daa7a453d238e016add29f1ca0c87d29909e0762818bdea",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Community Project — Volontär. Bidrog till genomförandet av två interna workshops och testade övningarna.\"}}}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 427,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 53,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 480
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6-luna",
+      "outputText": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Community Project — Volontär. Bidrog till genomförandet av två interna workshops och testade övningarna.\"}}}",
+      "refusals": [],
+      "parsedOutput": {
+        "decisions": {
+          "u1": {
+            "kind": "rewrite",
+            "targetRef": "t1",
+            "text": "Community Project — Volontär. Bidrog till genomförandet av två interna workshops och testade övningarna."
+          }
+        }
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 1581
+    },
+    {
+      "slotId": "tailor-translation-role-negation:gpt-6.1-sol:1",
+      "caseId": "tailor-translation-role-negation",
+      "model": "gpt-6.1-sol",
+      "repeat": 1,
+      "requestSha256": "e1d53ffd6c7dc0820aad2b2e9b5a2f152b1706aeaee59841e764116f0880382f",
+      "reservationUSD": 0.0255,
+      "startedAt": "2026-10-24T21:58:09.801Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 427,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 57,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 484
+      },
+      "costUSD": 0.001424,
+      "requestId": "req_4f0ffb97bae140328cd327a4b65fea91",
+      "rawResponseText": "{\n  \"id\": \"resp_06c83bdce9b79f71016add29f29bd087d2a1f25185e877387c\",\n  \"object\": \"response\",\n  \"created_at\": 1792879090,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879093,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6.1-sol\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_06c83bdce9b79f71016add29f433dc87d28c612630d6419160\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"decisions\\\":{\\\"u1\\\":{\\\"kind\\\":\\\"rewrite\\\",\\\"targetRef\\\":\\\"t1\\\",\\\"text\\\":\\\"Community Project \\u2014 Volont\\u00e4r. Medverkade som st\\u00f6d vid genomf\\u00f6randet av tv\\u00e5 interna workshoppar och testade \\u00f6vningarna.\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 427,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 57,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 484\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_06c83bdce9b79f71016add29f29bd087d2a1f25185e877387c",
+        "object": "response",
+        "created_at": 1792879090,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879093,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6.1-sol",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_06c83bdce9b79f71016add29f433dc87d28c612630d6419160",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Community Project — Volontär. Medverkade som stöd vid genomförandet av två interna workshoppar och testade övningarna.\"}}}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 427,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 57,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 484
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6.1-sol",
+      "outputText": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Community Project — Volontär. Medverkade som stöd vid genomförandet av två interna workshoppar och testade övningarna.\"}}}",
+      "refusals": [],
+      "parsedOutput": {
+        "decisions": {
+          "u1": {
+            "kind": "rewrite",
+            "targetRef": "t1",
+            "text": "Community Project — Volontär. Medverkade som stöd vid genomförandet av två interna workshoppar och testade övningarna."
+          }
+        }
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 2876
+    },
+    {
+      "slotId": "discovery-role-support:gpt-6.1-sol:2",
+      "caseId": "discovery-role-support",
+      "model": "gpt-6.1-sol",
+      "repeat": 2,
+      "requestSha256": "0787b1b579e500f1461d3b69380141c7d4502d6ccc591d204a1b7c1e22a9770e",
+      "reservationUSD": 0.0255,
+      "startedAt": "2026-10-24T21:58:12.681Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 359,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 32,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 391
+      },
+      "costUSD": 0.001038,
+      "requestId": "req_ce5ad6dbc22542a8b8d39c1e2463eeb3",
+      "rawResponseText": "{\n  \"id\": \"resp_0753292cb9e9dbb8016add29f5732087d2b7e0bd354c978928\",\n  \"object\": \"response\",\n  \"created_at\": 1792879093,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879094,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6.1-sol\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_0753292cb9e9dbb8016add29f6641487d2be0a6a8f14f79d50\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"assessments\\\":{\\\"s1\\\":{\\\"kind\\\":\\\"question\\\",\\\"question\\\":\\\"Have you led training sessions for external customers?\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 359,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 32,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 391\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_0753292cb9e9dbb8016add29f5732087d2b7e0bd354c978928",
+        "object": "response",
+        "created_at": 1792879093,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879094,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6.1-sol",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_0753292cb9e9dbb8016add29f6641487d2be0a6a8f14f79d50",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training sessions for external customers?\"}}}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 359,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 32,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 391
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6.1-sol",
+      "outputText": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training sessions for external customers?\"}}}",
+      "refusals": [],
+      "parsedOutput": {
+        "assessments": {
+          "s1": {
+            "kind": "question",
+            "question": "Have you led training sessions for external customers?"
+          }
+        }
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 1361
+    },
+    {
+      "slotId": "discovery-role-support:gpt-6-luna:2",
+      "caseId": "discovery-role-support",
+      "model": "gpt-6-luna",
+      "repeat": 2,
+      "requestSha256": "dd3834cf65072b4e773f19dd92b543d0046f25cdd5f492f495b6aaeaacafb48d",
+      "reservationUSD": 0.001275,
+      "startedAt": "2026-10-24T21:58:14.047Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 359,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 63,
+        "output_tokens_details": {
+          "reasoning_tokens": 30
+        },
+        "total_tokens": 422
+      },
+      "costUSD": 0.00006740000000000001,
+      "requestId": "req_f89214cdbb1144fcbac23f22cbe3bbe4",
+      "rawResponseText": "{\n  \"id\": \"resp_05b11ceb9330ae65016add29f6d07087d2a48dca8913a8b47c\",\n  \"object\": \"response\",\n  \"created_at\": 1792879094,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879095,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6-luna\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"rs_05b11ceb9330ae65016add29f7371087d28dfcd5e1fd37ca4e\",\n      \"type\": \"reasoning\",\n      \"content\": [],\n      \"encrypted_content\": \"gAAAAABq3Sn3b-JPT3lAexHLmuEqPDyn6A7xuH08Vu0KV1ZM3W0Itw2boRIMxsz7zZopQGOZ6jaRqy_tNvmqWNQDvuNHdu4W0otkorM6AB3k6eLBtPBtfbqpgJmq1r9SFG_OOGukHhiFs7meY6fxBDJGszVS2uVnqXFE4YN3bPdXXjL1yVsDBbo7rS5upnmrmofP6FFt4xvI0IDYRvvzG0W6g72jrVmDZ5Q9KsOobzyee10ck1vaP69FwbKe_E9AZ5CZq8AQO0Tp0PyYozX9f-668IS3dK_XfSHKXunGeST7BzK23S4iyBKxkJO_pfg9iQ88OSZkYdD3uZ6N8kTW6JTZ2GZjBBctqtu-T3N9zD3rznNQvSEZokhAbOhVUPguFyX0FvZKv34qoYVCxux6hND4O5qEK7aAIaHV2pHG4Gylln2sQCK6WVsXfz-f_2Yy0Bbu3dMeimEyi55ZMCEztJyGQtlmCEI_oBro7wbTy_L-p991O-xbQdyKbQSZooLbhd9BkAFc_sI7B3uSVd2jTE7gLprM0l4bqPILz5UFVATbqPj1YzGKE3sAj8qpApkQbDIJyQvQLXQNXLvxeZEqQxo7Xd68fb-vchCmQJlHEPb9bcCMTKA6rHGGdETqj4AZ4pRqlerZCz0Mf8VIib_pgxg__FfZIsc4n2731Lu-dcJqS4cRjxznL3EAjnxy2D2B_bFwS08uqqkIDL6ln9AbCsRQBr-LiAHrfnUwSYmDvuL84j6OEcZSzF9SfPIqFcGr87T1SFo3hNmkYZ5Vg-CJgjWVtJO7rODCP4eacz8GFPmPkHrh8FRfy_9GMGjyRVwglVbVDV0B-9IertWojHDKGklMbCHiF-61KMXe2DHxebO77hmRFm-BBpVBzPeZYGR7pqPy30ScY1fXUB050d2RFAp8d8l1MLyJ87Ids7jJv17UKELYIN1y8YUAr_cLHNnh7-VaCKGG6ZMPEEB3EShZceHRi0CLxGyvQ2EgXaqU_Z1xd0UNf-alTBzJql1AyOuMU7rqsw-CZ9KxoPGhsubVLTpOp0-yL2F8mymtxP9e_5RXcgab48qaGNtEBRUlzujFhF3KNFsQ_3hnc-BAzM1I23X5CCi4K0D2WjHcVk02HHXKTUd3O_BB34FGRKKYr5tty1Xog373etch7alPORA3L1a_X8w1Bh5UsLe6olwlf97uPjbWhh0y725ggK7MJKsiF0DjZjarMXvIl_a167NFjQf-om-4Z53z2q9d3yP8WmjLXPKviPHGGDkPPHAPOmClpr-q-88rIxV8a5ifVEQW2WawTLGFGB4ZOk6M6huk-uK18tqFwba4qQWhnKAxen2eCJwD23FaXzCZWtZ7G-jOHUYIPFRnuHDlehkX4ZOWw84T1ybw6jGClTjphl7xxwID0w3MBjUDmxacdvDpTtGe2MLSS1ZW1DV8BRRZg50ZfbQJRcYQaSpRfIlOr8Bh52U50sluTgLl3STXp0mLg3Ngsv155QOXIKRNy8wSkohIeOOixImaKGVhD4yKG5E_eL-0653HQoA3j9M8R7AMslZcahoRdrfKOKIqCmdP_7zfZpfBkVk2Rl0wv24HLDvYdBBTqcTMatMfI6ZNmIRgfKySJBU2VYZyRgq7JqnmlZu_EgseW3J_BceXar9Exdz3aUFLwGefstzn5xkA2sOy_Pvi4VfVgHXkVGBOdDG5WJMWJHM2Pa2Gu0v03ANDPbH-0y3_yVNFZNM0oN_h2ZQFSjngCQfisr2ceWHMYdMOh1JBTpcQc2PtYw54iOR9yuQNBWu__efpar_YcAbOlP9c-UwxhELc9UIhxtfo8Xq9H3r3xlukBYYu7e0pWtbgJbMUQu0SjLZBT1uo-8IQ\",\n      \"summary\": []\n    },\n    {\n      \"id\": \"msg_05b11ceb9330ae65016add29f7896087d2bfa1ce35ba17f842\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"assessments\\\":{\\\"s1\\\":{\\\"kind\\\":\\\"question\\\",\\\"question\\\":\\\"Have you led training for external customers?\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 359,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 63,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 30\n    },\n    \"total_tokens\": 422\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_05b11ceb9330ae65016add29f6d07087d2a48dca8913a8b47c",
+        "object": "response",
+        "created_at": 1792879094,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879095,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6-luna",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_05b11ceb9330ae65016add29f7371087d28dfcd5e1fd37ca4e",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABq3Sn3b-JPT3lAexHLmuEqPDyn6A7xuH08Vu0KV1ZM3W0Itw2boRIMxsz7zZopQGOZ6jaRqy_tNvmqWNQDvuNHdu4W0otkorM6AB3k6eLBtPBtfbqpgJmq1r9SFG_OOGukHhiFs7meY6fxBDJGszVS2uVnqXFE4YN3bPdXXjL1yVsDBbo7rS5upnmrmofP6FFt4xvI0IDYRvvzG0W6g72jrVmDZ5Q9KsOobzyee10ck1vaP69FwbKe_E9AZ5CZq8AQO0Tp0PyYozX9f-668IS3dK_XfSHKXunGeST7BzK23S4iyBKxkJO_pfg9iQ88OSZkYdD3uZ6N8kTW6JTZ2GZjBBctqtu-T3N9zD3rznNQvSEZokhAbOhVUPguFyX0FvZKv34qoYVCxux6hND4O5qEK7aAIaHV2pHG4Gylln2sQCK6WVsXfz-f_2Yy0Bbu3dMeimEyi55ZMCEztJyGQtlmCEI_oBro7wbTy_L-p991O-xbQdyKbQSZooLbhd9BkAFc_sI7B3uSVd2jTE7gLprM0l4bqPILz5UFVATbqPj1YzGKE3sAj8qpApkQbDIJyQvQLXQNXLvxeZEqQxo7Xd68fb-vchCmQJlHEPb9bcCMTKA6rHGGdETqj4AZ4pRqlerZCz0Mf8VIib_pgxg__FfZIsc4n2731Lu-dcJqS4cRjxznL3EAjnxy2D2B_bFwS08uqqkIDL6ln9AbCsRQBr-LiAHrfnUwSYmDvuL84j6OEcZSzF9SfPIqFcGr87T1SFo3hNmkYZ5Vg-CJgjWVtJO7rODCP4eacz8GFPmPkHrh8FRfy_9GMGjyRVwglVbVDV0B-9IertWojHDKGklMbCHiF-61KMXe2DHxebO77hmRFm-BBpVBzPeZYGR7pqPy30ScY1fXUB050d2RFAp8d8l1MLyJ87Ids7jJv17UKELYIN1y8YUAr_cLHNnh7-VaCKGG6ZMPEEB3EShZceHRi0CLxGyvQ2EgXaqU_Z1xd0UNf-alTBzJql1AyOuMU7rqsw-CZ9KxoPGhsubVLTpOp0-yL2F8mymtxP9e_5RXcgab48qaGNtEBRUlzujFhF3KNFsQ_3hnc-BAzM1I23X5CCi4K0D2WjHcVk02HHXKTUd3O_BB34FGRKKYr5tty1Xog373etch7alPORA3L1a_X8w1Bh5UsLe6olwlf97uPjbWhh0y725ggK7MJKsiF0DjZjarMXvIl_a167NFjQf-om-4Z53z2q9d3yP8WmjLXPKviPHGGDkPPHAPOmClpr-q-88rIxV8a5ifVEQW2WawTLGFGB4ZOk6M6huk-uK18tqFwba4qQWhnKAxen2eCJwD23FaXzCZWtZ7G-jOHUYIPFRnuHDlehkX4ZOWw84T1ybw6jGClTjphl7xxwID0w3MBjUDmxacdvDpTtGe2MLSS1ZW1DV8BRRZg50ZfbQJRcYQaSpRfIlOr8Bh52U50sluTgLl3STXp0mLg3Ngsv155QOXIKRNy8wSkohIeOOixImaKGVhD4yKG5E_eL-0653HQoA3j9M8R7AMslZcahoRdrfKOKIqCmdP_7zfZpfBkVk2Rl0wv24HLDvYdBBTqcTMatMfI6ZNmIRgfKySJBU2VYZyRgq7JqnmlZu_EgseW3J_BceXar9Exdz3aUFLwGefstzn5xkA2sOy_Pvi4VfVgHXkVGBOdDG5WJMWJHM2Pa2Gu0v03ANDPbH-0y3_yVNFZNM0oN_h2ZQFSjngCQfisr2ceWHMYdMOh1JBTpcQc2PtYw54iOR9yuQNBWu__efpar_YcAbOlP9c-UwxhELc9UIhxtfo8Xq9H3r3xlukBYYu7e0pWtbgJbMUQu0SjLZBT1uo-8IQ",
+            "summary": []
+          },
+          {
+            "id": "msg_05b11ceb9330ae65016add29f7896087d2bfa1ce35ba17f842",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training for external customers?\"}}}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 359,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 63,
+          "output_tokens_details": {
+            "reasoning_tokens": 30
+          },
+          "total_tokens": 422
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6-luna",
+      "outputText": "{\"assessments\":{\"s1\":{\"kind\":\"question\",\"question\":\"Have you led training for external customers?\"}}}",
+      "refusals": [],
+      "parsedOutput": {
+        "assessments": {
+          "s1": {
+            "kind": "question",
+            "question": "Have you led training for external customers?"
+          }
+        }
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 1151
+    },
+    {
+      "slotId": "interpret-vague-answer:gpt-6.1-sol:2",
+      "caseId": "interpret-vague-answer",
+      "model": "gpt-6.1-sol",
+      "repeat": 2,
+      "requestSha256": "3034e9b25a3190e6ce9e872bc67be069ee9001f90ff7d025d169b7d5c08bac5e",
+      "reservationUSD": 0.0255,
+      "startedAt": "2026-10-24T21:58:15.200Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 299,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 28,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 327
+      },
+      "costUSD": 0.000878,
+      "requestId": "req_bd6e17a9261e4bfe8485787e104872b5",
+      "rawResponseText": "{\n  \"id\": \"resp_0224e12b7941fa8f016add29f7f6dc87d2ad4cfc45630d3352\",\n  \"object\": \"response\",\n  \"created_at\": 1792879095,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879097,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6.1-sol\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_0224e12b7941fa8f016add29f8e3b087d29ff6e925e482b2ae\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"kind\\\":\\\"needs_detail\\\",\\\"followUp\\\":\\\"What did you personally do to help coordinate release tests?\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 299,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 28,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 327\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_0224e12b7941fa8f016add29f7f6dc87d2ad4cfc45630d3352",
+        "object": "response",
+        "created_at": 1792879095,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879097,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6.1-sol",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_0224e12b7941fa8f016add29f8e3b087d29ff6e925e482b2ae",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"kind\":\"needs_detail\",\"followUp\":\"What did you personally do to help coordinate release tests?\"}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 299,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 28,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 327
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6.1-sol",
+      "outputText": "{\"kind\":\"needs_detail\",\"followUp\":\"What did you personally do to help coordinate release tests?\"}",
+      "refusals": [],
+      "parsedOutput": {
+        "kind": "needs_detail",
+        "followUp": "What did you personally do to help coordinate release tests?"
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 1501
+    },
+    {
+      "slotId": "interpret-vague-answer:gpt-6-luna:2",
+      "caseId": "interpret-vague-answer",
+      "model": "gpt-6-luna",
+      "repeat": 2,
+      "requestSha256": "a416f81d28794bb61fa7eb6245e980b6e054401cdad6facffef01fbdf910cb77",
+      "reservationUSD": 0.001275,
+      "startedAt": "2026-10-24T21:58:16.704Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 299,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 27,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 326
+      },
+      "costUSD": 0.000043400000000000005,
+      "requestId": "req_8b0095235c1148c7b9d33713313887e0",
+      "rawResponseText": "{\n  \"id\": \"resp_0eac7934a59e70da016add29f97f0487d2980854bcb45e300e\",\n  \"object\": \"response\",\n  \"created_at\": 1792879097,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879098,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6-luna\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_0eac7934a59e70da016add29fa566087d2b0c701ee8e09c453\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"kind\\\":\\\"needs_detail\\\",\\\"followUp\\\":\\\"What did you personally do when coordinating release tests?\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 299,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 27,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 326\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_0eac7934a59e70da016add29f97f0487d2980854bcb45e300e",
+        "object": "response",
+        "created_at": 1792879097,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879098,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6-luna",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_0eac7934a59e70da016add29fa566087d2b0c701ee8e09c453",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"kind\":\"needs_detail\",\"followUp\":\"What did you personally do when coordinating release tests?\"}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 299,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 27,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 326
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6-luna",
+      "outputText": "{\"kind\":\"needs_detail\",\"followUp\":\"What did you personally do when coordinating release tests?\"}",
+      "refusals": [],
+      "parsedOutput": {
+        "kind": "needs_detail",
+        "followUp": "What did you personally do when coordinating release tests?"
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 1334
+    },
+    {
+      "slotId": "tailor-translation-role-negation:gpt-6.1-sol:2",
+      "caseId": "tailor-translation-role-negation",
+      "model": "gpt-6.1-sol",
+      "repeat": 2,
+      "requestSha256": "e1d53ffd6c7dc0820aad2b2e9b5a2f152b1706aeaee59841e764116f0880382f",
+      "reservationUSD": 0.0255,
+      "startedAt": "2026-10-24T21:58:18.042Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 427,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 54,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 481
+      },
+      "costUSD": 0.001394,
+      "requestId": "req_70778f365f164aec83a9ffcef8787568",
+      "rawResponseText": "{\n  \"id\": \"resp_0fb97fd2dcee2a8d016add29fad34487d2821f0c69e7840496\",\n  \"object\": \"response\",\n  \"created_at\": 1792879098,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879101,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6.1-sol\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"msg_0fb97fd2dcee2a8d016add29fc65e087d2ad3d1f16eb008099\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"decisions\\\":{\\\"u1\\\":{\\\"kind\\\":\\\"rewrite\\\",\\\"targetRef\\\":\\\"t1\\\",\\\"text\\\":\\\"Community Project \\u2014 Volont\\u00e4r. Bidrog till genomf\\u00f6randet av tv\\u00e5 interna workshoppar och testade \\u00f6vningarna.\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 427,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 54,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 481\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_0fb97fd2dcee2a8d016add29fad34487d2821f0c69e7840496",
+        "object": "response",
+        "created_at": 1792879098,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879101,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6.1-sol",
+        "moderation": null,
+        "output": [
+          {
+            "id": "msg_0fb97fd2dcee2a8d016add29fc65e087d2ad3d1f16eb008099",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Community Project — Volontär. Bidrog till genomförandet av två interna workshoppar och testade övningarna.\"}}}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 427,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 54,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 481
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6.1-sol",
+      "outputText": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Community Project — Volontär. Bidrog till genomförandet av två interna workshoppar och testade övningarna.\"}}}",
+      "refusals": [],
+      "parsedOutput": {
+        "decisions": {
+          "u1": {
+            "kind": "rewrite",
+            "targetRef": "t1",
+            "text": "Community Project — Volontär. Bidrog till genomförandet av två interna workshoppar och testade övningarna."
+          }
+        }
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 2565
+    },
+    {
+      "slotId": "tailor-translation-role-negation:gpt-6-luna:2",
+      "caseId": "tailor-translation-role-negation",
+      "model": "gpt-6-luna",
+      "repeat": 2,
+      "requestSha256": "b1e447996cc933ae42bae458d7b48c6254c690bc3a99646aca3328094d765625",
+      "reservationUSD": 0.001275,
+      "startedAt": "2026-10-24T21:58:20.610Z",
+      "httpStatus": 200,
+      "usage": {
+        "input_tokens": 427,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 105
+        },
+        "total_tokens": 584
+      },
+      "costUSD": 0.0001212,
+      "requestId": "req_43aa707df4a043f4839ab19936f91fa4",
+      "rawResponseText": "{\n  \"id\": \"resp_0205db67b4089bee016add29fd5f7c87d289e08a66e2f990a6\",\n  \"object\": \"response\",\n  \"created_at\": 1792879101,\n  \"status\": \"completed\",\n  \"access_programs\": null,\n  \"background\": false,\n  \"billing\": {\n    \"payer\": \"developer\"\n  },\n  \"completed_at\": 1792879103,\n  \"error\": null,\n  \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\": 1800,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-6-luna\",\n  \"moderation\": null,\n  \"output\": [\n    {\n      \"id\": \"rs_0205db67b4089bee016add29fdcc2887d293a9b83272f8d986\",\n      \"type\": \"reasoning\",\n      \"content\": [],\n      \"encrypted_content\": \"gAAAAABq3Sn_Wlj2P8PJDt3e8rKyFms1ujNRf4BVeuNfS6usqmKOhF_5JsSoxRb65od9VExSZ019w7_2Ik-CXis7JVbhIhf545D4ki2fmGYYS19dv1foUC78pIiNB58tnZSZJLnJNY9o0KVdFS-q_4qp0U_UiGn317nEpnXeY3kS4SO_BV56Xbzd3_0t8XYu9DKFgUJZOqYjFKfoSm_jGGCeeSd_5LsYTK1jAWbcbwhGrqNSS5xyWJoMTkQWptZ2rJnf9lfZqB4_B9ZF3g7kHSXO8sjsCBUm9sEj4Xy3BWMW2SI371nOCzIqVoYCeUmv_RZJMQqDxnIeBcbX5wyJahMRrwSGd1ewKl0iq4hQ8TOhXoY67-KDyFWjzhFiHiPKXfFz-qWap7ekc6YQb_-XvdVA_jW1REWx9WJwBV8cjXZET2icjAW7GWd5NnPNIIRqndVsyOTUeqPkqW2eUGueO_j8NPjfFCMN-ViO4bNOGQ2nazMLtL-yqkDPbez4q9COOs0jbjmxw1L53F47BjzVosNIcxo7EwnrHkzUybF2DlqBVWgvJRFB8YK2Fay8vknzgto4ZMzPu81K027vxmg9q8P97_sLLEeVY65iD1HUFkNdV3XWvSaAsq7-FCXrTeavLfrnlJbN74koVNt1-O2j9_pQrDZm0YdSI-VhqTv4sCWu29YcINgcuURewUnJHxdkxx_PvieBovWmG4X_eNam8JiqJe2A5MY1gapVeOg1q7S8rdKsquWKHoiNwoId6DgFKbzq8_gnV4UPu3_SANeEEHXVUqzCGDQv3U1uKiqncE8MuYAC5iD5IGE-B5DSCzcaCN8-hq3hWSgCfNdr1RW3RcHqZoCk-sNQuaawcuXh2-KLDV8j12zwddZpRShdSk7Zc381khUL4MG042xAr6jiB1XVuKakcZSgJ94O71XaTiHak74Elua1AvMkXpHWk1pbNvSd4pvlZMfrrg2ZYpEPEBXh2aqPFKvECKFJ3WpmCMXLYMxhXDM9Wo7KoET-lrFJHHE6Q5dNcGCwX2D0SadLfOqlQt_kvt5QzZw3ETHSOkpkl-Wro3VgXaLSNbpyaLvCJRPeiqDYrNLSP14s7BxICpJIcgvaJV46fIMW1m_gKtQFPZS-FNF_BKEBpADt4nWGFEeizPjHVPf-2pr8oLQ9gftbTWVq-z_IoRneTaBQnES4UNlxKAGvqkQnFswk7kYoCJeQTqs3ukbJU7uZobjvkmKEE_UotLyoSdYhM-N5l7tATdFQUJOix9Ylz8huElr9g4DYNrRcH4UTjlpifyP-b7Qrx_pGgh2B_ue76kTzGdnuIFVI7JSqCFnL_eJamGZ6AFGiKv3M9QChP-dJeoFNX21AbWPakFkZaaXP0-7gFh19rDlOCtJBSYEQvPUggbNVeRpLOzw4LMK7UxWO81oIu1iIe63VutZsbR-IoJUHSupzIHSlg5uIVF6ncqBW2rStV59O81TNDwNOdxSmJqO13pRdru_Z-rT-x_z2rmEDUTy4v_lFFkAGOgmH0FgiFE0C6nCMP56N91g6Q9YJLOrEFAT4uR683JDLE-D0tuHzU6WfHrv_-fWhqjXwuXqdlKBXEcKSKTUhptnGCmTtcolOKnCjORpvHaVPbIpKdiyIk25JG_SHj0H2P1bPyJw0aLrNyozkqXqu6qwjj0TvujJJkL4g6OhbHDmx4gukCNvBAgyymjdNMZ_TNKsQHhl5ci0epQ4DXMnpQYTdkoBT4cxyjbvDG3IZm0Jzw1we1V_z1uMFWA_pCSBfDcRZkV1VPdRGU2HFCcgrevz3em0LoOxZxuGurPi1rgKfd5E5_7IxhhBFRcxbVnoQe2NH9bnltdn9AO6JfWcm6NnIis9-tzVt1WJUY34kTSEVLCGu1nHp2n712tyoWKxA1-BA1Q1bHuT3HdrJhSwWH-qQynAWOIttNt3cdBkszWPUqdg1c2yFHM53WACceH7RWaxadwFRezQU6MUCR5vg5EAVYopFTIXZvrj-l2jBxOk37mP0ki0Qr1lfpRClelXkhE5lI-n63cNvgcxLuzV0w6im2OefOz6udKy40naJrxrCh0esLyHHtxWhK1m1UXXOX3gYRKqeS-Rphce8YGCDPJXq-CRhNrQNWt_GxBKO6I-CRSzsV_mhrz-ndpiqI2J_ukuLCX-syVFJBd8fGTt4iGdH0h1EAm8apB8o-hx9aKfz1Bz8i0dyJugov8lunnNDoLYeV_DNKgTDryjBh8w-MtUEZwzfpoIsUNN8trbMXnzu2K30K0y9P8ZyNinSsXGh_8DhCXw1-LWEqwfMObE8iYdVdpxFWg1sIYasqeW5uKKCwAhahw-luviioSeaR2nIerofcn5s8c6SY_ylBR3k6nmV4fFiEYfPZCd46YOIlLg4Or2B6ulq5IWJ7lHmScobZsdfVUWasRzj2K2LYcis53RdYVKweJCMMD0IYuCBma-KTDAOT41ZYR51HnEqerPAatPzqgBYLtb2xXszrWp40hhkmCni6tdEk6fxJQvdDEeaw33g2icNEY7_kHxxcf7NpV2oIk35RB4T8mbhVlapMONk1-c-asnbxvUY3sUUYcUqTF48c-yNxTAIEevZFR0KxxxyR6Ku1P0lTiwJoYGr5oGbOmuPw-Q9DqWKWe_9vVLLfQi5LiHrcSWLGwKbmzne_PBmkQ5facrhv8xeFSrj5bwiq5CjEX2FS-hH-x7kX0-WWyB2PbZGoK-NuVXCITMq3zyQCDP5hz-ljJ_sPlxbZhdnXzO_Tv3_VphMIjY-HaUL6-sSpjsuwqEaN-GqxWun3lk=\",\n      \"summary\": []\n    },\n    {\n      \"id\": \"msg_0205db67b4089bee016add29fe9d1087d2acaa2fdfdc513df6\",\n      \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\": [\n        {\n          \"type\": \"output_text\",\n          \"annotations\": [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"decisions\\\":{\\\"u1\\\":{\\\"kind\\\":\\\"rewrite\\\",\\\"targetRef\\\":\\\"t1\\\",\\\"text\\\":\\\"Hj\\u00e4lpte till att facilitera tv\\u00e5 interna workshops i Community Project och testade \\u00f6vningarna.\\\"}}}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"24h\",\n  \"reasoning\": {\n    \"context\": \"all_turns\",\n    \"effort\": \"low\",\n    \"mode\": \"standard\",\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_object\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tool_usage\": {\n    \"image_gen\": {\n      \"input_tokens\": 0,\n      \"input_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"output_tokens\": 0,\n      \"output_tokens_details\": {\n        \"image_tokens\": 0,\n        \"text_tokens\": 0\n      },\n      \"total_tokens\": 0\n    },\n    \"web_search\": {\n      \"num_requests\": 0\n    }\n  },\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 427,\n    \"input_tokens_details\": {\n      \"cache_write_tokens\": 0,\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 157,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 105\n    },\n    \"total_tokens\": 584\n  },\n  \"user\": null,\n  \"metadata\": {}\n}",
+      "envelope": {
+        "id": "resp_0205db67b4089bee016add29fd5f7c87d289e08a66e2f990a6",
+        "object": "response",
+        "created_at": 1792879101,
+        "status": "completed",
+        "access_programs": null,
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1792879103,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": null,
+        "max_output_tokens": 1800,
+        "max_tool_calls": null,
+        "model": "gpt-6-luna",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_0205db67b4089bee016add29fdcc2887d293a9b83272f8d986",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABq3Sn_Wlj2P8PJDt3e8rKyFms1ujNRf4BVeuNfS6usqmKOhF_5JsSoxRb65od9VExSZ019w7_2Ik-CXis7JVbhIhf545D4ki2fmGYYS19dv1foUC78pIiNB58tnZSZJLnJNY9o0KVdFS-q_4qp0U_UiGn317nEpnXeY3kS4SO_BV56Xbzd3_0t8XYu9DKFgUJZOqYjFKfoSm_jGGCeeSd_5LsYTK1jAWbcbwhGrqNSS5xyWJoMTkQWptZ2rJnf9lfZqB4_B9ZF3g7kHSXO8sjsCBUm9sEj4Xy3BWMW2SI371nOCzIqVoYCeUmv_RZJMQqDxnIeBcbX5wyJahMRrwSGd1ewKl0iq4hQ8TOhXoY67-KDyFWjzhFiHiPKXfFz-qWap7ekc6YQb_-XvdVA_jW1REWx9WJwBV8cjXZET2icjAW7GWd5NnPNIIRqndVsyOTUeqPkqW2eUGueO_j8NPjfFCMN-ViO4bNOGQ2nazMLtL-yqkDPbez4q9COOs0jbjmxw1L53F47BjzVosNIcxo7EwnrHkzUybF2DlqBVWgvJRFB8YK2Fay8vknzgto4ZMzPu81K027vxmg9q8P97_sLLEeVY65iD1HUFkNdV3XWvSaAsq7-FCXrTeavLfrnlJbN74koVNt1-O2j9_pQrDZm0YdSI-VhqTv4sCWu29YcINgcuURewUnJHxdkxx_PvieBovWmG4X_eNam8JiqJe2A5MY1gapVeOg1q7S8rdKsquWKHoiNwoId6DgFKbzq8_gnV4UPu3_SANeEEHXVUqzCGDQv3U1uKiqncE8MuYAC5iD5IGE-B5DSCzcaCN8-hq3hWSgCfNdr1RW3RcHqZoCk-sNQuaawcuXh2-KLDV8j12zwddZpRShdSk7Zc381khUL4MG042xAr6jiB1XVuKakcZSgJ94O71XaTiHak74Elua1AvMkXpHWk1pbNvSd4pvlZMfrrg2ZYpEPEBXh2aqPFKvECKFJ3WpmCMXLYMxhXDM9Wo7KoET-lrFJHHE6Q5dNcGCwX2D0SadLfOqlQt_kvt5QzZw3ETHSOkpkl-Wro3VgXaLSNbpyaLvCJRPeiqDYrNLSP14s7BxICpJIcgvaJV46fIMW1m_gKtQFPZS-FNF_BKEBpADt4nWGFEeizPjHVPf-2pr8oLQ9gftbTWVq-z_IoRneTaBQnES4UNlxKAGvqkQnFswk7kYoCJeQTqs3ukbJU7uZobjvkmKEE_UotLyoSdYhM-N5l7tATdFQUJOix9Ylz8huElr9g4DYNrRcH4UTjlpifyP-b7Qrx_pGgh2B_ue76kTzGdnuIFVI7JSqCFnL_eJamGZ6AFGiKv3M9QChP-dJeoFNX21AbWPakFkZaaXP0-7gFh19rDlOCtJBSYEQvPUggbNVeRpLOzw4LMK7UxWO81oIu1iIe63VutZsbR-IoJUHSupzIHSlg5uIVF6ncqBW2rStV59O81TNDwNOdxSmJqO13pRdru_Z-rT-x_z2rmEDUTy4v_lFFkAGOgmH0FgiFE0C6nCMP56N91g6Q9YJLOrEFAT4uR683JDLE-D0tuHzU6WfHrv_-fWhqjXwuXqdlKBXEcKSKTUhptnGCmTtcolOKnCjORpvHaVPbIpKdiyIk25JG_SHj0H2P1bPyJw0aLrNyozkqXqu6qwjj0TvujJJkL4g6OhbHDmx4gukCNvBAgyymjdNMZ_TNKsQHhl5ci0epQ4DXMnpQYTdkoBT4cxyjbvDG3IZm0Jzw1we1V_z1uMFWA_pCSBfDcRZkV1VPdRGU2HFCcgrevz3em0LoOxZxuGurPi1rgKfd5E5_7IxhhBFRcxbVnoQe2NH9bnltdn9AO6JfWcm6NnIis9-tzVt1WJUY34kTSEVLCGu1nHp2n712tyoWKxA1-BA1Q1bHuT3HdrJhSwWH-qQynAWOIttNt3cdBkszWPUqdg1c2yFHM53WACceH7RWaxadwFRezQU6MUCR5vg5EAVYopFTIXZvrj-l2jBxOk37mP0ki0Qr1lfpRClelXkhE5lI-n63cNvgcxLuzV0w6im2OefOz6udKy40naJrxrCh0esLyHHtxWhK1m1UXXOX3gYRKqeS-Rphce8YGCDPJXq-CRhNrQNWt_GxBKO6I-CRSzsV_mhrz-ndpiqI2J_ukuLCX-syVFJBd8fGTt4iGdH0h1EAm8apB8o-hx9aKfz1Bz8i0dyJugov8lunnNDoLYeV_DNKgTDryjBh8w-MtUEZwzfpoIsUNN8trbMXnzu2K30K0y9P8ZyNinSsXGh_8DhCXw1-LWEqwfMObE8iYdVdpxFWg1sIYasqeW5uKKCwAhahw-luviioSeaR2nIerofcn5s8c6SY_ylBR3k6nmV4fFiEYfPZCd46YOIlLg4Or2B6ulq5IWJ7lHmScobZsdfVUWasRzj2K2LYcis53RdYVKweJCMMD0IYuCBma-KTDAOT41ZYR51HnEqerPAatPzqgBYLtb2xXszrWp40hhkmCni6tdEk6fxJQvdDEeaw33g2icNEY7_kHxxcf7NpV2oIk35RB4T8mbhVlapMONk1-c-asnbxvUY3sUUYcUqTF48c-yNxTAIEevZFR0KxxxyR6Ku1P0lTiwJoYGr5oGbOmuPw-Q9DqWKWe_9vVLLfQi5LiHrcSWLGwKbmzne_PBmkQ5facrhv8xeFSrj5bwiq5CjEX2FS-hH-x7kX0-WWyB2PbZGoK-NuVXCITMq3zyQCDP5hz-ljJ_sPlxbZhdnXzO_Tv3_VphMIjY-HaUL6-sSpjsuwqEaN-GqxWun3lk=",
+            "summary": []
+          },
+          {
+            "id": "msg_0205db67b4089bee016add29fe9d1087d2acaa2fdfdc513df6",
+            "type": "message",
+            "status": "completed",
+            "content": [
+              {
+                "type": "output_text",
+                "annotations": [],
+                "logprobs": [],
+                "text": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Hjälpte till att facilitera två interna workshops i Community Project och testade övningarna.\"}}}"
+              }
+            ],
+            "phase": "final_answer",
+            "role": "assistant"
+          }
+        ],
+        "parallel_tool_calls": true,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "json_object"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": "auto",
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 427,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 157,
+          "output_tokens_details": {
+            "reasoning_tokens": 105
+          },
+          "total_tokens": 584
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "actualModel": "gpt-6-luna",
+      "outputText": "{\"decisions\":{\"u1\":{\"kind\":\"rewrite\",\"targetRef\":\"t1\",\"text\":\"Hjälpte till att facilitera två interna workshops i Community Project och testade övningarna.\"}}}",
+      "refusals": [],
+      "parsedOutput": {
+        "decisions": {
+          "u1": {
+            "kind": "rewrite",
+            "targetRef": "t1",
+            "text": "Hjälpte till att facilitera två interna workshops i Community Project och testade övningarna."
+          }
+        }
+      },
+      "technicalOutcome": "completed_json",
+      "schemaValid": true,
+      "contentAssessment": "pending_direct_original_review",
+      "durationMs": 2054
+    }
+  ],
+  "releaseApproved": false,
+  "published": false
+}

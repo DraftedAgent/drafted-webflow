@@ -1,0 +1,9 @@
+{
+  "runId": "259c65fd-e2ae-47d1-a664-6c61ab0bd771",
+  "manifestFile": "manifest.json",
+  "manifestSha256": "5017bb756bbc6e776eab0c4200a1f10564592514d1ba672d876f494fd3d7e5b1",
+  "maxCalls": 12,
+  "maxCostUSD": "0.25",
+  "executionApproved": false,
+  "externalCallsMade": 0
+}

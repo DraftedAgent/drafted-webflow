@@ -1,0 +1,482 @@
+{
+  "date": "2026-10-25",
+  "localOnly": true,
+  "newModelCalls": 0,
+  "workflowWrites": 0,
+  "publishing": false,
+  "lunaDefault": true,
+  "automaticSolFallback": false,
+  "inventory": {
+    "activeWorkflows": 7,
+    "workflowsWithModels": 6,
+    "modelNodes": 13,
+    "allCurrentModels": "gpt-4.1-mini",
+    "excludedDeterministicWorkflow": "webflow-export-pdf",
+    "source": "fresh management API GETs of activeVersion definitions",
+    "rewriteVersionObservation": {
+      "saved": "39d17aac-c638-48ac-b48f-5f51a99e34e4",
+      "published": "fb91e3d1-44a6-4224-a5c5-9ba08b8d1ba4",
+      "nodesAndGraphIdentical": true,
+      "note": "Version IDs differ; no node/connection content difference found. Do not infer functional drift from IDs alone; recheck before delivery."
+    }
+  },
+  "steps": [
+    {
+      "workflowId": "3fy8qAJngSRWzP35",
+      "workflowName": "Editor Rewrite Section",
+      "node": "SV-EditorRewriteModel",
+      "nodeId": "238e6b54-501d-4c89-84bd-c2d0ecfb206d",
+      "nodeTypeVersion": 2.1,
+      "activeVersionId": "fb91e3d1-44a6-4224-a5c5-9ba08b8d1ba4",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 4000,
+      "proposedInputTokenBudget": 16000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna updates[] and scoped/full rewrite instructions in each language.",
+        "No added responsibility, loss of qualifiers or unsupported cross-block changes."
+      ]
+    },
+    {
+      "workflowId": "3fy8qAJngSRWzP35",
+      "workflowName": "Editor Rewrite Section",
+      "node": "LanguageDetectionModel",
+      "nodeId": "f52754d0-eb66-4779-92e5-fff6adef6395",
+      "nodeTypeVersion": 2,
+      "activeVersionId": "fb91e3d1-44a6-4224-a5c5-9ba08b8d1ba4",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 256,
+      "proposedInputTokenBudget": 12000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Luna language routing on real extracted Swedish/English/mixed input; short/no-text PDF cases.",
+        "Unknown language now stops for context; no language-selection UI is added."
+      ]
+    },
+    {
+      "workflowId": "3fy8qAJngSRWzP35",
+      "workflowName": "Editor Rewrite Section",
+      "node": "EN-EditorRewriteModel",
+      "nodeId": "7f696caa-9316-447f-a71e-7eedac47aac5",
+      "nodeTypeVersion": 2.1,
+      "activeVersionId": "fb91e3d1-44a6-4224-a5c5-9ba08b8d1ba4",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 4000,
+      "proposedInputTokenBudget": 16000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna updates[] and scoped/full rewrite instructions in each language.",
+        "No added responsibility, loss of qualifiers or unsupported cross-block changes."
+      ]
+    },
+    {
+      "workflowId": "6Bvk0NYcElT9OirH",
+      "workflowName": "Main-UploadPreview",
+      "node": "LanguageDetectionModel",
+      "nodeId": "121e26a6-8f2a-4362-ade9-8dfee9463488",
+      "nodeTypeVersion": 2,
+      "activeVersionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 256,
+      "proposedInputTokenBudget": 12000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Luna language routing on real extracted Swedish/English/mixed input; short/no-text PDF cases.",
+        "Unknown language now stops for context; no language-selection UI is added."
+      ]
+    },
+    {
+      "workflowId": "6Bvk0NYcElT9OirH",
+      "workflowName": "Main-UploadPreview",
+      "node": "SV-CVParserModel",
+      "nodeId": "22f90be5-10a7-4fe0-9565-9578e90328f0",
+      "nodeTypeVersion": 2,
+      "activeVersionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 6000,
+      "proposedInputTokenBudget": 24000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna parser output against names, dates, absent employer/project and negation scope.",
+        "Scanned/OCR PDFs are not covered; PDF extraction model is not being redesigned."
+      ]
+    },
+    {
+      "workflowId": "6Bvk0NYcElT9OirH",
+      "workflowName": "Main-UploadPreview",
+      "node": "SV-CVRewriteModel",
+      "nodeId": "b2c1542c-b7c4-4dd0-9d06-f1ac2e184784",
+      "nodeTypeVersion": 2,
+      "activeVersionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 6000,
+      "proposedInputTokenBudget": 24000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna strict-schema output and factual preservation from parsed CV.",
+        "Long CV output sufficiency at proposed 6000-token cap; no semantic entailment guarantee."
+      ]
+    },
+    {
+      "workflowId": "6Bvk0NYcElT9OirH",
+      "workflowName": "Main-UploadPreview",
+      "node": "EN-CVParserModel1",
+      "nodeId": "1d899474-f37e-4901-bebb-8f975a6be4d1",
+      "nodeTypeVersion": 2,
+      "activeVersionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 6000,
+      "proposedInputTokenBudget": 24000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna parser output against names, dates, absent employer/project and negation scope.",
+        "Scanned/OCR PDFs are not covered; PDF extraction model is not being redesigned."
+      ]
+    },
+    {
+      "workflowId": "6Bvk0NYcElT9OirH",
+      "workflowName": "Main-UploadPreview",
+      "node": "EN-CVRewriteModel",
+      "nodeId": "6a78d789-7efc-4c0c-ba4d-e049ab3778e2",
+      "nodeTypeVersion": 2,
+      "activeVersionId": "8c44dfe5-0fb8-4ea8-a25f-81b2f9080485",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 6000,
+      "proposedInputTokenBudget": 24000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna strict-schema output and factual preservation from parsed CV.",
+        "Long CV output sufficiency at proposed 6000-token cap; no semantic entailment guarantee."
+      ]
+    },
+    {
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "workflowName": "webflow-tailor-CV",
+      "node": "TailorModel",
+      "nodeId": "a100ac5d-a861-43fa-ae17-2f2d56f78354",
+      "nodeTypeVersion": 2.1,
+      "activeVersionId": "a5196f17-4ccc-41db-8993-9b6c5fe466dd",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": 1200,
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 3000,
+      "proposedInputTokenBudget": 24000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna CV/ad-only output contract, meaningful block changes and no invented facts."
+      ]
+    },
+    {
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "workflowName": "webflow-tailor-CV",
+      "node": "Tailor sources model",
+      "nodeId": "tailor-sources-model-v1",
+      "nodeTypeVersion": 2.1,
+      "activeVersionId": "a5196f17-4ccc-41db-8993-9b6c5fe466dd",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": 4000,
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 4000,
+      "proposedInputTokenBudget": 32000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna against active sourceKey/targetKey output, corrections and mixed/negative original accounts.",
+        "Pilot tested a different diagnostic rewrite schema; source traceability alone is not semantic support."
+      ]
+    },
+    {
+      "workflowId": "QQGNXYv4hej0HBwc",
+      "workflowName": "Editor Chat",
+      "node": "AI Chat Model",
+      "nodeId": "5b31ac7e-3de7-44b4-93dd-23debd78f15e",
+      "nodeTypeVersion": 2.1,
+      "activeVersionId": "05267b96-2433-4c2e-965b-31b61358855a",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 2000,
+      "proposedInputTokenBudget": 16000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna advisory response/suggestion schema and no inferred experience from vague replies.",
+        "Guard prevents malformed JSON becoming Okay.; schema and semantic checks still belong to existing parser."
+      ]
+    },
+    {
+      "workflowId": "ytcb-PU8k9igpv5B7BmX7",
+      "workflowName": "flow-jobcontext-extract",
+      "node": "JobContextExtractModel",
+      "nodeId": "15a56d66-182b-4229-8c76-020d05126c51",
+      "nodeTypeVersion": 2.1,
+      "activeVersionId": "f308bdb8-5ec5-4db6-a105-faf4c134bec2",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 3000,
+      "proposedInputTokenBudget": 16000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna extraction distinguishes mandatory, optional and administrative requirements without invented signals.",
+        "Sparse/no-actionable ad handling and keyword minimum remain existing contract constraints."
+      ]
+    },
+    {
+      "workflowId": "zeIzzxPwD2Y91OyD",
+      "workflowName": "Drafted Experience Discovery v1 (inactive development)",
+      "node": "Discovery model",
+      "nodeId": "9a79bee3-7feb-47aa-a263-3e1f1a9193fc",
+      "nodeTypeVersion": 2.1,
+      "activeVersionId": "6336f54e-9913-4976-bd32-78d8508338d5",
+      "currentModel": "gpt-4.1-mini",
+      "currentMaxOutputTokens": "not explicitly bounded in node",
+      "proposedModel": "gpt-6-luna",
+      "proposedReasoning": "low",
+      "proposedMaxOutputTokensIncludingReasoning": 3000,
+      "proposedInputTokenBudget": 24000,
+      "inputBudgetEnforcedBeforeHTTP": false,
+      "fallback": null,
+      "localEvidence": [
+        "Exact prepared response-guard Code replay, successful message following reasoning item.",
+        "Cutoff/refusal/malformed content/provider error rejected; no empty success.",
+        "Existing model messages and configured output schema preserved."
+      ],
+      "missingVerification": [
+        "Real Luna against the active signal-owned plan and source-quote interpretation formats; pilot formats differ.",
+        "Valid assessed zero, overlap and neutral concrete follow-up; prior pilot follow-up wording was weak."
+      ]
+    }
+  ],
+  "exactDeliveryScope": {
+    "existingWorkflowIds": [
+      "3fy8qAJngSRWzP35",
+      "6Bvk0NYcElT9OirH",
+      "H8oAioy58R1v3PvRe3YUa",
+      "QQGNXYv4hej0HBwc",
+      "ytcb-PU8k9igpv5B7BmX7",
+      "zeIzzxPwD2Y91OyD"
+    ],
+    "modelNodesChanged": 13,
+    "newResponseGuardCodeNodes": 13,
+    "referenceUpdates": [
+      "Editor Rewrite Section / If -> normalized LanguageDetectionModel guard",
+      "Main-UploadPreview / If -> normalized LanguageDetectionModel guard"
+    ],
+    "modelParameters": {
+      "modelId": "gpt-6-luna",
+      "simplify": false,
+      "reasoning": {
+        "reasoningOptions": {
+          "effort": "low",
+          "summary": "none"
+        }
+      },
+      "store": false,
+      "serviceTier": "default",
+      "retryOnFail": false,
+      "temperature": "removed",
+      "topP": "removed",
+      "topLogprobs": "removed",
+      "maxTokens": "per-step explicit cap"
+    },
+    "prompts": "unchanged",
+    "publicJSONContracts": "unchanged",
+    "currentSchemas": "unchanged, including existing strict import-rewrite schemas",
+    "noSourceFreeFallback": true,
+    "notIncluded": [
+      "No v2/v3 internal-contract activation.",
+      "No semantic verifier or source-locked branch added.",
+      "No free-period identity/quota backend installed.",
+      "No frontend asset changes, Pages merge, Webflow publication or export changes."
+    ]
+  },
+  "localEvidence": {
+    "checks": 93,
+    "compiledPublishedGraphRoutes": 5,
+    "nodeSuite": "Existing Node unit suite passed; three new migration tests passed.",
+    "browser": {
+      "modelCalls": 0,
+      "externalTraffic": 0,
+      "passed": [
+        "tests/tailor-source-errors.browser.cjs",
+        "tests/tailor-chat-lifecycle.browser.cjs",
+        "tests/discovery-batches.browser.cjs"
+      ],
+      "scope": "Existing frontend behavior with isolated synthetic localhost providers; not a native n8n/Luna integration test."
+    }
+  },
+  "limitations": [
+    "Actual installed n8n option mapping and the n8n OpenAI credential/project Luna access have not been tested by executing n8n; evaluation-key success does not prove this.",
+    "Response guard throws on failure and stops before existing parsers; n8n generated HTTP error mapping must be checked in isolated runtime before delivery.",
+    "Input budgets are currently checked after response only: they are not pre-call spend protection. Pre-call admission requires a separate shared layer.",
+    "The active source/plan contracts still ask the model for more technical metadata than the unconnected v3 proposal. Migration does not silently activate that refactor.",
+    "Model-generated content can still be semantically wrong despite valid format and traceable sources.",
+    "Webhooks in captured definitions declare no authentication; per-user free limits need trusted backend identity and shared atomic budget storage.",
+    "Full n8n/CustomJS tariffs are not verified; only token component is estimated."
+  ],
+  "proposedModelTests": {
+    "approved": false,
+    "executed": false,
+    "model": "gpt-6-luna",
+    "solCalls": 0,
+    "automaticRetries": 0,
+    "extraVerifierCalls": 0,
+    "totalProposedCalls": 14,
+    "proposedCostCapUSD": 0.1,
+    "approvalBoundary": "New bounded test only after exact request material/settings/hashes and unique runId are locked and explicitly approved. The consumed 12-call pilot approval is not reusable.",
+    "packages": [
+      {
+        "name": "CV-import Swedish and English",
+        "calls": 6,
+        "reason": "No prior Luna CV-import outputs exist. One synthetic CV per language: detect language, parse, initial rewrite. Missing employer, preserved dates, supporting test role and negation scope included."
+      },
+      {
+        "name": "Job analysis and advisory Chat",
+        "calls": 2,
+        "reason": "One original ad mixing must-have/nice-to-have/administrative content; one vague-source advisory turn with no CV mutation."
+      },
+      {
+        "name": "Section rewrite Swedish and English",
+        "calls": 2,
+        "reason": "One generation per language using fixed synthetic language routing. Language detector system prompt is byte-identical to upload and covered there."
+      },
+      {
+        "name": "Active Discovery contracts",
+        "calls": 2,
+        "reason": "One completely assessed valid-zero plan and one uncertain original answer requiring a neutral short follow-up; technical metadata follows actual active formats. Overlap quality remains a broader evaluation gap."
+      },
+      {
+        "name": "Both active Tailor branches",
+        "calls": 2,
+        "reason": "One no-answer CV/ad-only candidate, one source-linked correction withdrawing responsibility across tracked additions. No model verifier."
+      }
+    ],
+    "notClaimed": "These single-pass checks still do not establish production reliability or failure frequency."
+  },
+  "sourceReferences": {
+    "luna": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "pricing": "https://developers.openai.com/api/docs/pricing",
+    "n8nOptions": "https://github.com/n8n-io/n8n/blob/master/packages/%40n8n/nodes-langchain/nodes/vendors/OpenAi/v2/actions/text/response.operation.ts",
+    "n8nRequestMapping": "https://github.com/n8n-io/n8n/blob/master/packages/%40n8n/nodes-langchain/nodes/vendors/OpenAi/v2/actions/text/helpers/responses.ts"
+  },
+  "deliveryGate": {
+    "approved": false,
+    "readyForUnconditionalDeployment": false,
+    "requiredBeforeDelivery": [
+      "Review and approve exact local node/graph diff and per-operation caps.",
+      "Separately approve and evaluate only the needed small Luna model-test packages.",
+      "Verify installed n8n compatibility/error path in isolated execution without production webhook traffic.",
+      "Re-read saved/published definitions and create/verify encrypted rollback snapshots before any write."
+    ],
+    "freeLaunchAdditionalGate": "Backend identity, pre-call input/spend reservation and shared quota enforcement; recommendations are not enforced by a browser counter."
+  },
+  "scopeAudit": {
+    "frontEndRoutesMatched": 7,
+    "subworkflowNodes": 0,
+    "codeNetworkCallCandidates": 0,
+    "modelNodeTypes": [
+      "@n8n/n8n-nodes-langchain.openAi"
+    ],
+    "hiddenModelStepsClaim": "No additional model steps found in inspected active Drafted routes; unrelated research workflows were not inspected.",
+    "pdfExportEvidence": "Captured CustomJS HTTP step contains PDF/HTML rendering and no model-call references; opaque endpoint identifier omitted. No remote CustomJS execution."
+  }
+}

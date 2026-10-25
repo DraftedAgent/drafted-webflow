@@ -1,0 +1,63 @@
+{
+  "proof": {
+    "id": "QQGNXYv4hej0HBwc",
+    "name": "Editor Chat",
+    "savedVersionId": "ae916f25-ffac-4b84-8575-d2683ca46862",
+    "activeVersionId": "ae916f25-ffac-4b84-8575-d2683ca46862",
+    "active": true,
+    "phase": "published",
+    "projectionVerified": true,
+    "activeProjectionVerified": true,
+    "projectionSha256": "f040906dff17567ffb8792cf5799e7e71b2b95b60125d280bfe691718bcff94d",
+    "modelNodes": [
+      {
+        "id": "5b31ac7e-3de7-44b4-93dd-23debd78f15e",
+        "name": "AI Chat Model",
+        "model": "gpt-6-luna"
+      }
+    ],
+    "guardNodes": [
+      "Luna output - AI Chat Model"
+    ]
+  },
+  "preSaveSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261024T224821441Z__QQGNXYv4hej0HBwc__05267b96-2433-4c2e-965b-31b61358855a__LUNA-pre-save.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261024T224821441Z__QQGNXYv4hej0HBwc__05267b96-2433-4c2e-965b-31b61358855a__LUNA-pre-save.dpapi.manifest.json",
+    "plaintextSha256": "ee526177feb26a13d19b400d22d87048912f66a8ddfeeb4647d6bc0615106f67",
+    "verified": true,
+    "workflowId": "QQGNXYv4hej0HBwc",
+    "versionId": "05267b96-2433-4c2e-965b-31b61358855a",
+    "label": "pre-save",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:48:22.3542802Z"
+  },
+  "savedSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261024T224822778Z__QQGNXYv4hej0HBwc__ae916f25-ffac-4b84-8575-d2683ca46862__LUNA-saved-before-publish.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261024T224822778Z__QQGNXYv4hej0HBwc__ae916f25-ffac-4b84-8575-d2683ca46862__LUNA-saved-before-publish.dpapi.manifest.json",
+    "plaintextSha256": "e473467734548fa3a293059a0faceb63901d273ce781ad6ed1644bdbf4f37ad5",
+    "verified": true,
+    "workflowId": "QQGNXYv4hej0HBwc",
+    "versionId": "ae916f25-ffac-4b84-8575-d2683ca46862",
+    "label": "saved-before-publish",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:48:23.8312785Z"
+  },
+  "postPublishSnapshot": {
+    "snapshotPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261024T224824333Z__QQGNXYv4hej0HBwc__ae916f25-ffac-4b84-8575-d2683ca46862__LUNA-published.dpapi",
+    "manifestPath": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261024T224824333Z__QQGNXYv4hej0HBwc__ae916f25-ffac-4b84-8575-d2683ca46862__LUNA-published.dpapi.manifest.json",
+    "plaintextSha256": "0825983d35fe14fab184d4f1e916b1397e3ffaf1f138eb265465db35880451a0",
+    "verified": true,
+    "workflowId": "QQGNXYv4hej0HBwc",
+    "versionId": "ae916f25-ffac-4b84-8575-d2683ca46862",
+    "label": "published",
+    "sourceGitCommit": "630b3d4516e9cb07cc59e470831f9b17baa878e2",
+    "packageSha256": "e2e5f7f027a559ac131f0c44e7e78fe79e7b6d5b226db5ac533807ea1201198e",
+    "instanceHost": "drafted.app.n8n.cloud",
+    "createdUtc": "2026-10-24T22:48:25.5557894Z"
+  },
+  "modelExecutionsInitiated": 0
+}

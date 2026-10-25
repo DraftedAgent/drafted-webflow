@@ -1,0 +1,13 @@
+{
+  "id": "zeIzzxPwD2Y91OyD",
+  "name": "Drafted Experience Discovery v1 (inactive development)",
+  "activeVersionId": "063ed025-c1ee-4778-90cb-91b83e6f9be5",
+  "savedVersionId": "063ed025-c1ee-4778-90cb-91b83e6f9be5",
+  "projectionSha256": "174f66c6eaeeb92cfdf3273eae7e514698752515c97ff03964a12c22c40e6656",
+  "settingsSha256": "29f018f03317e641bf11828a162426517fa90593654d1f3d85ebcac9054866d8",
+  "nodesSha256": "f15cb26e2e5dac5315f4ada0c2bb5248221af9f618844c9e4be9176ffc9bd475",
+  "connectionsSha256": "7b6a85ad72a54fb329fa90a6be7efc52133c118ffa64ab6e11fbea2cb4ad7f76",
+  "readOnly": true,
+  "workflowWrites": 0,
+  "modelCalls": 0
+}
