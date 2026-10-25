@@ -1,0 +1,36 @@
+{
+  "pr": 30,
+  "url": "https://github.com/DraftedAgent/drafted-webflow/pull/30",
+  "mergeSha": "5755d4a36cf52948a69870323f951c7dea26ce77",
+  "releaseHead": "86f5f92aa2071ed9ab9810d0feb608949a818612",
+  "build": "2026-10-25-tailor-two-modes",
+  "servedBytesVerified": true,
+  "webflowBootstrapVerified": true,
+  "pagesBuildStatus": "built",
+  "files": {
+    "latest.json": {
+      "sha256": "468c84d74c7ff2aaa2abc8c75a7b60402ed74fe478ced98b31f299a7af752f6c",
+      "bytes": 291,
+      "matchesCommit": true,
+      "build": "2026-10-25-tailor-two-modes"
+    },
+    "drafted-editor.js": {
+      "sha256": "5aa442209d42ea81bba7796d90cbf7c3fa5b30660beb8bdbef99df884fb8340d",
+      "bytes": 202880,
+      "matchesCommit": true
+    },
+    "drafted-editor.css": {
+      "sha256": "2fbbfb57c2ddc33e1cead58be7edf4d7ecc6d61bacfc34cf730aa28fec6923d3",
+      "bytes": 58915,
+      "matchesCommit": true
+    }
+  },
+  "frontendOnly": true,
+  "backendChanges": 0,
+  "externalModelCalls": 0,
+  "localReleaseBrowsersPassed": [
+    "two-mode UI",
+    "existing Tailor lifecycle"
+  ],
+  "rollbackMain": "5fbfc21d25009f0f99b7d933308e4bfbc2e2ced0"
+}
