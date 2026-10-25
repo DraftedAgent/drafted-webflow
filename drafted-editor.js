@@ -697,7 +697,13 @@
     }
     function requirements(q){const c=session.snapshot().context;return q.signalRefs.map(ref=>{const value=c.jobContext[ref.field][ref.index];return typeof value==='string'?value:value.signal;});}
     function requirementList(q,host){const list=el('ul');for(const text of requirements(q))list.append(el('li',text));host.append(list);}
-    function sourceExcerpt(host,text){host.append(el('blockquote',text.length>360?text.slice(0,360)+'…':text,'discovery-answer'));if(text.length>360)host.append(el('p','Excerpt shown. Your full answer is under “View or correct your answers”.','discovery-note'));}
+    function followupPrompt(text,language){
+      const answer=text.trim().replace(/[.!]+$/,'');
+      const sv=language==='sv';
+      if(/^(kanske|maybe)$/i.test(answer))return sv?'Vad är du osäker på?':'What are you unsure about?';
+      if(/^(jag var med|i was involved|i helped(?: a little)?)$/i.test(answer))return sv?'Vad gjorde du själv, om något?':'What did you do yourself, if anything?';
+      return sv?'Kan du beskriva ett konkret tillfälle, om du har något exempel?':'Can you describe one specific occasion, if you have an example?';
+    }
     function outcome(){
       const state=getTailorState();
       container.append(el('h2',state==='ready'?'Ready to tailor your CV.':'Review your answers'));
@@ -714,31 +720,32 @@
       const focused=container.contains(document.activeElement)&&document.activeElement.tagName==='TEXTAREA'?document.activeElement:null;
       const selection=focused&&renderedQuestion===session.current()?.id?{start:focused.selectionStart,end:focused.selectionEnd}:null;
       const historyOpen=r.phase==='complete'&&renderedPhase!=='complete'?false:container.querySelector('.discovery-history')?.open;
+      const originalContextOpen=renderedQuestion===session.current()?.id&&container.querySelector('.discovery-original-context')?.open;
       container.replaceChildren();container.classList.add('experience-discovery');
       if(r.phase==='offer'){container.append(el('h2',r.total?`${r.total} relevant experience ${r.total===1?'topic is':'topics are'} not clear in your CV.`:'We can continue with what is available.'));if(r.total)container.append(button('Start the questions',()=>session.start()));container.append(button('Continue with what is available',()=>{session.finish();continueToEditor();}));}
       else if(r.phase==='complete')outcome();
       else{
         const batchStart=r.index<r.batchStart?0:r.batchStart||0;
         const q=session.current(),followup=r.phase==='followup',progress=el('p',followup?`Follow-up · Question ${r.index-batchStart+1} of ${r.total-batchStart}`:`${r.index-batchStart+1}/${r.total-batchStart}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index-batchStart+1} of ${r.total-batchStart}`);container.append(progress);
+        let originalContext=null;
         if(followup){
-          const answer=session.snapshot().answers.find(a=>a.id===q.answerId),context=el('div',null,'discovery-followup-context');
-          context.append(el('p','Topic from the job ad','discovery-result-label'));requirementList(q,context);
-          context.append(el('p','Original question','discovery-result-label'),el('p',q.question),el('p','Your answer','discovery-result-label'));sourceExcerpt(context,answer.revisions.at(-1).text);
-          const brief=/^\s*(yes|ja|ja,? lite|yes,? a little)[.!]?\s*$/i.test(answer.revisions.at(-1).text);
-          context.append(el('p',brief?'This answer does not yet describe an example. One specific situation will help show how your experience relates to the original question.':'I could not tell what experience this answer describes. You can clarify what you mean, give an example if you have one, or skip.'));
-          container.append(context,el('h2',brief?'What is one situation you have in mind when answering the question above?':'What do you mean in relation to the original question?'));
+          const answer=session.snapshot().answers.find(a=>a.id===q.answerId),text=answer.revisions.at(-1).text,context=el('div',null,'discovery-followup-context');
+          context.append(el('p','Your previous answer','discovery-result-label'),el('blockquote',text,'discovery-answer discovery-previous-answer'));
+          container.append(context,el('h2',followupPrompt(text,r.language)));
+          originalContext=el('details',null,'discovery-original-context');originalContext.open=!!originalContextOpen;
+          originalContext.append(el('summary','View original question and job context'),el('p',q.question,'discovery-history-question'),el('p','Job context','discovery-result-label'));requirementList(q,originalContext);
         }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
         const actions=el('div');actions.className='discovery-question-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Answer actions');
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
-          const label=el('label','A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
+          const label=el('label',followup?'Your clarification':'A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
           container.append(label,el('p','Up to 50,000 characters.','discovery-note'));
           actions.append(button(r.phase==='correct'?'Save correction':'Send answer',()=>{const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
           if(r.phase==='error'&&onRetry)actions.append(button('Try again',()=>onRetry()));
           actions.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();drafts.delete(q.id);}));
         }
         const pending=session.results().pending;if(pending)container.append(el('p',`${pending===1?'An earlier answer is':pending+' earlier answers are'} being checked. You can keep going.`,'discovery-note'));
-        actions.append(button('Finish the questions',()=>session.finish()));container.append(actions);
+        actions.append(button('Finish the questions',()=>session.finish()));container.append(actions);if(originalContext)container.append(originalContext);
       }
       history();if(historyOpen&&container.querySelector('.discovery-history'))container.querySelector('.discovery-history').open=true;
       if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}
@@ -1085,7 +1092,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-24-question-actions");
+console.log("DRAFTED_JS_SOURCE", "2026-10-25-compact-followup");
 
 console.log("🚀 drafted-editor.js executing");
 
