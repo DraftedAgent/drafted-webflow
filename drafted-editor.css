@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-25-tailor-whole-cv-11 */
+/* drafted-editor.css | build=2026-10-25-tailor-two-modes */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -927,6 +927,22 @@ html,body {height:100%;overflow:hidden!important;}
 
 .tailor-context-question,.tailor-review-warning{padding:12px;margin:12px 0;border-left:3px solid #bd8538;background:#fff8e9;border-radius:4px}
 .tailor-context-question h3,.tailor-review-warning h3{font-size:14px;margin:0 0 6px}.tailor-context-question textarea{display:block;box-sizing:border-box;width:100%;font:14px/1.5 system-ui;padding:9px;border:1px solid #9ca5ab;border-radius:6px;resize:vertical;min-height:70px}.tailor-context-question textarea:focus-visible{outline:3px solid #416fbc;outline-offset:2px}
+
+/* Tailor has one active surface: a sourced context question OR an unapplied CV. */
+.chat-messages:has(>.tailor-context-mode)>:not(.tailor-context-mode):not(.drafted-discovery){display:none!important}
+.chat-card:has(.tailor-suggestion) .chat-input-row,.chat-card:has(.tailor-suggestion) .context-chip-row{display:none!important}
+.tailor-context-mode textarea{display:block;box-sizing:border-box;width:100%;min-height:90px;margin:12px 0;padding:10px;border:1px solid #9ca5ab;border-radius:7px;font:inherit;resize:vertical}
+.tailor-context-mode textarea:focus-visible{outline:3px solid #416fbc;outline-offset:2px}
+.tailor-context-mode blockquote{max-height:6em;overflow:auto;border-left:3px solid #dce4e1}
+.tailor-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
+.tailor-actions button{margin:0}
+.discovery-guidance .tailor-primary{background:#111;color:#fff;border-color:#111}
+.tailor-proposed-cv{background:#fff;border:1px solid #dce4e1;border-radius:6px;padding:clamp(14px,3vw,28px);margin:12px 0;color:#20313b;font:14px/1.6 "Drafted Sans",sans-serif}
+.tailor-proposed-cv section+section{border-top:1px solid #e0e6e9;margin-top:20px;padding-top:16px}
+.tailor-proposed-cv h3{font:600 14px/1.4 "Drafted Sans",sans-serif;margin:0 0 10px}
+.tailor-proposed-cv h4{font:600 15px/1.4 "Drafted Sans",sans-serif;margin:0 0 5px}
+.tailor-proposed-cv .tailor-proposed-text{white-space:pre-wrap;font:inherit;margin:8px 0 0}
+.tailor-proposed-cv .tailor-entry-meta{color:#596a74;font-size:12px}
 /* --- end import: ./components/experience-discovery.css --- */
 
 
