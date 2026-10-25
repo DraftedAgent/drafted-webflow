@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-24-question-actions */
+/* drafted-editor.css | build=2026-10-25-compact-followup */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -899,8 +899,10 @@ html,body {height:100%;overflow:hidden!important;}
 @keyframes discovery-planning-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.workspace-editor-toolbar .discovery-launcher[data-plan-state=loading]::after{animation:none}}
 
-/* Context stays beside the follow-up; outcomes separate evidence from assessment. */
-.drafted-discovery .discovery-followup-context{border-left:3px solid #bfd1c9;padding:0 14px;margin:12px 0 20px}
+/* Original answer stays compact; question/ad background is optional. */
+.drafted-discovery .discovery-followup-context{margin:8px 0 16px}
+.drafted-discovery .discovery-previous-answer{max-height:6.2em;overflow:auto;overflow-wrap:anywhere;margin:4px 0}
+.drafted-discovery .discovery-original-context{margin-top:16px}
 .drafted-discovery .discovery-result{border:1px solid #dce4e1;border-radius:10px;padding:14px 16px;margin:14px 0;background:#fafcfb}
 .drafted-discovery .discovery-result h3{font-size:15px;line-height:1.5;margin:0 0 8px}
 .drafted-discovery .discovery-result-label{font-weight:600;font-size:13px;margin-bottom:4px}
