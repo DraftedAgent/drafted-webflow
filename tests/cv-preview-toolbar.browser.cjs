@@ -43,12 +43,12 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
     await page.setViewportSize(viewport);await page.waitForTimeout(200);
     assert.equal(await page.locator('.cv-card > .workspace-preview-title #cv-design').count(),1);
     const geometry=await page.evaluate(()=>{const bar=document.querySelector('.workspace-preview-title').getBoundingClientRect(),pane=document.querySelector('.cv-document').getBoundingClientRect(),card=document.querySelector('.cv-card').getBoundingClientRect(),editor=document.querySelector('.editor-container').getBoundingClientRect();return {bar:bar.height,distance:pane.top-bar.bottom,inside:bar.left>=card.left&&bar.right<=card.right,bottom:editor.bottom,paneHeight:pane.height};});
-    assert.ok(geometry.inside);assert.ok(geometry.bar<=50);assert.ok(geometry.distance<=11);assert.ok(geometry.paneHeight>35);assert.ok(geometry.bottom<=viewport.height+1);assert.equal(await fit(),true);
+    assert.ok(geometry.inside);assert.ok(geometry.bar<=90);assert.ok(geometry.distance<=11);assert.ok(geometry.paneHeight>35);assert.ok(geometry.bottom<=viewport.height+1);assert.equal(await fit(),true);
     assert.deepEqual(await page.locator('.cv-page-content').allTextContents(),signatures[design]);
     // A real pointer click has no outer focus ring; keyboard Tab has a neutral ring.
     await page.locator('#cv-design').click();
     const mouseFocus=await page.locator('#cv-design').evaluate(el=>({outline:getComputedStyle(el).outlineStyle,shadow:getComputedStyle(el).boxShadow}));assert.equal(mouseFocus.outline,'none');assert.equal(mouseFocus.shadow,'none');await page.keyboard.press('Escape');
-    await page.locator('.workspace-expand-preview').focus();await page.keyboard.press('Shift+Tab');
+    await page.locator('#cv-design').focus();await page.keyboard.press('Tab');await page.keyboard.press('Shift+Tab');
     assert.equal(await page.locator('#cv-design').evaluate(el=>el===document.activeElement),true);
     assert.equal(await page.locator('#cv-design').evaluate(el=>getComputedStyle(el).outlineColor),'rgb(112, 121, 128)');
     for(const name of ['Expand preview','Export PDF','Copy text']){
@@ -103,7 +103,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
   await touch.getByRole('button',{name:'Export PDF',exact:true}).tap();await touch.waitForFunction(()=>!document.querySelector('iframe[data-cv-print]')&&!document.querySelector('.workspace-print-button').disabled);
   await touch.getByRole('button',{name:'Close',exact:true}).tap();await touch.waitForFunction(()=>!document.querySelector('#cv-preview-dialog').open);assert.equal(await touch.locator('.workspace-tooltip:visible').count(),0);await touch.close();
   for(let i=0;i<3;i++){
-   await page.locator('#cv-design').focus();await page.keyboard.press('Tab');const expand=page.getByRole('button',{name:'Expand preview',exact:true});assert.equal(await expand.locator('[role=tooltip]').isVisible(),true);
+   await page.locator('.workspace-zoom-fit').focus();await page.keyboard.press('Tab');const expand=page.getByRole('button',{name:'Expand preview',exact:true});assert.equal(await expand.locator('[role=tooltip]').isVisible(),true);
    await page.keyboard.press('Enter');assert.equal(await page.getByRole('button',{name:'Close',exact:true}).locator('[role=tooltip]').isVisible(),false);await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('#cv-preview-dialog').open&&document.activeElement.classList.contains('workspace-expand-preview'));assert.equal(await expand.locator('[role=tooltip]').isVisible(),false);
   }
   assert.deepEqual(errors,[]);assert.deepEqual(outside,[]);

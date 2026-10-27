@@ -230,17 +230,35 @@
     if (!global.DraftedCvDesigns.some(design => design.id === templateId)) throw Error('Unknown CV design.');
     let viewer = viewers.get(host);
     if (!viewer) {
-      const scale = () => {
+      const scale = (preserve=true) => {
         const width = host.clientWidth;
+        const slots = [...host.querySelectorAll('.cv-page-slot')];
+        if (!slots.length) return;
+        const factor = viewer.zoom === 'fit' ? width / slots[0].firstElementChild.offsetWidth : viewer.zoom;
+        const pane = host.closest('.cv-document'), bounds = pane?.getBoundingClientRect();
+        // Anchor a point in the visible page, rather than resetting the scroll offset.
+        const y = bounds && bounds.top + pane.clientTop + pane.clientHeight * .35;
+        const x = bounds && bounds.left + pane.clientLeft + pane.clientWidth * .5;
+        const anchor = preserve && viewer.factor !== factor && pane ? slots.find(slot => slot.getBoundingClientRect().bottom > y) : null;
+        const before = anchor?.getBoundingClientRect();
+        const fractionY = before?.height ? Math.max(0, Math.min(1, (y - before.top) / before.height)) : null;
+        const fractionX = before?.width ? Math.max(0, Math.min(1, (x - before.left) / before.width)) : null;
         for (const slot of host.querySelectorAll('.cv-page-slot')) {
-          const page = slot.firstElementChild, factor = Math.min(1, width / page.offsetWidth);
+          const page = slot.firstElementChild;
           slot.style.width = `${page.offsetWidth * factor}px`;
           slot.style.height = `${page.offsetHeight * factor}px`;
           page.style.transform = `scale(${factor})`;
         }
+        viewer.factor = factor;
+        if (fractionY !== null) {
+          const after = anchor.getBoundingClientRect();
+          pane.scrollTop += after.top + after.height * fractionY - y;
+          pane.scrollLeft += after.left + after.width * fractionX - x;
+        }
+        host.dispatchEvent(new CustomEvent('cv-view-scale', {detail:{factor, mode:viewer.zoom === 'fit' ? 'fit' : 'manual'}}));
       };
-      viewer = {scale, generation:0}; viewers.set(host, viewer);
-      new ResizeObserver(scale).observe(host);
+      viewer = {scale, zoom:'fit', generation:0}; viewers.set(host, viewer);
+      new ResizeObserver(() => scale()).observe(host);
     }
     viewer.model = model;
     const generation = ++viewer.generation;
@@ -271,5 +289,12 @@
     do { generation = viewer.generation; await viewer.pending; } while (generation !== viewer.generation);
     if (host.dataset.layoutState !== 'ready') throw Error('Document layout is not ready.');
   }
-  global.DraftedCvLayout = {render, ready, rescale(host){viewers.get(host)?.scale();}, version:'a4-v2'};
+  global.DraftedCvLayout = {render, ready,
+    // The modal already captures and restores its own reading position.
+    rescale(host){viewers.get(host)?.scale(false);},
+    setZoom(host, value){
+      const viewer=viewers.get(host);if(!viewer)return;
+      if(value !== 'fit' && (!Number.isFinite(value) || value <= 0))throw Error('Invalid preview zoom.');
+      viewer.zoom=value;viewer.scale();
+    }, version:'a4-v2'};
 })(window);
