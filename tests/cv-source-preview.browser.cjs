@@ -36,8 +36,10 @@ const fixture=require('./fixtures/source-pdf.js');
    await view.screenshot({path:path.join(out,`original-${size.width}.png`)});
   }
   await page.setViewportSize({width:1440,height:1000});await page.waitForTimeout(100);await view.evaluate(el=>el.scrollTop=0);
+  await page.getByRole('button',{name:'Enlarge CV preview',exact:true}).click();await page.waitForTimeout(100);
   const text=slots.first().locator('.source-pdf-text span').first(),rect=await text.boundingBox();
   await page.mouse.move(rect.x+2,rect.y+rect.height/2);await page.mouse.down();await page.mouse.move(rect.x+rect.width-2,rect.y+rect.height/2,{steps:12});await page.mouse.up();assert.ok(await page.evaluate(()=>getSelection().toString().includes('Synthetic')),'Original text remains selectable');
+  await page.getByRole('button',{name:'Close CV preview',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('#uploaded-cv-dialog').open);
   // Swapping files during lazy loading must never reinstate old pages.
   await input.setInputFiles({name:'old-large.pdf',mimeType:'application/pdf',buffer:Buffer.from(fixture.create({pages:15,title:'Obsolete file'}))});
   const latest=fixture.create({pages:1,title:'Latest selected CV'});
