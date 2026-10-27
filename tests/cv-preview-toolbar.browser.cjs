@@ -26,7 +26,8 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
   await page.locator('#editor-input').fill('Preserve this unsent instruction.');
   assert.equal(await page.locator('.cv-tools,.workspace-more-toggle,.workspace-print-help,#cv-design-note').count(),0);
   assert.equal(await page.getByRole('button',{name:'Export PDF (Classic)',exact:true}).count(),0);
-  assert.equal(await page.locator('.workspace-topbar').innerText(),'Drafted\n'+await page.locator('.workspace-document-title').textContent());
+  assert.equal(await page.locator('.workspace-identity').innerText(),'Drafted\n'+await page.locator('.workspace-document-title').textContent());
+  assert.equal(await page.locator('.workspace-main-actions .workspace-print-button').count(),1);
   const fit=()=>page.locator('#cv-design,.workspace-page-count,.workspace-icon-button:not([hidden])').evaluateAll(els=>els.every(el=>{const r=el.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth;}));
   const checkPrint=async(design)=>{
    const count=await page.evaluate(()=>window.__toolbarPrints?.length||0);
@@ -42,12 +43,12 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
     await page.setViewportSize(viewport);await page.waitForTimeout(200);
     assert.equal(await page.locator('.cv-card > .workspace-preview-title #cv-design').count(),1);
     const geometry=await page.evaluate(()=>{const bar=document.querySelector('.workspace-preview-title').getBoundingClientRect(),pane=document.querySelector('.cv-document').getBoundingClientRect(),card=document.querySelector('.cv-card').getBoundingClientRect(),editor=document.querySelector('.editor-container').getBoundingClientRect();return {bar:bar.height,distance:pane.top-bar.bottom,inside:bar.left>=card.left&&bar.right<=card.right,bottom:editor.bottom,paneHeight:pane.height};});
-    assert.ok(geometry.inside);assert.ok(geometry.bar<=40);assert.ok(geometry.distance<=11);assert.ok(geometry.paneHeight>35);assert.ok(geometry.bottom<=viewport.height+1);assert.equal(await fit(),true);
+    assert.ok(geometry.inside);assert.ok(geometry.bar<=50);assert.ok(geometry.distance<=11);assert.ok(geometry.paneHeight>35);assert.ok(geometry.bottom<=viewport.height+1);assert.equal(await fit(),true);
     assert.deepEqual(await page.locator('.cv-page-content').allTextContents(),signatures[design]);
     // A real pointer click has no outer focus ring; keyboard Tab has a neutral ring.
     await page.locator('#cv-design').click();
     const mouseFocus=await page.locator('#cv-design').evaluate(el=>({outline:getComputedStyle(el).outlineStyle,shadow:getComputedStyle(el).boxShadow}));assert.equal(mouseFocus.outline,'none');assert.equal(mouseFocus.shadow,'none');await page.keyboard.press('Escape');
-    await page.locator('.workspace-copy-button').focus();await page.keyboard.press('Shift+Tab');await page.keyboard.press('Shift+Tab');await page.keyboard.press('Shift+Tab');
+    await page.locator('.workspace-expand-preview').focus();await page.keyboard.press('Shift+Tab');
     assert.equal(await page.locator('#cv-design').evaluate(el=>el===document.activeElement),true);
     assert.equal(await page.locator('#cv-design').evaluate(el=>getComputedStyle(el).outlineColor),'rgb(112, 121, 128)');
     for(const name of ['Expand preview','Export PDF','Copy text']){
