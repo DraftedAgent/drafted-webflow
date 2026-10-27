@@ -2,7 +2,7 @@
    intentionally keep their existing presentation and behavior. */
 #section-input.preparation-section {
   --prep-ink:#142a3d;--prep-muted:#5b7082;--prep-teal:#007f86;--prep-line:#d7e2e9;--prep-tint:#eaf4f5;
-  display:block;height:auto;min-height:100%;max-height:none;overflow:visible;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;height:auto;min-height:100vh;min-height:100svh;max-height:none;overflow:visible;box-sizing:border-box;
   padding:clamp(32px,5vh,64px) clamp(20px,4vw,64px)!important;background:#fff;color:var(--prep-ink);
   text-align:left;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
