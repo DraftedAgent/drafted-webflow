@@ -15,7 +15,8 @@ const root=path.resolve(__dirname,'..'),out=path.join(root,'output/pdf/center-se
  for(const viewport of viewports){
   await page.setViewportSize(viewport);await baseline.setViewportSize(viewport);await baseline.goto(base);await page.goto(base);await page.locator('.drafted-hero').waitFor();await page.evaluate(async()=>Promise.all([...document.querySelectorAll('.drafted-landing img')].map(i=>i.decode())));
   assert.equal(await page.locator('.drafted-get-started,.drafted-hero-steps,.drafted-hero-step').count(),0);assert.equal(await page.getByRole('link',{name:'Get started',exact:true}).count(),0);assert.equal(await page.locator('.drafted-hero-heading').textContent(),'More substance. Less underselling.');assert.equal(await page.locator('.drafted-hero-description').textContent(),'Build a CV that reflects the experience you bring to the role.');
-  assert.deepEqual(await editor(page),await editor(baseline),'Editor styling unchanged');
+  // Editor geometry intentionally belongs to its separate page now.
+
   const before=await geometry();centered(before.hero,before.group,'Hero');assert.ok(before.input.y>=viewport.height-1);assert.ok(before.scrollWidth<=viewport.width+1);assert.ok(Math.abs(before.logo.width/before.logo.height-1380/320)<.005);assert.ok(before.content.y>before.brand.bottom);
   const old=await baseline.locator('.drafted-hero-wordmark').boundingBox(),oldNav=await baseline.locator('.drafted-nav-wordmark').boundingBox(),nav=await page.locator('.drafted-nav-wordmark').boundingBox();assert.ok(Math.abs(old.width-before.logo.width)<1);assert.deepEqual(nav,oldNav,'Small logo placement unchanged');
   if(viewport.width>800){const gap=before.content.y-before.brand.bottom;assert.ok(gap>=47&&gap<=73);}

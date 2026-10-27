@@ -12,6 +12,12 @@
   class Session{
     constructor({id=()=>globalThis.crypto.randomUUID()}={}){this.id=id;this.state={modelVersion:'source-answers-2',revision:0,context:null,round:null,answers:[]};}
     snapshot(){return copy(this.state);}
+    restore(saved){
+      if(saved?.modelVersion!=='source-answers-2'||!Array.isArray(saved.answers)||!Number.isInteger(saved.revision))throw Error('INVALID_SAVED_SESSION');
+      if(saved.context&&(!saved.context.cvVersionId||!Array.isArray(saved.context.blocks)))throw Error('INVALID_SAVED_CONTEXT');
+      const next=copy(saved);if(next.round){if(!Array.isArray(next.round.queue)||next.round.contextRevision!==next.context?.revision)throw Error('INVALID_SAVED_ROUND');for(const q of next.round.queue.concat(next.round.reserve||[]))if(q.status==='processing')q.status='error';if(['interpreting','ready'].includes(next.round.phase))next.round.phase='error';}
+      for(const a of next.answers)if(a.status==='processing')a.status='error';this.state=next;
+    }
     observe(fn){this.observer=fn;return ()=>{if(this.observer===fn)this.observer=null;};}
     notify(){if(this.observer)this.observer();}
     setContext(c){requireText(c.revision);requireText(c.cvVersionId);if(!Array.isArray(c.blocks)||!c.jobContext)throw Error('INVALID_CONTEXT');if(this.state.context?.revision===c.revision&&JSON.stringify(this.state.context)!==JSON.stringify(c))throw Error('CONTEXT_REVISION_REQUIRED');this.state.context=copy(c);this.state.round=null;this.state.revision++;}

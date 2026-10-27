@@ -51,6 +51,12 @@ const server=http.createServer(async(req,res)=>{
   return json(503,{ok:false,contractError:{code:'LOCAL_PREVIEW_ONLY',message:'This action is outside the local discovery preview.'}});
  }
  if(req.method!=='GET')return json(404,{error:'Not found'});
+ if(['/editor','/editor/'].includes(pathname)){
+  let html=fs.readFileSync(path.join(repo,'webflow/pages/editor.html'),'utf8');
+  const config='<script>window.__DRAFTED_PREVIEW_ENDPOINTS__={upload:"/preview-api/upload",rewrite:"/preview-api/rewrite",chat:"/preview-api/chat",export:"/preview-api/export",jobcontext:"/preview-api/jobcontext",tailor:"/preview-api/tailor",discovery:"/webflow-experience-discovery",tailorSources:'+!!sourceFixture+'};</script>';
+  const bootstrap=fs.readFileSync(path.join(repo,'webflow/pages/bootstrap.html'),'utf8').replace("const assets = 'https://draftedagent.github.io/drafted-webflow/';","const assets = location.origin + '/';");
+  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});return res.end(html.replace('<!-- DRAFTED_SHARED_BOOTSTRAP -->',config+bootstrap));
+ }
  if(req.method==='GET'&&pathname==='/webflow/preview/editor-fixture.js'){const script=fs.readFileSync(path.join(repo,'webflow/preview/editor-fixture.js'),'utf8');res.writeHead(200,{'Content-Type':'text/javascript'});return res.end(script.replace("tailor:'/preview-api/tailor'","tailor:'/preview-api/tailor',tailorSources:"+!!sourceFixture));}
  const target=path.resolve(repo,'.'+(pathname==='/'?'/webflow/preview/editor.html':pathname));if(!target.startsWith(repo+path.sep))return json(404,{error:'Not found'});
  fs.readFile(target,(e,data)=>{if(e)return json(404,{error:'Not found'});res.writeHead(200,{'Content-Type':target.endsWith('.html')?'text/html; charset=utf-8':target.endsWith('.css')?'text/css':target.endsWith('.svg')?'image/svg+xml':(/\.m?js$/.test(target))?'text/javascript':target.endsWith('.wasm')?'application/wasm':'application/octet-stream'});res.end(data);});

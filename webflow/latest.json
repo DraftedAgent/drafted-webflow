@@ -1,6 +1,6 @@
 {
-  "build": "2026-10-27-preparation-modal",
-  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-27-preparation-modal",
-  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-27-preparation-modal",
-  "ts": "2026-10-27T19:29:00Z"
+  "build": "2026-10-27-editor-workspace-pages",
+  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-27-editor-workspace-pages",
+  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-27-editor-workspace-pages",
+  "ts": "2026-10-27T20:57:44Z"
 }

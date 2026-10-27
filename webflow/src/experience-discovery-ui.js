@@ -1,7 +1,7 @@
 (function(root){
   'use strict';
-  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready'}={}){
-    const drafts=new Map(),mountedRound=session.round().id;
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready',initialDrafts=[]}={}){
+    const drafts=new Map(initialDrafts),mountedRound=session.round().id;
     let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
     const button=(label,fn)=>{const b=el('button',label);b.type='button';b.disabled=busy;b.addEventListener('click',async()=>{
@@ -88,7 +88,7 @@
       renderedPhase=r.phase;
       if(selection){const input=container.querySelector('textarea');if(input){input.focus({preventScroll:true});input.setSelectionRange(selection.start,selection.end);}}
     }
-    const stopObserving=session.observe(render);render();return {render};
+    const stopObserving=session.observe(render);render();return {render,snapshotDrafts:()=>[...drafts]};
   }
   root.DraftedExperienceDiscoveryUI={mount};
 })(globalThis);

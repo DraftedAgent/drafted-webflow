@@ -26,7 +26,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
   await page.locator('#editor-input').fill('Preserve this unsent instruction.');
   assert.equal(await page.locator('.cv-tools,.workspace-more-toggle,.workspace-print-help,#cv-design-note').count(),0);
   assert.equal(await page.getByRole('button',{name:'Export PDF (Classic)',exact:true}).count(),0);
-  assert.equal(await page.locator('.workspace-identity').innerText(),'Drafted\n'+await page.locator('.workspace-document-title').textContent());
+  assert.equal(await page.locator('.workspace-identity').innerText(),'Back to setup\nDrafted\n'+await page.locator('.workspace-document-title').textContent());
   assert.equal(await page.locator('.workspace-main-actions .workspace-print-button').count(),1);
   const fit=()=>page.locator('#cv-design,.workspace-page-count,.workspace-icon-button:not([hidden])').evaluateAll(els=>els.every(el=>{const r=el.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth;}));
   const checkPrint=async(design)=>{

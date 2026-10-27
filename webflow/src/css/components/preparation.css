@@ -26,7 +26,7 @@
 #section-input.preparation-section #job-ad-input::placeholder {color:#748696;opacity:1;}
 #section-input.preparation-section .preparation-job-hint {margin:8px 0 0;color:var(--prep-muted);font-size:12px;line-height:1.5;}
 #section-input.preparation-section #jobcontext-status {padding:9px 12px;border-radius:6px;font:13px/1.5 system-ui;margin:10px 0 0;}
-#section-input.preparation-section #jobcontext-status[data-state=loading] {background:#f0f5f8;color:#40596d;}
+#section-input.preparation-section #jobcontext-status:is([data-state=loading],[data-state=pending]) {background:#f0f5f8;color:#40596d;}
 #section-input.preparation-section #jobcontext-status[data-state=ready] {background:var(--prep-tint);color:#166165;}
 #section-input.preparation-section #jobcontext-status[data-state=error] {background:#fff2ee;color:#8d3b2e;}
 #section-input.preparation-section .file-picker {position:relative;display:flex;align-items:center;gap:14px;width:100%;max-width:100%;min-width:0;padding:17px 18px;border:1px solid var(--prep-line);border-radius:8px;box-sizing:border-box;background:#fff;}

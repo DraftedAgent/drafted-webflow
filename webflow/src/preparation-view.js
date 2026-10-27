@@ -55,10 +55,10 @@
       loading(value){section.setAttribute('aria-busy',String(value));action.setAttribute('aria-disabled',String(value));action.setAttribute('aria-busy',String(value));if(value)show('loading','Analyzing your CV. Please keep this tab open.');},
       missingFile(){show('error','Choose a PDF before continuing.');choose.focus();},
       failed(selectedFile){if(file.files?.[0]===selectedFile)show('error','Your CV could not be processed. Please try again.');},
-      complete(selectedFile){
+      complete(selectedFile,{navigate=true}={}){
         if(file.files?.[0]!==selectedFile)return;
         show('ready','Your CV is ready in the editor.');
-        document.querySelector('.section-editor')?.scrollIntoView({behavior:global.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+        if(navigate)document.querySelector('.section-editor')?.scrollIntoView({behavior:global.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
       }
     };
   }

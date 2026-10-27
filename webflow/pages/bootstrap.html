@@ -1,0 +1,39 @@
+<!-- Shared Home + Editor footer bootstrap. Replace the previous bootstrap once. -->
+<script>
+(async function () {
+  if (window.__DRAFTED_PAGE_BOOTSTRAP__) return;
+  window.__DRAFTED_PAGE_BOOTSTRAP__ = true;
+  if (location.pathname.replace(/\/$/, '') === '/editor') {
+    document.documentElement.classList.add('drafted-pages');
+    Object.assign(document.documentElement.dataset, {workspacePage:'editor', workspaceBooting:'true', workspaceReady:'false'});
+  }
+  const assets = 'https://draftedagent.github.io/drafted-webflow/';
+  try {
+    // The editor page reuses Home's Webflow component markup, not another editor.
+    // DOMParser never runs Home's scripts; this bootstrap binds the shared JS once.
+    if (location.pathname.replace(/\/$/, '') === '/editor' && !document.querySelector('.section-editor')) {
+      const response = await fetch('/', {cache: 'no-store'});
+      if (!response.ok) throw Error('Setup page unavailable');
+      const home = new DOMParser().parseFromString(await response.text(), 'text/html');
+      const navigation = home.querySelector('.navbar'), content = home.querySelector('.page-scroll');
+      if (!navigation || !content?.querySelector('#section-input') || !content.querySelector('.section-editor')) throw Error('Workspace markup unavailable');
+      for (const node of [navigation, content]) {
+        node.querySelectorAll('script,.w-code-block').forEach(element => element.remove());
+        document.body.append(document.importNode(node, true));
+      }
+    }
+    const response = await fetch(assets + 'latest.json?t=' + Date.now(), {cache: 'no-store'});
+    if (!response.ok) throw Error('Workspace assets unavailable');
+    const meta = await response.json();
+    const css = document.createElement('link'); css.rel = 'stylesheet';
+    css.href = assets + 'drafted-editor.css?v=' + encodeURIComponent(meta.build);
+    await new Promise((resolve, reject) => {css.onload = resolve; css.onerror = reject; document.head.append(css);});
+    const script = document.createElement('script'); script.src = assets + 'drafted-editor.js?v=' + encodeURIComponent(meta.build); document.body.append(script);
+  } catch (_) {
+    const message = document.createElement('p'); message.setAttribute('role', 'alert');
+    message.textContent = 'The workspace could not be loaded. Reload the page or return to setup.';
+    const link = document.createElement('a'); link.href = '/#section-input'; link.textContent = 'Back to setup';
+    document.body.append(message, link);
+  }
+})();
+</script>

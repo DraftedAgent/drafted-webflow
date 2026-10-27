@@ -1,3 +1,95 @@
+/* One tab's recoverable editor work. No account/profile or backend storage. */
+(function(global){
+  'use strict';
+  const SCHEMA=1,DB='drafted-workspace-v1';
+  function valid(state){const cv=state?.cv;return !!(cv&&typeof cv.cvVersionId==='string'&&cv.cvVersionId&&Array.isArray(cv.documentBlocksState)&&cv.documentBlocksState.length&&new Set(cv.documentBlocksState.map(b=>b.blockId)).size===cv.documentBlocksState.length&&cv.documentBlocksState.every(b=>typeof b.blockId==='string'&&b.blockId&&typeof b.text==='string'&&Number.isFinite(b.order)));}
+  function create(){
+    let id;try{id=sessionStorage.getItem('drafted.workspace.tab');if(!id){id=crypto.randomUUID();sessionStorage.setItem('drafted.workspace.tab',id);}}catch{throw Error('Workspace storage is unavailable in this browser. Enable browser storage and try again.');}
+    const mirror='drafted.workspace.state.'+id,identity=new WeakMap(),hashes=new WeakMap(),written=new Set();let sequence=0,chain=Promise.resolve();
+    const database=new Promise((resolve,reject)=>{const request=indexedDB.open(DB,1);request.onupgradeneeded=()=>request.result.createObjectStore('entries',{keyPath:'key'});request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(Error('Your workspace could not be saved in this browser. Check browser storage and try again.'));request.onblocked=()=>reject(Error('Workspace storage is busy. Close other Drafted windows and try again.'));});
+    const read=async key=>{const db=await database;return new Promise((resolve,reject)=>{const request=db.transaction('entries').objectStore('entries').get(key);request.onsuccess=()=>resolve(request.result?.value);request.onerror=()=>reject(request.error);});};
+    async function load(){
+      let local;try{local=JSON.parse(sessionStorage.getItem(mirror)||'null');}catch{}
+      const stored=await read('state:'+id),payload=local?.schema===SCHEMA&&(!stored||local.sequence>stored.sequence)?local:stored;
+      if(!payload)return null;if(payload.schema!==SCHEMA||!payload.state||typeof payload.state!=='object')throw Error('The saved workspace cannot be restored. Return to setup and choose your CV.');sequence=payload.sequence||0;
+      const files={};for(const [kind,key] of Object.entries(payload.files||{})){if(!key){files[kind]=null;continue;}const record=await read('file:'+id+':'+key);if(record){const file=record.blob instanceof File?record.blob:new File([record.blob],record.name,{type:record.type,lastModified:record.modified});identity.set(file,key);written.add(key);files[kind]=file;}else files[kind]=null;}
+      return {state:payload.state,files};
+    }
+    function save(state,files={}){
+      const fresh=[],keys={};for(const [kind,file] of Object.entries(files)){if(!file){keys[kind]=null;continue;}let key=identity.get(file);if(!key){key=crypto.randomUUID();identity.set(file,key);}keys[kind]=key;if(!written.has(key))fresh.push({key:'file:'+id+':'+key,value:{blob:file,name:file.name,type:file.type,modified:file.lastModified}});}
+      const payload={schema:SCHEMA,sequence:++sequence,state:JSON.parse(JSON.stringify(state)),files:keys};
+      // Synchronous mirror protects the latest edits when a reload interrupts a write.
+      try{sessionStorage.setItem(mirror,JSON.stringify(payload));}catch{/* IndexedDB remains authoritative if the text mirror is full. */}
+      const write=async()=>{const db=await database;await new Promise((resolve,reject)=>{
+        const tx=db.transaction('entries','readwrite'),store=tx.objectStore('entries'),current=store.get('state:'+id);let accepted=false;
+        current.onsuccess=()=>{if(current.result?.value?.sequence>payload.sequence)return;accepted=true;for(const entry of fresh)store.put(entry);store.put({key:'state:'+id,value:payload});const request=store.getAllKeys();request.onsuccess=()=>{for(const key of request.result)if(String(key).startsWith('file:'+id+':')&&!Object.values(keys).some(value=>key==='file:'+id+':'+value))store.delete(key);};};
+        tx.oncomplete=()=>{if(accepted)for(const key of Object.values(keys))if(key)written.add(key);resolve();};tx.onerror=()=>reject(Error('Your latest work could not be saved. Check browser storage before leaving this page.'));tx.onabort=()=>reject(Error('Workspace saving was interrupted. Try again before leaving this page.'));
+      });};
+      const result=chain.catch(()=>{}).then(write);chain=result;return result;
+    }
+    function fingerprint(file){if(!hashes.has(file))hashes.set(file,file.arrayBuffer().then(bytes=>crypto.subtle.digest('SHA-256',bytes)).then(bytes=>Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('')));return hashes.get(file);}
+    return {load,save,fingerprint};
+  }
+  global.DraftedWorkspaceStore={create,valid};
+})(window);
+
+;
+/* Exactly two fixed page views share the existing Webflow nodes/handlers. */
+(function(global){
+  'use strict';
+  const editorPath='/editor',isEditor=()=>location.pathname.replace(/\/$/,'')===editorPath;
+  document.documentElement.classList.add('drafted-pages');document.documentElement.dataset.workspacePage=isEditor()?'editor':'setup';document.documentElement.dataset.workspaceBooting='true';
+  function create(adapter){
+    const root=document.documentElement,section=document.querySelector('.section-editor'),setup=document.getElementById('section-input'),input=document.getElementById('cv-file');
+    let store,storageReady=false,restoring=true,scheduled=false,sourceHash=null,error='',saving=Promise.resolve();
+    const status=document.createElement('p');status.className='workspace-save-status';status.setAttribute('role','status');status.hidden=true;document.body.append(status);
+    const empty=document.createElement('main');empty.className='workspace-empty';empty.hidden=true;empty.innerHTML='<h1>No CV is open yet</h1><p>Choose your current CV to start an editor workspace.</p><a href="/#section-input">Go to setup</a>';document.body.append(empty);
+    const back=document.createElement('a');back.href='/#section-input';back.className='workspace-back-setup';back.textContent='Back to setup';section.querySelector('.workspace-identity').prepend(back);
+    const jobButton=document.createElement('button');jobButton.type='button';jobButton.className='workspace-edit-job';jobButton.textContent='Job description';section.querySelector('.workspace-main-actions').prepend(jobButton);
+    const dialog=document.createElement('dialog');dialog.className='workspace-job-dialog';dialog.setAttribute('aria-labelledby','workspace-job-title');dialog.innerHTML='<h2 id="workspace-job-title">Job description (optional)</h2><label for="workspace-job-input">Give your experience a context</label><textarea id="workspace-job-input" rows="10"></textarea><p>Changing the job description does not change your CV. Use Tailor to job when you want a new suggestion.</p><div><button type="button" data-cancel>Cancel</button><button type="button" data-save>Save job description</button></div>';section.append(dialog);
+    const jobDraft=dialog.querySelector('textarea');
+    const jobState=document.createElement('p');jobState.setAttribute('role','status');dialog.querySelector('h2').after(jobState);
+    function showJobState(){const text=document.getElementById('jobcontext-status-text')?.textContent||'';jobState.textContent=text;jobState.hidden=!text;}
+    new MutationObserver(()=>{if(dialog.open)showJobState();}).observe(document.getElementById('jobcontext-status'),{subtree:true,childList:true,attributes:true,attributeFilter:['data-state']});
+    function notify(message){error=message||'';status.textContent=error;status.hidden=!error;}
+    function viewport(){const vv=global.visualViewport,height=vv?.height||innerHeight;root.style.setProperty('--workspace-viewport-height',height+'px');root.style.setProperty('--workspace-viewport-top',(vv?.offsetTop||0)+'px');root.dataset.workspaceKeyboard=String(document.activeElement===document.getElementById('editor-input')&&(height<innerHeight*.72||innerWidth<=700&&height<500));}
+    global.visualViewport?.addEventListener('resize',viewport);global.visualViewport?.addEventListener('scroll',viewport);global.addEventListener('resize',viewport);document.addEventListener('focusin',viewport);document.addEventListener('focusout',()=>requestAnimationFrame(viewport));
+    function render(){
+      document.querySelectorAll('dialog[open]').forEach(modal=>modal.close());
+      const editor=isEditor(),valid=global.DraftedWorkspaceStore.valid(adapter.capture());root.dataset.workspacePage=editor?'editor':'setup';root.dataset.workspaceReady=String(valid);empty.hidden=!editor||valid;section.inert=!editor||!valid;setup.inert=editor;const landing=document.querySelector('.page-start');if(landing)landing.inert=editor;
+      if(editor){global.scrollTo(0,0);requestAnimationFrame(()=>{global.DraftedCvLayout.rescale(document.getElementById('editor-preview-text'));adapter.showEditor();});}else if(location.hash==='#section-input')requestAnimationFrame(()=>setup.scrollIntoView({behavior:'instant',block:'start'}));viewport();
+    }
+    function focusPage(){requestAnimationFrame(()=>{const target=isEditor()?(global.DraftedWorkspaceStore.valid(adapter.capture())?section.querySelector('.workspace-document-title'):empty.querySelector('h1')):document.getElementById('preparation-title');if(target){target.tabIndex=-1;target.focus({preventScroll:true});}});}
+    async function save(){if(restoring||!store||!storageReady)return;const state=adapter.capture();state.sourceHash=sourceHash;try{saving=store.save(state,{selected:input.files?.[0]||null,source:adapter.sourceFile()});await saving;if(error)notify(state.cv&&!adapter.sourceFile()?'Your editor work is restored. The original file is unavailable; choose it again to restore its preview.':'');}catch(e){notify(e.message);throw e;}}
+    function schedule(){if(restoring||scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;save().catch(()=>{});});}
+    async function navigate(path){try{await ready;await save();history.replaceState({...history.state,workspaceScroll:global.scrollY},'');history.pushState({draftedWorkspace:true},'',path);render();if(!isEditor())setup.scrollIntoView({behavior:'instant',block:'start'});focusPage();requestAnimationFrame(schedule);}catch(e){notify(e.message);}}
+    back.addEventListener('click',event=>{if(event.button||event.metaKey||event.ctrlKey||event.shiftKey)return;event.preventDefault();navigate('/#section-input');});
+    empty.querySelector('a').addEventListener('click',event=>{event.preventDefault();navigate('/#section-input');});
+    global.addEventListener('popstate',()=>{render();if(!isEditor()&&location.hash!=='#section-input')global.scrollTo(0,history.state?.workspaceScroll||0);focusPage();requestAnimationFrame(schedule);});
+    // A browser-restored older document must not overwrite newer saved work.
+    global.addEventListener('pageshow',event=>{if(event.persisted){restoring=true;root.dataset.workspaceBooting='true';location.reload();}});
+    jobButton.addEventListener('click',()=>{jobDraft.value=document.getElementById('job-ad-input').value;showJobState();dialog.showModal();jobDraft.focus();});
+    dialog.querySelector('[data-cancel]').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>jobButton.focus({preventScroll:true}));
+    dialog.querySelector('[data-save]').addEventListener('click',()=>{const original=document.getElementById('job-ad-input');if(original.value!==jobDraft.value||!global.__DRAFTED_JOBCONTEXT__&&jobDraft.value.trim().length>=200){original.value=jobDraft.value;original.dispatchEvent(new Event('input',{bubbles:true}));}dialog.close();schedule();});
+    async function confirmReplacement(){
+      const modal=document.createElement('dialog');modal.className='workspace-replace-dialog';modal.setAttribute('aria-labelledby','workspace-replace-title');modal.innerHTML='<h2 id="workspace-replace-title">Replace the current CV?</h2><p>A new CV starts new editor work and replaces the current CV, chat and pending suggestions. Your current work stays unchanged if processing fails.</p><button type="button" data-cancel>Keep current work</button><button type="button" data-replace>Replace CV and continue</button>';document.body.append(modal);
+      return new Promise(resolve=>{let approved=false;modal.querySelector('[data-cancel]').onclick=()=>modal.close();modal.querySelector('[data-replace]').onclick=()=>{approved=true;modal.close();};modal.addEventListener('close',()=>{modal.remove();document.getElementById('upload-btn').focus({preventScroll:true});resolve(approved);},{once:true});modal.showModal();modal.querySelector('[data-cancel]').focus();});
+    }
+    const ready=(async()=>{
+      try{store=global.DraftedWorkspaceStore.create();const saved=await store.load();storageReady=true;if(saved){sourceHash=saved.state.sourceHash||(saved.files.source?await store.fingerprint(saved.files.source):null);await adapter.restore(saved.state,saved.files);if(saved.state.cv&&!saved.files.source)notify('Your editor work is restored. The original file is unavailable; choose it again to restore its preview.');if(saved.state.jobEditor?.open&&isEditor()){jobDraft.value=saved.state.jobEditor.draft;requestAnimationFrame(()=>{showJobState();dialog.showModal();jobDraft.focus({preventScroll:true});});}}}
+      catch(e){notify(e.message);}finally{restoring=false;delete root.dataset.workspaceBooting;render();}
+    })();
+    document.addEventListener('input',schedule,true);document.addEventListener('change',schedule,true);document.addEventListener('click',schedule,true);let scrollTimer;document.addEventListener('scroll',()=>{clearTimeout(scrollTimer);scrollTimer=setTimeout(schedule,100);},{capture:true,passive:true});
+    new MutationObserver(schedule).observe(section,{subtree:true,childList:true,characterData:true});global.addEventListener('pagehide',()=>{save().catch(()=>{});});
+    return {ready,save,schedule,restoring:()=>restoring,
+      async beforeContinue(file){await ready;if(!store||!storageReady)throw Error('Workspace storage is unavailable. Enable browser storage before continuing.');const hash=await store.fingerprint(file);if(input.files?.[0]!==file)return false;if(global.DraftedWorkspaceStore.valid(adapter.capture())){if(hash===sourceHash){if(!adapter.sourceFile())adapter.adoptSource(file);await navigate(editorPath);return 'resume';}if(!await confirmReplacement())return false;}return 'upload';},
+      async complete(file){sourceHash=await store.fingerprint(file);await navigate(editorPath);},
+      showSetup:()=>navigate('/#section-input'),notify};
+  }
+  global.DraftedWorkspacePages={enabled:true,create};
+})(window);
+
+;
 /* Landing/header presentation only. Keep the existing upload/editor nodes live. */
 (function(global){
   'use strict';
@@ -64,8 +156,10 @@
       const pane=view(),bounds=pane.getBoundingClientRect(),anchor=[...pane.querySelectorAll('.source-pdf-slot')].find(el=>el.getBoundingClientRect().bottom>bounds.top),rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='preparation-preview-space';placeholder.style.height=wrap.getBoundingClientRect().height+'px';placeholder.setAttribute('aria-hidden','true');
       const previous=saved={placeholder,top:pane.scrollTop,left:pane.scrollLeft,overflow:scroller?.style.overflow,snap:scroller?.style.scrollSnapType,reading:scroller&&global.DraftedWorkspaceView.captureScroll(scroller),bodyOverflow:document.body.style.overflow};
+      previous.windowX=global.scrollX;previous.windowY=global.scrollY;previous.htmlOverflow=document.documentElement.style.getPropertyValue('overflow');previous.htmlPriority=document.documentElement.style.getPropertyPriority('overflow');
       wrap.replaceWith(placeholder);dialog.append(wrap);pane.inert=false;open.hidden=true;
       if(scroller){scroller.style.scrollSnapType='none';scroller.style.overflow='hidden';}document.body.style.overflow='hidden';
+      document.documentElement.style.setProperty('overflow','hidden','important');
       dialog.showModal();close.focus({preventScroll:true});
       // The original PDF viewer's ResizeObserver rescales the same pages.
       requestAnimationFrame(()=>requestAnimationFrame(()=>{if(saved!==previous)return;if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height;pane.scrollTop+=anchor.getBoundingClientRect().top-pane.getBoundingClientRect().top+fraction*anchor.getBoundingClientRect().height;}}));
@@ -73,9 +167,10 @@
     function restore(){
       if(!saved)return;const previous=saved;saved=null;previous.placeholder.replaceWith(wrap);
       document.body.style.overflow=previous.bodyOverflow;
+      document.documentElement.style.setProperty('overflow',previous.htmlOverflow,previous.htmlPriority);
       if(scroller){scroller.style.overflow=previous.overflow;global.DraftedWorkspaceView.restoreScroll(scroller,previous.reading);}
       sync();(!open.disabled?open:section.querySelector('#file-btn'))?.focus({preventScroll:true});
-      requestAnimationFrame(()=>{if(saved)return;const pane=view();if(pane){pane.scrollTop=previous.top;pane.scrollLeft=previous.left;}if(scroller){global.DraftedWorkspaceView.restoreScroll(scroller,previous.reading);scroller.style.scrollSnapType=previous.snap;}});
+      requestAnimationFrame(()=>{if(saved)return;const pane=view();if(pane){pane.scrollTop=previous.top;pane.scrollLeft=previous.left;}if(scroller){global.DraftedWorkspaceView.restoreScroll(scroller,previous.reading);scroller.style.scrollSnapType=previous.snap;}global.scrollTo(previous.windowX,previous.windowY);});
     }
     open.addEventListener('click',expand);close.addEventListener('click',()=>dialog.close());dialog.addEventListener('close',restore);
     dialog.addEventListener('cancel',event=>{event.preventDefault();dialog.close();});
@@ -147,10 +242,10 @@
       loading(value){section.setAttribute('aria-busy',String(value));action.setAttribute('aria-disabled',String(value));action.setAttribute('aria-busy',String(value));if(value)show('loading','Analyzing your CV. Please keep this tab open.');},
       missingFile(){show('error','Choose a PDF before continuing.');choose.focus();},
       failed(selectedFile){if(file.files?.[0]===selectedFile)show('error','Your CV could not be processed. Please try again.');},
-      complete(selectedFile){
+      complete(selectedFile,{navigate=true}={}){
         if(file.files?.[0]!==selectedFile)return;
         show('ready','Your CV is ready in the editor.');
-        document.querySelector('.section-editor')?.scrollIntoView({behavior:global.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+        if(navigate)document.querySelector('.section-editor')?.scrollIntoView({behavior:global.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
       }
     };
   }
@@ -276,6 +371,7 @@
       const start=document.createElement('div');start.className='page-start';
       scroller.prepend(start);start.append(nav,hero);
     }else if(nav&&!scroller.contains(nav))scroller.prepend(nav);
+    if(global.DraftedWorkspacePages?.enabled)return;
     let reading=captureScroll(scroller),width=scroller.clientWidth,height=scroller.clientHeight;
     // Scrolling only records an anchor. It never changes layout or header visibility.
     scroller.addEventListener('scroll',()=>{
@@ -801,6 +897,12 @@
   class Session{
     constructor({id=()=>globalThis.crypto.randomUUID()}={}){this.id=id;this.state={modelVersion:'source-answers-2',revision:0,context:null,round:null,answers:[]};}
     snapshot(){return copy(this.state);}
+    restore(saved){
+      if(saved?.modelVersion!=='source-answers-2'||!Array.isArray(saved.answers)||!Number.isInteger(saved.revision))throw Error('INVALID_SAVED_SESSION');
+      if(saved.context&&(!saved.context.cvVersionId||!Array.isArray(saved.context.blocks)))throw Error('INVALID_SAVED_CONTEXT');
+      const next=copy(saved);if(next.round){if(!Array.isArray(next.round.queue)||next.round.contextRevision!==next.context?.revision)throw Error('INVALID_SAVED_ROUND');for(const q of next.round.queue.concat(next.round.reserve||[]))if(q.status==='processing')q.status='error';if(['interpreting','ready'].includes(next.round.phase))next.round.phase='error';}
+      for(const a of next.answers)if(a.status==='processing')a.status='error';this.state=next;
+    }
     observe(fn){this.observer=fn;return ()=>{if(this.observer===fn)this.observer=null;};}
     notify(){if(this.observer)this.observer();}
     setContext(c){requireText(c.revision);requireText(c.cvVersionId);if(!Array.isArray(c.blocks)||!c.jobContext)throw Error('INVALID_CONTEXT');if(this.state.context?.revision===c.revision&&JSON.stringify(this.state.context)!==JSON.stringify(c))throw Error('CONTEXT_REVISION_REQUIRED');this.state.context=copy(c);this.state.round=null;this.state.revision++;}
@@ -891,8 +993,8 @@
 ;
 (function(root){
   'use strict';
-  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready'}={}){
-    const drafts=new Map(),mountedRound=session.round().id;
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready',initialDrafts=[]}={}){
+    const drafts=new Map(initialDrafts),mountedRound=session.round().id;
     let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
     const button=(label,fn)=>{const b=el('button',label);b.type='button';b.disabled=busy;b.addEventListener('click',async()=>{
@@ -979,7 +1081,7 @@
       renderedPhase=r.phase;
       if(selection){const input=container.querySelector('textarea');if(input){input.focus({preventScroll:true});input.setSelectionRange(selection.start,selection.end);}}
     }
-    const stopObserving=session.observe(render);render();return {render};
+    const stopObserving=session.observe(render);render();return {render,snapshotDrafts:()=>[...drafts]};
   }
   root.DraftedExperienceDiscoveryUI={mount};
 })(globalThis);
@@ -1123,6 +1225,9 @@
     const tailor=card.querySelector('#tailor-card');if(tailor){(card.closest('.section-editor').querySelector('.workspace-main-actions')||toolbar).prepend(tailor);const action=tailor.querySelector('#tailor-btn');if(action)action.textContent='Tailor to job';}
     const guidance=el('section');guidance.className='discovery-guidance';guidance.id='drafted-discovery-guidance';guidance.setAttribute('aria-label','Next step');guidance.hidden=true;host.prepend(guidance);
     let fingerprint='',generation=0,opened=false,prepared=false,pending=false,savedScroll=0,planState='idle',planController=null;
+    let questionView=null,restoredDrafts=[],archived=[];
+    const earlier=el('details');earlier.className='workspace-earlier-answers';earlier.hidden=true;host.prepend(earlier);
+    function earlierAnswers(){earlier.replaceChildren(el('summary','Earlier experience answers'));earlier.hidden=!archived.length;for(const previous of archived)for(const answer of previous.answers){const question=previous.round.queue.concat(previous.round.reserve||[]).find(q=>q.id===answer.questionId);earlier.append(el('p',question?.question||'Earlier answer'),el('blockquote',answer.revisions.at(-1)?.text||''));}}
     const count=el('span');count.className='discovery-count';count.id='drafted-experience-count';count.setAttribute('role','status');launcher.setAttribute('aria-describedby',count.id);count.hidden=true;launcher.append(count);launcher.setAttribute('aria-label','Experience questions');
     function remainingQuestions(){const r=session.round();return r.queue.filter(q=>['unanswered','answered'].includes(q.status)||q.id===session.current()?.id&&['followup','correct','error'].includes(r.phase)).length;}
     function updateGuidance(){
@@ -1151,7 +1256,7 @@
     }
     function close(focus=false){if(planState==='ready'&&session.round().phase==='complete'){prepared=false;setLabel('Review your answers');}updateGuidance();opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
     function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
-    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=track(client.submit(session,t));if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>track(client.retry(session,id)).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
+    function showRound(){questionView=root.DraftedExperienceDiscoveryUI.mount(body,session,{initialDrafts:restoredDrafts,onAnswer:t=>{const result=track(client.submit(session,t));if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>track(client.retry(session,id)).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
     function activate(){if(!session.round().total){body.replaceChildren(el('h2','No additional experience questions'),el('p','No further questions were identified for this CV and job ad. You can keep working in the editor.'));prepared=true;return;}if(session.round().phase==='offer')session.start();showRound();}
     async function start(){if(pending)return;const epoch=generation,controller=new AbortController();planController=controller;pending=true;planState='loading';updatePlanIndicator();body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en',{signal:controller.signal});if(result.stale||epoch!==generation)return;planState='ready';updateGuidance();if(opened)activate();else body.replaceChildren();}catch{if(epoch!==generation)return;planState='error';body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){if(planController===controller)planController=null;pending=false;body.removeAttribute('aria-busy');updatePlanIndicator();}}}
     function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
@@ -1159,9 +1264,11 @@
     }
     // Escape pauses questions, retaining the mounted answer form and any draft.
     panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close(true);}});
-    function invalidate(){generation++;planController?.abort();planController=null;fingerprint='';prepared=false;pending=false;planState='idle';close();guidance.hidden=true;launcher.hidden=true;setLabel('Experience questions');count.hidden=true;launcher.removeAttribute('aria-busy');launcher.dataset.planState='idle';body.replaceChildren();body.removeAttribute('aria-busy');const c=session.snapshot().context;if(c)session.setContext({...c,revision:crypto.randomUUID()});}
+    function invalidate(){const previous=session.snapshot();if(previous.round&&previous.answers.some(a=>a.roundId===previous.round.id)){if(!archived.some(r=>r.round.id===previous.round.id))archived.push({context:previous.context,round:previous.round,answers:previous.answers.filter(a=>a.roundId===previous.round.id)});earlierAnswers();}questionView=null;restoredDrafts=[];generation++;planController?.abort();planController=null;fingerprint='';prepared=false;pending=false;planState='idle';close();guidance.hidden=true;launcher.hidden=true;setLabel('Experience questions');count.hidden=true;launcher.removeAttribute('aria-busy');launcher.dataset.planState='idle';body.replaceChildren();body.removeAttribute('aria-busy');const c=session.snapshot().context;if(c)session.setContext({...c,revision:crypto.randomUUID()});}
     function sync(){const context=getContext();if(!context){if(fingerprint)invalidate();return;}const key=JSON.stringify(context);if(key===fingerprint)return;invalidate();fingerprint=key;session.setContext({...context,revision:crypto.randomUUID()});launcher.hidden=false;start();onSourceStateChange();}
     return {sync,invalidate,
+      snapshot:()=>({session:session.snapshot(),fingerprint,opened,planState,savedScroll,archived,drafts:questionView?.snapshotDrafts()||restoredDrafts}),
+      restore:saved=>{if(!saved)return;generation++;planController?.abort();session.restore(saved.session);archived=saved.archived||[];earlierAnswers();fingerprint=JSON.stringify(getContext());restoredDrafts=saved.drafts||[];questionView=null;prepared=false;pending=false;planState=saved.planState==='ready'&&saved.session.round?'ready':saved.planState==='idle'?'idle':'error';savedScroll=saved.savedScroll||0;launcher.hidden=!saved.session.context;updatePlanIndicator();if(planState==='ready')updateGuidance();else if(planState==='error')body.replaceChildren(el('h2','Questions were interrupted. Your saved answers are kept.'),button('Try loading the questions again',start));if(saved.opened)open();},
       waitForSources:async()=>{while(interpretations.size)await Promise.allSettled([...interpretations]);},
       refreshTailorState:updateGuidance,
       showChat:(processed=false)=>{if(processed){prepared=false;setLabel('Review your answers');}close(true);},
@@ -1389,7 +1496,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-27-preparation-modal");
+console.log("DRAFTED_JS_SOURCE", "2026-10-27-editor-workspace-pages");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1408,6 +1515,11 @@ let discoveryController = null;
 let discoveryCvFile = null;
 let tailorInFlight = false;
 let tailorAppliedStamp = null;
+let workspacePages = null;
+let tailorReviewState = null;
+let workspaceContextRevision = 0;
+let workspaceContinuing = false;
+let workspaceReading = {chat:0,document:0};
 const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_URL==="https://drafted.app.n8n.cloud/webhook/tailor-cv")||['localhost','127.0.0.1'].includes(location.hostname)&&draftedEndpoints.tailorSources===true&&draftedEndpoints.tailor==='/preview-api/tailor';
 const tailorSourceLedger=new DraftedTailorSources.Ledger();
 
@@ -1864,6 +1976,9 @@ maybeShowTailor();
 
   function handleJobAdInput() {
     if (!jobAdInputEl) return;
+    workspaceContextRevision++;
+    jobContextReqSeq += 1;
+    invalidateContextSuggestions();
     discoveryController?.invalidate();
     window.__DRAFTED_JOBCONTEXT__ = null;
     maybeShowTailor();
@@ -1880,6 +1995,7 @@ maybeShowTailor();
     }
 
     clearJobContextDebounce();
+    setJobContextStatus('pending','…','Preparing job context…');
     jobContextDebounceTimer = setTimeout(() => {
       runJobContextExtract();
     }, 800);
@@ -1892,9 +2008,8 @@ maybeShowTailor();
      =============================== */
 
      function tailorContextStamp(sources=discoveryController?.sourceContentRevision()) {
-       return JSON.stringify({blocks:documentBlocksState,title:documentTitle,version:cvVersionId,language:documentLanguage,
+       return JSON.stringify({revision:workspaceContextRevision,blocks:documentBlocksState,title:documentTitle,version:cvVersionId,language:documentLanguage,
          job:jobAdInputEl?.value,role:targetRoleInput?.value,context:window.__DRAFTED_JOBCONTEXT__,
-         file:!!discoveryCvFile && getFileInput()?.files?.[0]===discoveryCvFile,
          sources});
      }
 
@@ -1917,6 +2032,7 @@ maybeShowTailor();
      }
 
      function showTailorSuggestion(data, stamp, request, omittedContext=new Set()) {
+       tailorReviewState={data:deepClone(data),stamp,request:deepClone(request),omittedContext:[...omittedContext]};
        document.querySelectorAll('.tailor-suggestion').forEach(card=>card.remove());
        const card=document.createElement('section');card.className='tailor-suggestion discovery-guidance';card.setAttribute('aria-label','Tailoring suggestion');
        const add=(tag,text,host=card)=>{const node=document.createElement(tag);node.textContent=text;host.append(node);return node;};
@@ -1992,7 +2108,7 @@ maybeShowTailor();
        apply.addEventListener('click',()=>{
          if(apply.disabled)return;
          if(stamp!==tailorContextStamp()||isPreviewingProposal){apply.disabled=true;add('p','Your CV, job ad or answers changed. Tailor again to get a current suggestion.');return;}
-         apply.disabled=true;
+         apply.disabled=true;tailorReviewState=null;
          pendingProposal=null;pendingProposalMeta=null;pendingSuggestion=null;clearAllProposalCards();setApplyLabel();
          if(data.sourcesSchemaVersion)tailorSourceLedger.commit(request,data);
          documentTitle=data.cvTitle;cvVersionId=data.cvVersionId;
@@ -2002,7 +2118,7 @@ maybeShowTailor();
          discoveryController?.showChat(true);refreshTailorPresentation();
          const message=document.createElement('div');message.className='chat-message ai tailor-applied-message';message.setAttribute('role','status');message.textContent='Your CV is updated. What would you like to change?';chatMessagesEl.prepend(message);chatMessagesEl.scrollTop=0;
        });
-       dismiss.addEventListener('click',()=>{card.remove();refreshTailorPresentation();});
+       dismiss.addEventListener('click',()=>{tailorReviewState=null;card.remove();refreshTailorPresentation();});
        chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;
      }
 
@@ -2039,7 +2155,7 @@ maybeShowTailor();
          const stamp=tailorContextStamp();
          const payload={cvVersionId:cvVersionId||null,cvTitle:documentTitle||'',targetRole:targetRoleInput?.value?.trim()||'',
            language:documentLanguage||'en',blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
-         const sourceContext=tailorSourcesEnabled?discoveryController?.sourceContext(tailorSourceLedger.snapshot()):null;
+         const sourceContext=tailorSourcesEnabled?currentTailorSourceContext():null;
          sourceRequest=!!sourceContext;
          if(sourceContext){payload.sourcesSchemaVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):'1.1';payload.sourceContext=sourceContext;}
          const data=sourceContext?await fetchTailorSources(payload):await draftedFetchJson(N8N_TAILOR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)},'cv');
@@ -2161,7 +2277,7 @@ function setupFilePicker() {
   const originalPreview = DraftedUploadedPdf.create({frame:previewFrame,wrap:previewWrap});
 
   fileInput.addEventListener("change", () => {
-    discoveryController?.invalidate();
+    if(!workspacePages)discoveryController?.invalidate();
     const file = fileInput.files?.[0] || null;
 
     if (fileName) fileName.textContent = file ? file.name : "No file selected";
@@ -2470,6 +2586,7 @@ function assertDraftedResponse(data, kind) {
  * Reads body ONCE, parses JSON, asserts contract, throws loud on violations.
  */
 async function draftedFetchJson(url, options, kind) {
+  const contextStamp=editorContextStamp();
   let res;
   try {
     res = await fetch(url, options);
@@ -2503,6 +2620,7 @@ async function draftedFetchJson(url, options, kind) {
     );
   }
 
+  if(url!==N8N_UPLOAD_URL&&contextStamp!==editorContextStamp())throw new DraftedContractError('STALE_EDITOR_CONTEXT','Your CV or job description changed. Request a new suggestion.');
   const asserted = assertDraftedResponse(json, kind);
 
   if (asserted.ok === false) {
@@ -2833,7 +2951,7 @@ function setApplyLabel() {
       onSourceStateChange:refreshTailorPresentation,
       sourceTailoring: tailorSourcesEnabled,
       getSourceNotice:()=>{const c=discoveryController?.sourceContext(tailorSourceLedger.snapshot());if(!c)return '';return c.applications.some(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text!==g.checkpointText||g.additions.some(x=>{const a=c.answers.find(a=>a.id===x.source.answerId);return !a||a.revision!==x.source.answerRevision||c.questions.find(q=>q.id===a.questionId)?.status!=='recorded';}))?'Earlier wording may use changed or unavailable answers. It remains unchanged until you review and apply an update.':'';},
-      getContext: () => !isPreviewingProposal && discoveryCvFile && getFileInput()?.files?.[0] === discoveryCvFile && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
+      getContext: () => !isPreviewingProposal && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
         ? { cvVersionId, blocks: deepClone(documentBlocksState), jobContext: deepClone(window.__DRAFTED_JOBCONTEXT__) }
         : null
     });
@@ -3347,7 +3465,7 @@ function updateContextChip() {
      =============================== */
   uploadBtn.addEventListener("click", async (e) => {
   e.preventDefault();
-  if (uploadInFlight) return;
+  if (uploadInFlight || workspaceContinuing) return;
 
   console.log("UPLOAD CLICKED");
 
@@ -3360,6 +3478,7 @@ function updateContextChip() {
     return;
   }
 
+  if(workspacePages){workspaceContinuing=true;try{const action=await workspacePages.beforeContinue(file);if(action!=='upload')return;}catch(error){workspacePages.notify(error.message);return;}finally{workspaceContinuing=false;}}
   const formData = new FormData();
   formData.append("file", file);
   formData.append("targetRole", targetRoleInput?.value?.trim() || "");
@@ -3378,7 +3497,9 @@ function updateContextChip() {
     // A response for a file replaced during upload must not restore its CV/questions.
     if (getFileInput()?.files?.[0] !== file) return;
     discoveryCvFile = file;
+    workspaceContextRevision++;
     tailorSourceLedger.reset();
+    tailorReviewState=null;tailorAppliedStamp=null;discoveryController?.invalidate();
 
     const blocks = data.blocks;
 
@@ -3407,7 +3528,7 @@ function updateContextChip() {
     clearNativeSelection();
     updateContextChip();
 
-    if (chatMessagesEl) Array.from(chatMessagesEl.children).filter(el => !el.classList.contains('drafted-discovery') && el.id!=='drafted-discovery-guidance').forEach(el => el.remove());
+    if (chatMessagesEl) Array.from(chatMessagesEl.children).filter(el => !el.classList.contains('drafted-discovery') && el.id!=='drafted-discovery-guidance' && !el.classList.contains('workspace-earlier-answers')).forEach(el => el.remove());
     chatHistory = [];
     pendingProposal = null;
     pendingProposalMeta = null;
@@ -3417,7 +3538,8 @@ function updateContextChip() {
     setApplyLabel();
     maybeShowTailor();
     await DraftedCvLayout.ready(editorPreviewEl);
-    preparation?.complete(file);
+    preparation?.complete(file,{navigate:!workspacePages});
+    if(workspacePages)await workspacePages.complete(file);
 
   } catch (err) {
     preparation?.failed(file);
@@ -3427,8 +3549,8 @@ function updateContextChip() {
       console.error(err);
     }
   
-    // Error UI state (do NOT advance editor state)
-    setEditorPlaceholder(true);
+    // Preserve any existing editor work if replacement processing fails.
+    if(!documentBlocksState?.length)setEditorPlaceholder(true);
   
     const msg =
       (err && err.name === "DraftedContractError")
@@ -4042,3 +4164,63 @@ function bindPdfDownloadButton() {
   renderDocument("");
   updateContextChip();
   setApplyLabel();
+
+  function editorContextStamp(){return JSON.stringify({revision:workspaceContextRevision,version:cvVersionId,blocks:documentBlocksState,job:jobAdInputEl?.value||'',context:window.__DRAFTED_JOBCONTEXT__});}
+  function invalidateContextSuggestions(){
+    if(isPreviewingProposal)exitProposalPreview();
+    const had=pendingProposal||pendingSuggestion||tailorReviewState;
+    pendingProposal=null;pendingProposalMeta=null;pendingSuggestion=null;tailorReviewState=null;tailorAppliedStamp=null;
+    document.querySelectorAll('.tailor-suggestion').forEach(el=>el.remove());clearAllProposalCards();setApplyLabel();
+    if(had)appendChat('system','The job description changed. Prepare a new suggestion before applying changes.');
+  }
+  function currentTailorSourceContext(){
+    const context=discoveryController?.sourceContext([]);if(!context)return null;
+    // Applications from an earlier job round remain in saved history. They are
+    // not presented as current answers to a different job's question set.
+    const current=new Set(context.answers.map(answer=>answer.id+':'+answer.revision));
+    context.applications=tailorSourceLedger.snapshot().filter(group=>group.additions.every(item=>current.has(item.source.answerId+':'+item.source.answerRevision)));
+    return context;
+  }
+  function serialSnapshot(snapshot){return snapshot?{...snapshot,selectedBlockIds:[...snapshot.selectedBlockIds]}:null;}
+  function captureWorkspace(){
+    if(document.documentElement.dataset.workspacePage==='editor'&&document.documentElement.dataset.workspaceReady==='true'&&!document.documentElement.dataset.workspaceBooting)workspaceReading={chat:chatMessagesEl.scrollTop,document:editorPreviewEl.closest('.cv-document')?.scrollTop||0};
+    const cv=documentBlocksState?.length?serialSnapshot(snapshotCurrentState()):null;
+    return {cv,contextRevision:workspaceContextRevision,language:documentLanguage,design:selectedCvDesign,chatHistory,
+      messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card)')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent})),
+      pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
+      jobText:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
+      setupStatus:{text:document.getElementById('preparation-status').textContent,state:document.getElementById('preparation-status').dataset.state,hidden:document.getElementById('preparation-status').hidden,processing:uploadInFlight},
+      draft:editorInput.value,discovery:discoveryController?.snapshot(),ledger:{groups:tailorSourceLedger.groups,history:tailorSourceLedger.history},
+      jobEditor:{open:!!document.querySelector('.workspace-job-dialog')?.open,draft:document.getElementById('workspace-job-input')?.value||''},
+      tailorReview:tailorReviewState,tailorAppliedStamp,tailorDraft:chatMessagesEl.querySelector('.tailor-suggestion textarea')?.value||'',
+      interrupted:!!window.__DRAFTED_CHAT__?.inFlight||tailorInFlight||isGeneratingSuggestionPreview,
+      scroll:workspaceReading,
+      zoom:document.querySelector('.workspace-zoom-fit')?.getAttribute('aria-pressed')==='true'?'fit':Number(document.querySelector('.workspace-zoom-slider')?.value||100)/100};
+  }
+  async function restoreWorkspace(saved,files){
+    workspaceContextRevision=Number.isInteger(saved.contextRevision)?saved.contextRevision:0;
+    workspaceReading=saved.scroll||{chat:0,document:0};
+    // Restore real file bytes through DataTransfer, never a persisted blob URL.
+    if(files.selected){const transfer=new DataTransfer();transfer.items.add(files.selected);getFileInput().files=transfer.files;getFileInput().dispatchEvent(new Event('change',{bubbles:true}));}
+    discoveryCvFile=files.source||null;jobAdInputEl.value=typeof saved.jobText==='string'?saved.jobText:'';
+    window.__DRAFTED_JOBCONTEXT__=saved.jobContext||null;jobContextReqSeq++;
+    const hint=document.getElementById('preparation-job-hint');if(hint)hint.hidden=!jobAdInputEl.value.trim()||jobAdInputEl.value.trim().length>=200;
+    if(saved.setupStatus){const status=document.getElementById('preparation-status');status.textContent=saved.setupStatus.processing?'Processing was interrupted. Continue when you are ready to try again.':saved.setupStatus.text;status.dataset.state=saved.setupStatus.processing?'error':saved.setupStatus.state;status.hidden=saved.setupStatus.processing?false:!!saved.setupStatus.hidden;}
+    if(['loading','pending'].includes(saved.jobStatus))setJobContextStatus('error','!','Signal extraction was interrupted. Save the job description again to retry.');
+    else setJobContextStatus(saved.jobContext?'ready':'idle',saved.jobContext?'✓':'',saved.jobContext?'Signals ready':'');
+    if(!DraftedWorkspaceStore.valid(saved))return;
+    documentLanguage=saved.language||'en';selectedCvDesign=DraftedCvDesigns.some(d=>d.id===saved.design)?saved.design:'classic_v1';document.getElementById('cv-design').value=selectedCvDesign;
+    restoreSnapshot(saved.cv);setCvLoadedUI(true);setEditorPlaceholder(false);
+    isPreviewingProposal=!!saved.isPreviewingProposal;previewSnapshot=saved.previewSnapshot||null;pendingProposal=saved.pendingProposal||null;pendingProposalMeta=saved.pendingProposalMeta||null;pendingSuggestion=saved.pendingSuggestion||null;
+    for(const el of [...chatMessagesEl.children])if(!el.matches('.drafted-discovery,.discovery-guidance,.workspace-earlier-answers'))el.remove();
+    chatHistory=[];for(const message of saved.messages||[])appendChat(message.role,message.text);chatHistory=Array.isArray(saved.chatHistory)?saved.chatHistory:[];
+    editorInput.value=saved.draft||'';tailorSourceLedger.groups=saved.ledger?.groups||[];tailorSourceLedger.history=saved.ledger?.history||[];
+    if(saved.discovery)discoveryController?.restore(saved.discovery);
+    tailorAppliedStamp=saved.tailorAppliedStamp||null;tailorReviewState=saved.tailorReview||null;
+    if(tailorReviewState){const review=tailorReviewState;showTailorSuggestion(review.data,review.stamp,review.request,new Set(review.omittedContext));const draft=chatMessagesEl.querySelector('.tailor-suggestion textarea');if(draft)draft.value=saved.tailorDraft||'';}
+    if(pendingProposal||pendingSuggestion)appendProposalCard(pendingProposalMeta);setApplyLabel();syncWorkspaceJobContext();refreshTailorPresentation();
+    if(saved.interrupted){appendChat('system','An unfinished request was interrupted by reload. Your work is kept. Retry the request when you are ready.');if(!editorInput.value)editorInput.value=[...(saved.chatHistory||[])].reverse().find(m=>m.role==='user')?.content||'';}
+    await DraftedCvLayout.ready(editorPreviewEl);DraftedCvLayout.setZoom(editorPreviewEl,saved.zoom||'fit');
+    requestAnimationFrame(()=>{chatMessagesEl.scrollTop=saved.scroll?.chat||0;const pane=editorPreviewEl.closest('.cv-document');if(pane)pane.scrollTop=saved.scroll?.document||0;});
+  }
+  onReady(()=>{workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,sourceFile:()=>discoveryCvFile,adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;}});});
