@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-27-editor-visual-refresh */
+/* drafted-editor.css | build=2026-10-27-preview-zoom */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -1605,3 +1605,33 @@ html,body {height:100%;overflow:hidden!important;}
   }
 }
 /* --- end import: ./components/editor-theme.css --- */
+
+
+/* --- import: ./components/preview-zoom.css (from index.css) --- */
+/* Editor-only paint and viewer geometry. Print still uses physical A4 pages. */
+@media screen {
+  .section-editor .workspace-preview-title {flex-wrap:wrap;row-gap:8px;}
+  .section-editor .workspace-zoom {order:1;display:flex;align-items:center;justify-content:flex-end;gap:5px;flex:1 0 265px;max-width:100%;min-width:0;}
+  .section-editor .workspace-zoom button {flex:none;min-height:30px;border:1px solid var(--editor-line);border-radius:5px;padding:4px 7px;background:#fff;color:var(--editor-ink);font:500 12px/1.4 system-ui;cursor:pointer;}
+  .section-editor .workspace-zoom :is(.workspace-zoom-minus,.workspace-zoom-plus) {width:28px;padding:3px;font-size:18px;}
+  .section-editor .workspace-zoom button:hover {background:var(--editor-tint);}
+  .section-editor .workspace-zoom button[aria-pressed=true] {background:var(--editor-tint);border-color:#acd3d6;color:var(--editor-teal-hover);}
+  .section-editor .workspace-zoom input {appearance:auto;flex:0 1 90px;width:90px;min-width:45px;height:26px;margin:0;padding:0;accent-color:var(--editor-teal);cursor:pointer;}
+  .section-editor .workspace-zoom-value {flex:none;width:36px;color:var(--editor-muted);font:12px/1.4 system-ui;font-variant-numeric:tabular-nums;text-align:center;}
+  .section-editor .workspace-zoom :disabled {opacity:.45;cursor:default;}
+  .section-editor .workspace-zoom input:focus-visible {outline:2px solid var(--editor-teal);outline-offset:2px;border-radius:3px;}
+  /* Auto cross-axis margins center fitting pages and become zero on overflow.
+     Unlike align-items:center, oversized pages never extend into negative x. */
+  .section-editor #editor-preview-text.cv-layout {align-items:flex-start;overflow:visible;overflow-anchor:none;}
+  .section-editor #editor-preview-text .cv-page-slot {max-width:none!important;margin-inline:auto;}
+  .section-editor .cv-document {overflow-anchor:none;}
+  .section-editor .cv-document-inner.is-scope-full::before,
+  .section-editor .cv-document-inner.is-scope-full::after {display:none;}
+  .section-editor .cv-document-inner.is-scope-full #editor-preview-text .cv-page {outline:1px solid var(--editor-selection);outline-offset:2px;}
+  @media(max-width:700px) {
+    .section-editor .workspace-zoom {flex-basis:100%;justify-content:center;}
+    .section-editor .workspace-zoom input {flex-basis:74px;width:74px;}
+    .section-editor .workspace-zoom button {font-size:11px;}
+  }
+}
+/* --- end import: ./components/preview-zoom.css --- */

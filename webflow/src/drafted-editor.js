@@ -1356,6 +1356,7 @@ function setApplyLabel() {
   // Presentation only: never part of CV/proposal snapshots or discovery context.
   let selectedCvDesign = 'classic_v1';
   let previewView = null;
+  let previewZoom = null;
   let browserPrint = null;
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
@@ -1414,6 +1415,7 @@ function setApplyLabel() {
       renderDocument(documentTextState);
     });
     designControls.append(designLabel,designSelect);previewTitle.append(designControls);
+    previewZoom=DraftedCvPreviewZoom.create({host:editorPreviewEl,controls:previewTitle});
     const previewCard=editorPreviewEl.closest('.cv-card');
     if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
     browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getTitle:()=>documentTitle});
@@ -1634,6 +1636,7 @@ function setApplyLabel() {
       blocks: documentBlocksState || [], title: documentTitle || '', templateId: selectedCvDesign,
       onState(state) {
         previewView?.setState(state);
+        previewZoom?.setState(state);
         browserPrint?.setState(state);
         const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready';
         const counter=document.querySelector('.workspace-page-count');

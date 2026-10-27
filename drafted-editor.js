@@ -399,17 +399,35 @@
     if (!global.DraftedCvDesigns.some(design => design.id === templateId)) throw Error('Unknown CV design.');
     let viewer = viewers.get(host);
     if (!viewer) {
-      const scale = () => {
+      const scale = (preserve=true) => {
         const width = host.clientWidth;
+        const slots = [...host.querySelectorAll('.cv-page-slot')];
+        if (!slots.length) return;
+        const factor = viewer.zoom === 'fit' ? width / slots[0].firstElementChild.offsetWidth : viewer.zoom;
+        const pane = host.closest('.cv-document'), bounds = pane?.getBoundingClientRect();
+        // Anchor a point in the visible page, rather than resetting the scroll offset.
+        const y = bounds && bounds.top + pane.clientTop + pane.clientHeight * .35;
+        const x = bounds && bounds.left + pane.clientLeft + pane.clientWidth * .5;
+        const anchor = preserve && viewer.factor !== factor && pane ? slots.find(slot => slot.getBoundingClientRect().bottom > y) : null;
+        const before = anchor?.getBoundingClientRect();
+        const fractionY = before?.height ? Math.max(0, Math.min(1, (y - before.top) / before.height)) : null;
+        const fractionX = before?.width ? Math.max(0, Math.min(1, (x - before.left) / before.width)) : null;
         for (const slot of host.querySelectorAll('.cv-page-slot')) {
-          const page = slot.firstElementChild, factor = Math.min(1, width / page.offsetWidth);
+          const page = slot.firstElementChild;
           slot.style.width = `${page.offsetWidth * factor}px`;
           slot.style.height = `${page.offsetHeight * factor}px`;
           page.style.transform = `scale(${factor})`;
         }
+        viewer.factor = factor;
+        if (fractionY !== null) {
+          const after = anchor.getBoundingClientRect();
+          pane.scrollTop += after.top + after.height * fractionY - y;
+          pane.scrollLeft += after.left + after.width * fractionX - x;
+        }
+        host.dispatchEvent(new CustomEvent('cv-view-scale', {detail:{factor, mode:viewer.zoom === 'fit' ? 'fit' : 'manual'}}));
       };
-      viewer = {scale, generation:0}; viewers.set(host, viewer);
-      new ResizeObserver(scale).observe(host);
+      viewer = {scale, zoom:'fit', generation:0}; viewers.set(host, viewer);
+      new ResizeObserver(() => scale()).observe(host);
     }
     viewer.model = model;
     const generation = ++viewer.generation;
@@ -440,7 +458,50 @@
     do { generation = viewer.generation; await viewer.pending; } while (generation !== viewer.generation);
     if (host.dataset.layoutState !== 'ready') throw Error('Document layout is not ready.');
   }
-  global.DraftedCvLayout = {render, ready, rescale(host){viewers.get(host)?.scale();}, version:'a4-v2'};
+  global.DraftedCvLayout = {render, ready,
+    // The modal already captures and restores its own reading position.
+    rescale(host){viewers.get(host)?.scale(false);},
+    setZoom(host, value){
+      const viewer=viewers.get(host);if(!viewer)return;
+      if(value !== 'fit' && (!Number.isFinite(value) || value <= 0))throw Error('Invalid preview zoom.');
+      viewer.zoom=value;viewer.scale();
+    }, version:'a4-v2'};
+})(window);
+
+;
+/* Preview state only. Neither zoom nor its controls belong to the document model. */
+(function(global){
+  'use strict';
+  function create({host,controls}){
+    const group=document.createElement('div');group.className='workspace-zoom';group.setAttribute('role','group');group.setAttribute('aria-label','Preview zoom');
+    const button=(label,text)=>{const el=document.createElement('button');el.type='button';el.setAttribute('aria-label',label);el.textContent=text;return el;};
+    const minus=button('Zoom out','−'),plus=button('Zoom in','+'),fit=button('Fit to width','Fit to width');
+    minus.className='workspace-zoom-minus';plus.className='workspace-zoom-plus';fit.className='workspace-zoom-fit';
+    const slider=document.createElement('input');slider.type='range';slider.id='cv-preview-zoom';slider.className='workspace-zoom-slider';slider.min='50';slider.max='150';slider.step='1';slider.value='100';slider.setAttribute('aria-label','Preview zoom percentage');
+    const output=document.createElement('output');output.className='workspace-zoom-value';output.setAttribute('for',slider.id);output.setAttribute('aria-label','Current preview zoom');output.setAttribute('aria-live','polite');output.setAttribute('aria-atomic','true');output.textContent='100%';
+    group.append(minus,slider,plus,output,fit);controls.append(group);
+    let percent=100,fitPercent=100,ready=false;
+    function refresh(){
+      // Fit can be below 50% on a narrow panel. Include that exact endpoint so
+      // the slider, visible percentage and accessible value always agree.
+      slider.min=String(Math.min(50,Math.round(fitPercent)));slider.max=String(Math.max(150,Math.round(fitPercent)));
+      slider.value=String(percent);slider.setAttribute('aria-valuetext',`${percent}%${fit.getAttribute('aria-pressed')==='true'?' (fit to width)':''}`);
+      output.textContent=`${percent}%`;
+      minus.disabled=!ready||percent<=Number(slider.min);plus.disabled=!ready||percent>=Number(slider.max);slider.disabled=fit.disabled=!ready;
+    }
+    host.addEventListener('cv-view-scale',event=>{
+      percent=Math.round(event.detail.factor*100);
+      const page=host.querySelector('.cv-page');if(page)fitPercent=host.clientWidth/page.offsetWidth*100;
+      fit.setAttribute('aria-pressed',String(event.detail.mode==='fit'));refresh();
+    });
+    const change=value=>global.DraftedCvLayout.setZoom(host,Math.max(Number(slider.min),Math.min(Number(slider.max),value))/100);
+    minus.addEventListener('click',()=>change(percent-10));plus.addEventListener('click',()=>change(percent+10));
+    slider.addEventListener('input',()=>change(Number(slider.value)));
+    fit.addEventListener('click',()=>global.DraftedCvLayout.setZoom(host,'fit'));
+    refresh();
+    return {setState(state){ready=state==='ready'&&Number(host.dataset.pageCount)>0;refresh();}};
+  }
+  global.DraftedCvPreviewZoom={create};
 })(window);
 
 ;
@@ -498,7 +559,7 @@
     dialog.addEventListener('close',restore);
     dialog.addEventListener('keydown',event=>{
       if(event.key!=='Tab')return;
-      const controls=[...dialog.querySelectorAll('button:not([disabled]),select:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(el=>!el.closest('[hidden]')&&el.getClientRects().length);
+      const controls=[...dialog.querySelectorAll('button:not([disabled]),select:not([disabled]),input:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(el=>!el.closest('[hidden]')&&el.getClientRects().length);
       const first=controls[0],last=controls.at(-1);
       if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
@@ -1168,7 +1229,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-27-editor-visual-refresh");
+console.log("DRAFTED_JS_SOURCE", "2026-10-27-preview-zoom");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -2514,6 +2575,7 @@ function setApplyLabel() {
   // Presentation only: never part of CV/proposal snapshots or discovery context.
   let selectedCvDesign = 'classic_v1';
   let previewView = null;
+  let previewZoom = null;
   let browserPrint = null;
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
@@ -2572,6 +2634,7 @@ function setApplyLabel() {
       renderDocument(documentTextState);
     });
     designControls.append(designLabel,designSelect);previewTitle.append(designControls);
+    previewZoom=DraftedCvPreviewZoom.create({host:editorPreviewEl,controls:previewTitle});
     const previewCard=editorPreviewEl.closest('.cv-card');
     if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
     browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getTitle:()=>documentTitle});
@@ -2792,6 +2855,7 @@ function setApplyLabel() {
       blocks: documentBlocksState || [], title: documentTitle || '', templateId: selectedCvDesign,
       onState(state) {
         previewView?.setState(state);
+        previewZoom?.setState(state);
         browserPrint?.setState(state);
         const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready';
         const counter=document.querySelector('.workspace-page-count');
