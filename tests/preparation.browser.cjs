@@ -28,7 +28,7 @@ const pdf=require('./fixtures/source-pdf.js'),cv=require('./fixtures/cv-header.c
     return route.continue();
    });
   }
-  const style=page=>page.evaluate(()=>Object.fromEntries(['.navbar','.hero-section','.section-editor','.workspace-topbar','.cv-document'].map(selector=>{const s=getComputedStyle(document.querySelector(selector));return [selector,Object.fromEntries(['font','color','backgroundColor','padding','borderRadius','width','height'].map(k=>[k,s[k]]))];})));
+  const style=page=>page.evaluate(()=>Object.fromEntries(['.section-editor','.workspace-topbar','.cv-document'].map(selector=>{const s=getComputedStyle(document.querySelector(selector));return [selector,Object.fromEntries(['font','color','backgroundColor','padding','borderRadius','width','height'].map(k=>[k,s[k]]))];})));
   const baseline=await browser.newPage({viewport:{width:1440,height:1000}});await configure(baseline,true);await baseline.goto(base);const otherStyles=await style(baseline);await baseline.close();
   const page=await browser.newPage({viewport:{width:1440,height:1000}});await configure(page);await page.goto(base);await page.locator('#section-input').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
   assert.deepEqual(await style(page),otherStyles,'Other sections retain identical computed styles');

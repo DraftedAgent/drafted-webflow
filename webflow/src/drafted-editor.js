@@ -283,6 +283,7 @@ function setEditorProcessing(isOn) {
   console.log("✅ Drafted editor loaded");
 
   DraftedWorkspaceView.flow();
+  DraftedHeroView.mount();
 
   // Initial UI state — safe to run now
   setEditorProcessing(false);

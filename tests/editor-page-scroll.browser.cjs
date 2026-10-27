@@ -10,21 +10,23 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
   await page.addInitScript(()=>document.addEventListener('DOMContentLoaded',()=>{window.__originalHeader=document.querySelector('.navbar');window.__headerClicks=0;window.__originalHeader.addEventListener('click',()=>window.__headerClicks++);}));
   await page.goto(base);
   assert.equal(await page.evaluate(()=>document.querySelector('.page-start').firstElementChild===window.__originalHeader),true);
-  await page.locator('.navbar .logo').click();assert.equal(await page.evaluate(()=>window.__headerClicks),1);
+  await page.locator('.navbar .drafted-home').click();assert.equal(await page.evaluate(()=>window.__headerClicks),1);
   const sample=()=>page.getByRole('button',{name:'Try a synthetic CV and job ad',exact:true});
   const geometry=()=>page.evaluate(()=>{const s=document.querySelector('.page-scroll'),n=document.querySelector('.navbar'),e=document.querySelector('.section-editor'),c=document.querySelector('.editor-container'),input=document.querySelector('.chat-command-bar'),p=document.querySelector('.cv-document');return {width:innerWidth,height:innerHeight,scroll:s.scrollTop,navTop:n.getBoundingClientRect().top,navHeight:n.getBoundingClientRect().height,navPosition:getComputedStyle(n).position,navDisplay:getComputedStyle(n).display,top:s.getBoundingClientRect().top,section:e.getBoundingClientRect().top,editorBottom:c.getBoundingClientRect().bottom,inputBottom:input.getBoundingClientRect().bottom,paneHeight:p.getBoundingClientRect().height,snap:getComputedStyle(s).scrollSnapType,oldState:document.documentElement.classList.contains('drafted-editor-active')};});
   for(const viewport of [{width:1440,height:1000},{width:390,height:844},{width:320,height:640},{width:844,height:390}]){
-   await page.setViewportSize(viewport);await page.evaluate(()=>document.querySelector('.page-scroll').scrollTop=0);await page.waitForTimeout(200);
+   await page.setViewportSize(viewport);await page.goto(base);await page.locator('.drafted-hero').waitFor();await page.evaluate(()=>document.querySelector('.page-scroll').scrollTop=0);await page.waitForTimeout(200);
    const start=await geometry();assert.equal(start.navTop,0);assert.ok(!['fixed','sticky'].includes(start.navPosition));assert.notEqual(start.navDisplay,'none');assert.equal(start.snap,'y mandatory');assert.equal(start.top,0);
    const layout=await page.evaluate(()=>{const n=document.querySelector('.navbar').getBoundingClientRect(),h=document.querySelector('.hero-section').getBoundingClientRect(),first=document.querySelector('.page-start').getBoundingClientRect();return {height:first.height,nav:n.height,hero:h.height,heroTop:h.top};});
-   assert.ok(layout.height>=viewport.height);assert.ok(Math.abs(layout.nav+layout.hero-layout.height)<1);assert.equal(layout.heroTop,layout.nav);
+   assert.ok(layout.height>layout.nav);assert.ok(Math.abs(layout.nav+layout.hero-layout.height)<1);assert.equal(layout.heroTop,layout.nav);
    // Real wheel gestures snap forward/back at section starts, with no visibility toggle.
    const wheelTo=async(selector,direction)=>{
-    await page.mouse.move(2,Math.min(120,viewport.height/2));await page.mouse.wheel(0,Math.round(Math.max(viewport.height,layout.height)*.95)*direction);
-    if(selector==='.page-start'&&layout.height>viewport.height+1){
-     // Oversized landing content remains readable between its native start/end snap positions.
-     await page.waitForFunction(()=>{const r=document.querySelector('.page-start').getBoundingClientRect();return r.top<=1&&r.bottom>=innerHeight-1;});
-     await page.mouse.wheel(0,-Math.ceil(layout.height));
+    await page.mouse.move(2,Math.min(120,viewport.height/2));
+    // Natural-height landing and preparation sections may need several wheel
+    // gestures. Reach the target's start without assuming equal section heights.
+    for(let gesture=0;gesture<10;gesture++){
+     const top=await page.locator(selector).evaluate(el=>el.getBoundingClientRect().top);
+     if(Math.abs(top)<2)break;
+     await page.mouse.wheel(0,Math.sign(top)*Math.min(Math.abs(top),Math.round(viewport.height*.95)));await page.waitForTimeout(200);
     }
     await page.waitForFunction(sel=>{const r=document.querySelector(sel).getBoundingClientRect();return Math.abs(r.top)<2||(r.height>innerHeight&&r.top<=0&&r.bottom>=innerHeight-2);},selector,{timeout:5000}).catch(async error=>{throw Error(JSON.stringify({viewport,selector,layout,current:await page.evaluate(sel=>{const el=document.querySelector(sel),s=document.querySelector('.page-scroll');return {top:el.getBoundingClientRect().top,height:el.getBoundingClientRect().height,scroll:s.scrollTop,max:s.scrollHeight-s.clientHeight,snap:getComputedStyle(el).scrollSnapAlign};},selector)}));});await page.waitForTimeout(150);
     const g=await geometry();assert.equal(g.navHeight,start.navHeight);assert.equal(g.navDisplay,start.navDisplay);assert.equal(g.oldState,false);assert.equal(g.navTop+g.scroll,0);
@@ -34,8 +36,8 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
    await page.locator('.hero-section').evaluate(el=>el.scrollIntoView({behavior:'instant'}));await page.waitForTimeout(150);if(layout.height<=viewport.height+1)assert.equal((await geometry()).scroll,0);else assert.equal((await geometry()).navTop+(await geometry()).scroll,0);
    await page.screenshot({path:path.join(out,`landing-${viewport.width}.png`)});
    // Existing page anchor links continue navigating to upload, without a header offset.
-   await page.evaluate(()=>document.querySelector('.page-scroll').scrollTop=0);await page.locator('.tryitfree-button').click();await page.waitForFunction(()=>Math.abs(document.querySelector('#section-input').getBoundingClientRect().top)<2);
-   await sample().click();await page.waitForFunction(()=>!document.querySelector('.workspace-print-button').disabled);await page.waitForFunction(()=>Math.abs(document.querySelector('.section-editor').getBoundingClientRect().top)<2);await page.waitForTimeout(100);
+   await page.evaluate(()=>document.querySelector('.page-scroll').scrollTop=0);await page.locator('.drafted-hero-action').click();await page.waitForFunction(()=>Math.abs(document.querySelector('#section-input').getBoundingClientRect().top)<2);
+   await sample().click();await page.waitForFunction(()=>!document.querySelector('.workspace-print-button').disabled);await page.waitForFunction(()=>Math.abs(document.querySelector('.section-editor').getBoundingClientRect().top)<2,{},{timeout:5000}).catch(async()=>{throw Error(JSON.stringify({viewport,stage:'sample editor navigation',geometry:await geometry(),status:await page.locator('#preparation-status').textContent()}));});await page.waitForTimeout(100);
    const editor=await geometry();assert.ok(editor.editorBottom<=viewport.height+1);assert.ok(editor.inputBottom<=viewport.height+1);assert.ok(editor.paneHeight>35);assert.ok(editor.navTop+editor.navHeight<0);assert.equal(await page.locator('.workspace-brand').textContent(),'Drafted');
    await page.locator('#editor-input').fill('Keep this unsent instruction.');const pages=await page.locator('.cv-page-content').allTextContents();
    // A nearby incomplete scroll settles on the editor's start, without reserving header space.

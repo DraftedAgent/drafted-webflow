@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 368" preserveAspectRatio="none" fill="none" role="img" aria-labelledby="marks-title">
+  <title id="marks-title">Drafted registration marks</title>
+  <desc>Four separate reference markers around the wordmark. Non-scaling strokes stay 0.65 CSS pixels. This layer contains no wordmark.</desc>
+  <path stroke="#8D9AA6" stroke-width="0.65" vector-effect="non-scaling-stroke" d="M65 1V100M54 32H76M65 288V360M54 330H76M1468 1V100M1457 32H1480M1472 294V360M1461 335H1484"/>
+  <path fill="#0C1724" d="M64 31h2v2h-2ZM64 329h2v2h-2ZM1467 31h2v2h-2ZM1471 334h2v2h-2Z"/>
+</svg>
