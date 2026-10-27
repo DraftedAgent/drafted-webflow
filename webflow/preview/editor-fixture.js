@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   const inputSection=document.querySelector('#section-input');
   const sample=document.createElement('button');sample.type='button';sample.id='load-preview-scenario';sample.textContent='Try a synthetic CV and job ad';sample.className='w-button';sample.style.cssText='position:absolute;left:8px;top:8px;z-index:10;padding:6px 10px;font-size:12px';inputSection.style.position='relative';
   sample.addEventListener('click',()=>{const f=new File([DraftedSyntheticPdf.create()],'synthetic-original-cv.pdf',{type:'application/pdf'}),dt=new DataTransfer();dt.items.add(f);const file=document.querySelector('#cv-file');file.files=dt.files;file.dispatchEvent(new Event('change',{bubbles:true}));const ad=document.querySelector('#job-ad-input');ad.value='We are looking for a product specialist who can help a team prioritize work and plan the next delivery. You work with developers and learn what users need. Experience from volunteering and personal projects is also relevant. Tell us how you contributed to a specific piece of work.';ad.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#upload-btn').click();document.querySelector('.section-editor').scrollIntoView({behavior:'smooth'});});
+  // Keep the local-only fixture action clear of the preparation heading.
+  if(inputSection.classList.contains('preparation-section')){sample.style.top='auto';sample.style.bottom='8px';sample.style.left='auto';sample.style.right='8px';}
   inputSection.prepend(sample);
   // Explicit synthetic demonstration URL; run after the editor's ready handlers.
   const params=new URLSearchParams(location.search);
