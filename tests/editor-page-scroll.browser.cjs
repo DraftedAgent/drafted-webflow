@@ -44,6 +44,9 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
    await page.evaluate(()=>document.querySelector('.page-scroll').scrollTop-=48);await page.waitForTimeout(250);assert.ok(Math.abs((await geometry()).section)<2);
    await page.locator('.section-editor').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
    await page.locator('.cv-block').first().click();assert.ok(await page.locator('.cv-block.is-selected').count());
+   // Clicking the first block can briefly scroll a short landscape workspace;
+   // record the overlay baseline after native section snapping has settled.
+   await page.waitForTimeout(250);await page.waitForFunction(()=>Math.abs(document.querySelector('.section-editor').getBoundingClientRect().top)<2);
    const pane=page.locator('.cv-document');await pane.evaluate(el=>el.scrollTop=45);const paneTop=await pane.evaluate(el=>el.scrollTop),outer=await page.locator('.page-scroll').evaluate(el=>el.scrollTop);
    await page.getByRole('button',{name:'Expand preview',exact:true}).click();await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('#cv-preview-dialog').open);await page.waitForTimeout(50);
    assert.equal(await page.locator('.page-scroll').evaluate(el=>el.scrollTop),outer,JSON.stringify({viewport,expected:outer,geometry:await geometry()}));assert.equal(await pane.evaluate(el=>el.scrollTop),paneTop);assert.equal(await page.getByRole('button',{name:'Expand preview',exact:true}).evaluate(el=>el===document.activeElement),true);assert.ok(await page.locator('.cv-block.is-selected').count());
