@@ -1,6 +1,6 @@
 {
-  "build": "2026-10-25-tailor-two-modes",
-  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-25-tailor-two-modes",
-  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-25-tailor-two-modes",
-  "ts": "2026-10-25T19:49:04Z"
+  "build": "2026-10-27-editor-visual-refresh",
+  "css": "https://draftedagent.github.io/drafted-webflow/drafted-editor.css?v=2026-10-27-editor-visual-refresh",
+  "js": "https://draftedagent.github.io/drafted-webflow/drafted-editor.js?v=2026-10-27-editor-visual-refresh",
+  "ts": "2026-10-27T11:03:16Z"
 }

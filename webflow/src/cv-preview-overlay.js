@@ -20,6 +20,9 @@
       const rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='cv-preview-placeholder';placeholder.setAttribute('aria-hidden','true');
       saved={placeholder,focus:document.activeElement,top:pane.scrollTop,left:pane.scrollLeft,overflow:document.body.style.overflow,x:window.scrollX,y:window.scrollY,workspace:workspaceScroll&&{snap:workspaceScroll.style.scrollSnapType,reading:global.DraftedWorkspaceView.captureScroll(workspaceScroll),top:workspaceScroll.scrollTop,left:workspaceScroll.scrollLeft,overflow:workspaceScroll.style.overflow}};
+      // Keep the same export control/handler reachable inside the modal focus trap.
+      const exportAction=section.querySelector('.workspace-main-actions .workspace-print-button');
+      if(exportAction){const marker=document.createComment('workspace export position');exportAction.before(marker);saved.exportMarker=marker;heading.insertBefore(exportAction,close);const status=section.querySelector('.workspace-main-actions .workspace-print-status');if(status){saved.exportStatus=status;heading.append(status);}}
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
       if(workspaceScroll){workspaceScroll.style.scrollSnapType='none';workspaceScroll.style.overflow='hidden';}
@@ -32,6 +35,7 @@
     function restore(){
       if(!saved)return;
       const previous=saved;saved=null;
+      if(previous.exportMarker){previous.exportMarker.replaceWith(heading.querySelector('.workspace-print-button'));if(previous.exportStatus)section.querySelector('.workspace-main-actions').append(previous.exportStatus);}
       previous.placeholder.replaceWith(card);expand.hidden=false;close.hidden=true;
       document.body.style.overflow=previous.overflow;
       if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);workspaceScroll.scrollLeft=previous.workspace.left;}

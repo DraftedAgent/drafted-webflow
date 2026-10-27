@@ -702,6 +702,7 @@ maybeShowTailor();
       if (btn) btn.disabled = tailorInFlight;
     }
   function maybeShowTailor() {
+    syncWorkspaceJobContext();
     discoveryController?.sync();
     const hasJobContext =
       !!(window.__DRAFTED_JOBCONTEXT__ &&
@@ -1376,9 +1377,23 @@ function setApplyLabel() {
     const brand=document.createElement('span');brand.className='workspace-brand';brand.textContent='Drafted';
     const title=document.createElement('span');title.className='workspace-document-title';title.textContent='Untitled CV';
     identity.append(brand,title);topbar.append(identity);
+    const actions=document.createElement('div');actions.className='workspace-main-actions';topbar.append(actions);
     // Retire legacy server-export controls; the one export action uses browser print.
     section.querySelector('.cv-tools')?.remove();
     container.prepend(topbar);
+    const jobRow=document.createElement('div');jobRow.className='workspace-job-context';jobRow.hidden=true;
+    const jobLabel=document.createElement('span');jobLabel.className='workspace-job-label';jobLabel.textContent='Job context';
+    const jobRole=document.createElement('span');jobRole.className='workspace-job-role';
+    const jobDetails=document.createElement('details');jobDetails.className='workspace-job-details';
+    const jobSummary=document.createElement('summary');jobSummary.textContent='View job description';
+    const jobText=document.createElement('div');jobText.className='workspace-job-text';
+    jobDetails.append(jobSummary,jobText);jobRow.append(jobLabel,jobRole,jobDetails);topbar.after(jobRow);
+    const composer=document.createElement('div');composer.className='workspace-composer';
+    const inputRow=section.querySelector('.chat-input-row'),scopeRow=section.querySelector('.context-chip-row');
+    if(inputRow){inputRow.before(composer);if(scopeRow)composer.append(scopeRow);composer.append(inputRow);}
+    const inputHelp=document.createElement('p');inputHelp.className='workspace-input-help';inputHelp.id='workspace-input-help';
+    inputHelp.textContent='Send asks for advice. Apply changes your CV.';composer.append(inputHelp);
+    editorInput?.setAttribute('aria-describedby',inputHelp.id);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
     const previewTitle=document.createElement('div');previewTitle.className='workspace-preview-title';
     const previewLabel=document.createElement('h2');previewLabel.id='cv-preview-heading';previewLabel.className='workspace-preview-label';previewLabel.textContent='CV preview';
@@ -1402,6 +1417,9 @@ function setApplyLabel() {
     const previewCard=editorPreviewEl.closest('.cv-card');
     if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
     browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getTitle:()=>documentTitle});
+    const exportButton=previewTitle.querySelector('.workspace-print-button');
+    const exportLabel=document.createElement('span');exportLabel.className='workspace-action-label';exportLabel.textContent='Export PDF';exportButton.append(exportLabel);
+    actions.append(exportButton,previewTitle.querySelector('.workspace-print-status'));
     const copy=DraftedWorkspaceView.iconButton('Copy text','workspace-copy-button','<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
     copy.disabled=true;
     const copyStatus=document.createElement('span');copyStatus.className='workspace-sr-only';copyStatus.setAttribute('role','status');
@@ -1411,6 +1429,15 @@ function setApplyLabel() {
     });
     previewTitle.insertBefore(copy,previewTitle.querySelector('.workspace-close-preview'));previewTitle.append(copyStatus);
   })();
+
+  function syncWorkspaceJobContext() {
+    const row=document.querySelector('.section-editor .workspace-job-context');if(!row)return;
+    const context=window.__DRAFTED_JOBCONTEXT__,text=jobAdInputEl?.value?.trim()||'';
+    row.hidden=!context||!text;
+    row.querySelector('.workspace-job-role').textContent=context?.roleTitle||'';
+    row.querySelector('.workspace-job-text').textContent=text;
+    if(row.hidden)row.querySelector('details').open=false;
+  }
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
     discoveryController = window.DraftedDiscoveryEditor.create({
@@ -1781,7 +1808,7 @@ function getSelectionLabel() {
   const ids = Array.from(selectedBlockIds);
   const first = documentBlocksState.find((b) => b?.blockId === ids[0]);
 
-  const type = (first?.type || first?.section || "").toString().trim();
+  const type = (first?.label || first?.type || first?.section || "").toString().trim();
   const more = ids.length > 1 ? ` +${ids.length - 1} more` : "";
 
   return (type ? type : "Block") + more;
