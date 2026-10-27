@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-27-preview-zoom */
+/* drafted-editor.css | build=2026-10-27-preparation-layout */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -1635,3 +1635,92 @@ html,body {height:100%;overflow:hidden!important;}
   }
 }
 /* --- end import: ./components/preview-zoom.css --- */
+
+
+/* --- import: ./components/preparation.css (from index.css) --- */
+/* Only the pre-editor input section. Navigation, editor and document templates
+   intentionally keep their existing presentation and behavior. */
+#section-input.preparation-section {
+  --prep-ink:#142a3d;--prep-muted:#5b7082;--prep-teal:#007f86;--prep-line:#d7e2e9;--prep-tint:#eaf4f5;
+  display:block;height:auto;min-height:100%;max-height:none;overflow:visible;box-sizing:border-box;
+  padding:clamp(32px,5vh,64px) clamp(20px,4vw,64px)!important;background:#fff;color:var(--prep-ink);
+  text-align:left;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+#section-input.preparation-section .preparation-layout {
+  display:grid;grid-template-columns:minmax(0,55fr) minmax(0,45fr);gap:clamp(32px,3vw,48px);
+  width:100%;max-width:1280px;margin:0 auto;align-items:start;
+}
+#section-input.preparation-section .input-left,
+#section-input.preparation-section .input-right {width:100%;min-width:0;padding:0;box-sizing:border-box;}
+#section-input.preparation-section .input-left {display:flex;flex-direction:column;gap:30px;}
+#section-input.preparation-section .preparation-intro {margin:0 0 8px;}
+#section-input.preparation-section .preparation-eyebrow {margin:0 0 10px;color:var(--prep-teal);font-size:12px;line-height:1.4;font-weight:700;letter-spacing:.07em;}
+#section-input.preparation-section .preparation-title {margin:0;color:var(--prep-ink);font-size:clamp(32px,3.2vw,46px);line-height:1.15;letter-spacing:-.045em;font-weight:750;text-wrap:balance;}
+#section-input.preparation-section .preparation-introduction {margin:14px 0 0;color:var(--prep-muted);font-size:17px;line-height:1.6;max-width:65ch;}
+#section-input.preparation-section .preparation-step {min-width:0;}
+#section-input.preparation-section .preparation-step-heading {display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;}
+#section-input.preparation-section .preparation-number {flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--prep-tint);color:var(--prep-teal);font-size:14px;line-height:1;font-weight:700;}
+#section-input.preparation-section .preparation-step-text {flex:1;min-width:0;}
+#section-input.preparation-section .preparation-step-title {margin:0;color:var(--prep-ink);font-size:19px;line-height:1.4;font-weight:700;letter-spacing:-.025em;}
+#section-input.preparation-section .preparation-step-help {margin:4px 0 0;color:var(--prep-muted);font-size:14px;line-height:1.5;}
+#section-input.preparation-section .preparation-optional {flex:none;padding-top:3px;color:var(--prep-muted);font-size:12px;line-height:1.5;}
+#section-input.preparation-section #job-ad-input {display:block;width:100%;min-width:0;max-width:100%;height:220px;min-height:180px;max-height:440px;box-sizing:border-box;resize:vertical;padding:16px 18px;margin:0;border:1px solid var(--prep-line);border-radius:8px;background:#fff;color:#30485b;font-family:inherit;font-size:15px;line-height:1.65;box-shadow:none;}
+#section-input.preparation-section #job-ad-input::placeholder {color:#748696;opacity:1;}
+#section-input.preparation-section .preparation-job-hint {margin:8px 0 0;color:var(--prep-muted);font-size:12px;line-height:1.5;}
+#section-input.preparation-section #jobcontext-status {padding:9px 12px;border-radius:6px;font:13px/1.5 system-ui;margin:10px 0 0;}
+#section-input.preparation-section #jobcontext-status[data-state=loading] {background:#f0f5f8;color:#40596d;}
+#section-input.preparation-section #jobcontext-status[data-state=ready] {background:var(--prep-tint);color:#166165;}
+#section-input.preparation-section #jobcontext-status[data-state=error] {background:#fff2ee;color:#8d3b2e;}
+#section-input.preparation-section .file-picker {position:relative;display:flex;align-items:center;gap:14px;width:100%;max-width:100%;min-width:0;padding:17px 18px;border:1px solid var(--prep-line);border-radius:8px;box-sizing:border-box;background:#fff;}
+#section-input.preparation-section .preparation-file-icon {flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:48px;border-radius:8px;background:#eaf1fa;color:#234b69;}
+#section-input.preparation-section .preparation-file-details {display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;text-align:left;}
+#section-input.preparation-section .file-name {display:block;width:100%;max-width:none;min-width:0;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;line-height:1.4;font-weight:600;color:var(--prep-ink);opacity:1;}
+#section-input.preparation-section .preparation-file-type {color:var(--prep-muted);font-size:13px;line-height:1.4;overflow-wrap:anywhere;}
+#section-input.preparation-section .file-btn {flex:none;display:inline-flex;align-items:center;justify-content:center;max-width:100%;margin:0;padding:8px 0;border:0;border-radius:4px;background:transparent;color:var(--prep-teal);font:600 13px/1.5 system-ui;box-shadow:none;transform:none;white-space:nowrap;}
+#section-input.preparation-section .file-btn:hover {color:#005d65;background:transparent;box-shadow:none;transform:none;text-decoration:underline;}
+#section-input.preparation-section .preparation-actions {display:flex;flex-direction:column;align-items:stretch;gap:10px;}
+#section-input.preparation-section #upload-btn {width:100%;min-height:54px;margin:0;padding:14px 20px;box-sizing:border-box;border:1px solid var(--prep-teal);border-radius:8px;background:var(--prep-teal);color:#fff;font:600 16px/1.5 system-ui;box-shadow:none;text-align:center;text-decoration:none;}
+#section-input.preparation-section #upload-btn:hover {background:#006b72;border-color:#006b72;}
+#section-input.preparation-section #upload-btn[aria-disabled=true] {opacity:.7;cursor:wait;}
+#section-input.preparation-section .preparation-next-note {margin:0;color:var(--prep-muted);font-size:12px;line-height:1.6;}
+#section-input.preparation-section .preparation-status {margin:0;padding:10px 12px;border:1px solid var(--prep-line);border-radius:6px;background:#f4f8fa;color:#40596d;font-size:13px;line-height:1.5;}
+#section-input.preparation-section .preparation-status[data-state=error] {background:#fff5f2;border-color:#edcbc4;color:#8d3b2e;}
+#section-input.preparation-section .preparation-status[data-state=ready] {background:var(--prep-tint);color:#166165;}
+#section-input.preparation-section .input-right {padding:24px;border-radius:10px;background:#edf3f7;}
+#section-input.preparation-section .preparation-preview-title {margin:0 0 18px;color:var(--prep-muted);font-size:11px;line-height:1.5;font-weight:700;letter-spacing:.035em;}
+#section-input.preparation-section .cv-preview-box {display:block;width:100%;height:auto;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
+#section-input.preparation-section .cv-preview-box>.code-embed {width:100%;height:auto;}
+#section-input.preparation-section .cv-preview-wrap {width:100%;height:clamp(460px,66vh,720px);min-height:0;border:1px solid var(--prep-line);border-radius:8px;background:#fff;box-shadow:0 4px 18px #20374b08;box-sizing:border-box;}
+#section-input.preparation-section .source-pdf-view {height:100%;background:transparent;}
+#section-input.preparation-section .source-pdf-slot {box-shadow:0 2px 8px #213c4e14;}
+#section-input.preparation-section .cv-preview-placeholder {padding:30px;color:var(--prep-muted);font-size:15px;line-height:1.7;}
+#section-input.preparation-section .source-pdf-status {color:var(--prep-muted);background:#f8fafceF;font:14px/1.6 system-ui;}
+#section-input.preparation-section .preparation-preview-caption {margin:14px 0 0;text-align:center;color:var(--prep-muted);font-size:12px;line-height:1.5;}
+#section-input.preparation-section .cv-preview-loading .inner {border:1px solid var(--prep-line);border-radius:8px;background:#fff;color:var(--prep-ink);box-shadow:0 8px 24px #142e4214;font:14px/1.5 system-ui;}
+#section-input.preparation-section .cv-preview-loading .meta {opacity:1;color:var(--prep-muted);font-size:12px;}
+#section-input.preparation-section :is(a,button,label[role=button],textarea):focus-visible {outline:2px solid var(--prep-teal);outline-offset:3px;}
+#section-input.preparation-section [hidden] {display:none!important;}
+@media(max-width:800px) {
+  #section-input.preparation-section {padding:32px 22px!important;}
+  #section-input.preparation-section .preparation-layout {grid-template-columns:minmax(0,1fr);gap:32px;max-width:650px;}
+  #section-input.preparation-section .preparation-title {font-size:clamp(32px,6vw,42px);}
+  #section-input.preparation-section .preparation-introduction {font-size:16px;}
+  #section-input.preparation-section .input-right {padding:20px;}
+  #section-input.preparation-section .cv-preview-wrap {height:min(480px,58dvh);min-height:260px;}
+}
+@media(max-width:400px) {
+  #section-input.preparation-section {padding:28px 18px!important;}
+  #section-input.preparation-section .input-left {gap:26px;}
+  #section-input.preparation-section .preparation-step-heading {gap:10px;}
+  #section-input.preparation-section .preparation-number {width:32px;height:32px;font-size:12px;}
+  #section-input.preparation-section .preparation-step-title {font-size:17px;}
+  #section-input.preparation-section .preparation-step-help {font-size:13px;}
+  #section-input.preparation-section .preparation-optional {font-size:11px;}
+  #section-input.preparation-section #job-ad-input {height:200px;padding:12px 14px;}
+  #section-input.preparation-section .file-picker {gap:10px;padding:14px 12px;}
+  #section-input.preparation-section .preparation-file-icon {width:34px;height:40px;}
+  #section-input.preparation-section .file-btn {font-size:12px;}
+  #section-input.preparation-section .file-name {font-size:13px;}
+  #section-input.preparation-section .input-right {padding:16px;}
+}
+/* --- end import: ./components/preparation.css --- */

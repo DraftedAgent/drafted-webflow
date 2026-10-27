@@ -41,6 +41,8 @@ onReady(() => {
 
 
 
+  const preparation = DraftedPreparationView.mount(document.getElementById('section-input'));
+  let uploadInFlight = false;
   const uploadBtn = document.getElementById("upload-btn");
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
@@ -87,7 +89,7 @@ onReady(() => {
         <span class="drafted-upload-spinner"></span>
         <div>
           <div class="title">Analyzing your CV</div>
-          <div class="meta">This usually takes around 60 seconds. Keep this tab open.</div>
+          <div class="meta">Keep this tab open while we prepare your CV.</div>
         </div>
       </div>
     </div>
@@ -347,7 +349,7 @@ function setEditorProcessing(isOn) {
             <span class="drafted-upload-spinner"></span>
             <div>
               <div class="title">Analyzing your CV</div>
-              <div class="meta">This usually takes around 60 seconds. Keep this tab open.</div>
+              <div class="meta">Keep this tab open while we prepare your CV.</div>
             </div>
           </div>
         </div>
@@ -359,6 +361,7 @@ function setEditorProcessing(isOn) {
 
   
   function setUploadLoading(isLoading) {
+    preparation?.loading(!!isLoading);
     const btnSpinner = ensureUploadButtonSpinner();
     ensurePreviewLoadingOverlay();
 
@@ -1964,6 +1967,7 @@ function updateContextChip() {
      =============================== */
   uploadBtn.addEventListener("click", async (e) => {
   e.preventDefault();
+  if (uploadInFlight) return;
 
   console.log("UPLOAD CLICKED");
 
@@ -1971,6 +1975,7 @@ function updateContextChip() {
   const file = fileInput?.files?.[0];
 
   if (!file) {
+    preparation?.missingFile();
     alert("Choose a PDF first.");
     return;
   }
@@ -1978,6 +1983,7 @@ function updateContextChip() {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("targetRole", targetRoleInput?.value?.trim() || "");
+  uploadInFlight = true;
 
   try {
     setUploadLoading(true);
@@ -2030,8 +2036,11 @@ function updateContextChip() {
     clearAllProposalCards();
     setApplyLabel();
     maybeShowTailor();
+    await DraftedCvLayout.ready(editorPreviewEl);
+    preparation?.complete(file);
 
   } catch (err) {
+    preparation?.failed(file);
     if (err && err.name === "DraftedContractError") {
       console.error("DraftedContractError", err.code, err.details, err);
     } else {
@@ -2048,6 +2057,7 @@ function updateContextChip() {
   
     alert(msg);
   } finally {
+    uploadInFlight = false;
   
     // Single exit point: always restore UI here
     setUploadLoading(false);
