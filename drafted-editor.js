@@ -27,16 +27,16 @@
     const headerInner=el('div','drafted-header-inner'),home=anchor(el('a','drafted-home'),'#drafted-start');home.setAttribute('aria-label','Drafted home');home.append(logo('drafted-nav-wordmark'));
     const nav=el('nav','drafted-main-nav');nav.setAttribute('aria-label','Main navigation');
     const getStarted=anchor(el('a','drafted-get-started'),'#section-input');getStarted.append(document.createTextNode('Get started'),el('span','drafted-link-arrow','↗'));getStarted.lastElementChild.setAttribute('aria-hidden','true');nav.append(getStarted);headerInner.append(home,nav);header.replaceChildren(headerInner);
-    const inner=el('div','drafted-hero-inner'),eyebrow=el('p','drafted-hero-eyebrow');eyebrow.append(el('span','','CAREER CLARITY /'),document.createTextNode(' '),el('span','','WITHOUT THE FLUFF'));
-    const brand=el('div','drafted-hero-brand');brand.append(logo('drafted-hero-wordmark'),graphic('drafted-measurement-rule.svg','drafted-hero-rule',''),graphic('drafted-registration-marks.svg','drafted-hero-marks',''));
+    const inner=el('div','drafted-hero-inner');
+    const brand=el('div','drafted-hero-brand'),registration=el('div','drafted-hero-registration');registration.setAttribute('aria-hidden','true');registration.append(graphic('drafted-registration-marks.svg','drafted-hero-marks',''));brand.append(logo('drafted-hero-wordmark'),graphic('drafted-measurement-rule.svg','drafted-hero-rule',''),registration);
     const content=el('div','drafted-hero-content'),heading=el('h1','drafted-hero-heading');heading.id='drafted-hero-heading';heading.append(el('span','','More substance.'),document.createTextNode(' '),el('span','','Less underselling.'));
-    const direction=el('div','drafted-hero-direction'),description=el('p','drafted-hero-description','Make the depth of your experience visible. Explore what matters for the role, sharpen how you present it, and stay in control of every change.');
+    const direction=el('div','drafted-hero-direction'),description=el('p','drafted-hero-description','Build a CV that reflects the experience you bring to the role.');
     const action=hero.querySelector('a[href="#section-input"]')||document.createElement('a');action.className='drafted-hero-action';action.replaceChildren(document.createTextNode('Start with your CV'),el('span','drafted-action-arrow','→'));action.lastElementChild.setAttribute('aria-hidden','true');anchor(action,'#section-input');direction.append(description,action);content.append(heading,direction);
     const steps=el('ol','drafted-hero-steps');steps.setAttribute('role','list');
     for(const [index,title,copy] of [['01','Bring your experience','Start with your current CV.'],['02','Add the opportunity','Give your experience a context.'],['03','Refine your story','Decide what deserves the focus.']]){
       const item=el('li','drafted-hero-step'),number=el('span','drafted-hero-step-number',index+' /'),text=el('div','drafted-hero-step-text');number.setAttribute('aria-hidden','true');text.append(el('h2','',title),el('p','',copy));item.append(number,text);steps.append(item);
     }
-    inner.append(eyebrow,brand,content,steps,el('p','drafted-hero-note','YOUR EXPERIENCE IS BIGGER THAN YOUR CV.'));hero.replaceChildren(inner);hero.classList.add('drafted-hero');hero.setAttribute('aria-labelledby',heading.id);
+    inner.append(brand,content,steps);hero.replaceChildren(inner);hero.classList.add('drafted-hero');hero.setAttribute('aria-labelledby',heading.id);
     if(location.hash==='#section-input'||location.hash==='#drafted-start')requestAnimationFrame(()=>document.querySelector(location.hash)?.scrollIntoView({behavior:'instant',block:'start'}));
   }
   global.DraftedHeroView={mount};
@@ -1346,7 +1346,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-27-typographic-hero");
+console.log("DRAFTED_JS_SOURCE", "2026-10-27-hero-refinement");
 
 console.log("🚀 drafted-editor.js executing");
 
