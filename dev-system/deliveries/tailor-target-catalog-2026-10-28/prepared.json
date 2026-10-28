@@ -1,0 +1,21 @@
+{
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "beforeVersionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+  "beforeUpdatedAt": "2026-10-28T10:37:15.701Z",
+  "beforeProjectionSha256": "9bc09c9ca85011a77fb1b37e441e6ed71e513fce2484713e814eb66e3ad279d0",
+  "candidateProjectionSha256": "9a26a30cb6508c8919c7fb7e689689da7be52c80b65fda53ac2a302d7b5cc084",
+  "changedNodes": [
+    "Validate + Normalize"
+  ],
+  "codeHashes": {
+    "before": "3c070ddeb9a3736a3a1b4e64ec76cb9df06be45eb2858c4bc2eed0c57e8cf9eb",
+    "after": "1945a3576cd02e533f5b6197fa910e285503a8078f62e7c847814ba294b78734"
+  },
+  "localCodeVersionsVerified": [
+    "1.0",
+    "1.1",
+    "1.2"
+  ],
+  "productionWrites": 0,
+  "modelCalls": 0
+}
