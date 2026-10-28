@@ -77,7 +77,7 @@ JS_OUT="$DIST_DIR/drafted-editor.js"
 if [[ -f "$JS_SRC" ]]; then
   # If your JS contains the placeholder __DRAFTED_BUILD_ID__, replace it.
   : > "$JS_OUT"
-  for module in hero-view.js uploaded-preview-overlay.js preparation-view.js uploaded-cv-preview.js editor-workspace-view.js cv-document-designs.js cv-document-layout.js cv-preview-zoom.js cv-preview-overlay.js cv-browser-print.js experience-context.js experience-context-ui.js experience-discovery.js experience-discovery-ui.js experience-discovery-contract.js experience-discovery-client.js experience-discovery-editor.js tailor-sources.js tailor-sources-v11.js tailor-change-preview.js tailor-source-client.js tailor-cv-preview.js; do
+  for module in hero-view.js uploaded-preview-overlay.js preparation-view.js uploaded-cv-preview.js editor-workspace-view.js cv-document-designs.js cv-document-layout.js cv-preview-zoom.js cv-preview-overlay.js cv-browser-print.js experience-context.js experience-context-ui.js experience-discovery.js experience-discovery-ui.js experience-discovery-contract.js experience-discovery-client.js experience-discovery-editor.js tailor-sources.js tailor-sources-v11.js tailor-change-preview.js tailor-source-client.js cv-document-comparison.js tailor-cv-preview.js; do
     cat "$SRC_DIR/$module" >> "$JS_OUT"
     printf '\n;\n' >> "$JS_OUT"
   done

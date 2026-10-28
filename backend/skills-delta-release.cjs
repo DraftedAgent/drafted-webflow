@@ -1,0 +1,17 @@
+'use strict';
+// Read-only, version-bound preparation. No HTTP, workflow write or model call.
+const assert=require('node:assert/strict'),path=require('node:path'),vm=require('node:vm'),{execFileSync}=require('node:child_process'),base=require('./structured-context-release.cjs'),{snippets}=require('./n8n-structured-context.cjs'),F=require('../tests/fixtures/skills-delta.cjs'),h=require('../tests/helpers/tailor-workflow-harness.cjs'),P=require('../webflow/src/tailor-sources-v11.js');
+const ID='H8oAioy58R1v3PvRe3YUa',VERSION='34815fa3-85d7-4102-a8c5-b839e0b158b1',PROJECTION='9a26a30cb6508c8919c7fb7e689689da7be52c80b65fda53ac2a302d7b5cc084',root=path.resolve(__dirname,'..');
+function historical(ref){const read=file=>execFileSync('git',['show',ref+':'+path.relative(root,file).replace(/\\/g,'/')],{cwd:root,encoding:'utf8'}),module={exports:{}};vm.runInNewContext(read(path.join(__dirname,'n8n-structured-context.cjs')),{module,__dirname,require:name=>name==='node:fs'?{readFileSync:read}:name==='node:path'?path:undefined});return module.exports.snippets();}
+function prepare(w){
+ assert.equal(w.id,ID);assert.equal(w.versionId,VERSION);assert.equal(w.activeVersionId,VERSION);assert.equal(w.active,true);assert.equal(base.hash(base.projection(w)),PROJECTION);assert.equal(base.hash(base.projection(w,true)),PROJECTION);
+ const payload=structuredClone(base.projection(w)),next=snippets(),previous=[historical('0fbbf81e8df203d4ae9f885196973ed753a30670').validate,historical('2cf7d406b530929f779a2f340a54a27f4e4549a9').compose],changes=[];
+ for(const [i,name] of ['Validate + Normalize','Compose source suggestion'].entries()){const node=payload.nodes.find(n=>n.name===name),old=node.parameters.jsCode;assert(old.startsWith(previous[i]));node.parameters.jsCode=(i===0?next.validate:next.compose)+old.slice(previous[i].length);changes.push({name,before:base.hash(old),after:base.hash(node.parameters.jsCode)});}
+ for(const node of payload.nodes.filter(n=>!changes.some(c=>c.name===n.name)))assert.deepEqual(node,w.nodes.find(n=>n.id===node.id));assert.deepEqual(payload.connections,w.connections);assert.deepEqual(payload.settings,w.settings);
+ const versions=base.checkCode(payload),find=name=>payload.nodes.find(n=>n.name===name).parameters.jsCode,r=F.request(),v=h.runCode(find('Validate + Normalize'),{body:r},{},'release_skills'),input=JSON.parse(v.llmMessages[1].content);
+ const duplicate=h.runCode(find('Compose source suggestion'),h.response(F.model(input,'duplicate')),{'Validate + Normalize':{json:v}},'release_skills');assert.equal(duplicate.status,422);
+ const delta=h.runCode(find('Compose source suggestion'),h.response(F.model(input)),{'Validate + Normalize':{json:v}},'release_skills');assert.equal(delta.status,200);P.validateCandidate(r,delta.body);assert.equal(delta.body.sourceUsage[0].proposedQuote,F.added);
+ return {payload,receipt:{workflowId:ID,beforeVersionId:VERSION,beforeUpdatedAt:w.updatedAt,beforeProjectionSha256:PROJECTION,candidateProjectionSha256:base.hash(payload),changedNodes:changes,localCodeVersionsVerified:versions,duplicateRejected:true,deltaCandidateVerified:true,workflowWrites:0,modelCalls:0}};
+}
+module.exports={prepare};
+if(require.main===module){let raw='';process.stdin.setEncoding('utf8');process.stdin.on('data',s=>raw+=s);process.stdin.on('end',()=>{try{const p=prepare(JSON.parse(raw));process.stdout.write(JSON.stringify(process.argv[2]==='plan'?p:p.receipt,null,2));}catch(e){console.error('SKILLS_DELTA_PREPARATION_FAILED: '+(/^[A-Z_]+$/.test(e.message)?e.message:e.name));process.exitCode=1;}});}
