@@ -1046,7 +1046,7 @@
           const label=el('label',followup?'Your clarification':'A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
           const saved=session.snapshot().answers.find(a=>a.id===q.answerId)?.revisions.at(-1)?.experienceContext;
           if(saved)container.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(saved),'discovery-saved-context'));
-          container.append(label,el('p','Up to 50,000 characters.','discovery-note'));
+          container.append(label);
           actions.append(button(r.phase==='correct'?'Save correction':'Send answer',()=>{const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
           if(r.phase==='error'&&onRetry)actions.append(button('Try again',()=>onRetry()));
           actions.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();drafts.delete(q.id);}));
@@ -1532,7 +1532,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-28-structured-context");
+console.log("DRAFTED_JS_SOURCE", "2026-10-28-tailor-target-keys");
 
 console.log("🚀 drafted-editor.js executing");
 

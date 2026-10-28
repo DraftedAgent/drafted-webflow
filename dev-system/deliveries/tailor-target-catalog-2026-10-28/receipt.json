@@ -1,0 +1,96 @@
+{
+  "modelCalls": 0,
+  "productionExecutions": 0,
+  "proof": {
+    "workflowId": "H8oAioy58R1v3PvRe3YUa",
+    "beforeVersionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+    "beforeUpdatedAt": "2026-10-28T10:37:15.701Z",
+    "beforeProjectionSha256": "9bc09c9ca85011a77fb1b37e441e6ed71e513fce2484713e814eb66e3ad279d0",
+    "candidateProjectionSha256": "9a26a30cb6508c8919c7fb7e689689da7be52c80b65fda53ac2a302d7b5cc084",
+    "changedNodes": [
+      "Validate + Normalize"
+    ],
+    "codeHashes": {
+      "before": "3c070ddeb9a3736a3a1b4e64ec76cb9df06be45eb2858c4bc2eed0c57e8cf9eb",
+      "after": "1945a3576cd02e533f5b6197fa910e285503a8078f62e7c847814ba294b78734"
+    },
+    "localCodeVersionsVerified": [
+      "1.0",
+      "1.1",
+      "1.2"
+    ],
+    "productionWrites": 2,
+    "modelCalls": 0,
+    "versionId": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+    "activeVersionId": "34815fa3-85d7-4102-a8c5-b839e0b158b1"
+  },
+  "snapshots": [
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\tailor-target-catalog-DEV-143-20261028\\20261028T121716602Z__H8oAioy58R1v3PvRe3YUa__27962c92-3fff-487d-a9a0-1138d1545172__before-DEV-143.dpapi",
+      "cipherSha256": "eaf23d97718493b4d2dcf6cac611f79982fcc3de915f81710da8a82dbbab874f",
+      "savedRawSha256": "b53eb7cabb36a482bc9195079e89a617facf30aa960b7a40c945a15c075f49ac",
+      "publishedRawSha256": "fd6282db50b495f753244aabebeb15526fb80b1abb79a819e3394e469bd5b623",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+      "label": "before-DEV-143",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "27414c488c5dbcc06c9a155f52f14773307afdbd",
+      "capturedUtc": "2026-10-28T12:17:16.6662089Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\tailor-target-catalog-DEV-143-20261028\\20261028T121746830Z__H8oAioy58R1v3PvRe3YUa__27962c92-3fff-487d-a9a0-1138d1545172__candidate-DEV-143.dpapi",
+      "cipherSha256": "14c1712e2074b1da6a24cbfa99e4f104e670ff27c51016ed98486a81e6aaa6bf",
+      "savedRawSha256": "ef67960054f87763625e24869d65530db99541056715b8d5e8e83818aeac19a3",
+      "publishedRawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+      "label": "candidate-DEV-143",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "27414c488c5dbcc06c9a155f52f14773307afdbd",
+      "capturedUtc": "2026-10-28T12:17:46.899422Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\tailor-target-catalog-DEV-143-20261028\\20261028T121806900Z__H8oAioy58R1v3PvRe3YUa__34815fa3-85d7-4102-a8c5-b839e0b158b1__saved-DEV-143.dpapi",
+      "cipherSha256": "131bed8a5e3b22dff904e1aa0c2e9e969bcc24223acf7231e42c440805524870",
+      "savedRawSha256": "77d4cb330961d721307636d4b9ab8d08eea1c22a0f93ea4a95f1fdbf879b63fe",
+      "publishedRawSha256": "fd6282db50b495f753244aabebeb15526fb80b1abb79a819e3394e469bd5b623",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+      "label": "saved-DEV-143",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "27414c488c5dbcc06c9a155f52f14773307afdbd",
+      "capturedUtc": "2026-10-28T12:18:06.9507216Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\tailor-target-catalog-DEV-143-20261028\\20261028T121839868Z__H8oAioy58R1v3PvRe3YUa__34815fa3-85d7-4102-a8c5-b839e0b158b1__pre-publish-DEV-143.dpapi",
+      "cipherSha256": "4404be852fdd4dae3a1bf3550f8447577919147eedcdd636baab613ba651abdf",
+      "savedRawSha256": "77d4cb330961d721307636d4b9ab8d08eea1c22a0f93ea4a95f1fdbf879b63fe",
+      "publishedRawSha256": "fd6282db50b495f753244aabebeb15526fb80b1abb79a819e3394e469bd5b623",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+      "label": "pre-publish-DEV-143",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "27414c488c5dbcc06c9a155f52f14773307afdbd",
+      "capturedUtc": "2026-10-28T12:18:39.9055635Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\tailor-target-catalog-DEV-143-20261028\\20261028T121904726Z__H8oAioy58R1v3PvRe3YUa__34815fa3-85d7-4102-a8c5-b839e0b158b1__published-DEV-143.dpapi",
+      "cipherSha256": "6b30f1d7e82ea25ae8c9980017265b64e631d3741a569ce0d23ccc84ba67c3a4",
+      "savedRawSha256": "5ba556fb7305619fd8c02199cf597fab0d4b1b506b08ce38ef4ebf8b980ba1fc",
+      "publishedRawSha256": "0da938480d7cfbf63dc2c58107a9736eaf30c74b54feb5951144a9ae61886667",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+      "label": "published-DEV-143",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "27414c488c5dbcc06c9a155f52f14773307afdbd",
+      "capturedUtc": "2026-10-28T12:19:04.772217Z"
+    }
+  ],
+  "phase": "published-verified",
+  "productionWrites": 2
+}
