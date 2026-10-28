@@ -2,11 +2,13 @@
 (function(global){
   'use strict';
   async function prepare(host,title,stylesheet){
+    const check=()=>{if(host.dataset.cvPreviewMode==='suggested')throw Error('Switch to Current before exporting.');};check();
     await global.DraftedCvLayout.ready(host);
+    check();
     const pages=[...host.querySelectorAll('.cv-page')];
     if(!pages.length||!stylesheet)throw Error('The document is not ready to print.');
     const copy=host.cloneNode(true);copy.style.width='210mm';
-    copy.querySelectorAll('.is-selected').forEach(el=>el.classList.remove('is-selected'));
+    copy.querySelectorAll('.is-selected,.is-tailor-reviewed').forEach(el=>el.classList.remove('is-selected','is-tailor-reviewed'));
     copy.querySelectorAll('.cv-page').forEach(el=>el.style.transform='none');
     copy.querySelectorAll('.cv-page-slot').forEach(el=>{el.style.width='210mm';el.style.height='297mm';});
     const frame=document.createElement('iframe');frame.title='CV print document';frame.tabIndex=-1;frame.setAttribute('aria-hidden','true');frame.dataset.cvPrint='preparing';
@@ -28,6 +30,7 @@
       })(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Print preparation timed out. Please try again.')),15000);})]);}finally{clearTimeout(timer);}
       await global.DraftedCvLayout.ready(host);
       const current=[...host.querySelectorAll('.cv-page')];
+      check();
       if(current.length!==pages.length||pages.some((page,i)=>page!==current[i]))throw Error('Your CV or design changed. Please print again.');
       frame.dataset.cvPrint='ready';frame.dataset.pageCount=String(pages.length);frame.dataset.cvDesign=host.dataset.cvDesign;
       return frame;
@@ -39,9 +42,9 @@
     const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
     controls.insertBefore(button,controls.querySelector('.workspace-close-preview'));controls.append(status);
     let state='loading',busy=false;
-    const refresh=()=>{button.disabled=busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.setAttribute('aria-busy',String(busy));};
+    const refresh=()=>{const suggested=host.dataset.cvPreviewMode==='suggested';button.disabled=suggested||busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.title=suggested?'Switch to Current before exporting.':'Export PDF';button.setAttribute('aria-busy',String(busy));};
     button.addEventListener('click',async()=>{
-      if(button.disabled)return;
+      if(button.disabled||host.dataset.cvPreviewMode==='suggested')return;
       busy=true;refresh();status.hidden=true;status.textContent='';let frame;
       try{
         frame=await prepare(host,getTitle(),stylesheet);

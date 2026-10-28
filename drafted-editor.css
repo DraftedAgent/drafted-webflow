@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-28-tailor-target-keys */
+/* drafted-editor.css | build=2026-10-28-centered-experience-intro */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -1595,6 +1595,20 @@ html,body {height:100%;overflow:hidden!important;}
     .section-editor .workspace-job-context {min-height:28px;padding:3px 12px;}
   }
 }
+/* Only an empty conversation's experience introduction occupies the center.
+   Auto margins collapse on short panels, leaving ordinary scrollable flow. */
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance {
+  flex:0 0 auto;align-self:center;width:calc(100% - 32px);max-width:440px;box-sizing:border-box;
+  margin:auto 0;padding:18px 0;border:0;border-radius:0;background:transparent;text-align:left;box-shadow:none;
+}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance h2 {font:700 clamp(24px,1.8vw,28px)/1.22 system-ui;letter-spacing:-.035em;margin:0 0 16px;color:var(--editor-ink);}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance p {font:400 15px/1.6 system-ui;margin:0 0 22px;color:var(--editor-muted);}
+.section-editor.discovery-enabled .discovery-guidance .discovery-start-primary {display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0;padding:11px 18px;border:1px solid var(--editor-teal);border-radius:7px;background:var(--editor-teal);color:#fff;font:600 14px/1.4 system-ui;white-space:normal;}
+.section-editor.discovery-enabled .discovery-guidance .discovery-start-primary:hover {background:var(--editor-teal-hover);}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > :is(.chat-message.system,.drafted-chat-demo) {display:none;}
+@media(max-width:700px) and (max-height:599px) {
+  .section-editor.discovery-enabled:has(.is-discovery-start) .editor-layout {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,2fr) minmax(0,1fr);}
+}
 /* --- end import: ./components/editor-theme.css --- */
 
 
@@ -1655,6 +1669,14 @@ html,body {height:100%;overflow:hidden!important;}
     .section-editor .tailor-review-footer button {font-size:12px;}
   }
 }
+/* Version switch stays in the preview toolbar, outside the rendered CV pages. */
+.workspace-preview-title:has(.tailor-preview-switch) {flex-wrap:wrap;}
+.tailor-preview-switch {display:flex;align-items:center;gap:4px;flex:none;max-width:100%;}
+.tailor-preview-switch button {border:1px solid #bac8d0;border-radius:5px;background:#fff;color:#24313b;padding:5px 8px;font:500 12px/1.4 system-ui;cursor:pointer;}
+.tailor-preview-switch button[aria-pressed=true] {background:#e0f4f2;border-color:#007f86;color:#00636b;}
+.tailor-preview-switch button:focus-visible {outline:2px solid #007f86;outline-offset:2px;}
+.tailor-preview-status {margin:0 4px;color:#895017;font:500 12px/1.4 system-ui;white-space:nowrap;}
+@media print {[data-cv-preview-mode=suggested] {display:none!important;}}
 /* --- end import: ./components/tailor-review.css --- */
 
 
@@ -1733,8 +1755,14 @@ html,body {height:100%;overflow:hidden!important;}
 #section-input.preparation-section .preparation-step-help {margin:4px 0 0;color:var(--prep-muted);font-size:14px;line-height:1.5;}
 #section-input.preparation-section #job-ad-input {display:block;width:100%;min-width:0;max-width:100%;height:220px;min-height:180px;max-height:440px;box-sizing:border-box;resize:vertical;padding:16px 18px;margin:0;border:1px solid var(--prep-line);border-radius:8px;background:#fff;color:#30485b;font-family:inherit;font-size:15px;line-height:1.65;box-shadow:none;}
 #section-input.preparation-section #job-ad-input::placeholder {color:#748696;opacity:1;}
-#section-input.preparation-section .preparation-job-hint {margin:8px 0 0;color:var(--prep-muted);font-size:12px;line-height:1.5;}
-#section-input.preparation-section #jobcontext-status {padding:9px 12px;border-radius:6px;font:13px/1.5 system-ui;margin:10px 0 0;}
+#section-input.preparation-section .preparation-job-feedback {display:grid;margin-top:10px;}
+#section-input.preparation-section .preparation-job-hint,
+#section-input.preparation-section #jobcontext-status {grid-area:1/1;box-sizing:border-box;min-width:0;padding:9px 12px;margin:0;font:13px/1.5 system-ui;}
+#section-input.preparation-section .preparation-job-hint {color:var(--prep-muted);}
+#section-input.preparation-section #jobcontext-status {display:flex;align-items:center;gap:10px;border-radius:6px;}
+#section-input.preparation-section #jobcontext-status-icon {flex:none;}
+#section-input.preparation-section #jobcontext-status:not([data-state]),
+#section-input.preparation-section #jobcontext-status[data-state=idle] {visibility:hidden;}
 #section-input.preparation-section #jobcontext-status[data-state=loading] {background:#f0f5f8;color:#40596d;}
 #section-input.preparation-section #jobcontext-status[data-state=ready] {background:var(--prep-tint);color:#166165;}
 #section-input.preparation-section #jobcontext-status[data-state=error] {background:#fff2ee;color:#8d3b2e;}
@@ -1764,6 +1792,9 @@ html,body {height:100%;overflow:hidden!important;}
 #section-input.preparation-section .cv-preview-loading .meta {opacity:1;color:var(--prep-muted);font-size:12px;}
 #section-input.preparation-section :is(a,button,label[role=button],textarea):focus-visible {outline:2px solid var(--prep-teal);outline-offset:3px;}
 #section-input.preparation-section [hidden] {display:none!important;}
+/* Keep the longer hint's natural wrapped height while it is hidden, so idle,
+   loading, ready and error feedback share the same reserved space. */
+#section-input.preparation-section .preparation-job-feedback .preparation-job-hint[hidden] {display:block!important;visibility:hidden;}
 /* Opening control exists only for a readable selected document. */
 #section-input.preparation-section .preparation-preview-open {position:absolute;inset:0;z-index:3;display:block;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:10px;background:transparent;cursor:zoom-in;}
 #section-input.preparation-section .preparation-enlarge-icon {position:absolute;right:34px;top:34px;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--prep-line);border-radius:8px;background:#fffffff0;color:var(--prep-teal);opacity:0;transition:opacity .12s;}

@@ -18,11 +18,11 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
  });
  const guidance=page.locator('#drafted-discovery-guidance'),panel=page.locator('.drafted-discovery'),cv=page.locator('.cv-document-inner');
  async function sample(){await page.goto(base);await page.getByRole('button',{name:'Try a synthetic CV and job ad',exact:true}).click();await guidance.getByRole('button',{name:'Review questions',exact:true}).waitFor();}
- await sample();const initial=await cv.innerText();assert.match(await guidance.innerText(),/We have 2 prioritized questions/);
+ await sample();const initial=await cv.innerText();assert.match(await guidance.innerText(),/Answer 2 questions to uncover experience relevant to this role/);
  assert.ok(!(await guidance.innerText()).includes('can now use your answers'));assert.equal(tailors.length,0);
  await page.screenshot({path:path.join(os.tmpdir(),'drafted-tailor-questions.png')});
  await guidance.getByRole('button',{name:'Review questions',exact:true}).click();await panel.getByRole('button',{name:'Skip',exact:true}).click();
- await panel.getByRole('button',{name:'Back to editor',exact:true}).click();assert.match(await guidance.innerText(),/We have 1 prioritized question .* Review it/);
+ await panel.getByRole('button',{name:'Back to editor',exact:true}).click();assert.match(await guidance.innerText(),/Answer 1 question to uncover experience relevant to this role/);
  await guidance.getByRole('button',{name:'Review questions',exact:true}).click();await panel.getByRole('button',{name:'No',exact:true}).click();
  await page.getByRole('button',{name:'Chat',exact:true}).click();assert.match(await guidance.innerText(),/Ready to tailor your CV/);assert.equal(tailors.length,0);
  // Two simultaneous entry points produce one request, and a detached review.
@@ -45,7 +45,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
  // Accept only a current candidate, with no additional model request at Apply.
  await guidance.getByRole('button',{name:'Tailor my CV',exact:true}).click();await suggestion.waitFor();await suggestion.getByRole('button',{name:'Apply changes',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.cv-document-inner').innerText.includes('Erfarenhet av arbete'));assert.equal(tailors.length,3);
  // Early exit keeps unanswered topics; all skipped allows a plain CV/ad proposal.
- await sample();await guidance.getByRole('button',{name:'Review questions',exact:true}).click();await panel.getByRole('button',{name:'Finish the questions',exact:true}).click();await page.getByRole('button',{name:'Chat',exact:true}).click();assert.match(await guidance.innerText(),/We have 2 prioritized questions/);
+ await sample();await guidance.getByRole('button',{name:'Review questions',exact:true}).click();await panel.getByRole('button',{name:'Finish the questions',exact:true}).click();await page.getByRole('button',{name:'Chat',exact:true}).click();assert.match(await guidance.innerText(),/Answer 2 questions to uncover experience relevant to this role/);
  await guidance.getByRole('button',{name:'Review questions',exact:true}).click();await panel.locator('.discovery-history').evaluate(e=>e.open=true);await panel.getByRole('button',{name:'Answer question 1',exact:true}).click();await panel.getByRole('button',{name:'Skip',exact:true}).click();await panel.getByRole('button',{name:'Skip',exact:true}).click();await page.getByRole('button',{name:'Chat',exact:true}).click();assert.match(await guidance.innerText(),/Ready to tailor/);
  const before=await cv.innerText();fail=true;await guidance.getByRole('button',{name:'Tailor my CV',exact:true}).click();await page.getByText('Tailoring failed. Try again.',{exact:true}).waitFor();assert.equal(await cv.innerText(),before);fail=false;
  structural=true;await page.getByRole('button',{name:'Try tailoring again',exact:true}).click();await page.getByText('Tailoring failed. Try again.',{exact:true}).waitFor();assert.equal(await suggestion.count(),0);assert.equal(await cv.innerText(),before);structural=false;

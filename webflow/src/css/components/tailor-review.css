@@ -54,3 +54,11 @@
     .section-editor .tailor-review-footer button {font-size:12px;}
   }
 }
+/* Version switch stays in the preview toolbar, outside the rendered CV pages. */
+.workspace-preview-title:has(.tailor-preview-switch) {flex-wrap:wrap;}
+.tailor-preview-switch {display:flex;align-items:center;gap:4px;flex:none;max-width:100%;}
+.tailor-preview-switch button {border:1px solid #bac8d0;border-radius:5px;background:#fff;color:#24313b;padding:5px 8px;font:500 12px/1.4 system-ui;cursor:pointer;}
+.tailor-preview-switch button[aria-pressed=true] {background:#e0f4f2;border-color:#007f86;color:#00636b;}
+.tailor-preview-switch button:focus-visible {outline:2px solid #007f86;outline-offset:2px;}
+.tailor-preview-status {margin:0 4px;color:#895017;font:500 12px/1.4 system-ui;white-space:nowrap;}
+@media print {[data-cv-preview-mode=suggested] {display:none!important;}}
