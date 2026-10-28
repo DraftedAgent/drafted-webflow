@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-28-centered-experience-intro */
+/* drafted-editor.css | build=2026-10-28-tailor-review-layer */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -899,9 +899,15 @@ html,body {height:100%;overflow:hidden!important;}
 @keyframes discovery-planning-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.workspace-editor-toolbar .discovery-launcher[data-plan-state=loading]::after{animation:none}}
 
-/* Original answer stays compact; question/ad background is optional. */
-.drafted-discovery .discovery-followup-context{margin:8px 0 16px}
-.drafted-discovery .discovery-previous-answer{max-height:6.2em;overflow:auto;overflow-wrap:anywhere;margin:4px 0}
+/* The exact source and original question stay readable in the panel's flow. */
+.drafted-discovery .discovery-followup-context{margin:8px 0 24px;padding:16px 18px;border:1px solid #e0e8ed;border-radius:9px;background:#f4f8fa;color:#405665}
+.drafted-discovery .discovery-followup-context .discovery-result-label{margin:0 0 6px;font:600 13px/1.5 system-ui;color:#526a7a}
+.drafted-discovery .discovery-followup-context .discovery-source-question,
+.drafted-discovery .discovery-followup-context .discovery-previous-answer{max-height:none;overflow:visible;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font:400 15px/1.6 system-ui;border:0;padding:0}
+.drafted-discovery .discovery-followup-context .discovery-source-question{margin-bottom:16px}
+.drafted-discovery .discovery-followup-turn+.discovery-followup-turn{border-top:1px solid #dce5eb;padding-top:16px;margin-top:16px}
+.drafted-discovery .discovery-followup-label{margin:0 0 6px;font:600 13px/1.5 system-ui;color:#007f82}
+.drafted-discovery .discovery-followup-label+h2{font-size:21px;line-height:1.4}
 .drafted-discovery .discovery-original-context{margin-top:16px}
 .drafted-discovery .discovery-result{border:1px solid #dce4e1;border-radius:10px;padding:14px 16px;margin:14px 0;background:#fafcfb}
 .drafted-discovery .discovery-result h3{font-size:15px;line-height:1.5;margin:0 0 8px}
@@ -1595,17 +1601,24 @@ html,body {height:100%;overflow:hidden!important;}
     .section-editor .workspace-job-context {min-height:28px;padding:3px 12px;}
   }
 }
-/* Only an empty conversation's experience introduction occupies the center.
-   Auto margins collapse on short panels, leaving ordinary scrollable flow. */
+/* Flexible space places only the empty conversation's intro above the center.
+   It collapses on short panels, leaving the card in ordinary scrollable flow. */
+.section-editor.discovery-enabled .chat-messages.is-discovery-start {gap:0;}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start::before,
+.section-editor.discovery-enabled .chat-messages.is-discovery-start::after {content:'';flex:1.15 0 0;}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start::before {flex-grow:.85;}
 .section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance {
-  flex:0 0 auto;align-self:center;width:calc(100% - 32px);max-width:440px;box-sizing:border-box;
-  margin:auto 0;padding:18px 0;border:0;border-radius:0;background:transparent;text-align:left;box-shadow:none;
+  flex:0 0 auto;align-self:center;width:calc(100% - 24px);max-width:600px;box-sizing:border-box;
+  margin:0;padding:30px;border:1px solid var(--editor-line);border-radius:12px;background:#f6fafa;text-align:left;box-shadow:0 3px 14px #17344206;
 }
-.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance h2 {font:700 clamp(24px,1.8vw,28px)/1.22 system-ui;letter-spacing:-.035em;margin:0 0 16px;color:var(--editor-ink);}
-.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance p {font:400 15px/1.6 system-ui;margin:0 0 22px;color:var(--editor-muted);}
-.section-editor.discovery-enabled .discovery-guidance .discovery-start-primary {display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0;padding:11px 18px;border:1px solid var(--editor-teal);border-radius:7px;background:var(--editor-teal);color:#fff;font:600 14px/1.4 system-ui;white-space:normal;}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance h2 {font:700 clamp(22px,1.35vw,24px)/1.25 system-ui;letter-spacing:-.035em;margin:0 0 12px;color:var(--editor-ink);}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance p {font:400 15px/1.6 system-ui;margin:0 0 24px;color:var(--editor-muted);}
+.section-editor.discovery-enabled .discovery-guidance .discovery-start-primary {display:flex;width:fit-content;max-width:100%;align-items:center;justify-content:center;min-height:44px;margin:0 auto;padding:11px 20px;border:1px solid var(--editor-teal);border-radius:7px;background:var(--editor-teal);color:#fff;font:600 14px/1.4 system-ui;white-space:normal;}
 .section-editor.discovery-enabled .discovery-guidance .discovery-start-primary:hover {background:var(--editor-teal-hover);}
 .section-editor.discovery-enabled .chat-messages.is-discovery-start > :is(.chat-message.system,.drafted-chat-demo) {display:none;}
+@media(max-width:400px) {
+  .section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance {padding:24px;}
+}
 @media(max-width:700px) and (max-height:599px) {
   .section-editor.discovery-enabled:has(.is-discovery-start) .editor-layout {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,2fr) minmax(0,1fr);}
 }
@@ -1677,6 +1690,29 @@ html,body {height:100%;overflow:hidden!important;}
 .tailor-preview-switch button:focus-visible {outline:2px solid #007f86;outline-offset:2px;}
 .tailor-preview-status {margin:0 4px;color:#895017;font:500 12px/1.4 system-ui;white-space:nowrap;}
 @media print {[data-cv-preview-mode=suggested] {display:none!important;}}
+/* The reviewer is outside renderer pages. Use a block-side rail when it fits;
+   otherwise reserve a row so the controls never cover document text. */
+.tailor-review-stage {position:relative;display:flex;flex-direction:column;flex:1 1 0;min-width:0;min-height:0;gap:8px;}
+.tailor-review-stage>.cv-document {flex:1 1 0;min-height:0;width:100%;box-sizing:border-box;}
+.tailor-preview-switch.tailor-block-tools {display:block;flex:none;box-sizing:border-box;max-width:100%;padding:10px 12px;border:1px solid #bdcfd8;border-radius:8px;background:#f8fbfc;box-shadow:0 2px 10px #1d344309;text-align:left;}
+.tailor-block-tools.is-floating {position:absolute;right:8px;z-index:8;}
+.tailor-active-block {font:650 12px/1.4 system-ui;color:#243e50;overflow-wrap:anywhere;}
+.tailor-block-tools .tailor-preview-status {display:inline-block;margin:0 0 0 8px;}
+.tailor-block-close {float:right;min-width:28px;}
+.tailor-block-actions {display:flex;flex-wrap:wrap;gap:5px;padding-top:8px;clear:both;}
+.tailor-block-actions button {min-height:32px;}
+.section-editor #editor-preview-text .cv-block.is-tailor-reviewed {outline:1.5px solid #007f82;outline-offset:3px;background:transparent;}
+.section-editor.discovery-enabled .chat-messages.is-tailor-preparing {gap:12px;}
+.section-editor .tailor-progress {display:flex;flex-direction:column;align-items:center;flex:0 0 auto;min-block-size:100%;box-sizing:border-box;margin:0;}
+.tailor-progress::before,.tailor-progress::after {content:'';flex:1.15 0 0;}.tailor-progress::before {flex-grow:.85;}
+.section-editor .tailor-progress-card {width:calc(100% - 24px);max-width:600px;box-sizing:border-box;padding:30px;border:1px solid var(--editor-line,#d8e3e9);border-radius:12px;background:#f6fafa;box-shadow:0 3px 14px #17344206;text-align:left;}
+.section-editor .tailor-progress-card h2 {margin:14px 0 12px;font:700 24px/1.25 system-ui;letter-spacing:-.035em;color:#1d3443;}
+.section-editor .tailor-progress-card p {margin:0;font:400 15px/1.6 system-ui;color:#586d7c;}
+.tailor-activity {display:block;width:20px;height:20px;border:2px solid #c9dedf;border-top-color:#007f82;border-radius:50%;animation:tailor-wait 1s linear infinite;}
+@keyframes tailor-wait {to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.tailor-activity {animation:none;}}
+@media screen {::highlight(drafted-tailor-after) {background:#d6f3ef;color:#07575a;}::highlight(drafted-tailor-before) {background:#fce8ed;color:#87223d;text-decoration:line-through;}}
+@media print {.tailor-block-tools,.tailor-progress {display:none!important;}}
 /* --- end import: ./components/tailor-review.css --- */
 
 

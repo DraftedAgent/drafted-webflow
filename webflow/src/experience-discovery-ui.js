@@ -33,13 +33,6 @@
     }
     function requirements(q){const c=session.snapshot().context;return q.signalRefs.map(ref=>{const value=c.jobContext[ref.field][ref.index];return typeof value==='string'?value:value.signal;});}
     function requirementList(q,host){const list=el('ul');for(const text of requirements(q))list.append(el('li',text));host.append(list);}
-    function followupPrompt(text,language){
-      const answer=text.trim().replace(/[.!]+$/,'');
-      const sv=language==='sv';
-      if(/^(kanske|maybe)$/i.test(answer))return sv?'Vad är du osäker på?':'What are you unsure about?';
-      if(/^(jag var med|i was involved|i helped(?: a little)?)$/i.test(answer))return sv?'Vad gjorde du själv, om något?':'What did you do yourself, if anything?';
-      return sv?'Kan du beskriva ett konkret tillfälle, om du har något exempel?':'Can you describe one specific occasion, if you have an example?';
-    }
     function outcome(){
       const state=getTailorState();
       container.append(el('h2',state==='ready'?'Ready to tailor your CV.':'Review your answers'));
@@ -65,11 +58,15 @@
         const q=session.current(),followup=r.phase==='followup',progress=el('p',followup?`Follow-up · Question ${r.index-batchStart+1} of ${r.total-batchStart}`:`${r.index-batchStart+1}/${r.total-batchStart}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index-batchStart+1} of ${r.total-batchStart}`);container.append(progress);
         let originalContext=null;
         if(followup){
-          const answer=session.snapshot().answers.find(a=>a.id===q.answerId),text=answer.revisions.at(-1).text,context=el('div',null,'discovery-followup-context');
-          context.append(el('p','Your previous answer','discovery-result-label'),el('blockquote',text,'discovery-answer discovery-previous-answer'));
-          container.append(context,el('h2',followupPrompt(text,r.language)));
+          let source;try{source=session.followupContext();}catch{}
+          const context=el('section',null,'discovery-followup-context');context.setAttribute('aria-label','Follow-up context');
+          if(source){for(const [index,turn] of source.turns.entries()){
+            const pair=el('div',null,'discovery-followup-turn');pair.dataset.answerId=turn.answerId;pair.dataset.answerRevision=String(turn.answerRevision);
+            pair.append(el('p',index===0?'Original question':'Earlier follow-up question','discovery-result-label'),el('p',turn.question,'discovery-source-question'),el('p',index===0?'Your answer':'Your follow-up answer','discovery-result-label'),el('blockquote',turn.answer,'discovery-answer discovery-previous-answer'));context.append(pair);
+          }}else context.append(el('p','The source for this follow-up is unavailable. Return to your answers to review it.'));
+          container.append(context,el('p','Follow-up question','discovery-followup-label'),el('h2',source?.question||'Follow-up context unavailable'));
           originalContext=el('details',null,'discovery-original-context');originalContext.open=!!originalContextOpen;
-          originalContext.append(el('summary','View original question and job context'),el('p',q.question,'discovery-history-question'),el('p','Job context','discovery-result-label'));requirementList(q,originalContext);
+          originalContext.append(el('summary','View job context'));requirementList(q,originalContext);
         }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
         const actions=el('div');actions.className='discovery-question-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Answer actions');
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));

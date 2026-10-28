@@ -1,6 +1,6 @@
 'use strict';
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spawn}=require('node:child_process'),path=require('node:path'),fs=require('node:fs'),{createHandler}=require('../backend/experience-discovery.cjs');
-const root=path.resolve(__dirname,'..'),out=path.join(root,'output/pdf/experience-intro');fs.mkdirSync(out,{recursive:true});
+const root=path.resolve(__dirname,'..'),out=path.join(root,'output/pdf/experience-intro-card');fs.mkdirSync(out,{recursive:true});
 (async()=>{const child=spawn(process.execPath,[path.join(root,'tools/serve-editor-preview.cjs')],{env:{...process.env,PORT:'0',DRAFTED_PREVIEW_SCENARIO:'sources-batches'},stdio:['ignore','pipe','pipe']});let browser;
 try{
  const base=await new Promise((resolve,reject)=>{let text='';child.stdout.on('data',chunk=>{text+=chunk;const m=text.match(/http:\/\/127\.0\.0\.1:\d+\//);if(m)resolve(m[0]);});child.on('error',reject);});browser=await chromium.launch({headless:true,channel:'msedge'});
@@ -21,10 +21,11 @@ try{
  assert.match(await t.guide.innerText(),/Answer 5 questions to uncover experience relevant to this role\./);assert.equal(await t.guide.locator('h2,p,button').count(),3);assert(!/We have|Start with|Apply|afterwards/.test(await t.guide.innerText()));
  // System introduction alone does not start a conversation or push the group away.
  await t.host.evaluate(host=>{const note=document.createElement('div');note.className='chat-message system';note.textContent='Your CV is ready.';host.append(note);});await t.page.waitForFunction(()=>document.querySelector('.chat-messages').classList.contains('is-discovery-start'));assert.equal(await t.page.getByText('Your CV is ready.',{exact:true}).isVisible(),false);
- for(const size of [{width:1536,height:1000},{width:1024,height:768},{width:390,height:844},{width:320,height:568},{width:844,height:390}]){
+ for(const size of [{width:1920,height:1080},{width:1536,height:1000},{width:1440,height:1000},{width:1024,height:768},{width:390,height:844},{width:320,height:568},{width:844,height:390}]){
   await t.page.setViewportSize(size);await t.page.locator('.section-editor').evaluate(el=>el.scrollIntoView({behavior:'instant'}));await t.host.evaluate(el=>el.scrollTop=0);
-  const g=await t.guide.boundingBox(),h=await t.host.boundingBox(),c=await t.page.locator('.workspace-composer').boundingBox();assert(g.width<=440.5);assert(Math.abs((g.x+g.width/2)-(h.x+h.width/2))<10);assert(h.y+h.height<=c.y+1,'composer stays below the scrolling area');assert.equal(await t.input.isVisible(),true);
-  if(g.height<h.height)assert(Math.abs((g.y+g.height/2)-(h.y+h.height/2))<8,'start group centered in left work area');
+  const g=await t.guide.boundingBox(),h=await t.host.boundingBox(),c=await t.page.locator('.workspace-composer').boundingBox();assert(g.width<=600.5);assert(Math.abs((g.x+g.width/2)-(h.x+h.width/2))<10);assert(h.y+h.height<=c.y+1,'composer stays below the scrolling area');assert.equal(await t.input.isVisible(),true);
+  if(g.height<h.height){const offset=(g.y+g.height/2)-(h.y+h.height/2);assert(offset<=2&&offset>=-h.height*.12,'start card slightly above the middle');}
+  const typography=await t.guide.locator('h2').evaluate(el=>{const range=document.createRange();range.selectNodeContents(el);return {lines:range.getClientRects().length,whiteSpace:getComputedStyle(el).whiteSpace,fontSize:parseFloat(getComputedStyle(el).fontSize),breaks:el.querySelectorAll('br').length};});assert(typography.fontSize>=22);assert.equal(typography.breaks,0);assert.notEqual(typography.whiteSpace,'nowrap');if(size.width>=1440)assert.equal(typography.lines,1,`${size.width}px desktop heading must fit on one line`);
   for(const target of [t.guide.locator('h2'),t.guide.getByRole('button',{name:'Review questions',exact:true})]){await target.scrollIntoViewIfNeeded();const r=await target.boundingBox(),pane=await t.host.boundingBox();assert(r.y>=pane.y-1&&r.y+r.height<=pane.y+pane.height+1,'heading/button reachable without composer overlap: '+JSON.stringify({size,r,pane,c}));}
   assert.equal(await t.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await t.page.screenshot({path:path.join(out,`start-${size.width}x${size.height}.png`)});
  }
@@ -36,5 +37,5 @@ try{
  const zero=await open({zero:true});assert.equal(await zero.guide.isVisible(),false);assert.equal(await zero.host.evaluate(el=>el.classList.contains('is-discovery-start')),false);await zero.close();
  const missing=await open({sample:false});assert.equal(await missing.guide.isVisible(),false);await missing.close();
  const removed=await open();await removed.page.locator('#job-ad-input').fill('');assert.equal(await removed.guide.isVisible(),false);assert.equal(await removed.page.locator('.discovery-launcher').isVisible(),false);await removed.close();
- console.log('PASS fresh upload, 5/1 dynamic questions, system-only intro, centered geometry/scroll at five sizes, form/back, chat/tab access, detached tailoring proposal, zero/missing job context; zero external calls');
+ console.log('PASS balanced card, one-line heading at1440/1536/1920, natural wrapping/scroll at seven sizes, dynamic5/1, unchanged start gates/form/chat/proposal/context; zero external calls');
 }finally{if(browser)await browser.close();child.kill();}})().catch(e=>{console.error(e);process.exitCode=1;});

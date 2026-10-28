@@ -534,9 +534,10 @@ maybeShowTailor();
      function refreshTailorPresentation() {
        tailorReviewCheck?.();
        const state=tailorPresentationState();
-       document.querySelectorAll('.tailor-progress').forEach(node=>node.remove());
+       chatMessagesEl?.classList.toggle('is-tailor-preparing',state==='preparing');
+       if(state!=='preparing')document.querySelectorAll('.tailor-progress').forEach(node=>node.remove());
        if(state==='preparing'){
-         const progress=document.createElement('p');progress.className='tailor-progress';progress.setAttribute('role','status');progress.textContent='Preparing your suggestions…';chatMessagesEl.prepend(progress);
+         if(!chatMessagesEl.querySelector('.tailor-progress')){const progress=document.createElement('section');progress.className='tailor-progress';progress.setAttribute('role','status');progress.setAttribute('aria-live','polite');progress.setAttribute('aria-atomic','true');const card=document.createElement('div');card.className='tailor-progress-card';const activity=document.createElement('span');activity.className='tailor-activity';activity.setAttribute('aria-hidden','true');const heading=document.createElement('h2');heading.textContent='Preparing your suggestions';const note=document.createElement('p');note.textContent='We’re using your CV and available answers to prepare a suggestion for your review.';card.append(activity,heading,note);progress.append(card);chatMessagesEl.prepend(progress);chatMessagesEl.scrollTop=0;}
        }
        if(state!=='applied')chatMessagesEl?.querySelector('.tailor-applied-message')?.remove();
        if(state==='ready'&&window.__DRAFTED_JOBCONTEXT__&&documentBlocksState?.length)setTailorReady();else setTailorHidden();
@@ -590,6 +591,7 @@ maybeShowTailor();
        }
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
        card.classList.add('tailor-review');
+       card.dataset.proposalId=crypto.randomUUID();
        const header=add('header','');header.className='tailor-review-header';
        add('h2',`${changed.length} changed ${changed.length===1?'block':'blocks'}`,header);
        const status=add('span','Not applied',header);status.className='tailor-review-status';
@@ -611,7 +613,7 @@ maybeShowTailor();
        const previewDialog=document.getElementById('cv-preview-dialog');previewDialog?.addEventListener('close',endPreview);
        const navigate=block=>{
          if(!checkCurrent())return;
-         if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,controls:document.querySelector('.workspace-preview-title'),candidate:data,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
+         if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:data,baseline:request,proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
          tailorCvPreview.navigate(block.blockId);
        };
        // Actual text changes drive the review; source receipts stay optional.

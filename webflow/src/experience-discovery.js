@@ -10,6 +10,12 @@
     if(/^(no|nej)$/.test(answer)||/^(?:no,? )?i (?:haven't|have not|have never) done (?:that|this)(?: yet)?$/.test(answer))return true;
     return answer==='not externally'&&/\b(customers?|clients?|external(?:ly)?)\b/i.test(question)&&!/\b(internal|colleagues?)\b/i.test(question);
   }
+  function followupQuestion(text,language){
+    const answer=text.trim().replace(/[.!]+$/,''),sv=language==='sv';
+    if(/^(kanske|maybe)$/i.test(answer))return sv?'Vad är du osäker på?':'What are you unsure about?';
+    if(/^(jag var med|i was involved|i helped(?: a little)?)$/i.test(answer))return sv?'Vad gjorde du själv, om något?':'What did you do yourself, if anything?';
+    return sv?'Kan du beskriva ett konkret tillfälle, om du har något exempel?':'Can you describe one specific occasion, if you have an example?';
+  }
   class Session{
     constructor({id=()=>globalThis.crypto.randomUUID()}={}){this.id=id;this.state={modelVersion:'source-answers-2',revision:0,context:null,round:null,answers:[]};}
     snapshot(){return copy(this.state);}
@@ -51,7 +57,8 @@
       if(isFollowup&&previous&&!negative&&!/^\s*(i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
       if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       const experienceContext=a.revisions.at(-1)?.experienceContext;
-      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(experienceContext?{experienceContext:copy(experienceContext)}:{}),...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
+      const followupOf=isFollowup?copy(q.followup):null;
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(experienceContext?{experienceContext:copy(experienceContext)}:{}),...(isFollowup?{followupReply:reply,followupOf}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
       if(negative){a.status=q.status='no';this.advance();return;}
       if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
       if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(reply)){this.askFollowup();return;}
@@ -68,7 +75,19 @@
       a.drafts=copy(drafts);for(const later of r.reserve||[])if(later.status==='unanswered'&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';a.status=q.status='recorded';this.state.revision++;if(background){for(const later of this.allQuestions()){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
     }
     settleBackground(){const r=this.round();if(r.phase!=='complete'||r.finishedEarly)return;const index=r.queue.findIndex(q=>q.status==='needs_detail'&&!q.followupUsed);if(index>=0){r.index=index;this.askFollowup();}}
-    askFollowup(){const r=this.round(),q=this.current(),a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='needs_detail';q.status='needs_detail';if(!q.followupUsed){q.followupUsed=true;r.phase='followup';r.notice='Can you give one specific example in response to the original question?';}else this.advance();}
+    askFollowup(){const r=this.round(),q=this.current(),a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='needs_detail';q.status='needs_detail';if(!q.followupUsed){const revision=a?.revisions.find(v=>v.revision===a.currentRevision);if(!revision)throw Error('FOLLOWUP_SOURCE_UNAVAILABLE');q.followup={roundId:r.id,questionId:q.id,answerId:a.id,answerRevision:revision.revision,question:followupQuestion(revision.text,r.language)};q.followupUsed=true;r.phase='followup';r.notice='Can you give one specific example in response to the original question?';}else this.advance();}
+    followupContext(){
+      const r=this.round(),ref=this.current()?.followup,seen=new Set();
+      const resolve=link=>{
+        if(!link||link.roundId!==r.id||typeof link.question!=='string')throw Error('FOLLOWUP_SOURCE_UNAVAILABLE');
+        const q=r.queue.find(q=>q.id===link.questionId),a=this.state.answers.find(a=>a.id===link.answerId&&a.roundId===r.id&&a.questionId===link.questionId),revision=a?.revisions.find(v=>v.revision===link.answerRevision),key=link.answerId+':'+link.answerRevision;
+        if(!q||!revision||seen.has(key))throw Error('FOLLOWUP_SOURCE_UNAVAILABLE');seen.add(key);
+        if(!revision.followupOf)return [{question:q.question,answer:revision.text,answerId:a.id,answerRevision:revision.revision}];
+        if(revision.followupOf.answerId!==a.id||revision.followupOf.questionId!==q.id||revision.followupOf.answerRevision>=revision.revision||typeof revision.followupReply!=='string')throw Error('FOLLOWUP_SOURCE_UNAVAILABLE');
+        return [...resolve(revision.followupOf),{question:revision.followupOf.question,answer:revision.followupReply,answerId:a.id,answerRevision:revision.revision}];
+      };
+      return copy({turns:resolve(ref),question:ref.question});
+    }
     advance(){const r=this.round(),covered=new Set(this.state.answers.filter(a=>a.roundId===r.id&&a.status==='recorded').flatMap(a=>a.drafts.flatMap(d=>d.coveredQuestionIds)));r.index++;let n=0;
       while(r.index<r.total){const q=r.queue[r.index];if(covered.has(q.id)&&q.status==='unanswered'){q.status='covered';n++;}if(!['recorded','covered','skipped','no','unknown','processing','error','needs_detail'].includes(q.status))break;r.index++;}
       r.notice=n?(r.language==='sv'?'Ditt svar besvarade också en senare fråga.':'Your answer also covered a later question.'):'';r.phase=r.index>=r.total?'complete':'question';
