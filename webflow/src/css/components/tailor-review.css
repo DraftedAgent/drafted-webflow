@@ -1,0 +1,56 @@
+/* Detached text review only; no changes to pane proportions or CV geometry. */
+@media screen {
+  .section-editor .tailor-review {
+    display:flex;flex-direction:column;flex:0 0 auto;min-height:0;max-height:100%;
+    box-sizing:border-box;padding:0;background:#fff;overflow:hidden;
+    border:1px solid var(--editor-line,#d8e3e9);border-radius:7px;
+  }
+  .section-editor .tailor-review-header {display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;padding:16px 16px 12px;flex:none;}
+  .section-editor .tailor-review-header h2 {font:700 16px/1.4 system-ui;margin:0;}
+  .section-editor .tailor-review-header p {flex-basis:100%;margin:0;font:13px/1.5 system-ui;color:#526778;}
+  .section-editor .tailor-review-status {padding:2px 7px;border:1px solid #e5ba6d;border-radius:5px;background:#fff8e9;color:#835010;font:600 11px/1.5 system-ui;}
+  .section-editor .tailor-review-body {min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 14px 14px;scroll-padding:10px;}
+  .section-editor .tailor-block-change {padding:13px;border:1px solid #dce5eb;border-radius:6px;background:#fff;}
+  .section-editor .tailor-block-change+.tailor-block-change {margin-top:12px;}
+  .section-editor .tailor-block-title {display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;}
+  .section-editor .tailor-block-title h3 {flex:1 1 140px;margin:0;font:650 14px/1.5 system-ui;color:var(--editor-ink,#1d3443);}
+  .section-editor .tailor-review-link {flex:none;margin:0;padding:2px 0;min-height:28px;border:0;border-radius:0;background:transparent;color:#006a70;font:600 11px/1.5 system-ui;text-decoration:underline;text-underline-offset:3px;}
+  .section-editor .tailor-edit {margin-top:10px;}
+  .section-editor .tailor-edit+.tailor-edit {padding-top:12px;border-top:1px solid #edf1f4;}
+  .section-editor .tailor-edit-kind {display:inline-block;margin:0 0 9px;padding:2px 7px;border-radius:12px;background:#e1f4f3;color:#00656a;font:650 10px/1.6 system-ui;letter-spacing:.025em;text-transform:uppercase;}
+  .section-editor .tailor-kind-removed {background:#fce8ed;color:#9b2545;}
+  .section-editor .tailor-diff-row {display:grid;grid-template-columns:48px minmax(0,1fr);gap:8px;margin-top:8px;align-items:start;}
+  .section-editor .tailor-diff-label {padding-top:2px;font:650 10px/1.5 system-ui;text-transform:uppercase;letter-spacing:.04em;color:#596e7e;}
+  .section-editor .tailor-diff-row+.tailor-diff-row .tailor-diff-label {color:#006a70;}
+  .section-editor .tailor-diff-text {white-space:pre-wrap;overflow-wrap:anywhere;min-width:0;font:14px/1.65 system-ui;color:#243e50;tab-size:4;}
+  .section-editor .tailor-diff-text mark,.section-editor .tailor-diff-text del {color:inherit;box-decoration-break:clone;-webkit-box-decoration-break:clone;border-radius:2px;padding:1px 0;}
+  .section-editor .tailor-diff-text .tailor-mark-added {background:#d6f3ef;color:#07575a;}
+  .section-editor .tailor-diff-text .tailor-mark-before {background:#e8edf2;}
+  .section-editor .tailor-diff-text .tailor-mark-removed {background:#fce8ed;color:#87223d;text-decoration-thickness:1px;}
+  .section-editor .tailor-diff-added,.section-editor .tailor-diff-removed {grid-template-columns:24px minmax(0,1fr);}
+  .section-editor .tailor-diff-symbol {display:flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:50%;font:500 19px/1 system-ui;background:#e1f5f2;color:#00666b;}
+  .section-editor .tailor-diff-removed .tailor-diff-symbol {background:#fce8ed;color:#9b2545;}
+  .section-editor .tailor-spacing-note {display:block;color:#526778;font-size:12px;font-style:italic;}
+  .section-editor .tailor-review-footer {flex:none;padding:12px 16px 10px;background:#fff;border-top:1px solid var(--editor-line,#d8e3e9);}
+  .section-editor .tailor-review-footer .tailor-actions {display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:10px;margin:0;}
+  .section-editor .tailor-review-footer button {min-height:38px;padding:8px 10px;margin:0;font-weight:600;}
+  .section-editor .tailor-review-footer .tailor-current-notice {font:11px/1.5 system-ui;color:#526778;margin:7px 0 0;}
+  .section-editor .tailor-review.is-stale .tailor-review-status {background:#fff1df;border-color:#d7a65d;color:#79430c;}
+  .section-editor .tailor-change-details {border-top:1px solid #dce5eb;padding-top:12px;margin:14px 0 0;}
+  .section-editor .tailor-change-details summary {font:600 12px/1.5 system-ui;color:#486272;}
+  .section-editor .tailor-change-details h3 {font:650 13px/1.5 system-ui;margin:14px 0 4px;}
+  .section-editor .tailor-change-details blockquote {padding:9px;border-left:2px solid #c4d6df;background:#f6f9fb;}
+  .section-editor #editor-preview-text .cv-block.is-tailor-reviewed {outline:2px solid #007f82;outline-offset:3px;background:#dff3ee;}
+  @media(max-width:700px) {
+    .section-editor .tailor-review-header {padding:10px 11px 8px;gap:4px 8px;}
+    .section-editor .tailor-review-header h2 {font-size:14px;}
+    .section-editor .tailor-review-header p {font-size:12px;}
+    .section-editor .tailor-review-body {padding:0 9px 9px;}
+    .section-editor .tailor-block-change {padding:10px;}
+    .section-editor .tailor-diff-row {grid-template-columns:minmax(0,1fr);gap:3px;}
+    .section-editor .tailor-diff-added,.section-editor .tailor-diff-removed {grid-template-columns:22px minmax(0,1fr);gap:6px;}
+    .section-editor .tailor-diff-text {font-size:13px;}
+    .section-editor .tailor-review-footer {padding:8px 10px;}
+    .section-editor .tailor-review-footer button {font-size:12px;}
+  }
+}

@@ -1329,6 +1329,62 @@
 /* Review actual CV text differences independently of answer receipts. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedTailorChangePreview=api;})(globalThis,function(){
  'use strict';
+ // Word/punctuation tokens retain every code point, including whitespace. Limit
+ // diff work for unrelated long texts; the fallback still shows the whole edit.
+ const tokens=text=>text.match(/[\p{L}\p{N}\p{M}_]+|[^\p{L}\p{N}\p{M}_]/gu)||[];
+ function wordDiff(before,after){
+  const a=tokens(before),b=tokens(after);let start=0,end=0;
+  while(start<a.length&&start<b.length&&a[start]===b[start])start++;
+  while(end<a.length-start&&end<b.length-start&&a[a.length-end-1]===b[b.length-end-1])end++;
+  const x=a.slice(start,a.length-end),y=b.slice(start,b.length-end),ops=[];
+  const push=(type,text)=>{if(!text)return;const last=ops.at(-1);if(last?.type===type)last.text+=text;else ops.push({type,text});};
+  push('equal',a.slice(0,start).join(''));
+  const trace=[],v=new Map([[1,0]]);let work=0,found=false;
+  search:for(let d=0;d<=Math.min(x.length+y.length,300);d++){
+   trace.push(new Map(v));
+   for(let k=-d;k<=d;k+=2){
+    if(++work>500000)break search;
+    let i=k===-d||k!==d&&(v.get(k-1)??-1)<(v.get(k+1)??-1)?v.get(k+1):v.get(k-1)+1,j=i-k;
+    while(i<x.length&&j<y.length&&x[i]===y[j]){i++;j++;if(++work>500000)break search;}
+    v.set(k,i);
+    if(i>=x.length&&j>=y.length){found=true;break search;}
+   }
+  }
+  if(found){
+   let i=x.length,j=y.length;const reversed=[];
+   for(let d=trace.length-1;d>0;d--){
+    const prev=trace[d],k=i-j,pk=k===-d||k!==d&&(prev.get(k-1)??-1)<(prev.get(k+1)??-1)?k+1:k-1,pi=prev.get(pk),pj=pi-pk;
+    while(i>pi&&j>pj){reversed.push({type:'equal',text:x[--i]});j--;}
+    if(i===pi)reversed.push({type:'add',text:y[--j]});else reversed.push({type:'remove',text:x[--i]});
+   }
+   while(i>0&&j>0){reversed.push({type:'equal',text:x[--i]});j--;}
+   while(i>0)reversed.push({type:'remove',text:x[--i]});while(j>0)reversed.push({type:'add',text:y[--j]});
+   for(const op of reversed.reverse())push(op.type,op.text);
+  }else{push('remove',x.join(''));push('add',y.join(''));}
+  push('equal',end?a.slice(a.length-end).join(''):'');return ops;
+ }
+ function context(text,tail){
+  if(text.length<=100)return text;
+  return tail?'…'+text.slice(-100).replace(/^\S*\s/,''):text.slice(0,100).replace(/\s\S*$/,'')+'…';
+ }
+ function edits(before,after){
+  const ops=wordDiff(before,after),out=[];
+  for(let i=0;i<ops.length;i++){
+   if(ops[i].type==='equal')continue;
+   const from=i;let to=i;
+   while(to+1<ops.length){
+    if(ops[to+1].type!=='equal'){to++;continue;}
+    if(to+2<ops.length&&ops[to+1].text.length<70&&!/\n/.test(ops[to+1].text)){to+=2;continue;}break;
+   }
+   const middle=ops.slice(from,to+1),removed=middle.filter(o=>o.type==='remove').map(o=>o.text).join(''),added=middle.filter(o=>o.type==='add').map(o=>o.text).join('');
+   const kind=!removed?'Added':!added?'Removed':'Rewritten';
+   // A complete appended/removed sentence or paragraph needs no repeated block.
+   const standalone=kind!=='Rewritten'&&(/\n/.test(added||removed)||/^\s*[•*\-]/.test(added||removed)||/[.!?]\s*$/.test(added||removed));
+   const leading=standalone?'':context(ops[from-1]?.text||'',true),trailing=standalone?'':context(ops[to+1]?.text||'',false);
+   const runs=side=>[...(leading?[{type:'equal',text:leading}]:[]),...middle.filter(o=>o.type!==(side==='before'?'add':'remove')),...(trailing?[{type:'equal',text:trailing}]:[])];
+   out.push({kind,before:runs('before'),after:runs('after'),removed,added,standalone});i=to;
+  }return out;
+ }
  function paragraph(text,start,end){while(start<end&&/\s/.test(text[start]))start++;const before=text.lastIndexOf('\n\n',start),after=text.indexOf('\n\n',end);return text.slice(before<0?0:before+2,after<0?text.length:after);}
  function changes(previous,next){
   const out=[];
@@ -1336,10 +1392,10 @@
    let from=0,end=0;while(from<old.text.length&&from<b.text.length&&old.text[from]===b.text[from])from++;
    while(end<old.text.length-from&&end<b.text.length-from&&old.text[old.text.length-1-end]===b.text[b.text.length-1-end])end++;
    const removed=old.text.slice(from,old.text.length-end),added=b.text.slice(from,b.text.length-end);
-   out.push({blockId:b.blockId,action:!added?'Remove':!removed?'Add':'Update',text:added?paragraph(b.text,from,b.text.length-end):paragraph(old.text,from,old.text.length-end)});
+   out.push({blockId:b.blockId,action:!added?'Remove':!removed?'Add':'Update',text:added?paragraph(b.text,from,b.text.length-end):paragraph(old.text,from,old.text.length-end),edits:edits(old.text,b.text)});
   }return out;
  }
- return {changes};
+ return {changes,wordDiff};
 });
 
 ;
@@ -1389,7 +1445,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-27-preparation-modal");
+console.log("DRAFTED_JS_SOURCE", "2026-10-28-tailor-review");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1408,6 +1464,8 @@ let discoveryController = null;
 let discoveryCvFile = null;
 let tailorInFlight = false;
 let tailorAppliedStamp = null;
+let tailorReviewCheck = null;
+let tailorReviewDispose = null;
 const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_URL==="https://drafted.app.n8n.cloud/webhook/tailor-cv")||['localhost','127.0.0.1'].includes(location.hostname)&&draftedEndpoints.tailorSources===true&&draftedEndpoints.tailor==='/preview-api/tailor';
 const tailorSourceLedger=new DraftedTailorSources.Ledger();
 
@@ -1906,6 +1964,7 @@ maybeShowTailor();
      }
 
      function refreshTailorPresentation() {
+       tailorReviewCheck?.();
        const state=tailorPresentationState();
        document.querySelectorAll('.tailor-progress').forEach(node=>node.remove());
        if(state==='preparing'){
@@ -1917,10 +1976,13 @@ maybeShowTailor();
      }
 
      function showTailorSuggestion(data, stamp, request, omittedContext=new Set()) {
+       // Own the review snapshots independently of transport and editor state.
+       data=deepClone(data);request=deepClone(request);
+       tailorReviewDispose?.();
        document.querySelectorAll('.tailor-suggestion').forEach(card=>card.remove());
        const card=document.createElement('section');card.className='tailor-suggestion discovery-guidance';card.setAttribute('aria-label','Tailoring suggestion');
        const add=(tag,text,host=card)=>{const node=document.createElement(tag);node.textContent=text;host.append(node);return node;};
-       const sectionName=block=>[block?.label||block?.type,block?.employer||block?.institution||block?.title].filter((value,index,all)=>value&&all.indexOf(value)===index).join(' · ');
+       const sectionName=block=>[block?.employer||block?.institution,block?.label||({summary:'Summary',experience:'Experience',education:'Education',skills:'Skills',languages:'Languages',certifications:'Certifications'}[block?.type])||'CV block'].filter((value,index,all)=>value&&all.indexOf(value)===index).join(' · ');
        // Preview actual proposed wording; never invent a new AI summary or use
        // an answer number in place of the change. Full text stays in details.
        const excerpt=text=>{const clean=String(text).replace(/\s+/g,' ').trim();return clean.length<=280?clean:clean.slice(0,280).replace(/\s+\S*$/,'')+'…';};
@@ -1946,15 +2008,58 @@ maybeShowTailor();
          omit.addEventListener('click',()=>{if(!current()){card.remove();showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}showTailorSuggestion(data,stamp,request,new Set([...omittedContext,contextQuestion.answerId]));refreshTailorPresentation();});
          document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;return;
        }
-       const changed=computeChangedBlockIds(documentBlocksState,data.blocks);
+       const changed=computeChangedBlockIds(request.blocks,data.blocks);
+       if(!changed.length){
+         showTailorFeedback('No changes suggested');
+         return;
+       }
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
-       add('h2','Suggested CV');
-       // Review every actual text change, including CV/ad-based wording. Answer
-       // receipts explain provenance in details; they do not define the diff.
+       card.classList.add('tailor-review');
+       const header=add('header','');header.className='tailor-review-header';
+       add('h2',`${changed.length} changed ${changed.length===1?'block':'blocks'}`,header);
+       const status=add('span','Not applied',header);status.className='tailor-review-status';
+       add('p','Review the exact changes below.',header);
+       const body=add('div','');body.className='tailor-review-body';body.tabIndex=0;body.setAttribute('role','group');body.setAttribute('aria-label','Proposed changes');
+       const runs=(host,items,side,standalone=false)=>{
+         host.className='tailor-diff-text';
+         for(const [index,item] of items.entries()){
+           // A separate change row already presents the paragraph boundary.
+           // Keep internal breaks and every whitespace-only edit visible.
+           const text=standalone&&index===0&&items.some(run=>run.text.trim())?item.text.replace(/^(?:\r?\n)+/,''):item.text;
+           if(item.type==='equal')host.append(document.createTextNode(text));
+           else {const mark=add(side==='removed'?'del':'mark',text,host);mark.className=side==='before'?'tailor-mark-before':side==='removed'?'tailor-mark-removed':'tailor-mark-added';}
+         }
+         const marked=items.filter(item=>item.type!=='equal');
+         if(marked.length&&marked.every(item=>!item.text.trim())){host.setAttribute('aria-label','Spacing or line breaks changed');add('span','Spacing or line breaks changed',host).className='tailor-spacing-note';}
+       };
+       let navigationTimer;const highlighted=new Set();
+       const clearHighlight=()=>{clearTimeout(navigationTimer);for(const node of highlighted)node.classList.remove('is-tailor-reviewed');highlighted.clear();};
+       const navigate=block=>{
+         if(!checkCurrent())return;
+         const targets=[...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].filter(node=>node.dataset.blockId===block.blockId),pane=editorPreviewEl.closest('.cv-document');
+         if(!targets.length||!pane)return;
+         clearHighlight();for(const node of targets){node.classList.add('is-tailor-reviewed');highlighted.add(node);}
+         pane.scrollTop+=targets[0].getBoundingClientRect().top-pane.getBoundingClientRect().top-18;
+         navigationNotice.textContent=`Showing ${sectionName(block)} in your current CV. Proposed changes are not applied.`;
+         navigationTimer=setTimeout(clearHighlight,3000);
+       };
+       // Actual text changes drive the review; source receipts stay optional.
        const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);
-       if(proposed.length){const list=add('ul','',fullDetails);list.className='tailor-answer-changes';for(const change of proposed){const item=add('li','',list);add('h3',sectionName(data.blocks.find(b=>b.blockId===change.blockId)),item);add('p',`${change.action}: ${excerpt(change.text)}`,item);}}
-       else add('p','No text changes were suggested.',fullDetails);
-       add('p','Your CV will change when you apply.');
+       for(const change of proposed){
+         const block=data.blocks.find(b=>b.blockId===change.blockId),section=add('section','',body);section.className='tailor-block-change';section.dataset.reviewBlockId=change.blockId;
+         const title=add('div','',section);title.className='tailor-block-title';add('h3',sectionName(block),title);
+         if([...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].some(node=>node.dataset.blockId===block.blockId)){const review=add('button','Review in CV',title);review.type='button';review.className='tailor-review-link';review.setAttribute('aria-label',`Review ${sectionName(block)} in current CV`);review.addEventListener('click',()=>navigate(block));}
+         for(const edit of change.edits){
+           const item=add('div','',section);item.className='tailor-edit';item.dataset.changeKind=edit.kind;
+           add('span',edit.kind,item).className='tailor-edit-kind tailor-kind-'+edit.kind.toLowerCase();
+           if(edit.kind==='Rewritten'){
+             for(const [label,content,side] of [['Before',edit.before,'before'],['After',edit.after,'after']]){const row=add('div','',item);row.className='tailor-diff-row';add('span',label,row).className='tailor-diff-label';runs(add('div','',row),content,side);}
+           }else{
+             const row=add('div','',item);row.className='tailor-diff-row tailor-diff-'+edit.kind.toLowerCase();const symbol=add('span',edit.kind==='Added'?'+':'−',row);symbol.className='tailor-diff-symbol';symbol.setAttribute('aria-hidden','true');
+             runs(add('div','',row),edit.kind==='Added'?edit.after:edit.before,edit.kind==='Added'?'after':'removed',edit.standalone);
+           }
+         }
+       }
        if(data.sourcesSchemaVersion){
          const notes=[];
          for(const [index,q] of request.sourceContext.questions.entries()){
@@ -1973,36 +2078,38 @@ maybeShowTailor();
        for(const review of data.sourceReview||[]){const box=add('section','',fullDetails);box.className='tailor-review-warning';const block=documentBlocksState.find(b=>b.blockId===review.blockId);add('h3','Earlier wording needs review',box);add('p',`${sectionName(block)}: left unchanged because the earlier wording or source could not be matched safely.`,box);for(const g of request.sourceContext.applications.filter(g=>g.blockId===review.blockId))for(const a of g.additions)add('blockquote',a.text,fullDetails);}
        for(const edit of data.cvEdits||[]){const box=add('section','',fullDetails);add('h3',`Existing CV support for ${sectionName(data.blocks.find(b=>b.blockId===edit.blockId))}`,box);for(const source of edit.cvEvidence){add('p',sectionName(request.blocks.find(b=>b.blockId===source.blockId)),box);add('blockquote',source.quote,box);}}
        for(const usage of data.sourceUsage||[]){const box=add('section','',fullDetails);add('h3',`Source for ${sectionName(documentBlocksState.find(b=>b.blockId===usage.blockId))}`,box);add('p',`User answer · revision ${usage.answerRevision}`,box);add('blockquote',usage.sourceQuote,box);if(usage.contextQuote&&usage.contextQuote!==usage.sourceQuote){add('p','Context from your answer',box);add('blockquote',usage.contextQuote,box);}add('p','Proposed wording',box);add('blockquote',usage.proposedQuote,box);}
-       for(const id of changed){
-         const old=documentBlocksState.find(b=>b.blockId===id),next=data.blocks.find(b=>b.blockId===id),details=add('section','',fullDetails);
-         add('h3',sectionName(next),details);add('p','Current',details);add('blockquote',old.text,details);add('p','Suggested',details);add('blockquote',next.text,details);
-       }
-       const actions=add('div','');actions.className='tailor-actions';
-       const apply=add('button','Apply changes',actions);apply.type='button';apply.className='tailor-primary';apply.disabled=!changed.length;
+       if(fullDetails.childElementCount>1)body.append(fullDetails);
+       const footer=add('footer','');footer.className='tailor-review-footer';
+       const actions=add('div','',footer);actions.className='tailor-actions';
+       const apply=add('button','Apply all changes',actions);apply.type='button';apply.className='tailor-primary';
        const dismiss=add('button','Dismiss',actions);dismiss.type='button';
-       const proposedDocument=add('article','');proposedDocument.className='tailor-proposed-cv';proposedDocument.setAttribute('aria-label','Proposed CV');
-       for(const block of [...data.blocks].sort((a,b)=>a.order-b.order)){
-         const section=add('section','',proposedDocument);section.dataset.proposedBlockId=block.blockId;
-         add('h3',block.label||'Section',section);
-         if(block.title||block.degree||block.program)add('h4',block.title||[block.degree,block.program].filter(Boolean).join(', '),section);
-         const metadata=[block.employer||block.institution,[block.startDate,block.endDate].filter(Boolean).join(' – ')].filter(Boolean).join(' · ');if(metadata)add('p',metadata,section).className='tailor-entry-meta';
-         add('p',block.text,section).className='tailor-proposed-text';
-       }
-       if(fullDetails.childElementCount>1)card.append(fullDetails);
+       const navigationNotice=add('p','Your current CV stays unchanged until you apply.',footer);navigationNotice.className='tailor-current-notice';navigationNotice.setAttribute('role','status');
+       let stale=false,settled=false;
+       const checkCurrent=()=>{
+         if(settled)return false;
+         if(stale||stamp!==tailorContextStamp()||isPreviewingProposal){
+           stale=true;apply.disabled=true;status.textContent='Needs update';card.classList.add('is-stale');clearHighlight();
+           navigationNotice.textContent='Your CV, job ad or answers changed. Dismiss this suggestion and tailor again.';
+           return false;
+         }return true;
+       };
+       const dispose=()=>{settled=true;tailorReviewCheck=null;tailorReviewDispose=null;clearHighlight();jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
+       tailorReviewDispose=dispose;
+       tailorReviewCheck=()=>{if(!card.isConnected){dispose();return;}checkCurrent();};
+       jobAdInputEl?.addEventListener('input',checkCurrent);targetRoleInput?.addEventListener('input',checkCurrent);
        apply.addEventListener('click',()=>{
-         if(apply.disabled)return;
-         if(stamp!==tailorContextStamp()||isPreviewingProposal){apply.disabled=true;add('p','Your CV, job ad or answers changed. Tailor again to get a current suggestion.');return;}
-         apply.disabled=true;
+         if(apply.disabled||!checkCurrent())return;
+         apply.disabled=true;dismiss.disabled=true;dispose();
          pendingProposal=null;pendingProposalMeta=null;pendingSuggestion=null;clearAllProposalCards();setApplyLabel();
          if(data.sourcesSchemaVersion)tailorSourceLedger.commit(request,data);
          documentTitle=data.cvTitle;cvVersionId=data.cvVersionId;
-         buildStateFromBlocks(deepClone(data.blocks),{preserveCanonical:!!data.sourcesSchemaVersion});discoveryController?.adoptRepresentation(documentBlocksState,cvVersionId);renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
+         buildStateFromBlocks(deepClone(data.blocks),{preserveCanonical:true});discoveryController?.adoptRepresentation(documentBlocksState,cvVersionId);renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
          card.remove();document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
          tailorAppliedStamp=tailorContextStamp(discoveryController?.sourceContentRevision());
          discoveryController?.showChat(true);refreshTailorPresentation();
          const message=document.createElement('div');message.className='chat-message ai tailor-applied-message';message.setAttribute('role','status');message.textContent='Your CV is updated. What would you like to change?';chatMessagesEl.prepend(message);chatMessagesEl.scrollTop=0;
        });
-       dismiss.addEventListener('click',()=>{card.remove();refreshTailorPresentation();});
+       dismiss.addEventListener('click',()=>{if(settled)return;apply.disabled=true;dismiss.disabled=true;dispose();card.remove();refreshTailorPresentation();});
        chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;
      }
 
@@ -3010,6 +3117,7 @@ function setApplyLabel() {
      RENDER BLOCK HTML
      =============================== */
   function renderDocument(text) {
+    tailorReviewCheck?.();
     const workspaceTitle = document.querySelector('.workspace-document-title');
     if (workspaceTitle) {
       workspaceTitle.textContent = documentTitle || 'Untitled CV';
