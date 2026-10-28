@@ -1545,48 +1545,58 @@
 });
 
 ;
-/* Detached Tailor presentation. Canonical CV data stays with the editor. */
+/* Detached presentation and screen-only review layer; no canonical mutations. */
 (function(global){
-  'use strict';
-  function create({host,controls,candidate,render,isCurrent,onClose}){
-    const model=JSON.parse(JSON.stringify(candidate)),pane=()=>host.closest('.cv-document');
-    const group=document.createElement('div');group.className='tailor-preview-switch';group.setAttribute('role','group');group.setAttribute('aria-label','CV review version');
-    const status=document.createElement('span');status.className='tailor-preview-status';status.textContent='Not applied';status.setAttribute('role','status');
-    let mode='current',anchor=null,pendingAnchor=false,disposed=false,timer;
-    const buttons={};
-    for(const label of ['Current','Suggested']){const button=document.createElement('button');button.type='button';button.textContent=label;button.setAttribute('aria-pressed',String(label==='Current'));button.addEventListener('click',()=>show(label.toLowerCase()));buttons[label.toLowerCase()]=button;group.append(button);}
-    const close=document.createElement('button');close.type='button';close.textContent='×';close.className='tailor-preview-close';close.setAttribute('aria-label','Close CV review');close.addEventListener('click',onClose);group.append(status,close);controls.append(group);
-    function nodes(id){return [...host.querySelectorAll('.cv-block[data-block-id]')].filter(n=>n.dataset.blockId===id);}
-    function capture(){
-      const bounds=pane()?.getBoundingClientRect();if(!bounds)return null;
-      const all=[...host.querySelectorAll('.cv-block[data-block-id]')],node=all.find(n=>{const r=n.getBoundingClientRect();return r.bottom>bounds.top+18&&r.top<bounds.bottom;});
-      return node?{id:node.dataset.blockId,fragment:nodes(node.dataset.blockId).indexOf(node),offset:node.getBoundingClientRect().top-bounds.top}:null;
-    }
-    function restore(saved,highlight=false){
-      const scroll=pane(),matches=saved&&nodes(saved.id);if(!scroll||!matches?.length)return;
-      const target=matches[Math.min(saved.fragment||0,matches.length-1)];scroll.scrollTop+=target.getBoundingClientRect().top-scroll.getBoundingClientRect().top-saved.offset;
-      if(highlight){clearTimeout(timer);host.querySelectorAll('.is-tailor-reviewed').forEach(n=>n.classList.remove('is-tailor-reviewed'));for(const node of matches)node.classList.add('is-tailor-reviewed');timer=setTimeout(()=>host.querySelectorAll('.is-tailor-reviewed').forEach(n=>n.classList.remove('is-tailor-reviewed')),3000);}
-    }
-    function show(next,blockId){
-      if(disposed||!isCurrent())return;
-      anchor=blockId?{id:blockId,fragment:0,offset:18}:capture()||anchor;pendingAnchor=true;mode=next;
-      for(const [key,button] of Object.entries(buttons))button.setAttribute('aria-pressed',String(key===mode));
-      render();
-    }
-    return {
-      suggested:()=>mode==='suggested'&&!disposed,
-      model:()=>mode==='suggested'&&!disposed?model:null,
-      navigate(blockId){show('suggested',blockId);},
-      beforeRender(){if(!pendingAnchor)anchor=capture()||anchor;pendingAnchor=false;},
-      afterRender(){restore(anchor,true);},
-      dispose(){
-        const saved=capture()||anchor;disposed=true;clearTimeout(timer);group.remove();host.querySelectorAll('.is-tailor-reviewed').forEach(n=>n.classList.remove('is-tailor-reviewed'));
-        // The owner clears its presentation reference before requesting Current.
-        Promise.resolve(render()).then(()=>{if(host.dataset.cvPreviewMode==='current')restore(saved);}).catch(()=>{});
-      }
-    };
+ 'use strict';
+ function create({host,candidate,baseline,proposalId,render,isCurrent,onClose}){
+  const copy=x=>JSON.parse(JSON.stringify(x)),model=copy(candidate),before=copy(baseline),pane=host.closest('.cv-document');
+  const stage=document.createElement('div');stage.className='tailor-review-stage';pane.before(stage);stage.append(pane);
+  const group=document.createElement('section');group.className='tailor-preview-switch tailor-block-tools';group.setAttribute('aria-label','Block review');group.dataset.proposalId=proposalId;
+  const label=document.createElement('strong');label.className='tailor-active-block';const status=document.createElement('span');status.className='tailor-preview-status';status.setAttribute('role','status');
+  const actions=document.createElement('div');actions.className='tailor-block-actions';group.append(label,status,actions);stage.prepend(group);
+  let mode='current',activeId=null,anchor=null,navigatePending=false,showChanges=false,disposed=false,frame;
+  const buttons={},names={before:'drafted-tailor-before',after:'drafted-tailor-after'};
+  for(const title of ['Current','Suggested']){const button=document.createElement('button');button.type='button';button.textContent=title;button.setAttribute('aria-pressed',String(title==='Current'));button.addEventListener('click',()=>show(title.toLowerCase()));buttons[title.toLowerCase()]=button;actions.append(button);}
+  const marks=document.createElement('button');marks.type='button';marks.textContent='Show changes';marks.setAttribute('aria-pressed','false');marks.disabled=!global.CSS?.highlights||!global.Highlight;marks.addEventListener('click',()=>{if(!isCurrent())return;showChanges=!showChanges;marks.setAttribute('aria-pressed',String(showChanges));paint();});actions.append(marks);
+  const close=document.createElement('button');close.type='button';close.className='tailor-block-close';close.textContent='×';close.setAttribute('aria-label','Close CV review');close.addEventListener('click',onClose);group.insertBefore(close,actions);
+  const nodes=()=>[...host.querySelectorAll('.cv-block[data-block-id]')].filter(n=>n.dataset.blockId===activeId);
+  function clear(){for(const name of Object.values(names))global.CSS?.highlights?.delete(name);host.querySelectorAll('.is-tailor-reviewed').forEach(n=>n.classList.remove('is-tailor-reviewed'));}
+  function capture(){const bounds=pane.getBoundingClientRect(),matches=nodes(),node=matches.find(n=>n.getBoundingClientRect().bottom>bounds.top+12)||matches[0];return node?{fragment:matches.indexOf(node),offset:node.getBoundingClientRect().top-bounds.top}:anchor;}
+  function place(){
+   if(disposed)return;const target=nodes()[0],page=target?.closest('.cv-page-slot');if(!target||!page){group.classList.remove('is-floating');return;}
+   const bounds=pane.getBoundingClientRect(),paper=page.getBoundingClientRect(),gutter=bounds.right-paper.right-20;group.classList.toggle('is-floating',gutter>=240);
+   if(gutter>=240){group.style.width=Math.min(280,gutter)+'px';const b=stage.getBoundingClientRect();group.style.top=Math.max(8,Math.min(target.getBoundingClientRect().top-b.top,b.height-group.offsetHeight-8))+'px';}
+   else{group.style.removeProperty('width');group.style.removeProperty('top');}
   }
-  global.DraftedTailorCvPreview={create};
+  function restore(center=false){
+   const matches=nodes();if(!matches.length){status.textContent='This block is unavailable in '+(mode==='current'?'Current.':'Suggested.');return;}
+   const bounds=pane.getBoundingClientRect(),first=matches[0].getBoundingClientRect(),last=matches.at(-1).getBoundingClientRect(),height=last.bottom-first.top;
+   const target=center?matches[0]:matches[Math.min(anchor?.fragment||0,matches.length-1)],r=target.getBoundingClientRect(),offset=center?(height>pane.clientHeight-32?16:Math.max(16,(pane.clientHeight-height)/2)):(anchor?.offset??16);
+   pane.scrollTop+=r.top-bounds.top-offset;anchor=capture();status.textContent='Not applied';
+  }
+  function paint(){
+   clear();const matches=nodes();if(!matches.length)return;matches.forEach(n=>n.classList.add('is-tailor-reviewed'));if(!showChanges||marks.disabled)return;
+   const old=before.blocks.find(b=>b.blockId===activeId),next=model.blocks.find(b=>b.blockId===activeId);if(!old||!next)return;
+   const source=[...host.querySelectorAll('[data-cv-source]')].filter(n=>n.dataset.cvSource===activeId),expected=mode==='current'?old.text:next.text;
+   if(source.map(n=>n.textContent).join('')!==expected){status.textContent='Changes cannot be marked safely for this block.';return;}
+   const textNodes=[];let total=0;for(const element of source){const walk=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);let n;while((n=walk.nextNode())){textNodes.push({node:n,start:total,end:total+n.length});total+=n.length;}}
+   let offset=0;const ranges=[];for(const op of global.DraftedTailorChangePreview.wordDiff(old.text,next.text)){
+    if(op.type===(mode==='current'?'add':'remove'))continue;const end=offset+op.text.length;
+    if(op.type!=='equal'&&end>offset){const startNode=textNodes.find(n=>n.end>offset),endNode=textNodes.find(n=>n.end>=end);if(startNode&&endNode){const range=new Range();range.setStart(startNode.node,offset-startNode.start);range.setEnd(endNode.node,end-endNode.start);ranges.push(range);}}offset=end;
+   }
+   global.CSS.highlights.set(names[mode==='current'?'before':'after'],new global.Highlight(...ranges));
+  }
+  function show(next,id){
+   if(disposed||!isCurrent())return;if(id){activeId=id;anchor=null;navigatePending=true;}else anchor=capture();mode=next;
+   const block=model.blocks.find(b=>b.blockId===activeId);label.textContent=block?[block.employer||block.institution||block.label||block.type,block.title].filter(Boolean).join(' · '):'Unavailable block';group.dataset.blockId=activeId;
+   for(const [key,button] of Object.entries(buttons))button.setAttribute('aria-pressed',String(key===mode));render();
+  }
+  function schedule(){cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{place();paint();});}
+  pane.addEventListener('scroll',schedule,{passive:true});host.addEventListener('cv-view-scale',schedule);const resize=new ResizeObserver(schedule);resize.observe(stage);
+  return {suggested:()=>mode==='suggested'&&!disposed,model:()=>mode==='suggested'&&!disposed?model:null,navigate(id){show('suggested',id);},beforeRender(){if(!navigatePending)anchor=capture();clear();},afterRender(){place();restore(navigatePending);navigatePending=false;paint();place();},
+   dispose(){anchor=capture();disposed=true;cancelAnimationFrame(frame);resize.disconnect();pane.removeEventListener('scroll',schedule);host.removeEventListener('cv-view-scale',schedule);clear();group.remove();stage.replaceWith(pane);Promise.resolve(render()).then(()=>{if(host.dataset.cvPreviewMode==='current'&&activeId)restore();}).catch(()=>{});}};
+ }
+ global.DraftedTailorCvPreview={create};
 })(window);
 
 ;
@@ -1602,7 +1612,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-28-followup-context");
+console.log("DRAFTED_JS_SOURCE", "2026-10-28-tailor-review-layer");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -2126,9 +2136,10 @@ maybeShowTailor();
      function refreshTailorPresentation() {
        tailorReviewCheck?.();
        const state=tailorPresentationState();
-       document.querySelectorAll('.tailor-progress').forEach(node=>node.remove());
+       chatMessagesEl?.classList.toggle('is-tailor-preparing',state==='preparing');
+       if(state!=='preparing')document.querySelectorAll('.tailor-progress').forEach(node=>node.remove());
        if(state==='preparing'){
-         const progress=document.createElement('p');progress.className='tailor-progress';progress.setAttribute('role','status');progress.textContent='Preparing your suggestions…';chatMessagesEl.prepend(progress);
+         if(!chatMessagesEl.querySelector('.tailor-progress')){const progress=document.createElement('section');progress.className='tailor-progress';progress.setAttribute('role','status');progress.setAttribute('aria-live','polite');progress.setAttribute('aria-atomic','true');const card=document.createElement('div');card.className='tailor-progress-card';const activity=document.createElement('span');activity.className='tailor-activity';activity.setAttribute('aria-hidden','true');const heading=document.createElement('h2');heading.textContent='Preparing your suggestions';const note=document.createElement('p');note.textContent='We’re using your CV and available answers to prepare a suggestion for your review.';card.append(activity,heading,note);progress.append(card);chatMessagesEl.prepend(progress);chatMessagesEl.scrollTop=0;}
        }
        if(state!=='applied')chatMessagesEl?.querySelector('.tailor-applied-message')?.remove();
        if(state==='ready'&&window.__DRAFTED_JOBCONTEXT__&&documentBlocksState?.length)setTailorReady();else setTailorHidden();
@@ -2182,6 +2193,7 @@ maybeShowTailor();
        }
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
        card.classList.add('tailor-review');
+       card.dataset.proposalId=crypto.randomUUID();
        const header=add('header','');header.className='tailor-review-header';
        add('h2',`${changed.length} changed ${changed.length===1?'block':'blocks'}`,header);
        const status=add('span','Not applied',header);status.className='tailor-review-status';
@@ -2203,7 +2215,7 @@ maybeShowTailor();
        const previewDialog=document.getElementById('cv-preview-dialog');previewDialog?.addEventListener('close',endPreview);
        const navigate=block=>{
          if(!checkCurrent())return;
-         if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,controls:document.querySelector('.workspace-preview-title'),candidate:data,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
+         if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:data,baseline:request,proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
          tailorCvPreview.navigate(block.blockId);
        };
        // Actual text changes drive the review; source receipts stay optional.

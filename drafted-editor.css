@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-28-followup-context */
+/* drafted-editor.css | build=2026-10-28-tailor-review-layer */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -1690,6 +1690,29 @@ html,body {height:100%;overflow:hidden!important;}
 .tailor-preview-switch button:focus-visible {outline:2px solid #007f86;outline-offset:2px;}
 .tailor-preview-status {margin:0 4px;color:#895017;font:500 12px/1.4 system-ui;white-space:nowrap;}
 @media print {[data-cv-preview-mode=suggested] {display:none!important;}}
+/* The reviewer is outside renderer pages. Use a block-side rail when it fits;
+   otherwise reserve a row so the controls never cover document text. */
+.tailor-review-stage {position:relative;display:flex;flex-direction:column;flex:1 1 0;min-width:0;min-height:0;gap:8px;}
+.tailor-review-stage>.cv-document {flex:1 1 0;min-height:0;width:100%;box-sizing:border-box;}
+.tailor-preview-switch.tailor-block-tools {display:block;flex:none;box-sizing:border-box;max-width:100%;padding:10px 12px;border:1px solid #bdcfd8;border-radius:8px;background:#f8fbfc;box-shadow:0 2px 10px #1d344309;text-align:left;}
+.tailor-block-tools.is-floating {position:absolute;right:8px;z-index:8;}
+.tailor-active-block {font:650 12px/1.4 system-ui;color:#243e50;overflow-wrap:anywhere;}
+.tailor-block-tools .tailor-preview-status {display:inline-block;margin:0 0 0 8px;}
+.tailor-block-close {float:right;min-width:28px;}
+.tailor-block-actions {display:flex;flex-wrap:wrap;gap:5px;padding-top:8px;clear:both;}
+.tailor-block-actions button {min-height:32px;}
+.section-editor #editor-preview-text .cv-block.is-tailor-reviewed {outline:1.5px solid #007f82;outline-offset:3px;background:transparent;}
+.section-editor.discovery-enabled .chat-messages.is-tailor-preparing {gap:12px;}
+.section-editor .tailor-progress {display:flex;flex-direction:column;align-items:center;flex:0 0 auto;min-block-size:100%;box-sizing:border-box;margin:0;}
+.tailor-progress::before,.tailor-progress::after {content:'';flex:1.15 0 0;}.tailor-progress::before {flex-grow:.85;}
+.section-editor .tailor-progress-card {width:calc(100% - 24px);max-width:600px;box-sizing:border-box;padding:30px;border:1px solid var(--editor-line,#d8e3e9);border-radius:12px;background:#f6fafa;box-shadow:0 3px 14px #17344206;text-align:left;}
+.section-editor .tailor-progress-card h2 {margin:14px 0 12px;font:700 24px/1.25 system-ui;letter-spacing:-.035em;color:#1d3443;}
+.section-editor .tailor-progress-card p {margin:0;font:400 15px/1.6 system-ui;color:#586d7c;}
+.tailor-activity {display:block;width:20px;height:20px;border:2px solid #c9dedf;border-top-color:#007f82;border-radius:50%;animation:tailor-wait 1s linear infinite;}
+@keyframes tailor-wait {to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.tailor-activity {animation:none;}}
+@media screen {::highlight(drafted-tailor-after) {background:#d6f3ef;color:#07575a;}::highlight(drafted-tailor-before) {background:#fce8ed;color:#87223d;text-decoration:line-through;}}
+@media print {.tailor-block-tools,.tailor-progress {display:none!important;}}
 /* --- end import: ./components/tailor-review.css --- */
 
 
