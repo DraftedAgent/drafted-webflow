@@ -130,3 +130,9 @@ Misslyckad analys/bekräftelse/anpassning ska lämna CV:t oförändrat. Visa beg
 11. Källsvar, AI-sammanfattning, bekräftad erfarenhet, härledd kompetenstagg och vald CV-representation kan särskiljas. Erfarenhetsidentitet överlever kontextbyte; rättelser invaliderar gamla förslag; annonskrav blir inte personfakta. Framtida retrieval använder aktuella användaravgränsade källor; permanent sparande/radering är separat profilacceptans, inte ett redan genomfört test.
 
 Scenarierna är dokumenterade testkrav, inte körda tester. Ingen formaliserad DD-post skapas utan ägarens separata godkännande.
+
+## DEV-149 — Synligt underlag för följdfrågor (2026-10-28, lokalt)
+
+Följdfrågan får en intern sessionsreferens till omgång, originalfråga, svar-ID och exakt svarrevision vid skapandet; den redan befintliga deterministiska frågetexten sparas samtidigt. Ingen HTTP-/Tailor-profil eller bestående lagring ändras. UI läser den referensen och visar full originalfråga och ordagrant revisionsbundet svar i en öppen kontextyta före aktuell följdfråga. View job context innehåller endast jobbkontext. Långa svar använder panelens vanliga scrollning utan trunkering/intern svarsruta. Svar på en följdfråga behåller intern followupOf-proveniens utöver befintlig originaltext/followupReply; offentliga projektioner är oförändrade.
+
+Nuvarande frågelogik tillåter fortsatt högst en följdfråga per originalfråga. Flera verkliga följdfrågor över olika ämnen är verifierade. Visning av redan dokumenterade flerstegskedjor stöds via revisionsreferenser och har verifierats med syntetisk sessionsdata; detta aktiverar inte fler följdfrågor eller ny AI-logik. Saknad revisionsreferens ger synligt felunderlag, aldrig fallback till senaste svar. Ändringen är lokalt verifierad och inte publicerad; DEV-149 i CHANGE-LOG beskriver avgränsning och tester.

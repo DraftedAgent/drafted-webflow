@@ -28,9 +28,15 @@
 @keyframes discovery-planning-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.workspace-editor-toolbar .discovery-launcher[data-plan-state=loading]::after{animation:none}}
 
-/* Original answer stays compact; question/ad background is optional. */
-.drafted-discovery .discovery-followup-context{margin:8px 0 16px}
-.drafted-discovery .discovery-previous-answer{max-height:6.2em;overflow:auto;overflow-wrap:anywhere;margin:4px 0}
+/* The exact source and original question stay readable in the panel's flow. */
+.drafted-discovery .discovery-followup-context{margin:8px 0 24px;padding:16px 18px;border:1px solid #e0e8ed;border-radius:9px;background:#f4f8fa;color:#405665}
+.drafted-discovery .discovery-followup-context .discovery-result-label{margin:0 0 6px;font:600 13px/1.5 system-ui;color:#526a7a}
+.drafted-discovery .discovery-followup-context .discovery-source-question,
+.drafted-discovery .discovery-followup-context .discovery-previous-answer{max-height:none;overflow:visible;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font:400 15px/1.6 system-ui;border:0;padding:0}
+.drafted-discovery .discovery-followup-context .discovery-source-question{margin-bottom:16px}
+.drafted-discovery .discovery-followup-turn+.discovery-followup-turn{border-top:1px solid #dce5eb;padding-top:16px;margin-top:16px}
+.drafted-discovery .discovery-followup-label{margin:0 0 6px;font:600 13px/1.5 system-ui;color:#007f82}
+.drafted-discovery .discovery-followup-label+h2{font-size:21px;line-height:1.4}
 .drafted-discovery .discovery-original-context{margin-top:16px}
 .drafted-discovery .discovery-result{border:1px solid #dce4e1;border-radius:10px;padding:14px 16px;margin:14px 0;background:#fafcfb}
 .drafted-discovery .discovery-result h3{font-size:15px;line-height:1.5;margin:0 0 8px}

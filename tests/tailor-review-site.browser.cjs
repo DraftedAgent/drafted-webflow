@@ -9,6 +9,7 @@ const envelope=blocks=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'syntheti
  for(const width of [1536,390])for(const changed of [true,false]){
   const page=await browser.newPage({viewport:{width,height:1000}}),outside=[],errors=[],requests=[],posts=[];let response;
   page.on('pageerror',e=>errors.push(e.message));
+  await page.emulateMedia({reducedMotion:'reduce'});
   await page.route('**/*',async route=>{
    const req=route.request(),url=req.url(),u=new URL(url),headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'POST, OPTIONS'};
    if(req.method()==='OPTIONS')return route.fulfill({status:204,headers});
@@ -39,6 +40,9 @@ const envelope=blocks=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'syntheti
   const cv=page.locator('.cv-document-inner'),guide=page.locator('#drafted-discovery-guidance'),review=page.getByRole('region',{name:'Tailoring suggestion',exact:true});
   await page.waitForFunction(()=>document.querySelector('.discovery-launcher')?.dataset.planState==='ready').catch(async e=>{await page.screenshot({path:path.join(out,'failure.png')});console.log(JSON.stringify({posts,errors,outside,ui:await page.locator('.section-editor').innerText()}));throw e;});
   await guide.getByText('Answer 2 questions to uncover experience relevant to this role.',{exact:true}).waitFor();assert.equal(await page.locator('.chat-messages').evaluate(el=>el.classList.contains('is-discovery-start')),true);assert.equal(await page.locator('#editor-input').isVisible(),true);
+  const heading=await guide.locator('h2').evaluate(el=>{const range=document.createRange();range.selectNodeContents(el);return {lines:range.getClientRects().length,overflow:el.scrollWidth>el.clientWidth+1,whiteSpace:getComputedStyle(el).whiteSpace};});assert.equal(heading.overflow,false);assert.notEqual(heading.whiteSpace,'nowrap');if(width===1536)assert.equal(heading.lines,1);
+  await page.locator('.section-editor').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));await page.waitForFunction(()=>Math.abs(document.querySelector('.section-editor').getBoundingClientRect().top)<2);
+  await page.screenshot({path:path.join(out,`${phase}-intro-card-${width}.png`)});
   await guide.getByRole('button',{name:'Review questions',exact:true}).click();await page.getByRole('button',{name:'Back to editor',exact:true}).click();await guide.getByRole('button',{name:'Review questions',exact:true}).waitFor();
   const before=await cv.innerText();await page.locator('#tailor-btn').click();
   if(changed){
