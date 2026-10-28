@@ -1,5 +1,9 @@
 # Current system map
 
+## Revision-scoped context, 2026-10-28 (DEV-141 release)
+
+[Experience-context contract](../contracts/experience-context-v1.md): source-answer Session revisions may retain an explicit version/block reference plus a canonical display snapshot, or unplaced other context. There is no separate persistent experience entity or authenticated ownership database in the inspected path. Browser sessions and client-supplied CV representations remain the existing boundary. Sources1.2 validates request-internal reference consistency and uses the explicit choice instead of parsing Context text. Invalid references remain unresolved; new context creates no CV block. DEV-141 publishes two version-bound Code prefixes after actual isolated n8n execution299 succeeded, preserving older profiles. Backend saved/active27962c92-3fff-487d-a9a0-1138d1545172 verified; the approved frontend release enables its1.2 capability afterward. See the delivery receipt and CHANGE-LOG for served outcome. No profile/RAG implementation or migration.
+
 DEV-025, 2026-10-19: Discovery är nu lokalt integrerat i samma produktionseditor-källkod/bundle, via experience-discovery-editor.js och befintlig Session/Client/UI. Konkreta källsvar går vidare direkt utan individuell faktabekräftelse; tolkningar blir inte bekräftade fakta. Frågesvar och revisioner är separata från CV:t; ingen dold Tailor/evidens-koppling. Read-only GET i denna uppgift verifierar befintlig discovery zeIzzxPwD2Y91OyD på version 18c94502-2224-4f92-956e-c5fa6d5f2758, active=false/activeVersionId=null, sju noder. Ingen extern ändring/körning i DEV-025. Hel editor-preview körs på localhost:8771 med syntetisk provider och alla sex äldre backendvägar isolerade. Se EXPERIENCE-EDITOR-USER-TEST.md för kandidathashar och produktionsgate.
 
 ## Discovery backend – DEV-015, inaktiv / lokalt verifierad

@@ -1,10 +1,10 @@
 /* Negotiated whole-CV edits plus answer-derived additions; shared browser/backend code. */
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'));else root.DraftedTailorSources=factory(root.DraftedTailorSources);})(globalThis,function(legacy){
  'use strict';
- const copy=x=>JSON.parse(JSON.stringify(x)),old=r=>({...r,sourcesSchemaVersion:'1.0'});
+ const copy=x=>JSON.parse(JSON.stringify(x)),old=r=>({...r,sourcesSchemaVersion:r.sourcesSchemaVersion==='1.2'?'1.2':'1.0'});
  function check(ok,code='INVALID_SOURCE_CANDIDATE'){if(!ok)throw Error(code);}
  function exact(o,keys){check(o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===keys.length&&keys.every(k=>Object.hasOwn(o,k)));}
- function validateRequest(r){check(['1.0','1.1'].includes(r?.sourcesSchemaVersion),'INVALID_SOURCE_REQUEST');return legacy.validateRequest(old(r));}
+ function validateRequest(r){check(['1.0','1.1','1.2'].includes(r?.sourcesSchemaVersion),'INVALID_SOURCE_REQUEST');return legacy.validateRequest(old(r));}
  function prepare(r){validateRequest(r);return legacy.prepare(old(r));}
  function cvCatalog(r){
   const base=prepare(r),targets=[];
@@ -33,11 +33,11 @@
   const edited=rebase(catalog.base.blocks,catalog.base.applications,cvEdits),replaced=removeReplaced(edited.blocks,edited.applications,model.additions,catalog.base.review);
   const request={...old(r),blocks:replaced.blocks,sourceContext:{...r.sourceContext,applications:replaced.applications}};
   const result=legacy.candidate(request,{additions:model.additions,contextQuestions:model.contextQuestions},options);
-  return {...result,sourcesSchemaVersion:'1.1',cvEdits};
+  return {...result,sourcesSchemaVersion:r.sourcesSchemaVersion,cvEdits};
  }
  function validateCandidate(r,data){
   if(r.sourcesSchemaVersion==='1.0')return legacy.validateCandidate(r,data);
-  check(data?.sourcesSchemaVersion==='1.1');exact(data,['ok','blocksSchemaVersion','cvVersionId','cvTitle','summaryOfChanges','blocks','rewrittenCv','rewrittenCvLegacy','sourcesSchemaVersion','sourceContextRevision','sourceRoundId','sourceUsage','sourceApplications','sourceReview','contextQuestions','cvEdits']);check(Array.isArray(data.sourceUsage));
+  check(data?.sourcesSchemaVersion===r.sourcesSchemaVersion);exact(data,['ok','blocksSchemaVersion','cvVersionId','cvTitle','summaryOfChanges','blocks','rewrittenCv','rewrittenCvLegacy','sourcesSchemaVersion','sourceContextRevision','sourceRoundId','sourceUsage','sourceApplications','sourceReview','contextQuestions','cvEdits']);check(Array.isArray(data.sourceUsage));
   const ids=data.sourceUsage.map(u=>u.applicationId);check(new Set(ids).size===ids.length);let n=0;
   const expected=candidate(r,{cvEdits:data.cvEdits,additions:data.sourceUsage.map(u=>({blockId:u.blockId,text:u.proposedQuote,answerId:u.answerId,answerRevision:u.answerRevision,sourceQuote:u.sourceQuote,contextQuote:u.contextQuote})),contextQuestions:data.contextQuestions},{id:()=>ids[n++]});
   check(JSON.stringify(data)===JSON.stringify(expected));return data;

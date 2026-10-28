@@ -2,7 +2,7 @@
 // Local preparation only: no HTTP client, deployment or execution entry point.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const ID='H8oAioy58R1v3PvRe3YUa',BASE='f399ee97-764b-44e0-bc42-5c7517499890';
-const libraryFiles=['experience-discovery-contract.js','tailor-sources.js'];
+const libraryFiles=['experience-context.js','experience-discovery-contract.js','tailor-sources.js'];
 const readLibrary=f=>fs.readFileSync(path.join(__dirname,'../webflow/src',f),'utf8').replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n');
 // Force the browser UMD branches inside an isolated scope, even if a Code runner
 // exposes module/require. No runtime imports or crypto permissions are needed.

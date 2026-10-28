@@ -1,5 +1,7 @@
 # Erfarenhetsfrågor före CV-anpassning
 
+2026-10-28, DEV-141: [strukturerat erfarenhetssammanhang](../contracts/experience-context-v1.md) sparas med svarets revision. Befintlig CV-post refereras via version/block och faktisk ögonblicksbild; referensen är ingen långsiktig erfarenhetsidentitet. Annat sammanhang lagras som underlag utan automatisk CV-post. Sessionslagring, ingen beständig profil/RAG. Discovery-endpointens schema är oförändrat. Backend Tailor1.2 är publicerad efter isolerat n8n-test; ny väljare ingår i den godkända frontendleveransen. Se leveranskvitto och CHANGE-LOG för slutlig publiceringsverifiering.
+
 DEV-025, 2026-10-19: Ägaren har ändrat riktningen för användartest i hela editorn. Tydliga konkreta svar tas emot direkt och kön går vidare; ingen individuell faktabekräftelse. Följdfråga endast vid saknat viktigt underlag, högst en per ämne. Tidigare svar kan rättas och original/revisioner behålls. Svaren är användarlämnade källor, inte bekräftelser av AI-fakta eller CV-ändringar. JSON-kontraktets strikta referens-/citatkontroller är kvar. Den lokala helhetsförhandsversionen och leveransgaten beskrivs i EXPERIENCE-EDITOR-USER-TEST.md. Äldre individuella bekräftelsekrav i detta dokument är supersederade av detta ägarbeslut. CV-förslag/Apply, profil/RAG och driftsättning är fortsatt separata.
 
 Datum: 2026-10-14. DEV-011, uppdaterat DEV-013. Underlag: ägarens önskemål om befintliga annonssignaler, enkelt samtalsspråk, en räknad frågeomgång och förberedelse för en framtida professionell profil/RAG.

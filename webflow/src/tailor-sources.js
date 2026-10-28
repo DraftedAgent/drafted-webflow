@@ -2,6 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedTailorSources=api;})(globalThis,function(){
   'use strict';
   const copy=x=>JSON.parse(JSON.stringify(x));
+  const contexts=()=>typeof module==='object'&&module.exports?require('./experience-context.js'):globalThis.DraftedExperienceContext;
   const EXTRA=['sourcesSchemaVersion','sourceContextRevision','sourceRoundId','sourceUsage','sourceApplications','sourceReview','contextQuestions'];
   function check(ok,code='INVALID_SOURCE_REQUEST'){if(!ok)throw Error(code);}
   function exact(o,keys){check(o&&typeof o==='object'&&!Array.isArray(o)&&keys.length===Object.keys(o).length&&keys.every(k=>Object.hasOwn(o,k)));}
@@ -11,7 +12,7 @@
   function ref(s){exact(s,['answerId','answerRevision','sourceQuote']);text(s.answerId);check(Number.isSafeInteger(s.answerRevision)&&s.answerRevision>0);text(s.sourceQuote,50000);}
   function validateRequest(r){
     exact(r,['cvVersionId','cvTitle','targetRole','language','blocksSchemaVersion','blocks','jobContextSchemaVersion','jobContext','sourcesSchemaVersion','sourceContext']);
-    check(r.sourcesSchemaVersion==='1.0'&&r.blocksSchemaVersion==='1.0'&&r.jobContextSchemaVersion==='1.0');
+    check(['1.0','1.2'].includes(r.sourcesSchemaVersion)&&r.blocksSchemaVersion==='1.0'&&r.jobContextSchemaVersion==='1.0');
     text(r.cvVersionId);text(r.cvTitle,1000,true);text(r.targetRole,20000,true);check(['sv','en'].includes(r.language));
     const c=r.sourceContext;exact(c,['contextRevision','roundId','questions','answers','applications']);text(c.contextRevision);text(c.roundId);
     const discovery=typeof module==='object'&&module.exports?require('./experience-discovery-contract.js'):globalThis.DraftedDiscoveryContract;
@@ -20,7 +21,7 @@
     for(const q of c.questions){exact(q,['id','question','signalRefs','status']);text(q.id);text(q.question,500);check(['recorded','no','unknown','skipped','covered','needs_detail','error','unanswered','processing','answered','editing'].includes(q.status));array(q.signalRefs,20);check(q.signalRefs.length>0);for(const s of q.signalRefs){exact(s,['field','index']);check(['topPriorities','mustHave'].includes(s.field)&&Number.isSafeInteger(s.index)&&s.index>=0&&!!r.jobContext[s.field][s.index]);}}
     unique(c.questions.flatMap(q=>q.signalRefs).map(s=>s.field+':'+s.index),x=>x);
     array(c.answers);unique(c.answers,a=>a.id);unique(c.answers,a=>a.questionId);
-    for(const a of c.answers){exact(a,['id','questionId','revision','text']);text(a.id);text(a.questionId);text(a.text,50000);check(Number.isSafeInteger(a.revision)&&a.revision>0&&c.questions.some(q=>q.id===a.questionId));}
+    for(const a of c.answers){exact(a,['id','questionId','revision','text',...(r.sourcesSchemaVersion==='1.2'&&Object.hasOwn(a,'experienceContext')?['experienceContext']:[])]);text(a.id);text(a.questionId);text(a.text,50000);check(Number.isSafeInteger(a.revision)&&a.revision>0&&c.questions.some(q=>q.id===a.questionId));if(Object.hasOwn(a,'experienceContext'))contexts().validate(a.experienceContext);}
     check(c.questions.filter(q=>q.status==='recorded').every(q=>c.answers.some(a=>a.questionId===q.id)));
     array(c.applications);unique(c.applications,g=>g.blockId);const ids=[];
     for(const g of c.applications){exact(g,['blockId','checkpointText','additions']);text(g.blockId);text(g.checkpointText,100000,true);check(r.blocks.some(b=>b.blockId===g.blockId));array(g.additions);let end=0;
@@ -48,6 +49,7 @@
     constraints:r.sourceContext.answers.filter(a=>answer(r,a.id).q.status!=='recorded'),reviewSections:base.review.map(x=>{const {text,...metadata}=r.blocks.find(b=>b.blockId===x.blockId);return metadata;}),frozenBlockIds:base.review.map(x=>x.blockId)};}
   function contextSupported(r,b,source){
     const quote=source.contextQuote;check(typeof quote==='string');const a=answer(r,source.answerId).a;check(a.text.includes(quote),'INVALID_SOURCE_QUOTE');
+    if(a.experienceContext){const resolved=contexts().resolve(a.experienceContext,r.cvVersionId,r.blocks);return resolved.status==='resolved'&&resolved.blockId===b.blockId;}
     const has=s=>!!s&&quote.toLowerCase().includes(s.toLowerCase());
     if(b.type==='experience')return has(b.employer)&&r.blocks.filter(o=>o.type==='experience'&&o.employer===b.employer&&(!has(b.title)||o.title===b.title)&&(!has(b.startDate)||o.startDate===b.startDate)).length===1;
     if(b.type==='education')return has(b.institution)&&r.blocks.filter(o=>o.type==='education'&&o.institution===b.institution&&(!has(b.degree)||o.degree===b.degree)).length===1;
@@ -56,7 +58,9 @@
   }
   function candidate(r,model,{id=()=>globalThis.crypto.randomUUID()}={}){
     exact(model,['additions','contextQuestions']);array(model.additions);array(model.contextQuestions);const base=prepare(r),usage=[],questions=[];
-    for(const c of model.contextQuestions){exact(c,['answerId','answerRevision','reason']);const {a,q}=answer(r,c.answerId);check(a&&q.status==='recorded'&&a.revision===c.answerRevision&&['context_unclear','new_block_required'].includes(c.reason));questions.push(copy(c));}
+    for(const c of model.contextQuestions){exact(c,['answerId','answerRevision','reason']);const {a,q}=answer(r,c.answerId);check(a&&q.status==='recorded'&&a.revision===c.answerRevision&&['context_unclear','new_block_required',...(r.sourcesSchemaVersion==='1.2'?['reference_unresolved']:[])].includes(c.reason));
+      if(r.sourcesSchemaVersion==='1.2'){if(a.experienceContext){const status=contexts().resolve(a.experienceContext,r.cvVersionId,r.blocks).status;check(c.reason===({unplaced:'new_block_required',unresolved:'reference_unresolved'}[status]),'INVALID_CONTEXT_REASON');}else check(c.reason!=='reference_unresolved','INVALID_CONTEXT_REASON');}
+      questions.push(copy(c));}
     unique(questions,q=>q.answerId);
     for(const item of model.additions){exact(item,['blockId','text','answerId','answerRevision','sourceQuote','contextQuote']);text(item.text,10000);check(item.text===item.text.trim());ref({answerId:item.answerId,answerRevision:item.answerRevision,sourceQuote:item.sourceQuote});
       const {a,q}=answer(r,item.answerId),b=base.blocks.find(b=>b.blockId===item.blockId);check(a&&q.status==='recorded'&&a.revision===item.answerRevision,'INVALID_SOURCE_REFERENCE');check(a.text.includes(item.sourceQuote),'INVALID_SOURCE_QUOTE');check(b&&!base.review.some(x=>x.blockId===b.blockId),'BLOCK_REQUIRES_REVIEW');check(!questions.some(q=>q.answerId===a.id),'CONTEXT_REQUIRED');check(contextSupported(r,b,item),'CONTEXT_REQUIRED');
@@ -71,7 +75,7 @@
     validateRequest({...r,blocks:base.blocks,sourceContext:{...r.sourceContext,applications:base.applications}});
     const joined=base.blocks.slice().sort((a,b)=>a.order-b.order).map(b=>b.text).join('\n\n');
     return {ok:true,blocksSchemaVersion:'1.0',cvVersionId:r.cvVersionId,cvTitle:r.cvTitle,summaryOfChanges:'Review the proposed changes before applying.',blocks:base.blocks,rewrittenCv:joined,rewrittenCvLegacy:joined,
-      sourcesSchemaVersion:'1.0',sourceContextRevision:r.sourceContext.contextRevision,sourceRoundId:r.sourceContext.roundId,sourceUsage:usage,sourceApplications:base.applications,sourceReview:base.review,contextQuestions:questions};
+      sourcesSchemaVersion:r.sourcesSchemaVersion,sourceContextRevision:r.sourceContext.contextRevision,sourceRoundId:r.sourceContext.roundId,sourceUsage:usage,sourceApplications:base.applications,sourceReview:base.review,contextQuestions:questions};
   }
   function validateCandidate(r,data){
     exact(data,['ok','blocksSchemaVersion','cvVersionId','cvTitle','summaryOfChanges','blocks','rewrittenCv','rewrittenCvLegacy',...EXTRA]);

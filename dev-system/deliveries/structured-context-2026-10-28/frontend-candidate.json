@@ -1,0 +1,31 @@
+{
+  "build": "2026-10-28-structured-context",
+  "backendReceipt": "receipt.json",
+  "hashEncoding": "Git-normalized LF UTF-8",
+  "files": [
+    {
+      "file": "drafted-editor.js",
+      "sha256": "62a907904461bfc4ce9c921d44b05bf3d26be9d48ebf3f603f220f7bfab952a9"
+    },
+    {
+      "file": "drafted-editor.css",
+      "sha256": "9ca4e7db78f31a3355f1b47dc16e595d6bec9a129cb7c198b896ddf14e51c955"
+    },
+    {
+      "file": "latest.json",
+      "sha256": "34bcfa29290b8de277fa0348b188d04c73222a954d7911a93d3f260016f892ba"
+    },
+    {
+      "file": "webflow/src/drafted-editor.js",
+      "sha256": "503d395af1329d44673e715a6c248fce747f3dfb70f219e293e60d24fe636ad1"
+    },
+    {
+      "file": "backend/n8n-structured-context.cjs",
+      "sha256": "9bdb69eeccc533c88a4efa7af53267d00c5d5d9ab40a791ed1c7f745a37c7344"
+    },
+    {
+      "file": "backend/structured-context-release.cjs",
+      "sha256": "d08c930f7e639a3abb588d770c775e5db9ce30bbb44091fa882549b0208f211a"
+    }
+  ]
+}

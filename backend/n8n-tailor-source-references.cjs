@@ -9,7 +9,8 @@ function library(){
  let code=fs.readFileSync(path.join(__dirname,'tailor-source-references.cjs'),'utf8').replace(/\r\n?/g,'\n');
  const dependency="const profile=require('../webflow/src/tailor-sources.js');";
  if(code.split(dependency).length!==2||code.split('module.exports=').length!==2)throw Error('REFERENCE_LIBRARY_CHANGED');
- return '\nconst sourceReferences=(()=>{\n'+code.replace(dependency,'const profile=sourceProfile;').replace('module.exports=','return ')+'\n})();\n';
+ const context=fs.readFileSync(path.join(__dirname,'../webflow/src/experience-context.js'),'utf8');
+ return '\nconst sourceReferences=(()=>{\nconst contexts=(()=>{const globalThis={},module=undefined;\n'+context+'\nreturn globalThis.DraftedExperienceContext;})();\n'+code.replace(dependency,'const profile=sourceProfile;').replace("const contexts=require('../webflow/src/experience-context.js');",'').replace('module.exports=','return ')+'\n})();\n';
 }
 function once(code,before,after){if(code.split(before).length!==2)throw Error('TAILOR_CODE_CHANGED');return code.replace(before,()=>after);}
 function patch(code,prompt){

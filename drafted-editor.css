@@ -1,4 +1,4 @@
-/* drafted-editor.css | build=2026-10-28-tailor-review */
+/* drafted-editor.css | build=2026-10-28-structured-context */
 /* drafted-editor.css – source entrypoint */
 
 /* --- import: ./tokens.css (from index.css) --- */
@@ -1656,6 +1656,24 @@ html,body {height:100%;overflow:hidden!important;}
   }
 }
 /* --- end import: ./components/tailor-review.css --- */
+
+
+/* --- import: ./components/experience-context.css (from index.css) --- */
+@media screen {
+ .experience-context-picker fieldset{min-width:0;border:0;padding:0;margin:12px 0;display:grid;gap:8px}
+ .experience-context-picker .experience-context-option{display:flex;align-items:center;gap:10px;margin:0;padding:11px 12px;border:1px solid #cbdbe3;border-radius:6px;background:#fff;cursor:pointer;color:#203b4b;font:13px/1.5 system-ui}
+ .experience-context-option>input{flex:none;width:18px;height:18px;margin:0;accent-color:#007f82}
+ .experience-context-option>span{display:grid;gap:2px;overflow-wrap:anywhere;min-width:0}
+ .experience-context-option strong{font-weight:650}.experience-context-option>span>span{font-size:12px;color:#526778}
+ .experience-context-picker .experience-context-option.is-chosen{border-color:#007f82;background:#e8f6f3;box-shadow:inset 0 0 0 1px #007f82}
+ .experience-context-option:focus-within{outline:2px solid #007f82;outline-offset:2px}
+ .experience-other-context{display:grid;gap:10px;margin:14px 0}.experience-other-context[hidden]{display:none}
+ .experience-other-context label{font:600 12px/1.5 system-ui;color:#203b4b}
+ .experience-other-context input{box-sizing:border-box;display:block;width:100%;margin:4px 0 0;padding:9px 10px;border:1px solid #b6cbd5;border-radius:5px;font:400 16px/1.5 system-ui;background:#fff;color:#203b4b}
+ .experience-context-picker [role=alert]{color:#96384b;font-size:12px}
+ .discovery-saved-context{white-space:pre-wrap;font:500 12px/1.6 system-ui;color:#315962;background:#eef6f6;padding:8px;border-radius:4px}
+}
+/* --- end import: ./components/experience-context.css --- */
 
 
 /* --- import: ./components/preview-zoom.css (from index.css) --- */

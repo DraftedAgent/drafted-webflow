@@ -44,3 +44,6 @@ Interpret result: `{roundId,questionId,answerId,answerRevision,drafts:[{proposed
 ## Verifieringsgräns
 
 Isolerad syntetisk provider testar validering, transportsvar, källcitat, relevanta fixture-planer och klientens lifecycle. Det är inte en verifiering av live-modellens semantiska kvalitet. En senare godkänd inaktiv n8n-definition/testsession kan använda samma payload, prompt och fail-closed gates. Produktion/aktivering kräver separat explicit godkännande och snapshots.
+# Revision-scoped session extension (2026-10-28)
+
+[Revision-scoped experience context](experience-context-v1.md) adds structured affiliation to saved answer revisions and Tailor sources 1.2 only. The Discovery 1.0 request/interpretation fields below are unchanged. No persistent profile or global experience identity is introduced.
