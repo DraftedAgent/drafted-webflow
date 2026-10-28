@@ -1,0 +1,137 @@
+{
+  "phase": "published-verified",
+  "proof": {
+    "id": "H8oAioy58R1v3PvRe3YUa",
+    "versionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+    "activeVersionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+    "projectionSha256": "9bc09c9ca85011a77fb1b37e441e6ed71e513fce2484713e814eb66e3ad279d0",
+    "changedNodes": [
+      "Validate + Normalize",
+      "Compose source suggestion"
+    ],
+    "codeHashes": [
+      {
+        "name": "Validate + Normalize",
+        "before": "845890ac08e7343ad6867b157a5ecba38ca6f163be51509cc80fbedd2b1f67b1",
+        "after": "3c070ddeb9a3736a3a1b4e64ec76cb9df06be45eb2858c4bc2eed0c57e8cf9eb",
+        "prefix": "586186f8df5124d53f315a01bd19a1de453f3b71a7d631a2977bb35c97c022bc"
+      },
+      {
+        "name": "Compose source suggestion",
+        "before": "b61cefed8a6b252ac11319df428c57ab397cc0860429f8534fe5ae00b918c20f",
+        "after": "bde42f08659731cf2b5390c53bb1a9dbd24e595c623310b583ee2f885666c664",
+        "prefix": "2202a171f702324e5da8a7bc8f91ddbfd3658225358e7d0cbf9c88544096b8e2"
+      }
+    ]
+  },
+  "runtimeVerified": true,
+  "runtimeFixtureId": "JB7tjB16cncu4m5E",
+  "snapshots": [
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\structured-context-DEV-141-20261028\\20261028T103054212Z__H8oAioy58R1v3PvRe3YUa__91ef21b1-6286-4cc4-9385-5ab112149900__before-DEV-141.dpapi",
+      "cipherSha256": "bdb9a6e975d87112bcafb811c49a5091ade945a99f8f88f0edc261e65bf36909",
+      "savedRawSha256": "8377b105e303210fb62c73409ce184d59ab7d86bf9adefcc56c96c49a7bc4e21",
+      "publishedRawSha256": "d9fc6c3097222c29a70e24b73a4cfc8f0097c653184e54ff5ea4f8de7b5ee794",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "91ef21b1-6286-4cc4-9385-5ab112149900",
+      "label": "before-DEV-141",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "1f446184064dba4dd84296e1f2014f645eb1f326",
+      "capturedUtc": "2026-10-28T10:30:54.2623861Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\structured-context-DEV-141-20261028\\20261028T103107501Z__H8oAioy58R1v3PvRe3YUa__91ef21b1-6286-4cc4-9385-5ab112149900__candidate-DEV-141.dpapi",
+      "cipherSha256": "33afde667f1298d43b37ff608c096a1d1fc3a98a18f636de8e2e2a30b45e1a27",
+      "savedRawSha256": "f09debc9840b4553164cd7a586d01b1f128634790be1fd333185a4fa05242dd6",
+      "publishedRawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "91ef21b1-6286-4cc4-9385-5ab112149900",
+      "label": "candidate-DEV-141",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "1f446184064dba4dd84296e1f2014f645eb1f326",
+      "capturedUtc": "2026-10-28T10:31:07.548692Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\structured-context-DEV-141-20261028\\20261028T103115926Z__prestate-absent__absent__runtime-create-DEV-141.dpapi",
+      "cipherSha256": "4f2e05fdce7de4d930a0420ad74f840f0c63be61ca84dca8f4f7d14db2a3a7bc",
+      "savedRawSha256": "3362d51089cd8fc3f2a9505d4809bc6247bd211451063bd63f7b8ce175918f17",
+      "publishedRawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workflowId": "prestate-absent",
+      "versionId": "absent",
+      "label": "runtime-create-DEV-141",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "1f446184064dba4dd84296e1f2014f645eb1f326",
+      "capturedUtc": "2026-10-28T10:31:15.9696268Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\structured-context-DEV-141-20261028\\20261028T103147804Z__JB7tjB16cncu4m5E__5c5df936-672c-4441-b01d-9879f9308223__runtime-created-DEV-141.dpapi",
+      "cipherSha256": "ba0810d625234d2e075a761d8abcc7bbbae0354cac923c5c5e1b9b8e05cb38e2",
+      "savedRawSha256": "df79131cafe57153bfc303ceaf41173dca9602ec4beeaabcc7775ba0b52fc5e8",
+      "publishedRawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workflowId": "JB7tjB16cncu4m5E",
+      "versionId": "5c5df936-672c-4441-b01d-9879f9308223",
+      "label": "runtime-created-DEV-141",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "1f446184064dba4dd84296e1f2014f645eb1f326",
+      "capturedUtc": "2026-10-28T10:31:47.8456112Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\structured-context-DEV-141-20261028\\20261028T103646512Z__H8oAioy58R1v3PvRe3YUa__91ef21b1-6286-4cc4-9385-5ab112149900__pre-save-DEV-141.dpapi",
+      "cipherSha256": "affbf3f3ecc43c46d588c36f9d9e944c5543ac05b0dfd48a610aceee06bb756d",
+      "savedRawSha256": "8377b105e303210fb62c73409ce184d59ab7d86bf9adefcc56c96c49a7bc4e21",
+      "publishedRawSha256": "d9fc6c3097222c29a70e24b73a4cfc8f0097c653184e54ff5ea4f8de7b5ee794",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "91ef21b1-6286-4cc4-9385-5ab112149900",
+      "label": "pre-save-DEV-141",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "1f446184064dba4dd84296e1f2014f645eb1f326",
+      "capturedUtc": "2026-10-28T10:36:46.6086998Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\structured-context-DEV-141-20261028\\20261028T103716180Z__H8oAioy58R1v3PvRe3YUa__27962c92-3fff-487d-a9a0-1138d1545172__saved-before-publish-DEV-141.dpapi",
+      "cipherSha256": "73e42f52d4d8da2ca09732f685f5180c775e55e04d9c4ce3ed869e87bb06a847",
+      "savedRawSha256": "d558415fc2f46a21ff0fd490eb1479a4a429212a3a48ac5eab76ced951160982",
+      "publishedRawSha256": "d9fc6c3097222c29a70e24b73a4cfc8f0097c653184e54ff5ea4f8de7b5ee794",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+      "label": "saved-before-publish-DEV-141",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "1f446184064dba4dd84296e1f2014f645eb1f326",
+      "capturedUtc": "2026-10-28T10:37:16.231091Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\structured-context-DEV-141-20261028\\20261028T103911116Z__H8oAioy58R1v3PvRe3YUa__27962c92-3fff-487d-a9a0-1138d1545172__pre-publish-DEV-141.dpapi",
+      "cipherSha256": "d96c0bda0c2dd3659cc83fec069f8c393f8fbd0632e3caeb4bbe7344888db9ba",
+      "savedRawSha256": "d558415fc2f46a21ff0fd490eb1479a4a429212a3a48ac5eab76ced951160982",
+      "publishedRawSha256": "d9fc6c3097222c29a70e24b73a4cfc8f0097c653184e54ff5ea4f8de7b5ee794",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+      "label": "pre-publish-DEV-141",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "1f446184064dba4dd84296e1f2014f645eb1f326",
+      "capturedUtc": "2026-10-28T10:39:11.1679991Z"
+    },
+    {
+      "path": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\structured-context-DEV-141-20261028\\20261028T103942877Z__H8oAioy58R1v3PvRe3YUa__27962c92-3fff-487d-a9a0-1138d1545172__published-DEV-141.dpapi",
+      "cipherSha256": "4c3501dbe447f7a7ab7c78d60ba71718b0b2208c45b03d7caeb29fc0d092113e",
+      "savedRawSha256": "b53eb7cabb36a482bc9195079e89a617facf30aa960b7a40c945a15c075f49ac",
+      "publishedRawSha256": "fd6282db50b495f753244aabebeb15526fb80b1abb79a819e3394e469bd5b623",
+      "workflowId": "H8oAioy58R1v3PvRe3YUa",
+      "versionId": "27962c92-3fff-487d-a9a0-1138d1545172",
+      "label": "published-DEV-141",
+      "verified": true,
+      "instance": "drafted.app.n8n.cloud",
+      "sourceGitSha": "1f446184064dba4dd84296e1f2014f645eb1f326",
+      "capturedUtc": "2026-10-28T10:39:42.9211154Z"
+    }
+  ],
+  "modelCalls": 0,
+  "productionExecutions": 0
+}

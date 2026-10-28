@@ -2,6 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedExperienceDiscovery=api;})(globalThis,function(){
   'use strict';
   const MAX_ANSWER_LENGTH=50000,copy=x=>JSON.parse(JSON.stringify(x));
+  const contexts=()=>typeof module==='object'&&module.exports?require('./experience-context.js'):globalThis.DraftedExperienceContext;
   const requireText=x=>{if(typeof x!=='string'||!x.trim())throw Error('INVALID_TEXT');};
   // Whole-answer patterns only: a negated clause must never swallow a positive account.
   function isNegativeAnswer(text,question){
@@ -49,7 +50,8 @@
       const isFollowup=r.phase==='followup',reply=text,previous=a.revisions.at(-1)?.text;
       if(isFollowup&&previous&&!negative&&!/^\s*(i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
       if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
-      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
+      const experienceContext=a.revisions.at(-1)?.experienceContext;
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(experienceContext?{experienceContext:copy(experienceContext)}:{}),...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
       if(negative){a.status=q.status='no';this.advance();return;}
       if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
       if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(reply)){this.askFollowup();return;}
@@ -80,13 +82,21 @@
       const snap=this.snapshot(),r=this.round();
       return {contextRevision:snap.context.revision+':'+snap.revision+':'+r.phase+':'+r.index,roundId:r.id,
         questions:r.queue.map(q=>({id:q.id,question:q.question,signalRefs:copy(q.signalRefs),status:r.phase==='correct'&&q.id===this.current()?.id?'editing':q.status})),
-        answers:snap.answers.filter(a=>a.roundId===r.id).map(a=>({id:a.id,questionId:a.questionId,revision:a.currentRevision,text:a.revisions.at(-1).text})),applications:copy(applications)};
+        answers:snap.answers.filter(a=>a.roundId===r.id).map(a=>{const latest=a.revisions.at(-1);return {id:a.id,questionId:a.questionId,revision:a.currentRevision,text:latest.text,...(latest.experienceContext?{experienceContext:copy(latest.experienceContext)}:{})};}),applications:copy(applications)};
     }
     appendContext(answerId,revision,reply){
       requireText(reply);const a=this.state.answers.find(a=>a.id===answerId&&a.roundId===this.round().id);
       if(!a||a.currentRevision!==revision||a.status!=='recorded')throw Error('STALE_ANSWER');
       const latest=a.revisions.at(-1),sourceTextBeforeContext=latest.contextReply!==undefined?latest.sourceTextBeforeContext:latest.text;const text=sourceTextBeforeContext+'\n\nContext: '+reply;if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,contextReply:reply,sourceTextBeforeContext});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();
+    }
+    assignExperienceContext(answerId,revision,value){
+      const C=contexts();C.validate(value);const a=this.state.answers.find(a=>a.id===answerId&&a.roundId===this.round().id);
+      if(!a||a.currentRevision!==revision||a.status!=='recorded')throw Error('STALE_ANSWER');
+      if(value.kind==='cv_entry'&&C.resolve(value,this.state.context.cvVersionId,this.state.context.blocks).status!=='resolved')throw Error('STALE_CONTEXT_REFERENCE');
+      const latest=a.revisions.at(-1),text=latest.sourceTextBeforeContext??latest.text,context=copy(value);
+      // Validate everything before touching revision, status or source history.
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,experienceContext:context});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();
     }
     adoptRepresentation(blocks,cvVersionId){
       const r=this.round(),revision=this.id();for(const a of this.state.answers.filter(a=>a.roundId===r.id&&a.status==='processing')){a.status='error';r.queue.find(q=>q.id===a.questionId).status='error';}this.state.context={...this.state.context,revision,blocks:copy(blocks),cvVersionId};r.contextRevision=revision;this.state.revision++;

@@ -49,3 +49,6 @@ If jobContext saknas → return:
    "message": "Tailoring requires jobContext"  
  }  
 }  
+# Negotiated source-context extension (2026-10-28, DEV-141)
+
+[Sources 1.2](../../../contracts/experience-context-v1.md) explicitly extends the source-aware request and clarification reasons when negotiated. The no-source contract below and older source profiles remain unchanged. New context does not authorize new CV blocks, and a CV-block reference is representation/version scoped rather than a permanent experience ID.

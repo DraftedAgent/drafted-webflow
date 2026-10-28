@@ -33,6 +33,9 @@ let tailorReviewCheck = null;
 let tailorReviewDispose = null;
 const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_URL==="https://drafted.app.n8n.cloud/webhook/tailor-cv")||['localhost','127.0.0.1'].includes(location.hostname)&&draftedEndpoints.tailorSources===true&&draftedEndpoints.tailor==='/preview-api/tailor';
 const tailorSourceLedger=new DraftedTailorSources.Ledger();
+// Flip only in a separately approved release after the endpoint supports 1.2.
+const productionStructuredContext=true;
+const structuredContextEnabled=tailorSourcesEnabled&&(window.__DRAFTED_PREVIEW_ENDPOINTS__?draftedEndpoints.tailorSourcesVersion==='1.2':productionStructuredContext);
 
 // The editor is a workspace; remove the legacy Webflow section introduction.
 onReady(() => {
@@ -551,15 +554,21 @@ maybeShowTailor();
        // Preview actual proposed wording; never invent a new AI summary or use
        // an answer number in place of the change. Full text stays in details.
        const excerpt=text=>{const clean=String(text).replace(/\s+/g,' ').trim();return clean.length<=280?clean:clean.slice(0,280).replace(/\s+\S*$/,'')+'…';};
-       const contextQuestion=(data.contextQuestions||[]).find(q=>q.reason==='context_unclear'&&!omittedContext.has(q.answerId));
+       const contextQuestion=(data.contextQuestions||[]).find(q=>['context_unclear','reference_unresolved'].includes(q.reason)&&!omittedContext.has(q.answerId));
        if(contextQuestion){
          const answer=request.sourceContext.answers.find(a=>a.id===contextQuestion.answerId&&a.revision===contextQuestion.answerRevision);
          if(!answer)throw Error('Missing context source');
          card.classList.add('tailor-context-mode');card.setAttribute('aria-label','Tailoring context');
          const existing=answer.text.includes('\n\nContext: ')?answer.text.split('\n\nContext: ').at(-1):'';
          const named=[...new Set(request.blocks.map(b=>b.employer||b.institution||(['project','projects'].includes(b.type)||b.type==='otherSections'&&/project|projekt/i.test(b.label||'')?b.label:'')).filter(name=>name&&answer.text.toLocaleLowerCase().includes(name.toLocaleLowerCase())))];
-         const question=existing?'What additional role or project detail would help place this example?':named.length===1?('For the example mentioning '+named[0]+', what was your role?'):'Which role or project does this example relate to?';
+         const question=structuredContextEnabled?'Which role or project does this example relate to?':existing?'What additional role or project detail would help place this example?':named.length===1?('For the example mentioning '+named[0]+', what was your role?'):'Which role or project does this example relate to?';
          add('h2',question);add('blockquote',excerpt(answer.text.split('\n\nContext: ')[0]));
+         if(structuredContextEnabled){
+           DraftedExperienceContextUI.mount(card,{blocks:request.blocks,cvVersionId:request.cvVersionId,selected:answer.experienceContext||null,
+             onContinue:value=>{if(stamp!==tailorContextStamp()||isPreviewingProposal)throw Error('STALE_CONTEXT');discoveryController.assignExperienceContext(contextQuestion.answerId,contextQuestion.answerRevision,value);card.remove();refreshTailorPresentation();runTailor();},
+             onLeaveOut:()=>{if(stamp!==tailorContextStamp()||isPreviewingProposal){card.remove();showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}if(!Array.isArray(data.blocks)){card.remove();refreshTailorPresentation();return;}showTailorSuggestion(data,stamp,request,new Set([...omittedContext,contextQuestion.answerId]));refreshTailorPresentation();}});
+           chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;return;
+         }
          const input=add('textarea','');input.rows=3;input.value=existing;input.setAttribute('aria-label',question);input.placeholder='Add the missing context';
          const actions=add('div','');actions.className='tailor-actions';const save=add('button','Continue',actions),omit=add('button','Leave this out',actions);save.type=omit.type='button';save.className='tailor-primary';
          const current=()=>stamp===tailorContextStamp()&&!isPreviewingProposal;
@@ -576,6 +585,7 @@ maybeShowTailor();
        const changed=computeChangedBlockIds(request.blocks,data.blocks);
        if(!changed.length){
          showTailorFeedback('No changes suggested');
+         if(data.sourcesSchemaVersion==='1.2'&&data.contextQuestions?.some(q=>q.reason==='new_block_required')){const note=document.createElement('p');note.textContent='Your new context is saved with your answer. It has no selected CV entry; no new CV entry was created.';chatMessagesEl.querySelector('.tailor-feedback').append(note);}
          return;
        }
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
@@ -633,7 +643,7 @@ maybeShowTailor();
            const context=answer&&data.contextQuestions.find(c=>c.answerId===answer.id);
            const existing=answer&&q.status==='recorded'?data.sourceApplications.filter(g=>!data.sourceReview.some(r=>r.blockId===g.blockId)&&g.additions.some(a=>a.source.answerId===answer.id&&a.source.answerRevision===answer.revision)):[];
            const needsReview=answer&&q.status==='recorded'&&request.sourceContext.applications.some(g=>data.sourceReview.some(r=>r.blockId===g.blockId)&&g.additions.some(a=>a.source.answerId===answer.id));
-           const reason=answer&&omittedContext.has(answer.id)?'Left out of this suggestion; your original answer is kept.':context?.reason==='context_unclear'?'The setting is unclear.':context?.reason==='new_block_required'?'Needs a new CV entry; none was created.':needsReview?'Earlier wording needs review before it can be updated.':existing.length?`Already in your CV in ${existing.map(g=>sectionName(data.blocks.find(b=>b.blockId===g.blockId))).join(', ')}; no new wording proposed.`:
+           const reason=answer&&omittedContext.has(answer.id)?'Left out of this suggestion; your original answer is kept.':context?.reason==='context_unclear'?'The setting is unclear.':context?.reason==='new_block_required'?(answer?.experienceContext?.kind==='other'?'Context saved without a selected CV entry; not added to this CV.':'Needs a new CV entry; none was created.'):needsReview?'Earlier wording needs review before it can be updated.':existing.length?`Already in your CV in ${existing.map(g=>sectionName(data.blocks.find(b=>b.blockId===g.blockId))).join(', ')}; no new wording proposed.`:
              ({no:'You answered no; not used for new experience wording.',skipped:'Skipped; not used for new wording.',unknown:'The experience is still unclear.',needs_detail:'More detail is needed.',processing:'Still being checked.',answered:'Still being checked.',editing:'Being corrected.',error:'Could not be checked.'}[q.status]||'No new wording was proposed from this answer.');
            notes.push(`${answer?'Answer':'Question'} ${index+1}: ${reason}`);
          }
@@ -713,7 +723,7 @@ maybeShowTailor();
            language:documentLanguage||'en',blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
          const sourceContext=tailorSourcesEnabled?discoveryController?.sourceContext(tailorSourceLedger.snapshot()):null;
          sourceRequest=!!sourceContext;
-         if(sourceContext){payload.sourcesSchemaVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):'1.1';payload.sourceContext=sourceContext;}
+         if(sourceContext){payload.sourcesSchemaVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):(structuredContextEnabled?'1.2':'1.1');payload.sourceContext=sourceContext;}
          const data=sourceContext?await fetchTailorSources(payload):await draftedFetchJson(N8N_TAILOR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)},'cv');
          if(stamp!==tailorContextStamp()||isPreviewingProposal){showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}
          // Existing Tailor permits text changes only. Fail closed on structural drift.
@@ -1504,6 +1514,10 @@ function setApplyLabel() {
       getTailorState:tailorPresentationState,
       onSourceStateChange:refreshTailorPresentation,
       sourceTailoring: tailorSourcesEnabled,
+      onEditExperienceContext:structuredContextEnabled?(id,revision)=>{
+        const sourceContext=discoveryController.sourceContext(tailorSourceLedger.snapshot());
+        discoveryController.showChat();showTailorSuggestion({contextQuestions:[{answerId:id,answerRevision:revision,reason:'context_unclear'}]},tailorContextStamp(),{cvVersionId,blocks:deepClone(documentBlocksState),sourceContext});refreshTailorPresentation();
+      }:null,
       getSourceNotice:()=>{const c=discoveryController?.sourceContext(tailorSourceLedger.snapshot());if(!c)return '';return c.applications.some(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text!==g.checkpointText||g.additions.some(x=>{const a=c.answers.find(a=>a.id===x.source.answerId);return !a||a.revision!==x.source.answerRevision||c.questions.find(q=>q.id===a.questionId)?.status!=='recorded';}))?'Earlier wording may use changed or unavailable answers. It remains unchanged until you review and apply an update.':'';},
       getContext: () => !isPreviewingProposal && discoveryCvFile && getFileInput()?.files?.[0] === discoveryCvFile && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
         ? { cvVersionId, blocks: deepClone(documentBlocksState), jobContext: deepClone(window.__DRAFTED_JOBCONTEXT__) }

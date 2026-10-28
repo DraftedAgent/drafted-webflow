@@ -787,10 +787,79 @@
 })(window);
 
 ;
+/* Revision-scoped context, never a global experience identity or a CV edit. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedExperienceContext=api;})(globalThis,function(){
+ 'use strict';
+ const keys=['type','label','companyOrContext','roleOrProject','startDate','endDate'];
+ const copy=x=>JSON.parse(JSON.stringify(x));
+ const check=ok=>{if(!ok)throw Error('INVALID_EXPERIENCE_CONTEXT');};
+ const exact=(o,fields)=>check(o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===fields.length&&fields.every(k=>Object.hasOwn(o,k)));
+ const text=(s,max=1000)=>check(typeof s==='string'&&s.length<=max);
+ const eligible=b=>b&&(b.type==='experience'||['project','projects'].includes(b.type)||b.type==='otherSections'&&/project|projekt/i.test(b.label||''));
+ function snapshot(b){return {type:b.type,label:b.label||'',companyOrContext:b.employer||'',roleOrProject:b.title||(['project','projects','otherSections'].includes(b.type)?b.label:'')||'',startDate:b.startDate||'',endDate:b.endDate||''};}
+ function reference(cvVersionId,b){check(eligible(b));const value={kind:'cv_entry',cvVersionId,blockId:b.blockId,snapshot:snapshot(b)};validate(value);return value;}
+ function validate(c){
+  if(c?.kind==='cv_entry'){exact(c,['kind','cvVersionId','blockId','snapshot']);text(c.cvVersionId,200);text(c.blockId,200);check(c.cvVersionId.trim()&&c.blockId.trim());exact(c.snapshot,keys);for(const k of keys)text(c.snapshot[k]);}
+  else{exact(c,['kind','companyOrContext','roleOrProject','period']);check(c.kind==='other');for(const k of ['companyOrContext','roleOrProject','period'])text(c[k]);check(c.roleOrProject.trim());}
+  return c;
+ }
+ function resolve(c,cvVersionId,blocks){
+  validate(c);if(c.kind==='other')return {status:'unplaced'};
+  if(c.cvVersionId!==cvVersionId)return {status:'unresolved',reason:'cv_version_changed'};
+  const matches=blocks.filter(b=>b.blockId===c.blockId);if(matches.length!==1||!eligible(matches[0]))return {status:'unresolved',reason:'entry_unavailable'};
+  if(JSON.stringify(snapshot(matches[0]))!==JSON.stringify(Object.fromEntries(keys.map(k=>[k,c.snapshot[k]]))))return {status:'unresolved',reason:'entry_changed'};
+  return {status:'resolved',blockId:matches[0].blockId};
+ }
+ function describe(c){validate(c);if(c.kind==='other')return [c.companyOrContext,c.roleOrProject,c.period].filter(x=>x.trim()).join(' · ');const s=c.snapshot;return [s.companyOrContext,s.roleOrProject||s.label,[s.startDate,s.endDate].filter(Boolean).join(' – ')].filter(Boolean).join(' · ')||'CV experience';}
+ return {eligible,snapshot,reference,validate,resolve,describe,copy};
+});
+
+;
+(function(root){
+ 'use strict';
+ function mount(host,{blocks,cvVersionId,selected=null,onContinue,onLeaveOut}){
+  const C=root.DraftedExperienceContext,form=document.createElement('form');form.className='experience-context-picker';
+  const add=(tag,text,parent=form)=>{const n=document.createElement(tag);if(text)n.textContent=text;parent.append(n);return n;};
+  const options=add('fieldset',''),legend=add('legend','Choose the role or project',options);legend.className='workspace-sr-only';
+  let choice=null,sending=false;const records=new Map(),inputs=[];
+  const other=add('div','');other.className='experience-other-context';other.hidden=true;
+  const field=(label,required=false)=>{const wrapper=add('label',label,other),input=add('input','',wrapper);input.type='text';input.maxLength=1000;input.required=required;return input;};
+  const company=field('Company or context'),role=field('Role or project'),period=field('Period (optional)');company.placeholder='Optional for an independent project';
+  const choose=value=>{choice=value;other.hidden=value!=='other';role.required=value==='other';for(const input of inputs)input.closest('label').classList.toggle('is-chosen',input.checked);};
+  const option=(key,title,detail,context)=>{
+   const label=add('label','',options);label.className='experience-context-option';const input=add('input','',label);input.type='radio';input.name='experience-context';input.value=key;input.required=true;inputs.push(input);
+   const copy=add('span','',label);add('strong',title,copy);if(detail)add('span',detail,copy);
+   if(context)records.set(key,context);input.addEventListener('change',()=>choose(key));return input;
+  };
+  for(const [i,b] of blocks.filter(C.eligible).entries()){
+   const context=C.reference(cvVersionId,b),s=context.snapshot,title=s.companyOrContext||s.roleOrProject||s.label||'Experience',detail=[s.roleOrProject!==title?s.roleOrProject:'',[s.startDate,s.endDate].filter(Boolean).join(' – ')].filter(Boolean).join(' · ');
+   const input=option(String(i),title,detail||(!s.companyOrContext&&!s.roleOrProject?b.text.slice(0,140):''),context);
+   // Restore only an explicit, still-valid saved choice; never a model guess.
+   if(selected?.kind==='cv_entry'&&C.resolve(selected,cvVersionId,blocks).status==='resolved'&&selected.blockId===b.blockId){input.checked=true;choose(String(i));}
+  }
+  const another=option('other','Another role or project','',null);
+  if(selected?.kind==='other'){another.checked=true;company.value=selected.companyOrContext;role.value=selected.roleOrProject;period.value=selected.period;choose('other');}
+  if(selected?.kind==='cv_entry'&&C.resolve(selected,cvVersionId,blocks).status!=='resolved')add('p','Saved context: '+C.describe(selected)+'. Its CV reference needs to be selected again.');
+  const error=add('p','');error.setAttribute('role','alert');
+  const actions=add('div','');actions.className='tailor-actions';const save=add('button','Continue',actions);save.type='submit';save.className='tailor-primary';const omit=add('button','Leave this out',actions);omit.type='button';
+  omit.addEventListener('click',()=>{if(!sending)onLeaveOut();});
+  form.addEventListener('submit',async event=>{
+   event.preventDefault();if(sending)return;error.textContent='';
+   try{if(choice===null){error.textContent='Choose a role or project.';return;}
+    const value=choice==='other'?{kind:'other',companyOrContext:company.value,roleOrProject:role.value,period:period.value}:records.get(choice);C.validate(value);
+    sending=true;save.disabled=omit.disabled=true;await onContinue(C.copy(value));
+   }catch(failure){sending=false;save.disabled=omit.disabled=false;error.textContent=['STALE_CONTEXT','STALE_CONTEXT_REFERENCE','STALE_ANSWER'].includes(failure?.message)?'Your CV, job context or answer changed. Your answer and selection are kept. Leave this suggestion and prepare a new one.':'The context could not be saved. Your answer and selection are kept. Review the choice and try again.';}
+  });host.append(form);return form;
+ }
+ root.DraftedExperienceContextUI={mount};
+})(globalThis);
+
+;
 /* Session-only source answers. Interpretation is advisory, never confirmation or a CV edit. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedExperienceDiscovery=api;})(globalThis,function(){
   'use strict';
   const MAX_ANSWER_LENGTH=50000,copy=x=>JSON.parse(JSON.stringify(x));
+  const contexts=()=>typeof module==='object'&&module.exports?require('./experience-context.js'):globalThis.DraftedExperienceContext;
   const requireText=x=>{if(typeof x!=='string'||!x.trim())throw Error('INVALID_TEXT');};
   // Whole-answer patterns only: a negated clause must never swallow a positive account.
   function isNegativeAnswer(text,question){
@@ -838,7 +907,8 @@
       const isFollowup=r.phase==='followup',reply=text,previous=a.revisions.at(-1)?.text;
       if(isFollowup&&previous&&!negative&&!/^\s*(i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
       if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
-      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
+      const experienceContext=a.revisions.at(-1)?.experienceContext;
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(experienceContext?{experienceContext:copy(experienceContext)}:{}),...(isFollowup?{followupReply:reply}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
       if(negative){a.status=q.status='no';this.advance();return;}
       if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
       if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(reply)){this.askFollowup();return;}
@@ -869,13 +939,21 @@
       const snap=this.snapshot(),r=this.round();
       return {contextRevision:snap.context.revision+':'+snap.revision+':'+r.phase+':'+r.index,roundId:r.id,
         questions:r.queue.map(q=>({id:q.id,question:q.question,signalRefs:copy(q.signalRefs),status:r.phase==='correct'&&q.id===this.current()?.id?'editing':q.status})),
-        answers:snap.answers.filter(a=>a.roundId===r.id).map(a=>({id:a.id,questionId:a.questionId,revision:a.currentRevision,text:a.revisions.at(-1).text})),applications:copy(applications)};
+        answers:snap.answers.filter(a=>a.roundId===r.id).map(a=>{const latest=a.revisions.at(-1);return {id:a.id,questionId:a.questionId,revision:a.currentRevision,text:latest.text,...(latest.experienceContext?{experienceContext:copy(latest.experienceContext)}:{})};}),applications:copy(applications)};
     }
     appendContext(answerId,revision,reply){
       requireText(reply);const a=this.state.answers.find(a=>a.id===answerId&&a.roundId===this.round().id);
       if(!a||a.currentRevision!==revision||a.status!=='recorded')throw Error('STALE_ANSWER');
       const latest=a.revisions.at(-1),sourceTextBeforeContext=latest.contextReply!==undefined?latest.sourceTextBeforeContext:latest.text;const text=sourceTextBeforeContext+'\n\nContext: '+reply;if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,contextReply:reply,sourceTextBeforeContext});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();
+    }
+    assignExperienceContext(answerId,revision,value){
+      const C=contexts();C.validate(value);const a=this.state.answers.find(a=>a.id===answerId&&a.roundId===this.round().id);
+      if(!a||a.currentRevision!==revision||a.status!=='recorded')throw Error('STALE_ANSWER');
+      if(value.kind==='cv_entry'&&C.resolve(value,this.state.context.cvVersionId,this.state.context.blocks).status!=='resolved')throw Error('STALE_CONTEXT_REFERENCE');
+      const latest=a.revisions.at(-1),text=latest.sourceTextBeforeContext??latest.text,context=copy(value);
+      // Validate everything before touching revision, status or source history.
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,experienceContext:context});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();
     }
     adoptRepresentation(blocks,cvVersionId){
       const r=this.round(),revision=this.id();for(const a of this.state.answers.filter(a=>a.roundId===r.id&&a.status==='processing')){a.status='error';r.queue.find(q=>q.id===a.questionId).status='error';}this.state.context={...this.state.context,revision,blocks:copy(blocks),cvVersionId};r.contextRevision=revision;this.state.revision++;
@@ -891,7 +969,7 @@
 ;
 (function(root){
   'use strict';
-  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready'}={}){
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready',onEditExperienceContext=null}={}){
     const drafts=new Map(),mountedRound=session.round().id;
     let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
@@ -909,7 +987,9 @@
       const details=el('details');details.className='discovery-history';details.append(el('summary','View or correct your answers'));
       for(const a of answers){const q=r.queue.find(q=>q.id===a.questionId),latest=a.revisions.at(-1);details.append(el('p',q.question,'discovery-history-question'));
         if(latest.followupReply!==undefined){details.append(el('p',a.revisions.at(-2).text,'discovery-answer'),el('p','Your clarification','discovery-result-label'),el('p',latest.followupReply,'discovery-answer'));}else details.append(el('p',latest.text,'discovery-answer'));
-        if(a.revisions.length>1){const revisions=el('details',null,'discovery-revisions');revisions.append(el('summary','Original answer and revisions'));for(const revision of a.revisions)revisions.append(el('p',`Revision ${revision.revision}`),el('blockquote',revision.text,'discovery-answer'));details.append(revisions);}
+        if(latest.experienceContext)details.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(latest.experienceContext),'discovery-saved-context'));
+        if(onEditExperienceContext&&a.status==='recorded')details.append(button(`Change context for answer ${r.queue.indexOf(q)+1}`,()=>onEditExperienceContext(a.id,a.currentRevision)));
+        if(a.revisions.length>1){const revisions=el('details',null,'discovery-revisions');revisions.append(el('summary','Original answer and revisions'));for(const revision of a.revisions){revisions.append(el('p',`Revision ${revision.revision}`),el('blockquote',revision.text,'discovery-answer'));if(revision.experienceContext)revisions.append(el('p','Context: '+root.DraftedExperienceContext.describe(revision.experienceContext),'discovery-saved-context'));}details.append(revisions);}
         if(a.status==='processing')details.append(el('p','Answer saved. Checking it in the background.','discovery-note'));
         if(a.status==='error'){details.append(el('p','Your answer is saved. We could not check it.','discovery-note'));if(onRetry)details.append(button(`Retry answer ${r.queue.indexOf(q)+1}`,()=>onRetry(a.id)));}
         details.append(button(`Correct answer ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,a.revisions.at(-1).text);session.correct(q.id);}));
@@ -964,6 +1044,8 @@
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
           const label=el('label',followup?'Your clarification':'A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
+          const saved=session.snapshot().answers.find(a=>a.id===q.answerId)?.revisions.at(-1)?.experienceContext;
+          if(saved)container.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(saved),'discovery-saved-context'));
           container.append(label,el('p','Up to 50,000 characters.','discovery-note'));
           actions.append(button(r.phase==='correct'?'Save correction':'Send answer',()=>{const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
           if(r.phase==='error'&&onRetry)actions.append(button('Try again',()=>onRetry()));
@@ -1107,7 +1189,7 @@
 /* Experience questions are an optional mode inside the existing editor. */
 (function(root){
   'use strict';
-  function create({host,getContext,endpoint,onTailor=()=>{},sourceTailoring=false,getTailorBusy=()=>false,getTailorState=()=>getTailorBusy()?'preparing':'ready',onSourceStateChange=()=>{},getSourceNotice=()=>''}){
+  function create({host,getContext,endpoint,onTailor=()=>{},sourceTailoring=false,getTailorBusy=()=>false,getTailorState=()=>getTailorBusy()?'preparing':'ready',onSourceStateChange=()=>{},getSourceNotice=()=>'',onEditExperienceContext=null}){
     const interpretations=new Set();
     function track(promise){if(!promise?.then)return promise;interpretations.add(promise);promise.then(()=>interpretations.delete(promise),()=>interpretations.delete(promise));return promise;}
     const session=new root.DraftedExperienceDiscovery.Session(),client=new root.DraftedDiscoveryClient.Client({endpoint,background:true});
@@ -1151,7 +1233,7 @@
     }
     function close(focus=false){if(planState==='ready'&&session.round().phase==='complete'){prepared=false;setLabel('Review your answers');}updateGuidance();opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
     function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
-    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=track(client.submit(session,t));if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>track(client.retry(session,id)).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
+    function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=track(client.submit(session,t));if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>track(client.retry(session,id)).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onEditExperienceContext,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
     function activate(){if(!session.round().total){body.replaceChildren(el('h2','No additional experience questions'),el('p','No further questions were identified for this CV and job ad. You can keep working in the editor.'));prepared=true;return;}if(session.round().phase==='offer')session.start();showRound();}
     async function start(){if(pending)return;const epoch=generation,controller=new AbortController();planController=controller;pending=true;planState='loading';updatePlanIndicator();body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en',{signal:controller.signal});if(result.stale||epoch!==generation)return;planState='ready';updateGuidance();if(opened)activate();else body.replaceChildren();}catch{if(epoch!==generation)return;planState='error';body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){if(planController===controller)planController=null;pending=false;body.removeAttribute('aria-busy');updatePlanIndicator();}}}
     function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
@@ -1167,6 +1249,7 @@
       showChat:(processed=false)=>{if(processed){prepared=false;setLabel('Review your answers');}close(true);},
       sourceContext:applications=>planState==='ready'?session.sourceContext(applications):null,
       appendContext:(id,revision,text)=>{session.appendContext(id,revision,text);prepared=false;updateGuidance();},
+      assignExperienceContext:(id,revision,value)=>{session.assignExperienceContext(id,revision,value);prepared=false;updateGuidance();},
       adoptRepresentation:(blocks,version)=>{if(planState!=='ready')return;session.adoptRepresentation(blocks,version);fingerprint=JSON.stringify(getContext());prepared=false;updateGuidance();},
       sourceContentRevision:()=>{const s=session.snapshot();return JSON.stringify(s.answers.filter(a=>a.roundId===s.round?.id).map(a=>({id:a.id,revision:a.currentRevision,text:a.revisions.at(-1)?.text,status:a.status})));},
       sourceRevision:()=>JSON.stringify({context:session.snapshot().context?.revision,answers:session.snapshot().answers,phase:session.snapshot().round?.phase,index:session.snapshot().round?.index})};
@@ -1179,6 +1262,7 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.DraftedTailorSources=api;})(globalThis,function(){
   'use strict';
   const copy=x=>JSON.parse(JSON.stringify(x));
+  const contexts=()=>typeof module==='object'&&module.exports?require('./experience-context.js'):globalThis.DraftedExperienceContext;
   const EXTRA=['sourcesSchemaVersion','sourceContextRevision','sourceRoundId','sourceUsage','sourceApplications','sourceReview','contextQuestions'];
   function check(ok,code='INVALID_SOURCE_REQUEST'){if(!ok)throw Error(code);}
   function exact(o,keys){check(o&&typeof o==='object'&&!Array.isArray(o)&&keys.length===Object.keys(o).length&&keys.every(k=>Object.hasOwn(o,k)));}
@@ -1188,7 +1272,7 @@
   function ref(s){exact(s,['answerId','answerRevision','sourceQuote']);text(s.answerId);check(Number.isSafeInteger(s.answerRevision)&&s.answerRevision>0);text(s.sourceQuote,50000);}
   function validateRequest(r){
     exact(r,['cvVersionId','cvTitle','targetRole','language','blocksSchemaVersion','blocks','jobContextSchemaVersion','jobContext','sourcesSchemaVersion','sourceContext']);
-    check(r.sourcesSchemaVersion==='1.0'&&r.blocksSchemaVersion==='1.0'&&r.jobContextSchemaVersion==='1.0');
+    check(['1.0','1.2'].includes(r.sourcesSchemaVersion)&&r.blocksSchemaVersion==='1.0'&&r.jobContextSchemaVersion==='1.0');
     text(r.cvVersionId);text(r.cvTitle,1000,true);text(r.targetRole,20000,true);check(['sv','en'].includes(r.language));
     const c=r.sourceContext;exact(c,['contextRevision','roundId','questions','answers','applications']);text(c.contextRevision);text(c.roundId);
     const discovery=typeof module==='object'&&module.exports?require('./experience-discovery-contract.js'):globalThis.DraftedDiscoveryContract;
@@ -1197,7 +1281,7 @@
     for(const q of c.questions){exact(q,['id','question','signalRefs','status']);text(q.id);text(q.question,500);check(['recorded','no','unknown','skipped','covered','needs_detail','error','unanswered','processing','answered','editing'].includes(q.status));array(q.signalRefs,20);check(q.signalRefs.length>0);for(const s of q.signalRefs){exact(s,['field','index']);check(['topPriorities','mustHave'].includes(s.field)&&Number.isSafeInteger(s.index)&&s.index>=0&&!!r.jobContext[s.field][s.index]);}}
     unique(c.questions.flatMap(q=>q.signalRefs).map(s=>s.field+':'+s.index),x=>x);
     array(c.answers);unique(c.answers,a=>a.id);unique(c.answers,a=>a.questionId);
-    for(const a of c.answers){exact(a,['id','questionId','revision','text']);text(a.id);text(a.questionId);text(a.text,50000);check(Number.isSafeInteger(a.revision)&&a.revision>0&&c.questions.some(q=>q.id===a.questionId));}
+    for(const a of c.answers){exact(a,['id','questionId','revision','text',...(r.sourcesSchemaVersion==='1.2'&&Object.hasOwn(a,'experienceContext')?['experienceContext']:[])]);text(a.id);text(a.questionId);text(a.text,50000);check(Number.isSafeInteger(a.revision)&&a.revision>0&&c.questions.some(q=>q.id===a.questionId));if(Object.hasOwn(a,'experienceContext'))contexts().validate(a.experienceContext);}
     check(c.questions.filter(q=>q.status==='recorded').every(q=>c.answers.some(a=>a.questionId===q.id)));
     array(c.applications);unique(c.applications,g=>g.blockId);const ids=[];
     for(const g of c.applications){exact(g,['blockId','checkpointText','additions']);text(g.blockId);text(g.checkpointText,100000,true);check(r.blocks.some(b=>b.blockId===g.blockId));array(g.additions);let end=0;
@@ -1225,6 +1309,7 @@
     constraints:r.sourceContext.answers.filter(a=>answer(r,a.id).q.status!=='recorded'),reviewSections:base.review.map(x=>{const {text,...metadata}=r.blocks.find(b=>b.blockId===x.blockId);return metadata;}),frozenBlockIds:base.review.map(x=>x.blockId)};}
   function contextSupported(r,b,source){
     const quote=source.contextQuote;check(typeof quote==='string');const a=answer(r,source.answerId).a;check(a.text.includes(quote),'INVALID_SOURCE_QUOTE');
+    if(a.experienceContext){const resolved=contexts().resolve(a.experienceContext,r.cvVersionId,r.blocks);return resolved.status==='resolved'&&resolved.blockId===b.blockId;}
     const has=s=>!!s&&quote.toLowerCase().includes(s.toLowerCase());
     if(b.type==='experience')return has(b.employer)&&r.blocks.filter(o=>o.type==='experience'&&o.employer===b.employer&&(!has(b.title)||o.title===b.title)&&(!has(b.startDate)||o.startDate===b.startDate)).length===1;
     if(b.type==='education')return has(b.institution)&&r.blocks.filter(o=>o.type==='education'&&o.institution===b.institution&&(!has(b.degree)||o.degree===b.degree)).length===1;
@@ -1233,7 +1318,9 @@
   }
   function candidate(r,model,{id=()=>globalThis.crypto.randomUUID()}={}){
     exact(model,['additions','contextQuestions']);array(model.additions);array(model.contextQuestions);const base=prepare(r),usage=[],questions=[];
-    for(const c of model.contextQuestions){exact(c,['answerId','answerRevision','reason']);const {a,q}=answer(r,c.answerId);check(a&&q.status==='recorded'&&a.revision===c.answerRevision&&['context_unclear','new_block_required'].includes(c.reason));questions.push(copy(c));}
+    for(const c of model.contextQuestions){exact(c,['answerId','answerRevision','reason']);const {a,q}=answer(r,c.answerId);check(a&&q.status==='recorded'&&a.revision===c.answerRevision&&['context_unclear','new_block_required',...(r.sourcesSchemaVersion==='1.2'?['reference_unresolved']:[])].includes(c.reason));
+      if(r.sourcesSchemaVersion==='1.2'){if(a.experienceContext){const status=contexts().resolve(a.experienceContext,r.cvVersionId,r.blocks).status;check(c.reason===({unplaced:'new_block_required',unresolved:'reference_unresolved'}[status]),'INVALID_CONTEXT_REASON');}else check(c.reason!=='reference_unresolved','INVALID_CONTEXT_REASON');}
+      questions.push(copy(c));}
     unique(questions,q=>q.answerId);
     for(const item of model.additions){exact(item,['blockId','text','answerId','answerRevision','sourceQuote','contextQuote']);text(item.text,10000);check(item.text===item.text.trim());ref({answerId:item.answerId,answerRevision:item.answerRevision,sourceQuote:item.sourceQuote});
       const {a,q}=answer(r,item.answerId),b=base.blocks.find(b=>b.blockId===item.blockId);check(a&&q.status==='recorded'&&a.revision===item.answerRevision,'INVALID_SOURCE_REFERENCE');check(a.text.includes(item.sourceQuote),'INVALID_SOURCE_QUOTE');check(b&&!base.review.some(x=>x.blockId===b.blockId),'BLOCK_REQUIRES_REVIEW');check(!questions.some(q=>q.answerId===a.id),'CONTEXT_REQUIRED');check(contextSupported(r,b,item),'CONTEXT_REQUIRED');
@@ -1248,7 +1335,7 @@
     validateRequest({...r,blocks:base.blocks,sourceContext:{...r.sourceContext,applications:base.applications}});
     const joined=base.blocks.slice().sort((a,b)=>a.order-b.order).map(b=>b.text).join('\n\n');
     return {ok:true,blocksSchemaVersion:'1.0',cvVersionId:r.cvVersionId,cvTitle:r.cvTitle,summaryOfChanges:'Review the proposed changes before applying.',blocks:base.blocks,rewrittenCv:joined,rewrittenCvLegacy:joined,
-      sourcesSchemaVersion:'1.0',sourceContextRevision:r.sourceContext.contextRevision,sourceRoundId:r.sourceContext.roundId,sourceUsage:usage,sourceApplications:base.applications,sourceReview:base.review,contextQuestions:questions};
+      sourcesSchemaVersion:r.sourcesSchemaVersion,sourceContextRevision:r.sourceContext.contextRevision,sourceRoundId:r.sourceContext.roundId,sourceUsage:usage,sourceApplications:base.applications,sourceReview:base.review,contextQuestions:questions};
   }
   function validateCandidate(r,data){
     exact(data,['ok','blocksSchemaVersion','cvVersionId','cvTitle','summaryOfChanges','blocks','rewrittenCv','rewrittenCvLegacy',...EXTRA]);
@@ -1277,10 +1364,10 @@
 /* Negotiated whole-CV edits plus answer-derived additions; shared browser/backend code. */
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources.js'));else root.DraftedTailorSources=factory(root.DraftedTailorSources);})(globalThis,function(legacy){
  'use strict';
- const copy=x=>JSON.parse(JSON.stringify(x)),old=r=>({...r,sourcesSchemaVersion:'1.0'});
+ const copy=x=>JSON.parse(JSON.stringify(x)),old=r=>({...r,sourcesSchemaVersion:r.sourcesSchemaVersion==='1.2'?'1.2':'1.0'});
  function check(ok,code='INVALID_SOURCE_CANDIDATE'){if(!ok)throw Error(code);}
  function exact(o,keys){check(o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===keys.length&&keys.every(k=>Object.hasOwn(o,k)));}
- function validateRequest(r){check(['1.0','1.1'].includes(r?.sourcesSchemaVersion),'INVALID_SOURCE_REQUEST');return legacy.validateRequest(old(r));}
+ function validateRequest(r){check(['1.0','1.1','1.2'].includes(r?.sourcesSchemaVersion),'INVALID_SOURCE_REQUEST');return legacy.validateRequest(old(r));}
  function prepare(r){validateRequest(r);return legacy.prepare(old(r));}
  function cvCatalog(r){
   const base=prepare(r),targets=[];
@@ -1309,11 +1396,11 @@
   const edited=rebase(catalog.base.blocks,catalog.base.applications,cvEdits),replaced=removeReplaced(edited.blocks,edited.applications,model.additions,catalog.base.review);
   const request={...old(r),blocks:replaced.blocks,sourceContext:{...r.sourceContext,applications:replaced.applications}};
   const result=legacy.candidate(request,{additions:model.additions,contextQuestions:model.contextQuestions},options);
-  return {...result,sourcesSchemaVersion:'1.1',cvEdits};
+  return {...result,sourcesSchemaVersion:r.sourcesSchemaVersion,cvEdits};
  }
  function validateCandidate(r,data){
   if(r.sourcesSchemaVersion==='1.0')return legacy.validateCandidate(r,data);
-  check(data?.sourcesSchemaVersion==='1.1');exact(data,['ok','blocksSchemaVersion','cvVersionId','cvTitle','summaryOfChanges','blocks','rewrittenCv','rewrittenCvLegacy','sourcesSchemaVersion','sourceContextRevision','sourceRoundId','sourceUsage','sourceApplications','sourceReview','contextQuestions','cvEdits']);check(Array.isArray(data.sourceUsage));
+  check(data?.sourcesSchemaVersion===r.sourcesSchemaVersion);exact(data,['ok','blocksSchemaVersion','cvVersionId','cvTitle','summaryOfChanges','blocks','rewrittenCv','rewrittenCvLegacy','sourcesSchemaVersion','sourceContextRevision','sourceRoundId','sourceUsage','sourceApplications','sourceReview','contextQuestions','cvEdits']);check(Array.isArray(data.sourceUsage));
   const ids=data.sourceUsage.map(u=>u.applicationId);check(new Set(ids).size===ids.length);let n=0;
   const expected=candidate(r,{cvEdits:data.cvEdits,additions:data.sourceUsage.map(u=>({blockId:u.blockId,text:u.proposedQuote,answerId:u.answerId,answerRevision:u.answerRevision,sourceQuote:u.sourceQuote,contextQuote:u.contextQuote})),contextQuestions:data.contextQuestions},{id:()=>ids[n++]});
   check(JSON.stringify(data)===JSON.stringify(expected));return data;
@@ -1445,7 +1532,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-28-tailor-review");
+console.log("DRAFTED_JS_SOURCE", "2026-10-28-structured-context");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -1468,6 +1555,9 @@ let tailorReviewCheck = null;
 let tailorReviewDispose = null;
 const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_URL==="https://drafted.app.n8n.cloud/webhook/tailor-cv")||['localhost','127.0.0.1'].includes(location.hostname)&&draftedEndpoints.tailorSources===true&&draftedEndpoints.tailor==='/preview-api/tailor';
 const tailorSourceLedger=new DraftedTailorSources.Ledger();
+// Flip only in a separately approved release after the endpoint supports 1.2.
+const productionStructuredContext=true;
+const structuredContextEnabled=tailorSourcesEnabled&&(window.__DRAFTED_PREVIEW_ENDPOINTS__?draftedEndpoints.tailorSourcesVersion==='1.2':productionStructuredContext);
 
 // The editor is a workspace; remove the legacy Webflow section introduction.
 onReady(() => {
@@ -1986,15 +2076,21 @@ maybeShowTailor();
        // Preview actual proposed wording; never invent a new AI summary or use
        // an answer number in place of the change. Full text stays in details.
        const excerpt=text=>{const clean=String(text).replace(/\s+/g,' ').trim();return clean.length<=280?clean:clean.slice(0,280).replace(/\s+\S*$/,'')+'…';};
-       const contextQuestion=(data.contextQuestions||[]).find(q=>q.reason==='context_unclear'&&!omittedContext.has(q.answerId));
+       const contextQuestion=(data.contextQuestions||[]).find(q=>['context_unclear','reference_unresolved'].includes(q.reason)&&!omittedContext.has(q.answerId));
        if(contextQuestion){
          const answer=request.sourceContext.answers.find(a=>a.id===contextQuestion.answerId&&a.revision===contextQuestion.answerRevision);
          if(!answer)throw Error('Missing context source');
          card.classList.add('tailor-context-mode');card.setAttribute('aria-label','Tailoring context');
          const existing=answer.text.includes('\n\nContext: ')?answer.text.split('\n\nContext: ').at(-1):'';
          const named=[...new Set(request.blocks.map(b=>b.employer||b.institution||(['project','projects'].includes(b.type)||b.type==='otherSections'&&/project|projekt/i.test(b.label||'')?b.label:'')).filter(name=>name&&answer.text.toLocaleLowerCase().includes(name.toLocaleLowerCase())))];
-         const question=existing?'What additional role or project detail would help place this example?':named.length===1?('For the example mentioning '+named[0]+', what was your role?'):'Which role or project does this example relate to?';
+         const question=structuredContextEnabled?'Which role or project does this example relate to?':existing?'What additional role or project detail would help place this example?':named.length===1?('For the example mentioning '+named[0]+', what was your role?'):'Which role or project does this example relate to?';
          add('h2',question);add('blockquote',excerpt(answer.text.split('\n\nContext: ')[0]));
+         if(structuredContextEnabled){
+           DraftedExperienceContextUI.mount(card,{blocks:request.blocks,cvVersionId:request.cvVersionId,selected:answer.experienceContext||null,
+             onContinue:value=>{if(stamp!==tailorContextStamp()||isPreviewingProposal)throw Error('STALE_CONTEXT');discoveryController.assignExperienceContext(contextQuestion.answerId,contextQuestion.answerRevision,value);card.remove();refreshTailorPresentation();runTailor();},
+             onLeaveOut:()=>{if(stamp!==tailorContextStamp()||isPreviewingProposal){card.remove();showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}if(!Array.isArray(data.blocks)){card.remove();refreshTailorPresentation();return;}showTailorSuggestion(data,stamp,request,new Set([...omittedContext,contextQuestion.answerId]));refreshTailorPresentation();}});
+           chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;return;
+         }
          const input=add('textarea','');input.rows=3;input.value=existing;input.setAttribute('aria-label',question);input.placeholder='Add the missing context';
          const actions=add('div','');actions.className='tailor-actions';const save=add('button','Continue',actions),omit=add('button','Leave this out',actions);save.type=omit.type='button';save.className='tailor-primary';
          const current=()=>stamp===tailorContextStamp()&&!isPreviewingProposal;
@@ -2011,6 +2107,7 @@ maybeShowTailor();
        const changed=computeChangedBlockIds(request.blocks,data.blocks);
        if(!changed.length){
          showTailorFeedback('No changes suggested');
+         if(data.sourcesSchemaVersion==='1.2'&&data.contextQuestions?.some(q=>q.reason==='new_block_required')){const note=document.createElement('p');note.textContent='Your new context is saved with your answer. It has no selected CV entry; no new CV entry was created.';chatMessagesEl.querySelector('.tailor-feedback').append(note);}
          return;
        }
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
@@ -2068,7 +2165,7 @@ maybeShowTailor();
            const context=answer&&data.contextQuestions.find(c=>c.answerId===answer.id);
            const existing=answer&&q.status==='recorded'?data.sourceApplications.filter(g=>!data.sourceReview.some(r=>r.blockId===g.blockId)&&g.additions.some(a=>a.source.answerId===answer.id&&a.source.answerRevision===answer.revision)):[];
            const needsReview=answer&&q.status==='recorded'&&request.sourceContext.applications.some(g=>data.sourceReview.some(r=>r.blockId===g.blockId)&&g.additions.some(a=>a.source.answerId===answer.id));
-           const reason=answer&&omittedContext.has(answer.id)?'Left out of this suggestion; your original answer is kept.':context?.reason==='context_unclear'?'The setting is unclear.':context?.reason==='new_block_required'?'Needs a new CV entry; none was created.':needsReview?'Earlier wording needs review before it can be updated.':existing.length?`Already in your CV in ${existing.map(g=>sectionName(data.blocks.find(b=>b.blockId===g.blockId))).join(', ')}; no new wording proposed.`:
+           const reason=answer&&omittedContext.has(answer.id)?'Left out of this suggestion; your original answer is kept.':context?.reason==='context_unclear'?'The setting is unclear.':context?.reason==='new_block_required'?(answer?.experienceContext?.kind==='other'?'Context saved without a selected CV entry; not added to this CV.':'Needs a new CV entry; none was created.'):needsReview?'Earlier wording needs review before it can be updated.':existing.length?`Already in your CV in ${existing.map(g=>sectionName(data.blocks.find(b=>b.blockId===g.blockId))).join(', ')}; no new wording proposed.`:
              ({no:'You answered no; not used for new experience wording.',skipped:'Skipped; not used for new wording.',unknown:'The experience is still unclear.',needs_detail:'More detail is needed.',processing:'Still being checked.',answered:'Still being checked.',editing:'Being corrected.',error:'Could not be checked.'}[q.status]||'No new wording was proposed from this answer.');
            notes.push(`${answer?'Answer':'Question'} ${index+1}: ${reason}`);
          }
@@ -2148,7 +2245,7 @@ maybeShowTailor();
            language:documentLanguage||'en',blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
          const sourceContext=tailorSourcesEnabled?discoveryController?.sourceContext(tailorSourceLedger.snapshot()):null;
          sourceRequest=!!sourceContext;
-         if(sourceContext){payload.sourcesSchemaVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):'1.1';payload.sourceContext=sourceContext;}
+         if(sourceContext){payload.sourcesSchemaVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):(structuredContextEnabled?'1.2':'1.1');payload.sourceContext=sourceContext;}
          const data=sourceContext?await fetchTailorSources(payload):await draftedFetchJson(N8N_TAILOR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)},'cv');
          if(stamp!==tailorContextStamp()||isPreviewingProposal){showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}
          // Existing Tailor permits text changes only. Fail closed on structural drift.
@@ -2939,6 +3036,10 @@ function setApplyLabel() {
       getTailorState:tailorPresentationState,
       onSourceStateChange:refreshTailorPresentation,
       sourceTailoring: tailorSourcesEnabled,
+      onEditExperienceContext:structuredContextEnabled?(id,revision)=>{
+        const sourceContext=discoveryController.sourceContext(tailorSourceLedger.snapshot());
+        discoveryController.showChat();showTailorSuggestion({contextQuestions:[{answerId:id,answerRevision:revision,reason:'context_unclear'}]},tailorContextStamp(),{cvVersionId,blocks:deepClone(documentBlocksState),sourceContext});refreshTailorPresentation();
+      }:null,
       getSourceNotice:()=>{const c=discoveryController?.sourceContext(tailorSourceLedger.snapshot());if(!c)return '';return c.applications.some(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text!==g.checkpointText||g.additions.some(x=>{const a=c.answers.find(a=>a.id===x.source.answerId);return !a||a.revision!==x.source.answerRevision||c.questions.find(q=>q.id===a.questionId)?.status!=='recorded';}))?'Earlier wording may use changed or unavailable answers. It remains unchanged until you review and apply an update.':'';},
       getContext: () => !isPreviewingProposal && discoveryCvFile && getFileInput()?.files?.[0] === discoveryCvFile && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
         ? { cvVersionId, blocks: deepClone(documentBlocksState), jobContext: deepClone(window.__DRAFTED_JOBCONTEXT__) }

@@ -2,12 +2,14 @@
 // Internal model format only. Original IDs/revisions/text are resolved here,
 // never supplied by the model. No network, persistence, inferred user facts.
 const profile=require('../webflow/src/tailor-sources.js');
+const contexts=require('../webflow/src/experience-context.js');
 const FORMAT='tailor-source-references-1';
 function check(ok,code='INVALID_SOURCE_SELECTION'){if(!ok)throw Error(code);}
 function exact(o,keys){check(o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===keys.length&&keys.every(k=>Object.hasOwn(o,k)));}
 // A preliminary filter matching the public composer's contextual check. The
 // original composer remains authoritative and validates every compiled output.
-function contextSupported(blocks,b,text){
+function contextSupported(blocks,b,text,context,cvVersionId){
+ if(context){const resolved=contexts.resolve(context,cvVersionId,blocks);return resolved.status==='resolved'&&resolved.blockId===b.blockId;}
  const has=s=>!!s&&text.toLowerCase().includes(s.toLowerCase());
  if(b.type==='experience')return has(b.employer)&&blocks.filter(o=>o.type==='experience'&&o.employer===b.employer&&(!has(b.title)||o.title===b.title)&&(!has(b.startDate)||o.startDate===b.startDate)).length===1;
  if(b.type==='education')return has(b.institution)&&blocks.filter(o=>o.type==='education'&&o.institution===b.institution&&(!has(b.degree)||o.degree===b.degree)).length===1;
@@ -25,7 +27,8 @@ function catalog(request,scope){
   // including receipts made by the former substring-quote model format.
   const applied=targets.filter(b=>prepared.applications.some(g=>g.blockId===b.blockId&&g.additions.some(x=>x.source.answerId===a.id&&x.source.answerRevision===a.revision))).map(b=>b.targetKey);
   return {sourceKey:'s'+(i+1)+'_'+scope,answerId:a.id,answerRevision:a.revision,text:a.text,alreadyAppliedTargets:applied,
-   allowedTargets:targets.filter(b=>!applied.includes(b.targetKey)&&contextSupported(request.blocks,b,a.text)).map(b=>b.targetKey)};
+   ...(a.experienceContext?{experienceContext:contexts.copy(a.experienceContext),contextStatus:contexts.resolve(a.experienceContext,request.cvVersionId,request.blocks).status}:{}),
+   allowedTargets:targets.filter(b=>!applied.includes(b.targetKey)&&contextSupported(request.blocks,b,a.text,a.experienceContext,request.cvVersionId)).map(b=>b.targetKey)};
  });
  return {sources,targets,modelInput:{format:FORMAT,language:input.language,jobContext:input.jobContext,
   sources:sources.map(({answerId,answerRevision,...s})=>s),targets,
@@ -39,7 +42,7 @@ function compile(request,raw,scope){
  const source=key=>{const s=c.sources.find(s=>s.sourceKey===key);check(s,'UNKNOWN_SOURCE_KEY');return s;};
  const contextQuestions=raw.contextQuestions.map(q=>{
   exact(q,['sourceKey','reason']);const s=source(q.sourceKey);
-  check(!questions.has(s.sourceKey)&&['context_unclear','new_block_required'].includes(q.reason));questions.add(s.sourceKey);
+  check(!questions.has(s.sourceKey)&&['context_unclear','new_block_required',...(request.sourcesSchemaVersion==='1.2'?['reference_unresolved']:[])].includes(q.reason));questions.add(s.sourceKey);
   return {answerId:s.answerId,answerRevision:s.answerRevision,reason:q.reason};
  });
  const additions=raw.additions.map(a=>{

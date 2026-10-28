@@ -31,11 +31,13 @@ const envelope=blocks=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'syntheti
    outside.push(url);return route.abort();
   });
   await page.goto(site+'?release=2026-10-28-tailor-review',{waitUntil:'domcontentloaded'});
+  await page.locator('.preparation-layout').waitFor();
   await page.locator('#job-ad-input').fill('A synthetic product specialist role involving digital teams, user interviews and sharing feedback. '.repeat(8));
+  await page.waitForFunction(()=>document.querySelector('#jobcontext-status')?.dataset.state==='ready');
   await page.locator('#cv-file').setInputFiles({name:'synthetic-original.pdf',mimeType:'application/pdf',buffer:Buffer.from(require('./fixtures/source-pdf.js').create())});
   await page.getByRole('button',{name:'Continue to editor',exact:true}).click();
   const cv=page.locator('.cv-document-inner'),guide=page.locator('#drafted-discovery-guidance'),review=page.getByRole('region',{name:'Tailoring suggestion',exact:true});
-  await page.waitForFunction(()=>document.querySelector('.discovery-launcher')?.dataset.planState==='ready');const before=await cv.innerText();await page.locator('#tailor-btn').click();
+  await page.waitForFunction(()=>document.querySelector('.discovery-launcher')?.dataset.planState==='ready').catch(async e=>{await page.screenshot({path:path.join(out,'failure.png')});console.log(JSON.stringify({posts,errors,outside,ui:await page.locator('.section-editor').innerText()}));throw e;});const before=await cv.innerText();await page.locator('#tailor-btn').click();
   if(changed){
    await review.getByRole('heading',{name:'3 changed blocks',exact:true}).waitFor();for(const type of ['Added','Removed','Rewritten'])assert(await review.locator(`[data-change-kind="${type}"]`).count());
    assert.equal(await cv.innerText(),before);assert.equal(await review.locator('.tailor-proposed-cv').count(),0);await page.screenshot({path:path.join(out,`${phase}-${width}.png`)});
