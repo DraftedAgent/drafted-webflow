@@ -27,7 +27,8 @@
     const jobHint=el('p','preparation-job-hint','Use at least 200 characters to extract job context.');jobHint.id='preparation-job-hint';
     const updateHint=()=>{const length=job.value.trim().length;jobHint.hidden=length===0||length>=200;};job.addEventListener('input',updateHint);updateHint();
     jobStatus.setAttribute('role','status');jobStatus.setAttribute('aria-live','polite');
-    opportunity.group.append(job,jobHint,jobStatus);
+    const jobFeedback=el('div','preparation-job-feedback');jobFeedback.append(jobHint,jobStatus);
+    opportunity.group.append(job,jobFeedback);
     const starting=step('02','Your current CV','Upload the CV you have today. It doesn’t need to be tailored to this role.','preparation-starting');
     const icon=el('span','preparation-file-icon');icon.setAttribute('aria-hidden','true');
     icon.innerHTML='<svg width="25" height="28" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2h9l5 5v18H5zM14 2v6h5M8 13h8M8 17h8M8 21h5"/></svg>';

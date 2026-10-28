@@ -607,23 +607,19 @@ maybeShowTailor();
          const marked=items.filter(item=>item.type!=='equal');
          if(marked.length&&marked.every(item=>!item.text.trim())){host.setAttribute('aria-label','Spacing or line breaks changed');add('span','Spacing or line breaks changed',host).className='tailor-spacing-note';}
        };
-       let navigationTimer;const highlighted=new Set();
-       const clearHighlight=()=>{clearTimeout(navigationTimer);for(const node of highlighted)node.classList.remove('is-tailor-reviewed');highlighted.clear();};
+       const endPreview=()=>{const preview=tailorCvPreview;tailorCvPreview=null;preview?.dispose();};
+       const previewDialog=document.getElementById('cv-preview-dialog');previewDialog?.addEventListener('close',endPreview);
        const navigate=block=>{
          if(!checkCurrent())return;
-         const targets=[...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].filter(node=>node.dataset.blockId===block.blockId),pane=editorPreviewEl.closest('.cv-document');
-         if(!targets.length||!pane)return;
-         clearHighlight();for(const node of targets){node.classList.add('is-tailor-reviewed');highlighted.add(node);}
-         pane.scrollTop+=targets[0].getBoundingClientRect().top-pane.getBoundingClientRect().top-18;
-         navigationNotice.textContent=`Showing ${sectionName(block)} in your current CV. Proposed changes are not applied.`;
-         navigationTimer=setTimeout(clearHighlight,3000);
+         if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,controls:document.querySelector('.workspace-preview-title'),candidate:data,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
+         tailorCvPreview.navigate(block.blockId);
        };
        // Actual text changes drive the review; source receipts stay optional.
        const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);
        for(const change of proposed){
          const block=data.blocks.find(b=>b.blockId===change.blockId),section=add('section','',body);section.className='tailor-block-change';section.dataset.reviewBlockId=change.blockId;
          const title=add('div','',section);title.className='tailor-block-title';add('h3',sectionName(block),title);
-         if([...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].some(node=>node.dataset.blockId===block.blockId)){const review=add('button','Review in CV',title);review.type='button';review.className='tailor-review-link';review.setAttribute('aria-label',`Review ${sectionName(block)} in current CV`);review.addEventListener('click',()=>navigate(block));}
+         if([...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].some(node=>node.dataset.blockId===block.blockId)){const review=add('button','Review in CV',title);review.type='button';review.className='tailor-review-link';review.setAttribute('aria-label',`Review ${sectionName(block)} in CV`);review.addEventListener('click',()=>navigate(block));}
          for(const edit of change.edits){
            const item=add('div','',section);item.className='tailor-edit';item.dataset.changeKind=edit.kind;
            add('span',edit.kind,item).className='tailor-edit-kind tailor-kind-'+edit.kind.toLowerCase();
@@ -659,18 +655,19 @@ maybeShowTailor();
        const apply=add('button','Apply all changes',actions);apply.type='button';apply.className='tailor-primary';
        const dismiss=add('button','Dismiss',actions);dismiss.type='button';
        const navigationNotice=add('p','Your current CV stays unchanged until you apply.',footer);navigationNotice.className='tailor-current-notice';navigationNotice.setAttribute('role','status');
-       let stale=false,settled=false;
+       let stale=false,settled=false,removalObserver;
        const checkCurrent=()=>{
          if(settled)return false;
          if(stale||stamp!==tailorContextStamp()||isPreviewingProposal){
-           stale=true;apply.disabled=true;status.textContent='Needs update';card.classList.add('is-stale');clearHighlight();
+           stale=true;apply.disabled=true;status.textContent='Needs update';card.classList.add('is-stale');endPreview();
            navigationNotice.textContent='Your CV, job ad or answers changed. Dismiss this suggestion and tailor again.';
            return false;
          }return true;
        };
-       const dispose=()=>{settled=true;tailorReviewCheck=null;tailorReviewDispose=null;clearHighlight();jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
+       const dispose=()=>{settled=true;removalObserver?.disconnect();tailorReviewCheck=null;tailorReviewDispose=null;endPreview();previewDialog?.removeEventListener('close',endPreview);jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
        tailorReviewDispose=dispose;
        tailorReviewCheck=()=>{if(!card.isConnected){dispose();return;}checkCurrent();};
+       removalObserver=new MutationObserver(()=>{if(!card.isConnected)dispose();});removalObserver.observe(chatMessagesEl,{childList:true});
        jobAdInputEl?.addEventListener('input',checkCurrent);targetRoleInput?.addEventListener('input',checkCurrent);
        apply.addEventListener('click',()=>{
          if(apply.disabled||!checkCurrent())return;
@@ -1423,6 +1420,8 @@ function setApplyLabel() {
   let previewView = null;
   let previewZoom = null;
   let browserPrint = null;
+  let tailorCvPreview = null;
+  document.addEventListener('keydown',event=>{if(tailorCvPreview?.suggested()&&(event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='p')event.preventDefault();},true);
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
@@ -1491,6 +1490,7 @@ function setApplyLabel() {
     copy.disabled=true;
     const copyStatus=document.createElement('span');copyStatus.className='workspace-sr-only';copyStatus.setAttribute('role','status');
     copy.addEventListener('click',async()=>{
+      if(tailorCvPreview?.suggested())return;
       try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));copyStatus.textContent='Copied';}
       catch{copyStatus.textContent='Copy unavailable';}
     });
@@ -1697,18 +1697,21 @@ function setApplyLabel() {
      =============================== */
   function renderDocument(text) {
     tailorReviewCheck?.();
+    tailorCvPreview?.beforeRender();
+    const presentation=tailorCvPreview?.model();
+    editorPreviewEl.dataset.cvPreviewMode=presentation?'suggested':'current';
     const workspaceTitle = document.querySelector('.workspace-document-title');
     if (workspaceTitle) {
       workspaceTitle.textContent = documentTitle || 'Untitled CV';
       workspaceTitle.title = documentTitle || 'Untitled CV';
     }
-    DraftedCvLayout.render(editorPreviewEl, {
-      blocks: documentBlocksState || [], title: documentTitle || '', templateId: selectedCvDesign,
+    return DraftedCvLayout.render(editorPreviewEl, {
+      blocks: presentation?.blocks || documentBlocksState || [], title: presentation?.cvTitle ?? documentTitle ?? '', templateId: selectedCvDesign,
       onState(state) {
         previewView?.setState(state);
         previewZoom?.setState(state);
         browserPrint?.setState(state);
-        const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready';
+        const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready'||!!presentation;
         const counter=document.querySelector('.workspace-page-count');
         if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
       },
@@ -1726,6 +1729,7 @@ function setApplyLabel() {
           counter.textContent = count ? `${count} ${count === 1 ? 'page' : 'pages'}` : '';
         }
         applySelectedBlocksUI();
+        tailorCvPreview?.afterRender();
       }
     });
   }
@@ -1990,6 +1994,7 @@ function updateContextChip() {
      BLOCK CLICK SELECTION (MULTI)
      =============================== */
   editorPreviewEl.addEventListener("click", (e) => {
+    if(tailorCvPreview?.suggested())return;
     if (!documentBlocksState || !documentBlocksState.length) return;
 
     if (e.target.closest("a.cv-document-link")) return;
@@ -2606,6 +2611,7 @@ async function sendApply() {
 
 // 2) Bygg payload ENBART från blocks som source of truth
 function buildPdfExportPayload() {
+  if(tailorCvPreview?.suggested())return {ok:false,reason:'SUGGESTED_PREVIEW'};
   // documentBlocksState och cvVersionId och documentTitle ligger i closure-scope (STATE)
   if (!documentBlocksState || !Array.isArray(documentBlocksState) || documentBlocksState.length === 0) {
     return { ok: false, reason: "NO_BLOCKS" };

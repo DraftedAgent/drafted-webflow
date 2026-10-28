@@ -119,7 +119,8 @@
     const jobHint=el('p','preparation-job-hint','Use at least 200 characters to extract job context.');jobHint.id='preparation-job-hint';
     const updateHint=()=>{const length=job.value.trim().length;jobHint.hidden=length===0||length>=200;};job.addEventListener('input',updateHint);updateHint();
     jobStatus.setAttribute('role','status');jobStatus.setAttribute('aria-live','polite');
-    opportunity.group.append(job,jobHint,jobStatus);
+    const jobFeedback=el('div','preparation-job-feedback');jobFeedback.append(jobHint,jobStatus);
+    opportunity.group.append(job,jobFeedback);
     const starting=step('02','Your current CV','Upload the CV you have today. It doesn’t need to be tailored to this role.','preparation-starting');
     const icon=el('span','preparation-file-icon');icon.setAttribute('aria-hidden','true');
     icon.innerHTML='<svg width="25" height="28" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2h9l5 5v18H5zM14 2v6h5M8 13h8M8 17h8M8 21h5"/></svg>';
@@ -734,11 +735,13 @@
 (function(global){
   'use strict';
   async function prepare(host,title,stylesheet){
+    const check=()=>{if(host.dataset.cvPreviewMode==='suggested')throw Error('Switch to Current before exporting.');};check();
     await global.DraftedCvLayout.ready(host);
+    check();
     const pages=[...host.querySelectorAll('.cv-page')];
     if(!pages.length||!stylesheet)throw Error('The document is not ready to print.');
     const copy=host.cloneNode(true);copy.style.width='210mm';
-    copy.querySelectorAll('.is-selected').forEach(el=>el.classList.remove('is-selected'));
+    copy.querySelectorAll('.is-selected,.is-tailor-reviewed').forEach(el=>el.classList.remove('is-selected','is-tailor-reviewed'));
     copy.querySelectorAll('.cv-page').forEach(el=>el.style.transform='none');
     copy.querySelectorAll('.cv-page-slot').forEach(el=>{el.style.width='210mm';el.style.height='297mm';});
     const frame=document.createElement('iframe');frame.title='CV print document';frame.tabIndex=-1;frame.setAttribute('aria-hidden','true');frame.dataset.cvPrint='preparing';
@@ -760,6 +763,7 @@
       })(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Print preparation timed out. Please try again.')),15000);})]);}finally{clearTimeout(timer);}
       await global.DraftedCvLayout.ready(host);
       const current=[...host.querySelectorAll('.cv-page')];
+      check();
       if(current.length!==pages.length||pages.some((page,i)=>page!==current[i]))throw Error('Your CV or design changed. Please print again.');
       frame.dataset.cvPrint='ready';frame.dataset.pageCount=String(pages.length);frame.dataset.cvDesign=host.dataset.cvDesign;
       return frame;
@@ -771,9 +775,9 @@
     const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
     controls.insertBefore(button,controls.querySelector('.workspace-close-preview'));controls.append(status);
     let state='loading',busy=false;
-    const refresh=()=>{button.disabled=busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.setAttribute('aria-busy',String(busy));};
+    const refresh=()=>{const suggested=host.dataset.cvPreviewMode==='suggested';button.disabled=suggested||busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.title=suggested?'Switch to Current before exporting.':'Export PDF';button.setAttribute('aria-busy',String(busy));};
     button.addEventListener('click',async()=>{
-      if(button.disabled)return;
+      if(button.disabled||host.dataset.cvPreviewMode==='suggested')return;
       busy=true;refresh();status.hidden=true;status.textContent='';let frame;
       try{
         frame=await prepare(host,getTitle(),stylesheet);
@@ -1207,21 +1211,25 @@
     let fingerprint='',generation=0,opened=false,prepared=false,pending=false,savedScroll=0,planState='idle',planController=null;
     const count=el('span');count.className='discovery-count';count.id='drafted-experience-count';count.setAttribute('role','status');launcher.setAttribute('aria-describedby',count.id);count.hidden=true;launcher.append(count);launcher.setAttribute('aria-label','Experience questions');
     function remainingQuestions(){const r=session.round();return r.queue.filter(q=>['unanswered','answered'].includes(q.status)||q.id===session.current()?.id&&['followup','correct','error'].includes(r.phase)).length;}
+    function hasConversation(){return !!host.querySelector(':scope > .chat-message.user, :scope > .chat-message.ai, :scope > .drafted-proposal-card, :scope > .tailor-suggestion, :scope > .tailor-feedback, :scope > .tailor-progress');}
     function updateGuidance(){
+      host.classList.remove('is-discovery-start');
       guidance.replaceChildren();guidance.hidden=true;
       if(getTailorState()!=='ready')return;
       if(planState!=='ready')return;
       const r=session.round();if(!r.total)return;
       const remaining=remainingQuestions();
+      if(remaining&&hasConversation())return;
       guidance.hidden=false;
       if(remaining){
-        guidance.append(el('h2','Your CV may not tell the whole story.'),el('p',`We have ${remaining} prioritized ${remaining===1?'question':'questions'} about experience that could be relevant to this job. ${sourceTailoring?`Answer ${remaining===1?'it':'them'} to help Drafted tailor your CV.`:`Review ${remaining===1?'it':'them'} to explore experience that is not clear in your CV.`}`),button('Review questions',open));
-        if(session.moreCount())guidance.append(el('p',`Start with ${remaining===1?'this question':'these '+remaining+' questions'}. You can explore ${session.moreCount()} more afterwards.`));
+        host.classList.toggle('is-discovery-start',!opened);
+        const review=button('Review questions',open);review.className='discovery-start-primary';
+        guidance.append(el('h2','Your CV may not tell the whole story.'),el('p',`Answer ${remaining} ${remaining===1?'question':'questions'} to uncover experience relevant to this role.`),review);
       }else{
         guidance.append(el('h2','Ready to tailor your CV.'),el('p',sourceTailoring&&session.accountsForRound().length?'Drafted can now use your answers and the job ad to suggest improvements.':'Drafted can use your current CV and the job ad to suggest improvements.'),button('Tailor my CV',()=>onTailor()));
       }
       if(r.phase==='complete'&&session.moreCount())guidance.append(button(`Explore more questions (${session.moreCount()})`,()=>{if(session.continueQuestions()){prepared=false;if(opened)showRound();else open();updatePlanIndicator();}}));
-      const note=el('p',sourceTailoring?'Review the suggestion before choosing Apply.':'Tailoring currently uses only your CV and the job ad. Your answers stay here for review.');note.className='discovery-note';guidance.append(note);let sourceNotice='';if(sourceTailoring){try{sourceNotice=getSourceNotice();}catch{sourceNotice='Answer details could not be checked. Your CV has not changed.';}}if(sourceNotice){const status=el('p',sourceNotice);status.className='tailor-review-warning';status.setAttribute('role','status');guidance.append(status);}
+      let sourceNotice='';if(sourceTailoring){try{sourceNotice=getSourceNotice();}catch{sourceNotice='Answer details could not be checked. Your CV has not changed.';}}if(sourceNotice){const status=el('p',sourceNotice);status.className='tailor-review-warning';status.setAttribute('role','status');guidance.append(status);}
     }
     function setLabel(label){launcher.replaceChildren(document.createTextNode(label),count);launcher.setAttribute('aria-label',label);}
     function updatePlanIndicator(){
@@ -1231,18 +1239,19 @@
       count.setAttribute('aria-label',remaining+' experience '+(remaining===1?'question':'questions')+' remaining');
       launcher.title=planState==='ready'?(remaining?remaining+' '+(remaining===1?'question':'questions')+' remaining':'Review your answers'):planState==='loading'?'Preparing questions in the background':planState==='error'?'Questions could not be prepared. Open to retry.':'Explore your experience';
     }
-    function close(focus=false){if(planState==='ready'&&session.round().phase==='complete'){prepared=false;setLabel('Review your answers');}updateGuidance();opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
+    function close(focus=false){if(planState==='ready'&&session.round().phase==='complete'){prepared=false;setLabel('Review your answers');}opened=false;panel.hidden=true;card.classList.remove('discovery-mode');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-pressed','false');chatMode.setAttribute('aria-pressed','true');updateGuidance();host.scrollTop=savedScroll;if(focus)card.querySelector('#editor-input')?.focus({preventScroll:true});}
     function focusQuestion(){if(opened){const target=body.querySelector('textarea,h2,[role=alert]');if(target){if(target.tagName!=='TEXTAREA')target.tabIndex=-1;target.focus({preventScroll:true});}}}
     function showRound(){root.DraftedExperienceDiscoveryUI.mount(body,session,{onAnswer:t=>{const result=track(client.submit(session,t));if(result)return result.finally(updateGuidance);updateGuidance();return result;},onRetry:id=>track(client.retry(session,id)).finally(updateGuidance),onStateChange:()=>{back.hidden=session.round().phase==='complete';updateGuidance();updatePlanIndicator();onSourceStateChange();},sourceTailoring,getTailorState,onEditExperienceContext,onFinishAndTailor:()=>{session.finish();prepared=false;setLabel('Review your answers');close(true);return onTailor();},onContinue:()=>{prepared=false;setLabel('Review your answers');close(true);}});prepared=true;focusQuestion();}
     function activate(){if(!session.round().total){body.replaceChildren(el('h2','No additional experience questions'),el('p','No further questions were identified for this CV and job ad. You can keep working in the editor.'));prepared=true;return;}if(session.round().phase==='offer')session.start();showRound();}
     async function start(){if(pending)return;const epoch=generation,controller=new AbortController();planController=controller;pending=true;planState='loading';updatePlanIndicator();body.replaceChildren(el('p','Preparing your questions…'));body.setAttribute('aria-busy','true');try{const result=await client.plan(session,'en',{signal:controller.signal});if(result.stale||epoch!==generation)return;planState='ready';updateGuidance();if(opened)activate();else body.replaceChildren();}catch{if(epoch!==generation)return;planState='error';body.replaceChildren(el('h2','Your questions could not be loaded'),el('p','You can try again or return to the editor.'),button('Try loading the questions again',start));focusQuestion();}finally{if(epoch===generation){if(planController===controller)planController=null;pending=false;body.removeAttribute('aria-busy');updatePlanIndicator();}}}
     function open(){if(!fingerprint||opened)return;savedScroll=host.scrollTop;opened=true;panel.hidden=false;card.classList.add('discovery-mode');launcher.setAttribute('aria-expanded','true');launcher.setAttribute('aria-pressed','true');chatMode.setAttribute('aria-pressed','false');host.scrollTop=0;back.focus({preventScroll:true});
-      if(planState==='ready'&&!prepared)activate();else focusQuestion();
+      updateGuidance();if(planState==='ready'&&!prepared)activate();else focusQuestion();
     }
     // Escape pauses questions, retaining the mounted answer form and any draft.
     panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close(true);}});
     function invalidate(){generation++;planController?.abort();planController=null;fingerprint='';prepared=false;pending=false;planState='idle';close();guidance.hidden=true;launcher.hidden=true;setLabel('Experience questions');count.hidden=true;launcher.removeAttribute('aria-busy');launcher.dataset.planState='idle';body.replaceChildren();body.removeAttribute('aria-busy');const c=session.snapshot().context;if(c)session.setContext({...c,revision:crypto.randomUUID()});}
     function sync(){const context=getContext();if(!context){if(fingerprint)invalidate();return;}const key=JSON.stringify(context);if(key===fingerprint)return;invalidate();fingerprint=key;session.setContext({...context,revision:crypto.randomUUID()});launcher.hidden=false;start();onSourceStateChange();}
+    new MutationObserver(updateGuidance).observe(host,{childList:true});
     return {sync,invalidate,
       waitForSources:async()=>{while(interpretations.size)await Promise.allSettled([...interpretations]);},
       refreshTailorState:updateGuidance,
@@ -1520,6 +1529,51 @@
 });
 
 ;
+/* Detached Tailor presentation. Canonical CV data stays with the editor. */
+(function(global){
+  'use strict';
+  function create({host,controls,candidate,render,isCurrent,onClose}){
+    const model=JSON.parse(JSON.stringify(candidate)),pane=()=>host.closest('.cv-document');
+    const group=document.createElement('div');group.className='tailor-preview-switch';group.setAttribute('role','group');group.setAttribute('aria-label','CV review version');
+    const status=document.createElement('span');status.className='tailor-preview-status';status.textContent='Not applied';status.setAttribute('role','status');
+    let mode='current',anchor=null,pendingAnchor=false,disposed=false,timer;
+    const buttons={};
+    for(const label of ['Current','Suggested']){const button=document.createElement('button');button.type='button';button.textContent=label;button.setAttribute('aria-pressed',String(label==='Current'));button.addEventListener('click',()=>show(label.toLowerCase()));buttons[label.toLowerCase()]=button;group.append(button);}
+    const close=document.createElement('button');close.type='button';close.textContent='×';close.className='tailor-preview-close';close.setAttribute('aria-label','Close CV review');close.addEventListener('click',onClose);group.append(status,close);controls.append(group);
+    function nodes(id){return [...host.querySelectorAll('.cv-block[data-block-id]')].filter(n=>n.dataset.blockId===id);}
+    function capture(){
+      const bounds=pane()?.getBoundingClientRect();if(!bounds)return null;
+      const all=[...host.querySelectorAll('.cv-block[data-block-id]')],node=all.find(n=>{const r=n.getBoundingClientRect();return r.bottom>bounds.top+18&&r.top<bounds.bottom;});
+      return node?{id:node.dataset.blockId,fragment:nodes(node.dataset.blockId).indexOf(node),offset:node.getBoundingClientRect().top-bounds.top}:null;
+    }
+    function restore(saved,highlight=false){
+      const scroll=pane(),matches=saved&&nodes(saved.id);if(!scroll||!matches?.length)return;
+      const target=matches[Math.min(saved.fragment||0,matches.length-1)];scroll.scrollTop+=target.getBoundingClientRect().top-scroll.getBoundingClientRect().top-saved.offset;
+      if(highlight){clearTimeout(timer);host.querySelectorAll('.is-tailor-reviewed').forEach(n=>n.classList.remove('is-tailor-reviewed'));for(const node of matches)node.classList.add('is-tailor-reviewed');timer=setTimeout(()=>host.querySelectorAll('.is-tailor-reviewed').forEach(n=>n.classList.remove('is-tailor-reviewed')),3000);}
+    }
+    function show(next,blockId){
+      if(disposed||!isCurrent())return;
+      anchor=blockId?{id:blockId,fragment:0,offset:18}:capture()||anchor;pendingAnchor=true;mode=next;
+      for(const [key,button] of Object.entries(buttons))button.setAttribute('aria-pressed',String(key===mode));
+      render();
+    }
+    return {
+      suggested:()=>mode==='suggested'&&!disposed,
+      model:()=>mode==='suggested'&&!disposed?model:null,
+      navigate(blockId){show('suggested',blockId);},
+      beforeRender(){if(!pendingAnchor)anchor=capture()||anchor;pendingAnchor=false;},
+      afterRender(){restore(anchor,true);},
+      dispose(){
+        const saved=capture()||anchor;disposed=true;clearTimeout(timer);group.remove();host.querySelectorAll('.is-tailor-reviewed').forEach(n=>n.classList.remove('is-tailor-reviewed'));
+        // The owner clears its presentation reference before requesting Current.
+        Promise.resolve(render()).then(()=>{if(host.dataset.cvPreviewMode==='current')restore(saved);}).catch(()=>{});
+      }
+    };
+  }
+  global.DraftedTailorCvPreview={create};
+})(window);
+
+;
 /**
  * IMPORTANT:
  * This file enforces the backend response contract defined in:
@@ -1532,7 +1586,7 @@
 
 
 
-console.log("DRAFTED_JS_SOURCE", "2026-10-28-tailor-target-keys");
+console.log("DRAFTED_JS_SOURCE", "2026-10-28-centered-experience-intro");
 
 console.log("🚀 drafted-editor.js executing");
 
@@ -2129,23 +2183,19 @@ maybeShowTailor();
          const marked=items.filter(item=>item.type!=='equal');
          if(marked.length&&marked.every(item=>!item.text.trim())){host.setAttribute('aria-label','Spacing or line breaks changed');add('span','Spacing or line breaks changed',host).className='tailor-spacing-note';}
        };
-       let navigationTimer;const highlighted=new Set();
-       const clearHighlight=()=>{clearTimeout(navigationTimer);for(const node of highlighted)node.classList.remove('is-tailor-reviewed');highlighted.clear();};
+       const endPreview=()=>{const preview=tailorCvPreview;tailorCvPreview=null;preview?.dispose();};
+       const previewDialog=document.getElementById('cv-preview-dialog');previewDialog?.addEventListener('close',endPreview);
        const navigate=block=>{
          if(!checkCurrent())return;
-         const targets=[...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].filter(node=>node.dataset.blockId===block.blockId),pane=editorPreviewEl.closest('.cv-document');
-         if(!targets.length||!pane)return;
-         clearHighlight();for(const node of targets){node.classList.add('is-tailor-reviewed');highlighted.add(node);}
-         pane.scrollTop+=targets[0].getBoundingClientRect().top-pane.getBoundingClientRect().top-18;
-         navigationNotice.textContent=`Showing ${sectionName(block)} in your current CV. Proposed changes are not applied.`;
-         navigationTimer=setTimeout(clearHighlight,3000);
+         if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,controls:document.querySelector('.workspace-preview-title'),candidate:data,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
+         tailorCvPreview.navigate(block.blockId);
        };
        // Actual text changes drive the review; source receipts stay optional.
        const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);
        for(const change of proposed){
          const block=data.blocks.find(b=>b.blockId===change.blockId),section=add('section','',body);section.className='tailor-block-change';section.dataset.reviewBlockId=change.blockId;
          const title=add('div','',section);title.className='tailor-block-title';add('h3',sectionName(block),title);
-         if([...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].some(node=>node.dataset.blockId===block.blockId)){const review=add('button','Review in CV',title);review.type='button';review.className='tailor-review-link';review.setAttribute('aria-label',`Review ${sectionName(block)} in current CV`);review.addEventListener('click',()=>navigate(block));}
+         if([...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].some(node=>node.dataset.blockId===block.blockId)){const review=add('button','Review in CV',title);review.type='button';review.className='tailor-review-link';review.setAttribute('aria-label',`Review ${sectionName(block)} in CV`);review.addEventListener('click',()=>navigate(block));}
          for(const edit of change.edits){
            const item=add('div','',section);item.className='tailor-edit';item.dataset.changeKind=edit.kind;
            add('span',edit.kind,item).className='tailor-edit-kind tailor-kind-'+edit.kind.toLowerCase();
@@ -2181,18 +2231,19 @@ maybeShowTailor();
        const apply=add('button','Apply all changes',actions);apply.type='button';apply.className='tailor-primary';
        const dismiss=add('button','Dismiss',actions);dismiss.type='button';
        const navigationNotice=add('p','Your current CV stays unchanged until you apply.',footer);navigationNotice.className='tailor-current-notice';navigationNotice.setAttribute('role','status');
-       let stale=false,settled=false;
+       let stale=false,settled=false,removalObserver;
        const checkCurrent=()=>{
          if(settled)return false;
          if(stale||stamp!==tailorContextStamp()||isPreviewingProposal){
-           stale=true;apply.disabled=true;status.textContent='Needs update';card.classList.add('is-stale');clearHighlight();
+           stale=true;apply.disabled=true;status.textContent='Needs update';card.classList.add('is-stale');endPreview();
            navigationNotice.textContent='Your CV, job ad or answers changed. Dismiss this suggestion and tailor again.';
            return false;
          }return true;
        };
-       const dispose=()=>{settled=true;tailorReviewCheck=null;tailorReviewDispose=null;clearHighlight();jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
+       const dispose=()=>{settled=true;removalObserver?.disconnect();tailorReviewCheck=null;tailorReviewDispose=null;endPreview();previewDialog?.removeEventListener('close',endPreview);jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
        tailorReviewDispose=dispose;
        tailorReviewCheck=()=>{if(!card.isConnected){dispose();return;}checkCurrent();};
+       removalObserver=new MutationObserver(()=>{if(!card.isConnected)dispose();});removalObserver.observe(chatMessagesEl,{childList:true});
        jobAdInputEl?.addEventListener('input',checkCurrent);targetRoleInput?.addEventListener('input',checkCurrent);
        apply.addEventListener('click',()=>{
          if(apply.disabled||!checkCurrent())return;
@@ -2945,6 +2996,8 @@ function setApplyLabel() {
   let previewView = null;
   let previewZoom = null;
   let browserPrint = null;
+  let tailorCvPreview = null;
+  document.addEventListener('keydown',event=>{if(tailorCvPreview?.suggested()&&(event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='p')event.preventDefault();},true);
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
@@ -3013,6 +3066,7 @@ function setApplyLabel() {
     copy.disabled=true;
     const copyStatus=document.createElement('span');copyStatus.className='workspace-sr-only';copyStatus.setAttribute('role','status');
     copy.addEventListener('click',async()=>{
+      if(tailorCvPreview?.suggested())return;
       try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));copyStatus.textContent='Copied';}
       catch{copyStatus.textContent='Copy unavailable';}
     });
@@ -3219,18 +3273,21 @@ function setApplyLabel() {
      =============================== */
   function renderDocument(text) {
     tailorReviewCheck?.();
+    tailorCvPreview?.beforeRender();
+    const presentation=tailorCvPreview?.model();
+    editorPreviewEl.dataset.cvPreviewMode=presentation?'suggested':'current';
     const workspaceTitle = document.querySelector('.workspace-document-title');
     if (workspaceTitle) {
       workspaceTitle.textContent = documentTitle || 'Untitled CV';
       workspaceTitle.title = documentTitle || 'Untitled CV';
     }
-    DraftedCvLayout.render(editorPreviewEl, {
-      blocks: documentBlocksState || [], title: documentTitle || '', templateId: selectedCvDesign,
+    return DraftedCvLayout.render(editorPreviewEl, {
+      blocks: presentation?.blocks || documentBlocksState || [], title: presentation?.cvTitle ?? documentTitle ?? '', templateId: selectedCvDesign,
       onState(state) {
         previewView?.setState(state);
         previewZoom?.setState(state);
         browserPrint?.setState(state);
-        const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready';
+        const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready'||!!presentation;
         const counter=document.querySelector('.workspace-page-count');
         if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
       },
@@ -3248,6 +3305,7 @@ function setApplyLabel() {
           counter.textContent = count ? `${count} ${count === 1 ? 'page' : 'pages'}` : '';
         }
         applySelectedBlocksUI();
+        tailorCvPreview?.afterRender();
       }
     });
   }
@@ -3512,6 +3570,7 @@ function updateContextChip() {
      BLOCK CLICK SELECTION (MULTI)
      =============================== */
   editorPreviewEl.addEventListener("click", (e) => {
+    if(tailorCvPreview?.suggested())return;
     if (!documentBlocksState || !documentBlocksState.length) return;
 
     if (e.target.closest("a.cv-document-link")) return;
@@ -4128,6 +4187,7 @@ async function sendApply() {
 
 // 2) Bygg payload ENBART från blocks som source of truth
 function buildPdfExportPayload() {
+  if(tailorCvPreview?.suggested())return {ok:false,reason:'SUGGESTED_PREVIEW'};
   // documentBlocksState och cvVersionId och documentTitle ligger i closure-scope (STATE)
   if (!documentBlocksState || !Array.isArray(documentBlocksState) || documentBlocksState.length === 0) {
     return { ok: false, reason: "NO_BLOCKS" };

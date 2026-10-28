@@ -150,3 +150,17 @@
     .section-editor .workspace-job-context {min-height:28px;padding:3px 12px;}
   }
 }
+/* Only an empty conversation's experience introduction occupies the center.
+   Auto margins collapse on short panels, leaving ordinary scrollable flow. */
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance {
+  flex:0 0 auto;align-self:center;width:calc(100% - 32px);max-width:440px;box-sizing:border-box;
+  margin:auto 0;padding:18px 0;border:0;border-radius:0;background:transparent;text-align:left;box-shadow:none;
+}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance h2 {font:700 clamp(24px,1.8vw,28px)/1.22 system-ui;letter-spacing:-.035em;margin:0 0 16px;color:var(--editor-ink);}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > .discovery-guidance p {font:400 15px/1.6 system-ui;margin:0 0 22px;color:var(--editor-muted);}
+.section-editor.discovery-enabled .discovery-guidance .discovery-start-primary {display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0;padding:11px 18px;border:1px solid var(--editor-teal);border-radius:7px;background:var(--editor-teal);color:#fff;font:600 14px/1.4 system-ui;white-space:normal;}
+.section-editor.discovery-enabled .discovery-guidance .discovery-start-primary:hover {background:var(--editor-teal-hover);}
+.section-editor.discovery-enabled .chat-messages.is-discovery-start > :is(.chat-message.system,.drafted-chat-demo) {display:none;}
+@media(max-width:700px) and (max-height:599px) {
+  .section-editor.discovery-enabled:has(.is-discovery-start) .editor-layout {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,2fr) minmax(0,1fr);}
+}

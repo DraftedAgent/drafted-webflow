@@ -17,7 +17,7 @@ const envelope=blocks=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'syntheti
     posts.push(u.pathname);
     if(u.pathname.endsWith('/webflow-upload-cv'))return route.fulfill({headers,json:envelope(blocks)});
     if(u.pathname.endsWith('/webflow-jobcontext-extract'))return route.fulfill({headers,json:{ok:true,jobContextSchemaVersion:'1.0',jobContext:F.jobContext}});
-    if(u.pathname.endsWith('/webflow-experience-discovery')){const r=await createHandler({model:()=>({topics:[]})})(req.postDataJSON());return route.fulfill({headers,status:r.status,json:r.body});}
+    if(u.pathname.endsWith('/webflow-experience-discovery')){const r=await createHandler({model:F.discovery})(req.postDataJSON());return route.fulfill({headers,status:r.status,json:r.body});}
     if(u.pathname.endsWith('/tailor-cv')){
      const r=req.postDataJSON();requests.push(r);const next=structuredClone(r.blocks);
      if(changed){next.find(b=>b.blockId==='summary-1').text='Product specialist collaborating with digital teams.';next.find(b=>b.blockId==='experience-1').text+='\n\nShared user feedback with the team.';next.find(b=>b.blockId==='skills-1').text='User interviews.';}
@@ -30,18 +30,29 @@ const envelope=blocks=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'syntheti
    if(req.method()==='GET'&&[u.hostname==='drafted-cad750.webflow.io',u.hostname==='draftedagent.github.io',u.hostname.endsWith('website-files.com'),u.hostname==='ajax.googleapis.com',u.hostname==='d3e54v103j8qbb.cloudfront.net',u.hostname==='cdn.jsdelivr.net',u.hostname==='fonts.googleapis.com',u.hostname==='fonts.gstatic.com',u.hostname==='cdnjs.cloudflare.com'].some(Boolean))return route.continue();
    outside.push(url);return route.abort();
   });
-  await page.goto(site+'?release=2026-10-28-tailor-review',{waitUntil:'domcontentloaded'});
+  await page.goto(site+'?release=2026-10-28-centered-experience-intro',{waitUntil:'domcontentloaded'});
   await page.locator('.preparation-layout').waitFor();
   await page.locator('#job-ad-input').fill('A synthetic product specialist role involving digital teams, user interviews and sharing feedback. '.repeat(8));
   await page.waitForFunction(()=>document.querySelector('#jobcontext-status')?.dataset.state==='ready');
   await page.locator('#cv-file').setInputFiles({name:'synthetic-original.pdf',mimeType:'application/pdf',buffer:Buffer.from(require('./fixtures/source-pdf.js').create())});
   await page.getByRole('button',{name:'Continue to editor',exact:true}).click();
   const cv=page.locator('.cv-document-inner'),guide=page.locator('#drafted-discovery-guidance'),review=page.getByRole('region',{name:'Tailoring suggestion',exact:true});
-  await page.waitForFunction(()=>document.querySelector('.discovery-launcher')?.dataset.planState==='ready').catch(async e=>{await page.screenshot({path:path.join(out,'failure.png')});console.log(JSON.stringify({posts,errors,outside,ui:await page.locator('.section-editor').innerText()}));throw e;});const before=await cv.innerText();await page.locator('#tailor-btn').click();
+  await page.waitForFunction(()=>document.querySelector('.discovery-launcher')?.dataset.planState==='ready').catch(async e=>{await page.screenshot({path:path.join(out,'failure.png')});console.log(JSON.stringify({posts,errors,outside,ui:await page.locator('.section-editor').innerText()}));throw e;});
+  await guide.getByText('Answer 2 questions to uncover experience relevant to this role.',{exact:true}).waitFor();assert.equal(await page.locator('.chat-messages').evaluate(el=>el.classList.contains('is-discovery-start')),true);assert.equal(await page.locator('#editor-input').isVisible(),true);
+  await guide.getByRole('button',{name:'Review questions',exact:true}).click();await page.getByRole('button',{name:'Back to editor',exact:true}).click();await guide.getByRole('button',{name:'Review questions',exact:true}).waitFor();
+  const before=await cv.innerText();await page.locator('#tailor-btn').click();
   if(changed){
    await review.getByRole('heading',{name:'3 changed blocks',exact:true}).waitFor();for(const type of ['Added','Removed','Rewritten'])assert(await review.locator(`[data-change-kind="${type}"]`).count());
    assert.equal(await cv.innerText(),before);assert.equal(await review.locator('.tailor-proposed-cv').count(),0);await page.screenshot({path:path.join(out,`${phase}-${width}.png`)});
+   assert.equal(await page.locator('.chat-messages').evaluate(el=>el.classList.contains('is-discovery-start')),false);
+   const assertText=async blocks=>{await page.waitForFunction(()=>document.querySelector('#editor-preview-text').dataset.layoutState==='ready');for(const b of blocks){const actual=await page.locator('#editor-preview-text [data-cv-source="'+b.blockId+'"]').evaluateAll(nodes=>nodes.map(n=>n.textContent).join(''));assert.equal(actual,b.text);}};
+   for(const id of ['summary-1','experience-1']){
+    await review.locator('[data-review-block-id="'+id+'"]').getByRole('button',{name:/Review .+ in CV/}).click();await assertText(response.blocks);assert.equal(await page.locator('.tailor-preview-switch').getByRole('button',{name:'Suggested',exact:true}).getAttribute('aria-pressed'),'true');assert.equal(await page.getByRole('button',{name:'Export PDF',exact:true}).isDisabled(),true);
+    await page.locator('.tailor-preview-switch').getByRole('button',{name:'Current',exact:true}).click();await assertText(requests[0].blocks);assert.equal(await page.getByRole('button',{name:'Export PDF',exact:true}).isEnabled(),true);
+   }
+   await page.locator('.tailor-preview-switch').getByRole('button',{name:'Suggested',exact:true}).click();await assertText(response.blocks);
    await review.getByRole('button',{name:'Apply all changes',exact:true}).click();await page.getByText('Your CV is updated. What would you like to change?',{exact:true}).waitFor();assert.match(await cv.innerText(),/Shared user feedback with the team/);assert(!(await cv.innerText()).includes('Generic project notes'));assert.equal(await review.count(),0);
+   assert.equal(await page.locator('.tailor-preview-switch').count(),0);assert.equal(await page.locator('#editor-preview-text').getAttribute('data-cv-preview-mode'),'current');
   }else{await page.getByText('No changes suggested',{exact:true}).waitFor();assert.equal(await review.count(),0);assert.equal(await cv.innerText(),before);assert.equal(await page.getByRole('button',{name:'Apply all changes',exact:true}).count(),0);}
   assert.equal(requests.length,1);assert.deepEqual(outside,[]);assert.deepEqual(errors,[]);await page.close();console.log(`PASS ${phase} actual-site ${width}px ${changed?'changed review/Apply':'unchanged'}; external backend executions 0`);
  }

@@ -24,8 +24,14 @@
 #section-input.preparation-section .preparation-step-help {margin:4px 0 0;color:var(--prep-muted);font-size:14px;line-height:1.5;}
 #section-input.preparation-section #job-ad-input {display:block;width:100%;min-width:0;max-width:100%;height:220px;min-height:180px;max-height:440px;box-sizing:border-box;resize:vertical;padding:16px 18px;margin:0;border:1px solid var(--prep-line);border-radius:8px;background:#fff;color:#30485b;font-family:inherit;font-size:15px;line-height:1.65;box-shadow:none;}
 #section-input.preparation-section #job-ad-input::placeholder {color:#748696;opacity:1;}
-#section-input.preparation-section .preparation-job-hint {margin:8px 0 0;color:var(--prep-muted);font-size:12px;line-height:1.5;}
-#section-input.preparation-section #jobcontext-status {padding:9px 12px;border-radius:6px;font:13px/1.5 system-ui;margin:10px 0 0;}
+#section-input.preparation-section .preparation-job-feedback {display:grid;margin-top:10px;}
+#section-input.preparation-section .preparation-job-hint,
+#section-input.preparation-section #jobcontext-status {grid-area:1/1;box-sizing:border-box;min-width:0;padding:9px 12px;margin:0;font:13px/1.5 system-ui;}
+#section-input.preparation-section .preparation-job-hint {color:var(--prep-muted);}
+#section-input.preparation-section #jobcontext-status {display:flex;align-items:center;gap:10px;border-radius:6px;}
+#section-input.preparation-section #jobcontext-status-icon {flex:none;}
+#section-input.preparation-section #jobcontext-status:not([data-state]),
+#section-input.preparation-section #jobcontext-status[data-state=idle] {visibility:hidden;}
 #section-input.preparation-section #jobcontext-status[data-state=loading] {background:#f0f5f8;color:#40596d;}
 #section-input.preparation-section #jobcontext-status[data-state=ready] {background:var(--prep-tint);color:#166165;}
 #section-input.preparation-section #jobcontext-status[data-state=error] {background:#fff2ee;color:#8d3b2e;}
@@ -55,6 +61,9 @@
 #section-input.preparation-section .cv-preview-loading .meta {opacity:1;color:var(--prep-muted);font-size:12px;}
 #section-input.preparation-section :is(a,button,label[role=button],textarea):focus-visible {outline:2px solid var(--prep-teal);outline-offset:3px;}
 #section-input.preparation-section [hidden] {display:none!important;}
+/* Keep the longer hint's natural wrapped height while it is hidden, so idle,
+   loading, ready and error feedback share the same reserved space. */
+#section-input.preparation-section .preparation-job-feedback .preparation-job-hint[hidden] {display:block!important;visibility:hidden;}
 /* Opening control exists only for a readable selected document. */
 #section-input.preparation-section .preparation-preview-open {position:absolute;inset:0;z-index:3;display:block;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:10px;background:transparent;cursor:zoom-in;}
 #section-input.preparation-section .preparation-enlarge-icon {position:absolute;right:34px;top:34px;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--prep-line);border-radius:8px;background:#fffffff0;color:var(--prep-teal);opacity:0;transition:opacity .12s;}
