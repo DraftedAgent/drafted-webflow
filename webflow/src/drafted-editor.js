@@ -613,6 +613,7 @@ maybeShowTailor();
        const previewDialog=document.getElementById('cv-preview-dialog');previewDialog?.addEventListener('close',endPreview);
        const navigate=block=>{
          if(!checkCurrent())return;
+         documentComparison?.edited();
          if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:data,baseline:request,proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
          tailorCvPreview.navigate(block.blockId);
        };
@@ -1423,7 +1424,11 @@ function setApplyLabel() {
   let previewZoom = null;
   let browserPrint = null;
   let tailorCvPreview = null;
-  document.addEventListener('keydown',event=>{if(tailorCvPreview?.suggested()&&(event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='p')event.preventDefault();},true);
+  let documentComparison = null;
+  document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='p'){
+    if(tailorCvPreview?.suggested())event.preventDefault();
+    else if(documentComparison?.model()){event.preventDefault();document.querySelector('.workspace-print-button')?.click();}
+  }},true);
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
@@ -1484,7 +1489,8 @@ function setApplyLabel() {
     previewZoom=DraftedCvPreviewZoom.create({host:editorPreviewEl,controls:previewTitle});
     const previewCard=editorPreviewEl.closest('.cv-card');
     if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
-    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getTitle:()=>documentTitle});
+    documentComparison=DraftedCvDocumentComparison.create({host:editorPreviewEl,controls:previewTitle,getEdited:()=>({blocks:documentBlocksState||[],cvTitle:documentTitle}),render:()=>renderDocument(documentTextState)});
+    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getTitle:()=>documentTitle,getEdited:()=>({blocks:deepClone(documentBlocksState||[]),title:documentTitle,templateId:selectedCvDesign})});
     const exportButton=previewTitle.querySelector('.workspace-print-button');
     const exportLabel=document.createElement('span');exportLabel.className='workspace-action-label';exportLabel.textContent='Export PDF';exportButton.append(exportLabel);
     actions.append(exportButton,previewTitle.querySelector('.workspace-print-status'));
@@ -1700,8 +1706,10 @@ function setApplyLabel() {
   function renderDocument(text) {
     tailorReviewCheck?.();
     tailorCvPreview?.beforeRender();
-    const presentation=tailorCvPreview?.model();
-    editorPreviewEl.dataset.cvPreviewMode=presentation?'suggested':'current';
+    documentComparison?.sync(!!tailorCvPreview||isPreviewingProposal);
+    documentComparison?.beforeRender();
+    const suggestion=tailorCvPreview?.model(),original=documentComparison?.model(),presentation=suggestion||original;
+    editorPreviewEl.dataset.cvPreviewMode=suggestion?'suggested':original?'original':'current';
     const workspaceTitle = document.querySelector('.workspace-document-title');
     if (workspaceTitle) {
       workspaceTitle.textContent = documentTitle || 'Untitled CV';
@@ -1732,6 +1740,7 @@ function setApplyLabel() {
         }
         applySelectedBlocksUI();
         tailorCvPreview?.afterRender();
+        documentComparison?.afterRender();
       }
     });
   }
@@ -1996,7 +2005,7 @@ function updateContextChip() {
      BLOCK CLICK SELECTION (MULTI)
      =============================== */
   editorPreviewEl.addEventListener("click", (e) => {
-    if(tailorCvPreview?.suggested())return;
+    if(tailorCvPreview?.suggested()||documentComparison?.model())return;
     if (!documentBlocksState || !documentBlocksState.length) return;
 
     if (e.target.closest("a.cv-document-link")) return;
@@ -2087,6 +2096,8 @@ function updateContextChip() {
     editorPreviewEl.textContent = "";
 
     buildStateFromBlocks(blocks);
+    isPreviewingProposal=false;
+    documentComparison?.begin({blocks:documentBlocksState||[],cvTitle:documentTitle});
     setEditorPlaceholder(false);
 
     // hide preview card title when CV exists

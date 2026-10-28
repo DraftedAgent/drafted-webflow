@@ -2,12 +2,12 @@
 (function(global){
   'use strict';
   async function prepare(host,title,stylesheet){
-    const check=()=>{if(host.dataset.cvPreviewMode==='suggested')throw Error('Switch to Current before exporting.');};check();
+    const check=()=>{if(host.dataset.cvPreviewMode==='suggested')throw Error('Switch to Current before exporting.');if(host.dataset.cvPreviewMode==='original')throw Error('Use Export edited CV to export your current CV.');};check();
     await global.DraftedCvLayout.ready(host);
     check();
     const pages=[...host.querySelectorAll('.cv-page')];
     if(!pages.length||!stylesheet)throw Error('The document is not ready to print.');
-    const copy=host.cloneNode(true);copy.style.width='210mm';
+    const copy=host.cloneNode(true);copy.style.cssText='width:210mm;position:static;visibility:visible';copy.removeAttribute('aria-hidden');
     copy.querySelectorAll('.is-selected,.is-tailor-reviewed').forEach(el=>el.classList.remove('is-selected','is-tailor-reviewed'));
     copy.querySelectorAll('.cv-page').forEach(el=>el.style.transform='none');
     copy.querySelectorAll('.cv-page-slot').forEach(el=>{el.style.width='210mm';el.style.height='297mm';});
@@ -36,21 +36,30 @@
       return frame;
     }catch(error){frame.remove();throw error;}
   }
-  function create({host,controls,getTitle}){
+  function create({host,controls,getTitle,getEdited}){
     const stylesheet=document.querySelector('link[href*="drafted-editor.css"]')?.href;
     const button=global.DraftedWorkspaceView.iconButton('Export PDF','workspace-print-button','<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>');button.disabled=true;
     const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
     controls.insertBefore(button,controls.querySelector('.workspace-close-preview'));controls.append(status);
     let state='loading',busy=false;
-    const refresh=()=>{const suggested=host.dataset.cvPreviewMode==='suggested';button.disabled=suggested||busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.title=suggested?'Switch to Current before exporting.':'Export PDF';button.setAttribute('aria-busy',String(busy));};
+    const refresh=()=>{const suggested=host.dataset.cvPreviewMode==='suggested',original=host.dataset.cvPreviewMode==='original',label=original?'Export edited CV':'Export PDF';button.disabled=suggested||busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.title=suggested?'Switch to Current before exporting.':label;button.setAttribute('aria-label',label);const text=button.querySelector('.workspace-action-label');if(text)text.textContent=label;button.setAttribute('aria-busy',String(busy));};
     button.addEventListener('click',async()=>{
       if(button.disabled||host.dataset.cvPreviewMode==='suggested')return;
-      busy=true;refresh();status.hidden=true;status.textContent='';let frame;
+      busy=true;refresh();status.hidden=true;status.textContent='';let frame,temporary;
       try{
-        frame=await prepare(host,getTitle(),stylesheet);
+        if(host.dataset.cvPreviewMode==='original'){
+          if(!getEdited)throw Error('Edited CV is unavailable.');
+          const model=getEdited(),stamp=JSON.stringify(model);
+          temporary=document.createElement('div');temporary.className=host.className;temporary.style.cssText='position:fixed;left:-20000px;top:0;width:794px;visibility:hidden;pointer-events:none';
+          (host.closest('dialog[open]')||document.body).append(temporary);
+          await global.DraftedCvLayout.render(temporary,model);
+          frame=await prepare(temporary,model.title,stylesheet);
+          if(JSON.stringify(getEdited())!==stamp||host.dataset.cvPreviewMode==='suggested')throw Error('Your CV or preview changed. Please print again.');
+        }else frame=await prepare(host,getTitle(),stylesheet);
+        temporary?.remove();
         frame.contentWindow.addEventListener('afterprint',()=>{frame.remove();busy=false;refresh();button.focus({preventScroll:true});},{once:true});
         frame.contentWindow.print();
-      }catch(error){frame?.remove();busy=false;refresh();status.hidden=false;status.textContent=error.message||'The print dialog could not be opened.';}
+      }catch(error){temporary?.remove();frame?.remove();busy=false;refresh();status.hidden=false;status.textContent=error.message||'The print dialog could not be opened.';}
     });
     return {setState(next){state=next;refresh();}};
   }

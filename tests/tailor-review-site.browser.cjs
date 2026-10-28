@@ -31,7 +31,7 @@ const envelope=blocks=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'syntheti
    if(req.method()==='GET'&&[u.hostname==='drafted-cad750.webflow.io',u.hostname==='draftedagent.github.io',u.hostname.endsWith('website-files.com'),u.hostname==='ajax.googleapis.com',u.hostname==='d3e54v103j8qbb.cloudfront.net',u.hostname==='cdn.jsdelivr.net',u.hostname==='fonts.googleapis.com',u.hostname==='fonts.gstatic.com',u.hostname==='cdnjs.cloudflare.com'].some(Boolean))return route.continue();
    outside.push(url);return route.abort();
   });
-  await page.goto(site+'?release=2026-10-28-tailor-review-layer',{waitUntil:'domcontentloaded'});
+  await page.goto(site+'?release=2026-10-28-document-comparison',{waitUntil:'domcontentloaded'});
   await page.locator('.preparation-layout').waitFor();
   await page.locator('#job-ad-input').fill('A synthetic product specialist role involving digital teams, user interviews and sharing feedback. '.repeat(8));
   await page.waitForFunction(()=>document.querySelector('#jobcontext-status')?.dataset.state==='ready');
@@ -60,6 +60,14 @@ const envelope=blocks=>({ok:true,blocksSchemaVersion:'1.0',cvVersionId:'syntheti
    await page.locator('.tailor-preview-switch').getByRole('button',{name:'Suggested',exact:true}).click();await assertText(response.blocks);
    await review.getByRole('button',{name:'Apply all changes',exact:true}).click();await page.getByText('Your CV is updated. What would you like to change?',{exact:true}).waitFor();assert.match(await cv.innerText(),/Shared user feedback with the team/);assert(!(await cv.innerText()).includes('Generic project notes'));assert.equal(await review.count(),0);
    assert.equal(await page.locator('.tailor-preview-switch').count(),0);assert.equal(await page.locator('#editor-preview-text').getAttribute('data-cv-preview-mode'),'current');
+   const comparison=page.getByRole('region',{name:'Document comparison',exact:true});assert(await comparison.isVisible());
+   await comparison.getByRole('button',{name:'Show changes',exact:true}).click();
+   await comparison.getByRole('button',{name:'Original',exact:true}).click();await assertText(requests[0].blocks);
+   assert.equal(await page.getByRole('button',{name:'Export edited CV',exact:true}).isEnabled(),true);assert((await page.evaluate(()=>CSS.highlights.get('drafted-document-before')?.size||0))>0);
+   await page.screenshot({path:path.join(out,`${phase}-original-${width}.png`)});
+   await comparison.getByRole('button',{name:'Edited',exact:true}).click();await assertText(response.blocks);
+   assert.equal(await page.getByRole('button',{name:'Export PDF',exact:true}).isEnabled(),true);assert((await page.evaluate(()=>CSS.highlights.get('drafted-document-after')?.size||0))>0);
+   await page.screenshot({path:path.join(out,`${phase}-edited-${width}.png`)});
   }else{await page.getByText('No changes suggested',{exact:true}).waitFor();assert.equal(await review.count(),0);assert.equal(await cv.innerText(),before);assert.equal(await page.getByRole('button',{name:'Apply all changes',exact:true}).count(),0);}
   assert.equal(requests.length,1);assert.deepEqual(outside,[]);assert.deepEqual(errors,[]);await page.close();console.log(`PASS ${phase} actual-site ${width}px ${changed?'changed review/Apply':'unchanged'}; external backend executions 0`);
  }

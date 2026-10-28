@@ -1,0 +1,28 @@
+{
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "beforeVersionId": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+  "beforeUpdatedAt": "2026-10-28T12:18:06.377Z",
+  "beforeProjectionSha256": "9a26a30cb6508c8919c7fb7e689689da7be52c80b65fda53ac2a302d7b5cc084",
+  "candidateProjectionSha256": "6a011da1b0797b6fb37cf460cec2d4e721480c949e5cc7dff3a36a9d7b3d729a",
+  "changedNodes": [
+    {
+      "name": "Validate + Normalize",
+      "before": "1945a3576cd02e533f5b6197fa910e285503a8078f62e7c847814ba294b78734",
+      "after": "86537d83b33a8e5f20768a11e3862e897785891da78abd35d8bc7de19ba70053"
+    },
+    {
+      "name": "Compose source suggestion",
+      "before": "bde42f08659731cf2b5390c53bb1a9dbd24e595c623310b583ee2f885666c664",
+      "after": "96712451471c32131d4dc7aa15c7b45a8638717fa8e67fd38e7a0c24ec3e22c0"
+    }
+  ],
+  "localCodeVersionsVerified": [
+    "1.0",
+    "1.1",
+    "1.2"
+  ],
+  "duplicateRejected": true,
+  "deltaCandidateVerified": true,
+  "workflowWrites": 0,
+  "modelCalls": 0
+}
