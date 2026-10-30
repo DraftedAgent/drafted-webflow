@@ -39,7 +39,22 @@
     reduced.addEventListener('change',preferenceChanged);document.addEventListener('visibilitychange',visibilityChanged);
     observer=new IntersectionObserver(entries=>{visible=entries.some(e=>e.isIntersecting&&e.intersectionRatio>0);tryStart();},{threshold:[0,.1]});observer.observe(brand);
     async function asset(file,json=false){const response=await fetch(new URL(file,assetBase),{signal:abort.signal,cache:'force-cache'});if(!response.ok)throw Error('Motion asset unavailable');return json?response.json():response.text();}
-    Promise.all([asset('drafted-hero-motion.json',true),asset('drafted-wordmark-reference-dot.svg'),asset('drafted-measurement-rule.svg'),asset('drafted-registration-marks.svg')]).then(([geometry,wordSource,ruleSource,marksSource])=>{
+    function stylesReady(){
+      // The live Webflow loader inserts CSS and JS independently. Check style
+      // readiness once, then await its load event instead of measuring per frame.
+      const applied=()=>{const ratio=getComputedStyle(brand).aspectRatio;return ratio&&ratio!=='auto';};
+      if(applied())return Promise.resolve();
+      const link=[...document.querySelectorAll('link[rel="stylesheet"]')].find(el=>new URL(el.href).pathname.endsWith('/drafted-editor.css'));
+      if(!link)return Promise.reject(Error('Hero stylesheet unavailable'));
+      return new Promise((resolve,reject)=>{
+        const cleanup=()=>{link.removeEventListener('load',loaded);link.removeEventListener('error',failed);abort.signal.removeEventListener('abort',failed);};
+        const loaded=()=>{cleanup();if(applied())resolve();else reject(Error('Hero styles unavailable'));};
+        const failed=()=>{cleanup();reject(Error('Hero stylesheet unavailable'));};
+        link.addEventListener('load',loaded,{once:true});link.addEventListener('error',failed,{once:true});abort.signal.addEventListener('abort',failed,{once:true});
+        if(link.sheet)loaded();
+      });
+    }
+    Promise.all([asset('drafted-hero-motion.json',true),asset('drafted-wordmark-reference-dot.svg'),asset('drafted-measurement-rule.svg'),asset('drafted-registration-marks.svg'),stylesReady()]).then(([geometry,wordSource,ruleSource,marksSource])=>{
       if(disposed)return;
       clearTimeout(timeout);
       const parse=source=>{const doc=new DOMParser().parseFromString(source,'image/svg+xml');if(doc.querySelector('parsererror'))throw Error('Invalid brand vector');return doc;};
