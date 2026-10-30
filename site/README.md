@@ -3,7 +3,9 @@
 Current local entrypoints and release procedure:
 [stable reference and dev](local/README.sv.md). Stable is pinned to a local Git
 commit on port 8827; dev uses the working tree on 8825. Both default to synthetic
-responses. The independent dev integration mode on 8826 remains blocked.
+responses. The independent dev integration mode on 8826 starts blocked by default.
+DEV-163 separately approved its current live local session and exact upload-origin
+change; see [connection verification](integration/connection-verification.json).
 
 Local-only implementation, 2026-10-30. No Webflow publication, hosting choice,
 domain change, production workflow execution or backend mutation is included.

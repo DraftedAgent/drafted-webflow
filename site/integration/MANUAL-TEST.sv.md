@@ -1,9 +1,17 @@
 # Kort manuell testguide
 
-**Nu:** http://127.0.0.1:8825/ är simulerat. Previewn visar vald fil men
+**Nu, efter godkänd DEV-163:** http://127.0.0.1:8826/ är aktiverat för riktiga
+n8n-/AI-anrop. Åtta avgränsade anslutningsanrop passerade med syntetiskt CV.
+Öppna startsidan i en egen flik och kontrollera märkningen **Dev · Integration ·
+riktiga anrop** innan du väljer ditt CV. Agentens testdata ligger i en separat
+isolerad webbläsarsession och har inte kopierats till ditt arbete.
+
+http://127.0.0.1:8825/ är fortsatt simulerat. Previewn visar vald fil men
 bearbetningen returnerar exempeldata, inte en tolkning av ditt CV.
-http://127.0.0.1:8826/ är förberett men spärrat.
-**Efter separat godkänd aktivering:** 8826 visar ”Integration · riktiga anrop”.
+8827 är den frysta simulerade referensen. Vid omstart är vanliga
+`node tools/local-versions.cjs dev-integration` spärrat som säker standard.
+För det nu godkända manuella testet startas i stället
+`node tools/serve-local-integration.cjs --enable-real-backend` efter behov.
 Ditt CV, annons och frågor kan då skickas till befintlig n8n/AI och kosta pengar.
 Testa först med påhittade dokument; därefter kan du välja ditt faktiska CV.
 
@@ -51,6 +59,11 @@ CV eller känsliga backendloggar i felrapporter. Browserlagringen är per origin
 flik och flyttas inte automatiskt mellan lägen, Webflow, dator och mobil.
 Rensad lagring eller avslutad privat session kan förlora arbetet.
 
-Efter godkänd n8n-ändring kontrolleras också en uppladdning från befintlig
-Webflow-adress med syntetiskt CV. Det ingår i den avgränsade anslutningskontrollen,
-inte i de redan godkända lokala testerna.
+Webflow-origin kontrollerades i samma testomgång genom en riktig upload från en
+isolerad webbläsarsida på den origin-adressen. Det verifierar CORS och svaret,
+inte hela den publicerade Webflow-sidans UI. Ingen webbplats har publicerats.
+
+Inga anslutningsfel hittades i omgången. Återstår manuell kontroll av ditt faktiska
+CV, fler filvarianter/storlekar, den fullständiga Tailor-granskningen/Apply,
+PDF via ditt utskriftsdialogfönster samt fysisk mobil med skärmtangentbord.
+Modellsvarens kvalitet är inte generellt bevisad av lyckade anslutningsanrop.

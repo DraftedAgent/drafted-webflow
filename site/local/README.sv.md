@@ -8,7 +8,9 @@ valet mellan simulerad backend och riktiga n8n-/AI-anrop.
 - **Dev:** http://127.0.0.1:8825/ och `/editor`. Arbetskoden på `codex/local-dev`,
   simulering som standard. Lägesraden visar commit och om bygget har lokala ändringar.
 - **Dev, integration:** http://127.0.0.1:8826/ och `/editor`. Samma dev-kod men
-  separat backendkonfiguration och lagring. Riktiga anrop är fortfarande spärrade.
+  separat backendkonfiguration och lagring. Startkommandot är spärrat som standard.
+  DEV-163 har separat godkänt/aktiverat riktiga anrop för ägarens manuella test;
+  aktuell körning visar ”Integration · riktiga anrop”.
 
 Inga nya hostingkonton, domäner, n8n-flöden eller AI-resurser skapas här.
 
@@ -81,9 +83,9 @@ samma workflow-ID:n, credentials, modeller och kvoter som nuvarande produkt**.
 Stabil frontend fryser inte dessa externa resurser. En framtida n8n-ändring kan
 alltså påverka flera frontendversioner. Ingen separat dev-backend har skapats.
 
-Den väntande origin-ändringen gäller fortfarande bara 8826 plus befintlig
+Den separat godkända DEV-163 origin-ändringen gäller bara 8826 plus befintlig
 Webflow-adress; 8827 behöver ingen n8n-åtkomst när den simulerar. Versionsverktyget
 har ingen flagga för riktiga anrop. Den tidigare separat förberedda aktiveringen
-och dess kostnads-/testgodkännande gäller fortfarande:
+och dess kostnads-/testgodkännande dokumenteras här:
 [integrationsunderlag](../integration/APPROVAL.sv.md).
 Detta arbete godkänner eller utför inte de externa stegen.

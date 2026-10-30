@@ -1,0 +1,35 @@
+{
+  "verifiedUtc": "2026-10-30T12:16:31.4353121Z",
+  "workflowExecutions": 0,
+  "snapshots": [
+    {
+      "activeVersion": "dbaffef6-c149-4bad-a016-83269c50e47a",
+      "workflowId": "6Bvk0NYcElT9OirH",
+      "activeSha256": "b1f998acba47b1f7aaae9115acf81c93436d14984f0fd45c7adc7715cf051ba8",
+      "active": true,
+      "savedSha256": "6e7da444ec7f798973adb4774f50319ff6bbf3267d4a150626e5dec833915b19",
+      "encryptedSha256": "621583DB547272F4A7A896922C2FD95615A8F955FE1548F5B5ADEAAA54925E7F",
+      "file": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261030T121608649Z__local-origin-DEV-163\\pre.clixml",
+      "version": "dbaffef6-c149-4bad-a016-83269c50e47a"
+    },
+    {
+      "activeVersion": "dd665329-f992-4158-86ab-d5c32260e255",
+      "workflowId": "6Bvk0NYcElT9OirH",
+      "activeSha256": "9bae876e4b782646bd6ece95ffd5fbbeeb39941764e78b35da3a2e5723c8ae16",
+      "active": true,
+      "savedSha256": "513cc138491c55e5514c757dcf11d2d8af6fcbed2ed8cf5eaa783dd1b4eb7aa7",
+      "encryptedSha256": "C54AFB3B6043627904045711888C8E87A329D9B7F1369C3D25666F8518985428",
+      "file": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\6Bvk0NYcElT9OirH\\20261030T121608649Z__local-origin-DEV-163\\post.clixml",
+      "version": "dd665329-f992-4158-86ab-d5c32260e255"
+    }
+  ],
+  "result": {
+    "workflowId": "6Bvk0NYcElT9OirH",
+    "beforeVersion": "dbaffef6-c149-4bad-a016-83269c50e47a",
+    "version": "dd665329-f992-4158-86ab-d5c32260e255",
+    "activeVersion": "dd665329-f992-4158-86ab-d5c32260e255",
+    "allowedOrigins": "https://drafted-cad750.webflow.io,http://127.0.0.1:8826",
+    "onlyApprovedFieldChanged": true
+  },
+  "writes": 1
+}

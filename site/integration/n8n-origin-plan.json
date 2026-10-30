@@ -1,6 +1,6 @@
 {
-  "status": "local-integration-prepared-only-not-approved",
-  "inspectedAt": "2026-10-30T11:48:35.540Z",
+  "status": "applied-and-verified-DEV-163",
+  "inspectedAt": "2026-10-30T11:48:35.54Z",
   "instance": "https://drafted.app.n8n.cloud",
   "workflowId": "6Bvk0NYcElT9OirH",
   "workflowName": "Main-UploadPreview",
@@ -17,8 +17,8 @@
   "after": "https://drafted-cad750.webflow.io,http://127.0.0.1:8826",
   "otherChanges": [],
   "localOrigin": "http://127.0.0.1:8826",
-  "writesPerformed": 0,
-  "workflowExecutions": 0,
+  "writesPerformed": 1,
+  "workflowExecutions": 8,
   "requirementsBeforeWrite": [
     "Approve the exact local origin, workflow update/publication and separately bounded real tests",
     "Re-read saved and active definitions; stop on version drift",
@@ -26,5 +26,6 @@
     "Change only allowedOrigins; preserve the Webflow origin and every other node/setting",
     "Explicit approval covers updating and publishing the exact candidate on the existing active workflow",
     "Verify both saved and active result; do not deactivate the existing workflow"
-  ]
+  ],
+  "appliedVersionId": "dd665329-f992-4158-86ab-d5c32260e255"
 }

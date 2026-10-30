@@ -28,7 +28,7 @@ function build(options={}){
  else fs.copyFileSync(path.join(root,'site/local-config.js'),path.join(out,'local-config.js'));
  fs.copyFileSync(path.join(root,'site/environment.js'),path.join(out,'environment.js'));
  for(const directory of ['brand','fonts','pdfjs'])fs.cpSync(path.join(root,'webflow/assets',directory),path.join(out,'assets',directory),{recursive:true});
- const head=hero.head+'\n<style data-standalone-critical>'+base+'\n'+pages+'</style>';
+ const head='<script data-drafted-reload-start>'+read('site/reload-start.js')+'</script>\n'+hero.head+'\n<style data-standalone-critical>'+base+'\n'+pages+'</style>';
  for(const [page,target,title] of [['setup','index.html','Your experience, clearly represented'],['editor','editor/index.html','CV editor']]){
   const mode=integration?'integration-blocked':'simulated';
   const environment=`<aside class="drafted-environment" id="drafted-environment" data-channel="${channel}" data-mode="${mode}" role="status"><strong class="drafted-version-label">${versionLabel}</strong><span data-backend-label>${integration?'Integration · spärrad':'Simulerat lokalt'}</span><span data-backend-detail>${integration?'Inga riktiga anrop tillåtna':'Inga riktiga AI-anrop'}</span></aside>`;

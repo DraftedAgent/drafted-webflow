@@ -1,5 +1,14 @@
 # Lokalt integrationsläge — för godkännande
 
+**Status 2026-10-30, DEV-163:** Ägaren godkände den exakta ändringen och klargjorde
+att just n8n-publiceringen ingår. Endast `allowedOrigins` har ändrats och
+sparad/aktiv version `dd665329-f992-4158-86ab-d5c32260e255` har verifierats.
+En enda testomgång med syntetiskt CV gjorde åtta av högst tio workflow-anrop;
+alla åtta gav HTTP 200/ok. Ingen upprepad testserie. Se
+[leveranskvitto](deployment-receipt.json) och [anslutningskontroll](connection-verification.json).
+Integration på 8826 är aktiverad för ägarens manuella test. Simulerat dev och
+stabil referens är oförändrade. Texten nedan bevarar det ursprungliga underlaget.
+
 Förberett 2026-10-30. Ingen hosting väljs, köps eller publiceras. Domänen lämnas
 orörd. Inga riktiga workflow-/AI-anrop eller externa ändringar har gjorts.
 

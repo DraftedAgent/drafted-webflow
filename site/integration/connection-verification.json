@@ -1,0 +1,106 @@
+{
+  "approval": "Owner DEV-163, max 10 workflow requests, stop on unexpected failure, no repetitions",
+  "started": "2026-10-30T12:18:31.867Z",
+  "requests": [
+    {
+      "number": 1,
+      "path": "/webhook/webflow-upload-cv",
+      "origin": "http://127.0.0.1:8826",
+      "stage": "local-upload-without-job",
+      "started": "2026-10-30T12:18:32.873Z",
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:8826",
+      "ok": true,
+      "backendCode": null
+    },
+    {
+      "number": 2,
+      "path": "/webhook/webflow-upload-cv",
+      "origin": "https://drafted-cad750.webflow.io",
+      "stage": "legacy-origin-upload",
+      "started": "2026-10-30T12:18:55.814Z",
+      "status": 200,
+      "allowOrigin": "https://drafted-cad750.webflow.io",
+      "ok": true,
+      "backendCode": null
+    },
+    {
+      "number": 3,
+      "path": "/webhook/webflow-chat-cv",
+      "origin": "http://127.0.0.1:8826",
+      "stage": "chat",
+      "started": "2026-10-30T12:19:10.185Z",
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:8826",
+      "ok": true,
+      "backendCode": null
+    },
+    {
+      "number": 4,
+      "path": "/webhook/webflow-editor-rewrite",
+      "origin": "http://127.0.0.1:8826",
+      "stage": "rewrite-apply",
+      "started": "2026-10-30T12:19:13.535Z",
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:8826",
+      "ok": true,
+      "backendCode": null
+    },
+    {
+      "number": 5,
+      "path": "/webhook/webflow-jobcontext-extract",
+      "origin": "http://127.0.0.1:8826",
+      "stage": "job-and-discovery-plan",
+      "started": "2026-10-30T12:19:22.289Z",
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:8826",
+      "ok": true,
+      "backendCode": null
+    },
+    {
+      "number": 6,
+      "path": "/webhook/webflow-experience-discovery",
+      "origin": "http://127.0.0.1:8826",
+      "stage": "job-and-discovery-plan",
+      "started": "2026-10-30T12:19:32.122Z",
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:8826",
+      "ok": true,
+      "backendCode": null
+    },
+    {
+      "number": 7,
+      "path": "/webhook/webflow-experience-discovery",
+      "origin": "http://127.0.0.1:8826",
+      "stage": "experience-answer",
+      "started": "2026-10-30T12:19:36.724Z",
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:8826",
+      "ok": true,
+      "backendCode": null
+    },
+    {
+      "number": 8,
+      "path": "/webhook/tailor-cv",
+      "origin": "http://127.0.0.1:8826",
+      "stage": "tailor",
+      "started": "2026-10-30T12:19:41.376Z",
+      "status": 200,
+      "allowOrigin": "http://127.0.0.1:8826",
+      "ok": true,
+      "backendCode": null
+    }
+  ],
+  "checks": [
+    "Local browser upload and CV contract",
+    "Existing Webflow browser origin remains readable (isolated harness, not full Webflow UI)",
+    "Chat response through actual editor",
+    "Explicit Apply response; Original remains unchanged",
+    "Job context and experience-question planning",
+    "Experience answer interpretation",
+    "Tailor proposal through existing editor",
+    "Reload and unchanged resume do not reprocess"
+  ],
+  "status": "passed",
+  "finished": "2026-10-30T12:19:48.446Z"
+}

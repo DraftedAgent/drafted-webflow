@@ -2,7 +2,7 @@
 (function(global){
   'use strict';
   if(global.DraftedHeroMotion)return;
-  const DURATION=2400,mounted=new WeakSet(),root=document.documentElement;
+  const DURATION=2400,PLAYBACK_RATE=1.15,mounted=new WeakSet(),root=document.documentElement;
   const clamp=x=>Math.max(0,Math.min(1,x)),phase=(t,a,b)=>clamp((t-a)/(b-a)),ease=x=>x*x*(3-2*x);
   function mount(brand){
     if(!brand||mounted.has(brand))return;
@@ -25,7 +25,7 @@
       performance.mark('drafted-hero-motion-start');
       function tickHeroMotion(now){
         if(disposed)return;
-        try{begin??=now;const t=Math.min(DURATION,now-begin);brand.dataset.motionTime=String(Math.round(t));if(t>=2280)restore();else render(t);if(t<DURATION)frame=requestAnimationFrame(tickHeroMotion);else finish();}catch(_){finish('failed');}
+        try{begin??=now;const t=Math.min(DURATION,(now-begin)*PLAYBACK_RATE);brand.dataset.motionTime=String(Math.round(t));if(t>=2280)restore();else render(t);if(t<DURATION)frame=requestAnimationFrame(tickHeroMotion);else finish();}catch(_){finish('failed');}
       }
       frame=requestAnimationFrame(tickHeroMotion);
     }
@@ -44,16 +44,19 @@
       if(disposed)return;
       if(typeof geometry.original!=='string'||geometry.cuts?.length!==4||geometry.cuts.some(c=>c.frames?.length!==131||c.frames.some(d=>typeof d!=='string'||!d)))throw Error('Invalid initial hero geometry');
       const solid=stage.querySelector('[data-motion-solid]'),band=stage.querySelector('[data-motion-band]'),dot=stage.querySelector('[data-motion-dot]');
-      const cuts=geometry.cuts.map((c,i)=>({...c,remaining:stage.querySelector(`[data-motion-remaining="${i}"]`),complete:stage.querySelector(`[data-motion-complete="${i}"]`),width:[296,314,484,290][i],start:1120+i*150,end:1250+i*150}));
+      const cuts=geometry.cuts.map((c,i)=>({...c,remaining:stage.querySelector(`[data-motion-remaining="${i}"]`),complete:stage.querySelector(`[data-motion-complete="${i}"]`),width:[296,314,484,290][i],start:120+i*150,end:250+i*150}));
       const sides=[0,1].map(i=>({outer:stage.querySelector(`[data-motion-side="${i}"]`),helper:stage.querySelector(`[data-motion-helper="${i}"]`)}));
       function bandShift(t){if(t<520)return -12;if(t<720)return -12+16*ease(phase(t,520,720));if(t<760)return 4;return 4*(1-ease(phase(t,760,900)));}
       render=t=>{
-        band.setAttribute('transform',`translate(${bandShift(t)} ${24*(1-ease(phase(t,0,480)))})`);
+        // Finish the cuts and dot before bringing in the measuring tool.
+        const bandTime=t-1180;
+        band.style.visibility=bandTime<0?'hidden':'';
+        band.setAttribute('transform',`translate(${bandShift(bandTime)} ${24*(1-ease(phase(bandTime,0,480)))})`);
         const shapes=[geometry.unchanged];
         for(const c of cuts){const i=Math.round(phase(t,c.start,c.end)*130);shapes.push(c.frames[i]);c.remaining.setAttribute('width',i===130?0:c.width);c.complete.setAttribute('width',i===130?c.width:0);}
         solid.setAttribute('d',shapes.join(' '));
-        const lock=ease(phase(t,950,1090));sides.forEach(({outer,helper},i)=>{outer.setAttribute('transform',`translate(${(i?6:-6)*(1-lock)} 0)`);outer.style.opacity=.24+.76*lock;helper.style.opacity=phase(t,950,1040)*(1-phase(t,1730,1850));});
-        const p=ease(phase(t,1810,2220));dot.style.display=t<1810?'none':'';dot.setAttribute('transform',`translate(${36*(1-p)} 0) rotate(${360*p} 1350.5 283.25)`);
+        const lock=ease(phase(t,2130,2270));sides.forEach(({outer,helper},i)=>{outer.setAttribute('transform',`translate(${(i?6:-6)*(1-lock)} 0)`);outer.style.opacity=.24+.76*lock;helper.style.opacity=phase(t,2130,2200)*(1-phase(t,2200,2270));});
+        const p=ease(phase(t,740,1150));dot.style.display=t<740?'none':'';dot.setAttribute('transform',`translate(${36*(1-p)} 0) rotate(${360*p} 1350.5 283.25)`);
       };
       render(0);ready=true;clearTimeout(global.__DRAFTED_HERO_DEADLINE__);brand.dataset.motionState='waiting';tryStart();
     })().catch(()=>finish('failed'));

@@ -1,4 +1,10 @@
-> DEV-162, current local workflow: [stable reference and dev](../site/local/README.sv.md).
+> DEV-163: owner-approved upload origin addition is active and verified. Local
+> integration on8826 is enabled for manual testing; one bounded batch of8 real
+> workflow requests passed. No other backend change or website publication.
+> [Receipt](../site/integration/deployment-receipt.json),
+> [test guide](../site/integration/MANUAL-TEST.sv.md). Default launch remains blocked.
+
+> DEV-162, local workflow established before DEV-163: [stable reference and dev](../site/local/README.sv.md).
 > Stable uses the exact Git commit selected in site/local/stable.json on port8827;
 > new work uses dev on8825. Both simulate. Dev integration on8826 remains blocked.
 > Reference updates need owner review/approval of the candidate; no hosting,

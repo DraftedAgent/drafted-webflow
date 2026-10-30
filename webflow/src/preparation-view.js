@@ -34,7 +34,12 @@
     icon.innerHTML='<svg width="25" height="28" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2h9l5 5v18H5zM14 2v6h5M8 13h8M8 17h8M8 21h5"/></svg>';
     const fileText=el('div','preparation-file-details'),type=el('span','preparation-file-type','PDF document');fileText.append(name,type);
     file.setAttribute('aria-labelledby','preparation-starting');file.tabIndex=-1;
-    choose.setAttribute('role','button');choose.tabIndex=0;choose.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();file.click();}});
+    choose.setAttribute('role','button');choose.tabIndex=0;
+    // Standalone uses a button; legacy markup used a label with native activation.
+    // One synchronous click path handles both without opening the picker twice.
+    choose.addEventListener('click',event=>{event.preventDefault();file.click();});
+    if(choose.tagName==='BUTTON')choose.type='button';
+    else choose.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose.click();}});
     picker.replaceChildren(file,icon,fileText,choose);starting.group.append(picker);
     const actions=el('div','preparation-actions');
     action.textContent='Continue to editor';action.setAttribute('role','button');action.setAttribute('aria-disabled','false');
