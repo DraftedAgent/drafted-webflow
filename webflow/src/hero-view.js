@@ -33,6 +33,7 @@
     const action=hero.querySelector('a[href="#section-input"]')||document.createElement('a');action.className='drafted-hero-action';action.replaceChildren(document.createTextNode('Start with your CV'),el('span','drafted-action-arrow','→'));action.lastElementChild.setAttribute('aria-hidden','true');anchor(action,'#section-input');direction.append(description,action);content.append(heading,direction);
     inner.append(brand,content);hero.replaceChildren(inner);hero.classList.add('drafted-hero');hero.setAttribute('aria-labelledby',heading.id);
     if(location.hash==='#section-input'||location.hash==='#drafted-start')requestAnimationFrame(()=>document.querySelector(location.hash)?.scrollIntoView({behavior:'instant',block:'start'}));
+    global.DraftedHeroMotion?.mount(brand,assetBase);
   }
   global.DraftedHeroView={mount};
 })(window);
