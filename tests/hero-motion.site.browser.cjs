@@ -14,7 +14,7 @@ try{
   if(u.hostname==='challenges.cloudflare.com')return route.fulfill({contentType:'text/javascript',body:'/* Non-verifying UI stub for the unrelated Webflow form challenge. */ window.turnstile={ready:cb=>cb(),render:()=>"isolated-widget",reset:()=>{},remove:()=>{}};'});
   if(mode==='candidate'&&r.url().startsWith(assets)){
    const rel=u.pathname.replace('/drafted-webflow/',''),file=path.join(root,rel);
-   if(['latest.json','drafted-editor.js','drafted-editor.css'].includes(rel)||rel.startsWith('webflow/assets/brand/')){assert(fs.existsSync(file),'Candidate asset exists: '+rel);return route.fulfill({headers,body:fs.readFileSync(file),contentType:rel.endsWith('.json')?'application/json':rel.endsWith('.svg')?'image/svg+xml':rel.endsWith('.css')?'text/css':'text/javascript'})}
+   if(['latest.json','drafted-editor.js','drafted-editor.css'].includes(rel)||rel.startsWith('webflow/assets/brand/')){assert(fs.existsSync(file),'Candidate asset exists: '+rel);if(rel==='drafted-editor.css')await new Promise(resolve=>setTimeout(resolve,750));return route.fulfill({headers,body:fs.readFileSync(file),contentType:rel.endsWith('.json')?'application/json':rel.endsWith('.svg')?'image/svg+xml':rel.endsWith('.css')?'text/css':'text/javascript'})}
   }
   if(r.method()==='GET'&&['drafted-cad750.webflow.io','draftedagent.github.io','ajax.googleapis.com','d3e54v103j8qbb.cloudfront.net','cdn.jsdelivr.net','fonts.googleapis.com','fonts.gstatic.com','cdnjs.cloudflare.com'].includes(u.hostname)||r.method()==='GET'&&u.hostname.endsWith('website-files.com'))return route.continue();
   unexpected.push(r.url());return route.abort();
