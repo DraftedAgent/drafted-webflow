@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "commit": "7b9ab1936c914dcfc52914c0d80934b79c6d2706",
+  "tag": "drafted-local-stable/7b9ab1936c91",
+  "approval": "Owner request 2026-10-30: establish initial local reference; no external deployment or backend approval",
+  "selectedAt": "2026-10-30T12:07:34.488Z",
+  "previousCommit": null,
+  "origin": "http://127.0.0.1:8827",
+  "backend": "simulated"
+}

@@ -2,6 +2,14 @@
 
 These instructions apply throughout this repository.
 
+Local development uses the stable/dev workflow in site/local/README.sv.md.
+New changes belong in dev (codex/local-dev or another codex/* branch), using
+the standalone builder. The local stable commit in site/local/stable.json is
+frozen and may only be replaced after the owner reviews and approves that exact
+candidate. Never promote automatically or use a dev build to rewrite reference
+assets. Backend mode is independent: simulation is default; existing n8n changes
+and real AI tests still require their separate approval. No hosting is selected.
+
 Before work, read all nine control documents:
 - dev-system/README.md
 - dev-system/DEVELOPMENT-CONTRACT.md

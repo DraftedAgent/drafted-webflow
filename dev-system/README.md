@@ -1,3 +1,9 @@
+> DEV-162, current local workflow: [stable reference and dev](../site/local/README.sv.md).
+> Stable uses the exact Git commit selected in site/local/stable.json on port8827;
+> new work uses dev on8825. Both simulate. Dev integration on8826 remains blocked.
+> Reference updates need owner review/approval of the candidate; no hosting,
+> publication, pending n8n change or real AI test is approved by this setup.
+
 > DEV-101: owner approved context recovery and UI publication. Existing Tailor saved/active a5196f17-4ccc-41db-8993-9b6c5fe466dd verified; only Compose source suggestion changed. [Scope](TAILOR-MISSING-CONTEXT-RECOVERY.md), [safe receipt](prepared/tailor-context-recovery.deployment.json). Fifty-four focused tests and actual-site mocked preflight pass, no external model run. Build2026-10-24-question-actions prepared for approved PR/Pages delivery; final served-byte/browser verification is recorded in that PR. No new Discovery workflow mutation.
 
 > DEV-100 local: removed automatic-cut copy, centered wrapping question actions; requested session/CV note remains absent. Existing Tailor execution214 rejected an unsupported employment placement. [One-node clarification candidate](TAILOR-MISSING-CONTEXT-RECOVERY.md) is locally tested, not deployed; production remains DEV-098. Fifteen focused tests and two browser flows pass; no external model/workflow run or publication. Build2026-10-24-question-actions; synthetic candidate preview http://127.0.0.1:8803/?sample=1.
