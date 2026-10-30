@@ -1,14 +1,16 @@
 'use strict';
 // Actual Webflow DOM with candidate assets. Never execute a production backend.
 const {chromium}=require('playwright'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..'),out=path.join(root,'output/pdf/hero-release'),site='https://drafted-cad750.webflow.io/',assets='https://draftedagent.github.io/drafted-webflow/';
+const root=path.resolve(__dirname,'..'),out=path.join(root,'output/pdf/initial-hero/site'),site='https://drafted-cad750.webflow.io/',assets='https://draftedagent.github.io/drafted-webflow/';fs.mkdirSync(out,{recursive:true});
 const mode=process.env.HERO_SITE_MODE||'candidate',sizes=[{width:1536,height:1024},{width:1366,height:768},{width:390,height:844},{width:320,height:640}];
-(async()=>{const browser=await chromium.launch({headless:true,channel:'msedge'}),report={mode,viewports:[],backendExecutions:0},errors=[],unexpected=[],posts=[];
+(async()=>{let prepared;if(mode==='candidate'){const source=path.join(out,'initial-source.html'),target=path.join(out,'initial-prepared.html');fs.writeFileSync(source,await(await fetch(site)).text());require('node:child_process').execFileSync(process.execPath,[path.join(root,'tools/build-initial-hero.cjs'),source,target],{cwd:root});prepared=fs.readFileSync(target);}
+const browser=await chromium.launch({headless:true,channel:'msedge'}),report={mode,viewports:[],backendExecutions:0},errors=[],unexpected=[],posts=[];
 try{
  const page=await browser.newPage();page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{const raf=requestAnimationFrame;let pending;window.requestAnimationFrame=fn=>{if(fn.name==='tickHeroMotion'){pending=fn;return -1000}return raf(fn)};window.__advanceHero=t=>{const cb=pending;pending=null;if(cb)cb(t)}});
  await page.route('**/*',async route=>{
   const r=route.request(),u=new URL(r.url()),headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'POST, OPTIONS'};
+  if(mode==='candidate'&&r.isNavigationRequest()&&u.hostname==='drafted-cad750.webflow.io')return route.fulfill({contentType:'text/html',body:prepared});
   if(r.method()==='OPTIONS')return route.fulfill({status:204,headers});
   if(r.method()==='POST'||u.hostname.endsWith('n8n.cloud')){posts.push(u.pathname);if(u.pathname.endsWith('/webflow-upload-cv')){const f=require('./fixtures/cv-header.cjs');return route.fulfill({headers,json:f.envelope(f.cases.complete)})}unexpected.push(u.pathname);return route.fulfill({status:503,headers,json:{ok:false}})}
   if(u.hostname==='challenges.cloudflare.com')return route.fulfill({contentType:'text/javascript',body:'/* Non-verifying UI stub for the unrelated Webflow form challenge. */ window.turnstile={ready:cb=>cb(),render:()=>"isolated-widget",reset:()=>{},remove:()=>{}};'});
@@ -20,7 +22,7 @@ try{
   unexpected.push(r.url());return route.abort();
  });
  for(const viewport of sizes){
-  await page.setViewportSize(viewport);await page.goto(site+'?hero-release='+Date.now(),{waitUntil:'domcontentloaded'});
+  await page.setViewportSize(viewport);const response=await page.goto(site+'?hero-release='+Date.now(),{waitUntil:'domcontentloaded'});const raw=await response.text();assert(!raw.includes('Rewrite your CV with ruthless clarity'));assert(raw.includes('data-initial-hero'));
   await page.waitForFunction(()=>document.querySelector('.drafted-hero-brand')?.dataset.motionState==='playing');
   await page.evaluate(async()=>Promise.all([...document.querySelectorAll('.drafted-landing img')].map(i=>i.decode())));
   const geometry=()=>page.evaluate(()=>{const box=s=>{const r=document.querySelector(s).getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}};return{brand:box('.drafted-hero-brand'),heading:box('.drafted-hero-heading'),cta:box('.drafted-hero-action'),nav:box('.drafted-nav-wordmark')}});

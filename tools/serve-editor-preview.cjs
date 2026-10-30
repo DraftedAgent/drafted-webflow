@@ -1,5 +1,5 @@
 'use strict';
-const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),zlib=require('node:zlib');
 const {createHandler}=require('../backend/experience-discovery.cjs'),{fixtureModel}=require('../backend/discovery-fixture-provider.cjs');
 const sourceFixture=process.env.DRAFTED_PREVIEW_SCENARIO==='structured-context'?require('../tests/fixtures/structured-experience-context.cjs'):process.env.DRAFTED_PREVIEW_SCENARIO==='sources-context-recovery'?require('../tests/fixtures/tailor-context-recovery.cjs'):process.env.DRAFTED_PREVIEW_SCENARIO==='sources-references'?require('../tests/fixtures/tailor-source-references.cjs'):process.env.DRAFTED_PREVIEW_SCENARIO==='sources-batches'?require('../tests/fixtures/discovery-batches.cjs'):['sources','sources-n8n','sources-anchors','sources-assignments','sources-assessments'].includes(process.env.DRAFTED_PREVIEW_SCENARIO)?require('../tests/fixtures/tailor-sources.cjs'):null;
 const sourceDiscovery=sourceFixture&&(process.env.DRAFTED_PREVIEW_SCENARIO==='sources-assessments'?require('../tests/helpers/discovery-assessments-harness.cjs').createHarness({model:async data=>{calls.push({operation:data.request.operation,synthetic:true,planFormat:'assessments-1'});return require('../tests/fixtures/discovery-assessments.cjs').model(data);}}):process.env.DRAFTED_PREVIEW_SCENARIO==='sources-batches'?require('../tests/helpers/discovery-prioritized-harness.cjs').createHarness({model:async data=>{calls.push({operation:data.request.operation,synthetic:true});return sourceFixture.discoveryModel(data);}}):process.env.DRAFTED_PREVIEW_SCENARIO==='sources-assignments'?require('../tests/helpers/discovery-assignments-harness.cjs').createHarness({model:async data=>{calls.push({operation:data.request.operation,synthetic:true,planFormat:'assignments-1'});return require('../tests/fixtures/discovery-assignments.cjs').model(data);}}):process.env.DRAFTED_PREVIEW_SCENARIO==='sources-anchors'?require('../tests/helpers/discovery-anchors-harness.cjs').createHarness({model:async data=>{calls.push({operation:data.request.operation,synthetic:true,planFormat:'anchors-1'});return require('../tests/fixtures/discovery-anchors.cjs').model(data);}}):createHandler({model:async data=>{calls.push({operation:data.operation,synthetic:true});return sourceFixture.discovery(data);}}));
@@ -24,6 +24,7 @@ const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,'http://localhost'),pathname=url.pathname;
  res.setHeader('Content-Security-Policy',"default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; frame-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'");res.setHeader('Cache-Control','no-store');
  const json=(status,data)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
+ const sendHtml=data=>{const gzip=(req.headers['accept-encoding']||'').includes('gzip');res.writeHead(200,{'Content-Type':'text/html; charset=utf-8',...(gzip?{'Content-Encoding':'gzip','Vary':'Accept-Encoding'}:{})});res.end(gzip?zlib.gzipSync(data):data);};
  if(req.method==='GET'&&pathname==='/preview-status')return json(200,{synthetic:true,externalModelCalls:0,tailorProvider:['sources-n8n','sources-anchors','sources-assignments','sources-assessments','sources-batches'].includes(process.env.DRAFTED_PREVIEW_SCENARIO)?'prepared-code-local-simulation':'synthetic-fixture',discoveryProvider:process.env.DRAFTED_PREVIEW_SCENARIO==='sources-assessments'?'prepared-assessment-code-local-simulation':process.env.DRAFTED_PREVIEW_SCENARIO==='sources-batches'?'prepared-prioritized-code-local-simulation':process.env.DRAFTED_PREVIEW_SCENARIO==='sources-assignments'?'prepared-assignment-code-local-simulation':process.env.DRAFTED_PREVIEW_SCENARIO==='sources-anchors'?'prepared-anchor-code-local-simulation':'synthetic-fixture',calls});
  if(req.method==='POST'){
   req.setEncoding('utf8');
@@ -56,9 +57,18 @@ const server=http.createServer(async(req,res)=>{
   return json(503,{ok:false,contractError:{code:'LOCAL_PREVIEW_ONLY',message:'This action is outside the local discovery preview.'}});
  }
  if(req.method!=='GET')return json(404,{error:'Not found'});
+ if(pathname==='/initial-site'){
+  const prepared=path.join(repo,'output/pdf/initial-hero/site-prepared.html');if(!fs.existsSync(prepared))return json(404,{error:'Build the local initial Webflow HTML first'});
+  // Actual Webflow shell, served locally for first-paint verification only.
+  // The page's normal vendor scripts may load; all Drafted operations stay local.
+  res.removeHeader('Content-Security-Policy');
+  const config='<script>window.__DRAFTED_PREVIEW_ENDPOINTS__={upload:"/preview-api/upload",rewrite:"/preview-api/rewrite",chat:"/preview-api/chat",export:"/preview-api/export",jobcontext:"/preview-api/jobcontext",tailor:"/preview-api/tailor",discovery:"/webflow-experience-discovery"};</script>';
+  const html=fs.readFileSync(prepared,'utf8').replaceAll('https://draftedagent.github.io/drafted-webflow','http://'+req.headers.host).replace('</head>',config+'</head>');
+  return sendHtml(html);
+ }
  if(req.method==='GET'&&pathname==='/webflow/preview/editor-fixture.js'){const script=fs.readFileSync(path.join(repo,'webflow/preview/editor-fixture.js'),'utf8');res.writeHead(200,{'Content-Type':'text/javascript'});return res.end(script.replace("tailor:'/preview-api/tailor'","tailor:'/preview-api/tailor',tailorSources:"+!!sourceFixture+(process.env.DRAFTED_PREVIEW_SCENARIO==='structured-context'?",tailorSourcesVersion:'1.2'":'')));}
  const target=path.resolve(repo,'.'+(pathname==='/'?'/webflow/preview/editor.html':pathname));if(!target.startsWith(repo+path.sep))return json(404,{error:'Not found'});
- fs.readFile(target,(e,data)=>{if(e)return json(404,{error:'Not found'});res.writeHead(200,{'Content-Type':target.endsWith('.html')?'text/html; charset=utf-8':target.endsWith('.css')?'text/css':target.endsWith('.svg')?'image/svg+xml':(/\.m?js$/.test(target))?'text/javascript':target.endsWith('.wasm')?'application/wasm':'application/octet-stream'});res.end(data);});
+ fs.readFile(target,(e,data)=>{if(e)return json(404,{error:'Not found'});if(target.endsWith('.html'))return sendHtml(data);res.writeHead(200,{'Content-Type':target.endsWith('.css')?'text/css':target.endsWith('.svg')?'image/svg+xml':(/\.m?js$/.test(target))?'text/javascript':target.endsWith('.wasm')?'application/wasm':'application/octet-stream'});res.end(data);});
 });
-server.listen(Number(process.env.PORT||8771),'127.0.0.1',()=>console.log(`Whole editor, local synthetic preview: http://127.0.0.1:${server.address().port}/`));
+if(require.main===module)server.listen(Number(process.env.PORT||8771),'127.0.0.1',()=>console.log(`Whole editor, local synthetic preview: http://127.0.0.1:${server.address().port}/`));
 module.exports={server};

@@ -41,7 +41,13 @@
   return {begin(model){original=freeze(copy(model));mode='edited';marks=false;stamp=JSON.stringify(model);anchor=null;restorePending=false;update();},
    sync(blocked){const current=JSON.stringify(getEdited());if(!blocked&&stamp!==current){mode='edited';stamp=current;restorePending=false;}suspended=blocked;clear('drafted-document');update();},
    edited(){mode='edited';restorePending=false;update();},model:()=>!suspended&&mode==='original'?original:null,afterRender,
-   beforeRender(){clear('drafted-document');},original:()=>original,mode:()=>mode};
+   beforeRender(){clear('drafted-document');},original:()=>original,mode:()=>mode,
+   snapshot:()=>({schema:1,original:original?copy(original):null,mode,marks}),
+   restore(saved){
+    if(saved&&(saved.schema!==1||saved.original&&(!Array.isArray(saved.original.blocks)||!saved.original.blocks.every(b=>typeof b.blockId==='string'&&typeof b.text==='string'))))throw Error('The saved original CV cannot be restored.');
+    original=saved?.original?freeze(copy(saved.original)):null;mode=original&&saved.mode==='original'?'original':'edited';marks=!!original&&!!saved?.marks;
+    stamp=JSON.stringify(getEdited());anchor=null;restorePending=false;clear('drafted-document');update();
+   }};
  }
  global.DraftedCvDocumentComparison={create,paint,clear};
 })(window);

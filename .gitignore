@@ -1,3 +1,8 @@
 webflow/dist/
 /tmp/pdfs/
 /output/pdf/
+/site/dist/
+/site/hosting-work/
+/site/hosting-dist/
+/site/integration-dist/
+/site/.local-releases/

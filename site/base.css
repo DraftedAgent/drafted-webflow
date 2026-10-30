@@ -1,0 +1,28 @@
+/* Owned HTML baseline. No Webflow reset, generated site stylesheet or runtime. */
+*,*::before,*::after{box-sizing:border-box}
+html{font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;color:#333;background:#fff;font-size:14px;line-height:1.42857143}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}button:disabled{cursor:default}
+textarea{resize:vertical}
+a{color:inherit}
+img,svg{vertical-align:middle}
+[hidden]{display:none!important}
+h1,h2,h3,p{margin-top:0}p{margin-bottom:10px}
+h1{font-size:38px;line-height:1.16}h2{font-size:32px;line-height:1.125}h3{font-size:24px;line-height:1.25}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #007f86;outline-offset:3px}
+.file-picker input[type=file]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.cv-preview-box{width:100%;height:600px;min-height:0}
+.chat-card,.cv-card{background:#fff;border:1px solid #dce4e8;border-radius:12px}
+.chat-title{font-size:24px;line-height:1.25}
+.chat-input{display:block;width:100%;min-height:44px;padding:10px;border:1px solid #ccc;border-radius:6px;background:#fff}
+.chat-send-button{display:inline-block;padding:9px 15px;border:0;border-radius:6px;background:#007f86;color:white;text-decoration:none}
+.cv-document{background:#eaf0f3}
+.cv-document-inner{position:relative;background:white}
+.standalone-noscript{padding:16px;margin:0;background:#fff;color:#142a3d}
+/* This is initial response CSS: storage/editor loading never hides the hero. */
+html.drafted-pages[data-workspace-page=setup],html.drafted-pages[data-workspace-page=setup] body{height:auto;min-height:100%;overflow:auto!important}
+html.drafted-pages[data-workspace-page=setup] .page-scroll{position:relative;inset:auto;height:auto;overflow:visible;scroll-snap-type:none}
+html.drafted-pages[data-workspace-page=setup] .section-editor{display:none!important}
+html.drafted-pages[data-workspace-page=editor] :is(.page-start,#section-input){display:none!important}
+html.drafted-pages[data-workspace-page=editor][data-workspace-ready=false] .section-editor{display:none!important}

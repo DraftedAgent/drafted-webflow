@@ -1,0 +1,186 @@
+<!-- DRAFTED_INITIAL_HEAD_START -->
+<style data-drafted-critical>html,body{margin:0;height:100%;background:#f8f7f4}.drafted-landing,.drafted-landing *{box-sizing:border-box}
+html,body {height:100%;overflow:hidden!important;}
+/* The header is an ordinary first child of the shared scroll container. */
+.navbar.w-nav {position:relative;inset:auto;width:100%;z-index:10;box-sizing:border-box;}
+.page-scroll {
+  position:fixed;inset:0;height:100dvh;
+  overflow-y:auto;overflow-anchor:none;scroll-snap-type:y mandatory;scroll-behavior:auto;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-y:none;
+  scroll-padding-top:0!important;
+}
+/* Full-height workspaces no longer depend on a changing header reservation. */
+.page-scroll .snap-section {
+  height:100%;min-height:100%;box-sizing:border-box;overflow:hidden;
+  scroll-snap-align:start;scroll-snap-stop:always;padding-top:0!important;
+}
+/* Header and landing share the first snap section; tall content can grow naturally. */
+.page-scroll>.page-start {height:auto;min-height:100%;display:flex;flex-direction:column;scroll-snap-align:start;scroll-snap-stop:always;}
+.page-start>.navbar.w-nav {flex:0 0 auto;}
+.page-scroll>.page-start>.hero-section {height:auto;min-height:0;flex:1 0 auto;padding-bottom:16px;scroll-snap-align:none;scroll-snap-stop:normal;}
+.section-cta {scroll-snap-align:start;scroll-snap-stop:always;min-height:100%;box-sizing:border-box;padding-top:80px;padding-bottom:80px;}
+.page-scroll>.section-editor.snap-section.drafted-app {
+  height:100%!important;min-height:100%!important;max-height:100%!important;margin:0!important;
+}
+
+/* Approved typographic landing: scoped to the existing first section/header. */
+.page-scroll>.page-start.drafted-landing {height:auto;min-height:100vh;min-height:100svh;background:#f8f7f4;}
+.drafted-landing {
+  --hero-navy:#0c1724;--hero-muted:#4e5d6e;--hero-turquoise:#02c8bb;--hero-line:#a5afb8;--hero-paper:#f8f7f4;
+  --hero-gutter:clamp(20px,4vw,64px);
+}
+.drafted-landing>.navbar.drafted-site-header {
+  position:relative;inset:auto;display:block;flex:none;width:100%;height:auto;min-height:0;margin:0;padding:0 var(--hero-gutter);
+  border:0;border-bottom:1px solid var(--hero-line);background:var(--hero-paper);box-sizing:border-box;color:var(--hero-navy);
+}
+.drafted-site-header .drafted-header-inner {display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;max-width:1280px;min-height:76px;margin:0 auto;padding:15px 0;box-sizing:border-box;}
+.drafted-site-header .drafted-home {display:block;flex:none;line-height:0;}
+.drafted-site-header .drafted-nav-wordmark {display:block;width:144px;height:auto;}
+.page-scroll>.page-start.drafted-landing>.hero-section.drafted-hero {
+  display:flex;align-items:center;flex:1 0 auto;width:100%;height:auto;min-height:0;max-height:none;overflow:visible;margin:0;
+  padding:clamp(36px,5svh,64px) var(--hero-gutter) clamp(36px,5svh,64px)!important;box-sizing:border-box;background:var(--hero-paper);color:var(--hero-navy);text-align:left;font-family:Arial,Helvetica,sans-serif;
+}
+.drafted-hero .drafted-hero-inner {display:grid;flex:0 1 auto;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(max(calc(clamp(2.5rem,5vw,4.5rem)*2.08),calc(clamp(1.125rem,1.5vw,1.375rem)*2.9 + 82px)),auto);gap:clamp(48px,6svh,72px);width:100%;min-width:0;max-width:1280px;margin:0 auto;}
+/* Wordmark keeps its own aspect ratio. The two other assets are independent
+   decoration; their SVG paths use non-scaling strokes rather than thick borders. */
+.drafted-hero .drafted-hero-brand {position:relative;flex:none;width:100%;aspect-ratio:1380/354;}
+.drafted-hero .drafted-hero-wordmark {position:absolute;left:0;top:0;display:block;width:100%;height:auto;}
+.drafted-hero .drafted-hero-rule {position:absolute;left:0;top:91.242938%;display:block;width:100%;height:7.344633%;}
+/* Clip only the transparent margins of the decorative SVG canvas. Text and
+   document content keep visible overflow and may grow beyond the viewport. */
+.drafted-hero .drafted-hero-registration {position:absolute;inset:-20px;overflow:clip;pointer-events:none;}
+.drafted-hero .drafted-hero-marks {position:absolute;left:calc(20px - (100% - 40px)*.05797101);top:calc(20px - (100% - 40px)*.04237288);display:block;width:calc((100% - 40px)*1.11304348);max-width:none;height:calc((100% - 40px)*1.03954802);pointer-events:none;}
+.drafted-hero .drafted-hero-motion {position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible;pointer-events:none;}
+/* Keep the existing image's accessible name while its decorative vector layer
+   plays. The image, scale and markers also remain the exact fallback/end state. */
+.drafted-hero-motion-running>:is(.drafted-hero-wordmark,.drafted-hero-rule,.drafted-hero-registration) {opacity:0;}
+/* Select the server-delivered start layer before the first body paint. */
+.drafted-hero .drafted-hero-brand[data-initial-hero]>.drafted-hero-initial {display:none;}
+html[data-drafted-hero="eligible"] .drafted-hero .drafted-hero-brand[data-initial-hero]>.drafted-hero-initial {display:block;}
+html[data-drafted-hero="eligible"] .drafted-hero-brand[data-initial-hero]>:is(.drafted-hero-wordmark,.drafted-hero-rule,.drafted-hero-registration) {opacity:0;}
+@media(prefers-reduced-motion:reduce) {
+  html[data-drafted-hero] .drafted-hero .drafted-hero-brand[data-initial-hero]>.drafted-hero-initial {display:none!important;}
+  html[data-drafted-hero] .drafted-hero-brand[data-initial-hero]>:is(.drafted-hero-wordmark,.drafted-hero-rule,.drafted-hero-registration) {opacity:1!important;}
+}
+.drafted-hero .drafted-hero-content {display:grid;flex:none;grid-template-columns:minmax(0,55fr) minmax(0,45fr);align-items:start;gap:clamp(32px,3vw,48px);margin:0;}
+.drafted-hero .drafted-hero-heading {margin:0;color:var(--hero-navy);font-size:clamp(2.5rem,5vw,4.5rem);line-height:1.04;letter-spacing:-.045em;font-weight:800;text-transform:none;overflow-wrap:anywhere;}
+.drafted-hero .drafted-hero-heading span {display:block;}
+.drafted-hero .drafted-hero-description {margin:0;color:#233345;font-size:clamp(1.125rem,1.5vw,1.375rem);line-height:1.45;max-width:42ch;}
+.drafted-hero .drafted-hero-action {display:inline-flex;align-items:center;justify-content:space-between;gap:24px;min-height:58px;max-width:100%;margin-top:22px;padding:14px 26px;border:1px solid var(--hero-navy);border-radius:6px;background:var(--hero-navy);color:#fff;font:600 1.1875rem/1.4 Arial,Helvetica,sans-serif;text-decoration:none;box-sizing:border-box;}
+.drafted-hero .drafted-action-arrow {color:var(--hero-turquoise);font-size:30px;font-weight:400;line-height:1;}
+.drafted-hero .drafted-hero-action:hover {background:#183044;border-color:#183044;}
+.drafted-landing :is(.drafted-home,.drafted-hero-action):focus-visible {outline:2px solid #007f86;outline-offset:5px;}
+@media(max-width:900px) {
+  .drafted-hero .drafted-hero-inner {grid-template-rows:auto minmax(max(calc(clamp(2.125rem,4.7vw,2.75rem)*2.08),calc(clamp(1.125rem,1.5vw,1.375rem)*2.9 + 82px)),auto);}
+  .drafted-hero .drafted-hero-heading {font-size:clamp(2.125rem,4.7vw,2.75rem);}
+}
+@media(max-width:800px) {
+  .drafted-landing {--hero-gutter:22px;}
+  .drafted-site-header .drafted-header-inner,.drafted-hero .drafted-hero-inner {max-width:650px;}
+  .drafted-hero .drafted-hero-inner {grid-template-rows:auto minmax(calc(clamp(1.875rem,8.5vw,3.25rem)*2.12 + 23px + 1.0625rem*3.1 + 74px),auto);}
+  .drafted-site-header .drafted-header-inner {min-height:64px;padding:12px 0;gap:16px;}
+  .drafted-site-header .drafted-nav-wordmark {width:132px;}
+  .page-scroll>.page-start.drafted-landing>.hero-section.drafted-hero {padding-top:28px!important;padding-bottom:28px!important;}
+  .drafted-hero .drafted-hero-inner {gap:clamp(32px,5svh,48px);}
+  .drafted-hero .drafted-hero-content {grid-template-columns:minmax(0,1fr);gap:23px;}
+  .drafted-hero .drafted-hero-heading {font-size:clamp(1.875rem,8.5vw,3.25rem);line-height:1.06;}
+  .drafted-hero .drafted-hero-description {font-size:1.0625rem;line-height:1.55;max-width:42ch;}
+  .drafted-hero .drafted-hero-action {min-height:54px;margin-top:20px;padding:12px 22px;font-size:1.0625rem;}
+}
+@media(max-width:400px) {
+  .drafted-landing {--hero-gutter:18px;}
+}
+@media(max-width:500px) {
+  .drafted-hero .drafted-hero-registration,.drafted-hero .drafted-hero-marks,.drafted-hero .drafted-motion-marks {display:none;}
+}
+</style>
+<script data-drafted-probe>(function(){var r=document.documentElement;var ok=window.matchMedia&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&window.IntersectionObserver&&window.MutationObserver&&window.requestAnimationFrame;if(ok){r.dataset.draftedHero='eligible';window.__DRAFTED_HERO_DEADLINE__=setTimeout(function(){if(!document.querySelector('.drafted-hero-brand[data-motion-state="playing"],.drafted-hero-brand[data-motion-state="waiting"],.drafted-hero-brand[data-motion-state="complete"]'))r.dataset.draftedHero='fallback';},5000);}else r.dataset.draftedHero='static';})();</script>
+<script data-drafted-early>/* Hydrate the initial SVG in place. This module runs before the editor bundle. */
+(function(global){
+  'use strict';
+  if(global.DraftedHeroMotion)return;
+  const DURATION=2400,mounted=new WeakSet(),root=document.documentElement;
+  const clamp=x=>Math.max(0,Math.min(1,x)),phase=(t,a,b)=>clamp((t-a)/(b-a)),ease=x=>x*x*(3-2*x);
+  function mount(brand){
+    if(!brand||mounted.has(brand))return;
+    mounted.add(brand);
+    const stage=brand.querySelector('.drafted-hero-initial'),reduced=global.matchMedia?.('(prefers-reduced-motion: reduce)');
+    let observer,frame=0,started=false,visible=false,ready=false,disposed=false,render;
+    function restore(){root.dataset.draftedHero='complete';brand.classList.remove('drafted-hero-motion-running');stage?.remove();}
+    function finish(state='complete'){
+      if(disposed)return;
+      disposed=true;cancelAnimationFrame(frame);observer?.disconnect();clearTimeout(global.__DRAFTED_HERO_DEADLINE__);
+      reduced?.removeEventListener('change',preferenceChanged);document.removeEventListener('visibilitychange',visibilityChanged);
+      restore();brand.dataset.motionState=state;
+    }
+    function preferenceChanged(){if(reduced.matches)finish('static');}
+    function visibilityChanged(){if(document.hidden&&started)finish();else tryStart();}
+    function tryStart(){
+      if(disposed||started||!ready||!visible||document.hidden)return;
+      if(reduced.matches||root.dataset.draftedHero!=='eligible')return finish('static');
+      started=true;observer.disconnect();brand.classList.add('drafted-hero-motion-running');brand.dataset.motionState='playing';let begin;
+      performance.mark('drafted-hero-motion-start');
+      function tickHeroMotion(now){
+        if(disposed)return;
+        try{begin??=now;const t=Math.min(DURATION,now-begin);brand.dataset.motionTime=String(Math.round(t));if(t>=2280)restore();else render(t);if(t<DURATION)frame=requestAnimationFrame(tickHeroMotion);else finish();}catch(_){finish('failed');}
+      }
+      frame=requestAnimationFrame(tickHeroMotion);
+    }
+    if(!stage||!reduced||reduced.matches||root.dataset.draftedHero!=='eligible'){finish('static');return;}
+    brand.dataset.motionState='loading';
+    reduced.addEventListener('change',preferenceChanged);document.addEventListener('visibilitychange',visibilityChanged);
+    observer=new IntersectionObserver(entries=>{visible=entries.some(e=>e.isIntersecting&&e.intersectionRatio>0);tryStart();},{threshold:[0,.1]});observer.observe(brand);
+    (async()=>{
+      // Prefix deltas expand to the exact approved path strings synchronously.
+      // No streamed decoder, asset fetch, editor readiness or load event.
+      const payload=document.getElementById('drafted-hero-geometry');
+      if(!payload)throw Error('Initial hero geometry missing');
+      const first=JSON.parse(payload.textContent);
+      const geometry=typeof first==='string'?JSON.parse([...document.querySelectorAll('[data-geometry-part]')].map(part=>JSON.parse(part.textContent)).join('')):first;
+      for(const cut of geometry.cuts)for(let i=1;i<cut.frames.length;i++){const delta=cut.frames[i];if(Array.isArray(delta)){const previous=cut.frames[i-1];cut.frames[i]=previous.slice(0,delta[0])+delta[2]+(delta[1]?previous.slice(-delta[1]):'');}}
+      if(disposed)return;
+      if(typeof geometry.original!=='string'||geometry.cuts?.length!==4||geometry.cuts.some(c=>c.frames?.length!==131||c.frames.some(d=>typeof d!=='string'||!d)))throw Error('Invalid initial hero geometry');
+      const solid=stage.querySelector('[data-motion-solid]'),band=stage.querySelector('[data-motion-band]'),dot=stage.querySelector('[data-motion-dot]');
+      const cuts=geometry.cuts.map((c,i)=>({...c,remaining:stage.querySelector(`[data-motion-remaining="${i}"]`),complete:stage.querySelector(`[data-motion-complete="${i}"]`),width:[296,314,484,290][i],start:1120+i*150,end:1250+i*150}));
+      const sides=[0,1].map(i=>({outer:stage.querySelector(`[data-motion-side="${i}"]`),helper:stage.querySelector(`[data-motion-helper="${i}"]`)}));
+      function bandShift(t){if(t<520)return -12;if(t<720)return -12+16*ease(phase(t,520,720));if(t<760)return 4;return 4*(1-ease(phase(t,760,900)));}
+      render=t=>{
+        band.setAttribute('transform',`translate(${bandShift(t)} ${24*(1-ease(phase(t,0,480)))})`);
+        const shapes=[geometry.unchanged];
+        for(const c of cuts){const i=Math.round(phase(t,c.start,c.end)*130);shapes.push(c.frames[i]);c.remaining.setAttribute('width',i===130?0:c.width);c.complete.setAttribute('width',i===130?c.width:0);}
+        solid.setAttribute('d',shapes.join(' '));
+        const lock=ease(phase(t,950,1090));sides.forEach(({outer,helper},i)=>{outer.setAttribute('transform',`translate(${(i?6:-6)*(1-lock)} 0)`);outer.style.opacity=.24+.76*lock;helper.style.opacity=phase(t,950,1040)*(1-phase(t,1730,1850));});
+        const p=ease(phase(t,1810,2220));dot.style.display=t<1810?'none':'';dot.setAttribute('transform',`translate(${36*(1-p)} 0) rotate(${360*p} 1350.5 283.25)`);
+      };
+      render(0);ready=true;clearTimeout(global.__DRAFTED_HERO_DEADLINE__);brand.dataset.motionState='waiting';tryStart();
+    })().catch(()=>finish('failed'));
+  }
+  global.DraftedHeroMotion={mount};
+})(window);
+
+;
+/* Adopt server-delivered hero nodes. Never replace first-paint content. */
+(function(global){
+  'use strict';
+  if(global.DraftedHeroView)return;
+  const bound=new WeakSet();
+  function mount(){
+    const hero=document.querySelector('.drafted-hero[data-initial-hero]');
+    if(!hero||bound.has(hero))return;
+    bound.add(hero);
+    const start=hero.closest('.drafted-landing');
+    start.addEventListener('click',event=>{
+      const link=event.target.closest('.drafted-home,.drafted-hero-action');
+      if(!link||event.button||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+      event.stopPropagation();
+      requestAnimationFrame(()=>document.querySelector(link.getAttribute('href'))?.scrollIntoView({behavior:'instant',block:'start'}));
+    });
+    global.DraftedHeroMotion.mount(hero.querySelector('.drafted-hero-brand'));
+  }
+  global.DraftedHeroView={mount};
+  const ready=()=>!!document.querySelector('[data-drafted-hero-ready]');
+  if(ready())mount();
+  else{const observer=new MutationObserver(()=>{if(ready()){observer.disconnect();mount();}});observer.observe(document.documentElement,{childList:true,subtree:true});}
+})(window);
+</script>
+<!-- DRAFTED_INITIAL_HEAD_END -->

@@ -24,8 +24,10 @@
       const pane=view(),bounds=pane.getBoundingClientRect(),anchor=[...pane.querySelectorAll('.source-pdf-slot')].find(el=>el.getBoundingClientRect().bottom>bounds.top),rect=anchor?.getBoundingClientRect();
       const placeholder=document.createElement('div');placeholder.className='preparation-preview-space';placeholder.style.height=wrap.getBoundingClientRect().height+'px';placeholder.setAttribute('aria-hidden','true');
       const previous=saved={placeholder,top:pane.scrollTop,left:pane.scrollLeft,overflow:scroller?.style.overflow,snap:scroller?.style.scrollSnapType,reading:scroller&&global.DraftedWorkspaceView.captureScroll(scroller),bodyOverflow:document.body.style.overflow};
+      previous.windowX=global.scrollX;previous.windowY=global.scrollY;previous.htmlOverflow=document.documentElement.style.getPropertyValue('overflow');previous.htmlPriority=document.documentElement.style.getPropertyPriority('overflow');
       wrap.replaceWith(placeholder);dialog.append(wrap);pane.inert=false;open.hidden=true;
       if(scroller){scroller.style.scrollSnapType='none';scroller.style.overflow='hidden';}document.body.style.overflow='hidden';
+      document.documentElement.style.setProperty('overflow','hidden','important');
       dialog.showModal();close.focus({preventScroll:true});
       // The original PDF viewer's ResizeObserver rescales the same pages.
       requestAnimationFrame(()=>requestAnimationFrame(()=>{if(saved!==previous)return;if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height;pane.scrollTop+=anchor.getBoundingClientRect().top-pane.getBoundingClientRect().top+fraction*anchor.getBoundingClientRect().height;}}));
@@ -33,9 +35,10 @@
     function restore(){
       if(!saved)return;const previous=saved;saved=null;previous.placeholder.replaceWith(wrap);
       document.body.style.overflow=previous.bodyOverflow;
+      document.documentElement.style.setProperty('overflow',previous.htmlOverflow,previous.htmlPriority);
       if(scroller){scroller.style.overflow=previous.overflow;global.DraftedWorkspaceView.restoreScroll(scroller,previous.reading);}
       sync();(!open.disabled?open:section.querySelector('#file-btn'))?.focus({preventScroll:true});
-      requestAnimationFrame(()=>{if(saved)return;const pane=view();if(pane){pane.scrollTop=previous.top;pane.scrollLeft=previous.left;}if(scroller){global.DraftedWorkspaceView.restoreScroll(scroller,previous.reading);scroller.style.scrollSnapType=previous.snap;}});
+      requestAnimationFrame(()=>{if(saved)return;const pane=view();if(pane){pane.scrollTop=previous.top;pane.scrollLeft=previous.left;}if(scroller){global.DraftedWorkspaceView.restoreScroll(scroller,previous.reading);scroller.style.scrollSnapType=previous.snap;}global.scrollTo(previous.windowX,previous.windowY);});
     }
     open.addEventListener('click',expand);close.addEventListener('click',()=>dialog.close());dialog.addEventListener('close',restore);
     dialog.addEventListener('cancel',event=>{event.preventDefault();dialog.close();});

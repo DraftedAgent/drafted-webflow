@@ -1,0 +1,12 @@
+/* Development mode is outside the document/print DOM and never overlaps controls. */
+html.drafted-pages{--drafted-env-height:36px}
+.drafted-environment{height:var(--drafted-env-height);display:flex;align-items:center;justify-content:center;gap:12px;padding:4px 12px;box-sizing:border-box;background:#e8f4f4;color:#153f48;border-bottom:1px solid #bfd4d9;font:12px/16px system-ui;text-align:center}
+.drafted-environment[data-mode=integration-blocked]{background:#fff4dd;color:#594321;border-color:#e0cda5}
+.drafted-environment[data-mode=integration-live]{background:#173744;color:white;border-color:#173744}
+.drafted-version-label{font:700 12px/16px system-ui}
+.drafted-environment[data-channel=stable]{background:#edf0f5;color:#24384a;border-color:#c2cbd6}
+html.drafted-pages[data-workspace-page=setup] .page-scroll>.page-start.drafted-landing{min-height:calc(100svh - var(--drafted-env-height))}
+html.drafted-pages[data-workspace-page=editor] .drafted-environment{position:fixed;top:var(--workspace-viewport-top,0px);left:0;right:0;z-index:1100}
+html.drafted-pages[data-workspace-page=editor] body>.page-scroll{top:calc(var(--workspace-viewport-top,0px) + var(--drafted-env-height));height:calc(var(--workspace-viewport-height,100dvh) - var(--drafted-env-height))}
+@media(max-width:650px){html.drafted-pages{--drafted-env-height:64px}.drafted-environment{flex-direction:column;gap:0;padding:8px}}
+@media print{.drafted-environment{display:none!important}}

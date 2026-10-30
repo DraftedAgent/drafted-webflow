@@ -22,6 +22,7 @@
       const start=document.createElement('div');start.className='page-start';
       scroller.prepend(start);start.append(nav,hero);
     }else if(nav&&!scroller.contains(nav))scroller.prepend(nav);
+    if(global.DraftedWorkspacePages?.enabled)return;
     let reading=captureScroll(scroller),width=scroller.clientWidth,height=scroller.clientHeight;
     // Scrolling only records an anchor. It never changes layout or header visibility.
     scroller.addEventListener('scroll',()=>{
