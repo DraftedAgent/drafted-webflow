@@ -25,6 +25,10 @@
    document content keep visible overflow and may grow beyond the viewport. */
 .drafted-hero .drafted-hero-registration {position:absolute;inset:-20px;overflow:clip;pointer-events:none;}
 .drafted-hero .drafted-hero-marks {position:absolute;left:calc(20px - (100% - 40px)*.05797101);top:calc(20px - (100% - 40px)*.04237288);display:block;width:calc((100% - 40px)*1.11304348);max-width:none;height:calc((100% - 40px)*1.03954802);pointer-events:none;}
+.drafted-hero .drafted-hero-motion {position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible;pointer-events:none;}
+/* Keep the existing image's accessible name while its decorative vector layer
+   plays. The image, scale and markers also remain the exact fallback/end state. */
+.drafted-hero-motion-running>:is(.drafted-hero-wordmark,.drafted-hero-rule,.drafted-hero-registration) {opacity:0;}
 .drafted-hero .drafted-hero-content {display:grid;flex:none;grid-template-columns:minmax(0,55fr) minmax(0,45fr);align-items:start;gap:clamp(32px,3vw,48px);margin:0;}
 .drafted-hero .drafted-hero-heading {margin:0;color:var(--hero-navy);font-size:clamp(2.5rem,5vw,4.5rem);line-height:1.04;letter-spacing:-.045em;font-weight:800;text-transform:none;overflow-wrap:anywhere;}
 .drafted-hero .drafted-hero-heading span {display:block;}
@@ -52,5 +56,5 @@
   .drafted-landing {--hero-gutter:18px;}
 }
 @media(max-width:500px) {
-  .drafted-hero .drafted-hero-registration,.drafted-hero .drafted-hero-marks {display:none;}
+  .drafted-hero .drafted-hero-registration,.drafted-hero .drafted-hero-marks,.drafted-hero .drafted-motion-marks {display:none;}
 }
