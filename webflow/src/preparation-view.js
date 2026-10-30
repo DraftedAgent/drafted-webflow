@@ -58,7 +58,7 @@
     file.addEventListener('change',selected);selected();
     global.DraftedUploadedPreviewOverlay.create({section,right,preview});
     return {
-      loading(value){section.setAttribute('aria-busy',String(value));action.setAttribute('aria-disabled',String(value));action.setAttribute('aria-busy',String(value));if(value)show('loading','Analyzing your CV. Please keep this tab open.');},
+      loading(value){section.setAttribute('aria-busy',String(value));action.setAttribute('aria-disabled',String(value));action.setAttribute('aria-busy',String(value));if(value)show('loading','Analyzing your CV…');},
       missingFile(){show('error','Choose a PDF before continuing.');choose.focus();},
       failed(selectedFile){if(file.files?.[0]===selectedFile)show('error','Your CV could not be processed. Please try again.');},
       complete(selectedFile,{navigate=true}={}){

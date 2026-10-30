@@ -16,7 +16,7 @@
     const view=()=>wrap.querySelector('.source-pdf-view');
     function sync(){
       const ready=view()?.dataset.state==='ready';open.disabled=!ready;open.hidden=!ready||!!saved;
-      if(view())view().inert=ready&&!saved;
+      if(view())view().inert=false;
       if(saved&&!ready)dialog.close();
     }
     function expand(){
@@ -40,6 +40,20 @@
       sync();(!open.disabled?open:section.querySelector('#file-btn'))?.focus({preventScroll:true});
       requestAnimationFrame(()=>{if(saved)return;const pane=view();if(pane){pane.scrollTop=previous.top;pane.scrollLeft=previous.left;}if(scroller){global.DraftedWorkspaceView.restoreScroll(scroller,previous.reading);scroller.style.scrollSnapType=previous.snap;}global.scrollTo(previous.windowX,previous.windowY);});
     }
+    // The viewer stays interactive. Only a stationary click on paper enlarges it;
+    // scrollbar gestures, links, text selection and touch scrolling stay native.
+    let press=null;
+    wrap.addEventListener('pointerdown',event=>{
+      press=!saved&&event.button===0&&event.target.closest('.source-pdf-paper')?{x:event.clientX,y:event.clientY,top:view()?.scrollTop,left:view()?.scrollLeft,moved:false}:null;
+    });
+    wrap.addEventListener('pointermove',event=>{if(press&&Math.hypot(event.clientX-press.x,event.clientY-press.y)>5)press.moved=true;});
+    wrap.addEventListener('pointercancel',()=>{press=null;});
+    wrap.addEventListener('click',event=>{
+      const previous=press;press=null;
+      if(saved||!previous||previous.moved||event.target.closest('a')||!event.target.closest('.source-pdf-paper'))return;
+      if(view()?.scrollTop!==previous.top||view()?.scrollLeft!==previous.left||global.getSelection()?.toString())return;
+      expand();
+    });
     open.addEventListener('click',expand);close.addEventListener('click',()=>dialog.close());dialog.addEventListener('close',restore);
     dialog.addEventListener('cancel',event=>{event.preventDefault();dialog.close();});
     dialog.addEventListener('keydown',event=>{

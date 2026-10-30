@@ -1,0 +1,7 @@
+.drafted-cv-scan{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:2}
+.drafted-scan-region rect{fill:#02c8bb;fill-opacity:.018;stroke:#009e9c;stroke-opacity:.55;stroke-width:.65;vector-effect:non-scaling-stroke}
+.drafted-scan-region path{fill:none;stroke:#007f86;stroke-width:1;vector-effect:non-scaling-stroke}
+.drafted-scan-region circle{fill:#00a9a5}
+.drafted-cv-scan[data-reduced=true] .drafted-scan-sweep{display:none}
+@media(prefers-reduced-motion:reduce){.drafted-scan-sweep{display:none!important}}
+@media print{.drafted-cv-scan{display:none!important}}

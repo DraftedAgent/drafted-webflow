@@ -5,6 +5,7 @@
   document.documentElement.classList.add('drafted-pages');document.documentElement.dataset.workspacePage=isEditor()?'editor':'setup';document.documentElement.dataset.workspaceBooting='true';
   function create(adapter){
     const root=document.documentElement,section=document.querySelector('.section-editor'),setup=document.getElementById('section-input'),input=document.getElementById('cv-file');
+    global.DraftedLocalLayout?.mount(section);
     let store,storageReady=false,restoring=true,scheduled=false,leaving=false,sourceHash=null,error='',saving=Promise.resolve();
     const status=document.createElement('p');status.className='workspace-save-status';status.setAttribute('role','status');status.hidden=true;document.body.append(status);
     const empty=document.createElement('main');empty.className='workspace-empty';empty.hidden=true;empty.innerHTML='<h1>No CV is open yet</h1><p>Choose your current CV to start an editor workspace.</p><a href="/#section-input">Go to setup</a>';document.body.append(empty);

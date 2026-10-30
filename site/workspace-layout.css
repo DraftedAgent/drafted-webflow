@@ -1,0 +1,73 @@
+/* Local shell layout. Document and print geometry stay in their existing renderer. */
+@media screen {
+  html.drafted-pages[data-workspace-page=setup] {scroll-snap-type:y mandatory;}
+  html.drafted-pages[data-workspace-page=setup] body {overflow:visible!important;}
+  html.drafted-pages[data-workspace-page=setup] .page-start {scroll-snap-align:start;scroll-margin-top:var(--drafted-env-height);}
+  html.drafted-pages[data-workspace-page=setup] .drafted-hero {scroll-snap-align:none;}
+  html.drafted-pages[data-workspace-page=setup] #section-input {scroll-snap-align:start;scroll-snap-stop:always;}
+  html.drafted-pages:has(dialog[open]) {scroll-snap-type:none;}
+
+  #section-input.preparation-section .preparation-layout {align-items:stretch;}
+  #section-input.preparation-section .input-right {display:flex;flex-direction:column;}
+  #section-input.preparation-section .cv-preview-box {display:flex;flex-direction:column;flex:1;}
+  #section-input.preparation-section .cv-preview-box>.cv-preview-wrap {flex:1;height:0;min-height:0;aspect-ratio:auto;}
+  @media(min-width:801px) {
+    #section-input.preparation-section {padding-block:clamp(16px,3svh,32px)!important;}
+    #section-input.preparation-section .input-left {gap:16px;}
+    #section-input.preparation-section .preparation-intro {margin:0;}
+    #section-input.preparation-section .preparation-title {font-size:clamp(28px,2.6vw,38px);}
+    #section-input.preparation-section .preparation-introduction {margin-top:10px;font-size:16px;line-height:1.5;}
+    #section-input.preparation-section .preparation-step-heading {margin-bottom:10px;gap:12px;}
+    #section-input.preparation-section .preparation-step-title {font-size:18px;}
+    #section-input.preparation-section .preparation-step-help {font-size:13px;}
+    #section-input.preparation-section #job-ad-input {height:clamp(100px,calc(100svh - 510px),180px);min-height:100px;padding:12px 14px;line-height:1.5;}
+    #section-input.preparation-section .preparation-job-feedback {margin-top:6px;}
+    #section-input.preparation-section :is(.preparation-job-hint,#jobcontext-status) {padding:6px 10px;}
+    #section-input.preparation-section .file-picker {padding:12px 14px;}
+    #section-input.preparation-section .preparation-file-icon {width:36px;height:38px;}
+    #section-input.preparation-section #upload-btn {min-height:46px;padding:10px 16px;}
+    #section-input.preparation-section .preparation-actions {gap:6px;}
+    #section-input.preparation-section .preparation-status {padding:7px 10px;}
+    /* The form sets the shared row height; PDF page ratio cannot enlarge it. */
+    #section-input.preparation-section .input-right {min-height:0;padding:16px;}
+    #section-input.preparation-section .cv-preview-box {contain:size;min-height:0;}
+    #section-input.preparation-section .preparation-preview-open {top:24px;right:40px;}
+  }
+
+  html.drafted-pages[data-workspace-page=editor] .drafted-environment {display:none;}
+  html.drafted-pages[data-workspace-page=editor] body>.page-scroll {top:var(--workspace-viewport-top,0px);height:var(--workspace-viewport-height,100dvh);}
+  .section-editor.discovery-enabled .cv-card {padding:10px 12px!important;gap:8px;}
+  .section-editor.discovery-enabled .cv-document {padding:12px;}
+  .section-editor .workspace-preview-title {display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;width:100%;gap:6px;padding:0;min-height:0;}
+  .workspace-preview-primary,.workspace-preview-secondary {display:flex;align-items:center;gap:6px;min-width:0;width:100%;flex:none;}
+  .section-editor .workspace-preview-primary .workspace-preview-label {font-size:13px;white-space:nowrap;}
+  .section-editor .workspace-preview-primary .workspace-page-count {margin-left:auto;white-space:nowrap;font-size:11px;}
+  .section-editor .workspace-preview-primary :is(select,.workspace-icon-button) {height:30px;min-height:30px;}
+  .section-editor .workspace-preview-primary .workspace-icon-button {width:30px;}
+  .section-editor .workspace-preview-primary select {width:96px;font-size:12px;}
+  .workspace-preview-secondary {overflow-x:auto;overflow-y:hidden;padding:3px;scrollbar-width:thin;}
+  .section-editor .workspace-preview-secondary .document-comparison {flex:0 0 auto;flex-wrap:nowrap;padding:0;gap:3px;}
+  .section-editor .workspace-preview-secondary .document-comparison button {white-space:nowrap;font-size:11px;padding:4px 6px;}
+  .section-editor .workspace-preview-secondary .document-comparison-status:empty {display:none;}
+  .section-editor .workspace-preview-secondary .workspace-zoom {flex:0 0 auto;margin-left:auto;gap:4px;}
+  .section-editor .workspace-preview-secondary .workspace-zoom input {width:64px;flex-basis:64px;}
+  .workspace-divider {display:none;}
+  @media(min-width:801px) {
+    .section-editor.discovery-enabled .editor-layout {grid-template-columns:minmax(0,var(--workspace-left,38%)) 8px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:0;}
+    .workspace-divider {display:block;position:relative;align-self:stretch;cursor:col-resize;touch-action:none;background:#edf3f6;outline-offset:-2px;}
+    .workspace-divider::before {content:'';position:absolute;inset:0 3px;background:#d1dfe5;}
+    .workspace-divider::after {content:'';position:absolute;top:calc(50% - 20px);left:2px;width:4px;height:40px;border-radius:3px;background:#8ca7b4;}
+    .workspace-divider:is(:hover,:focus-visible)::after,.is-resizing .workspace-divider::after {background:#007f86;}
+    .editor-layout.is-resizing {cursor:col-resize;user-select:none;}
+  }
+  @media(max-width:800px) {
+    #section-input.preparation-section .cv-preview-box>.cv-preview-wrap {flex:none;height:auto;min-height:0;aspect-ratio:210 / 297;}
+    .section-editor.discovery-enabled .editor-layout {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:0;}
+    .section-editor .workspace-preview-primary .workspace-preview-label {font-size:12px;}
+    .section-editor.discovery-enabled .cv-card {padding:6px 8px!important;gap:4px;}
+    .section-editor.discovery-enabled .cv-document {padding:8px;}
+    .section-editor .workspace-preview-title {gap:2px;}
+    html.drafted-pages[data-workspace-keyboard=true] .section-editor .editor-layout {grid-template-rows:minmax(0,1fr);}
+  }
+}
+@media print {.workspace-divider {display:none!important;}}

@@ -56,6 +56,8 @@ onReady(() => {
   const uploadBtn = document.getElementById("upload-btn");
   const previewFrame = document.getElementById("cv-preview");
   const previewWrap = document.querySelector(".cv-preview-wrap");
+  const uploadScan = window.DraftedCvScan?.create({host:previewWrap});
+  document.getElementById('cv-file')?.addEventListener('change',()=>uploadScan?.stop());
   const editorDocument = document.querySelector(".cv-document"); 
   const editorPaper = document.querySelector(".cv-document-inner"); 
 
@@ -83,7 +85,7 @@ onReady(() => {
 
   // Original uploaded CV-preview (top one)
 (function mountPreviewLoadingOverlayOnce() {
-  if (!previewWrap) return;
+  if (!previewWrap || uploadScan) return;
 
   let overlay = previewWrap.querySelector(".cv-preview-loading");
   if (overlay) {
@@ -373,6 +375,12 @@ function setEditorProcessing(isOn) {
   
   function setUploadLoading(isLoading) {
     preparation?.loading(!!isLoading);
+    if(uploadScan){
+      previewWrap?.classList.remove('is-loading');
+      if(isLoading)uploadScan.start();else uploadScan.stop();
+      if(uploadBtn){uploadBtn.disabled=!!isLoading;uploadBtn.textContent=isLoading?'Analyzing…':uploadBtnOriginalText;}
+      return;
+    }
     const btnSpinner = ensureUploadButtonSpinner();
     ensurePreviewLoadingOverlay();
 
@@ -2089,6 +2097,7 @@ function updateContextChip() {
       { method: "POST", body: formData },
       "cv"
     );
+    uploadScan?.stop();
 
     // A response for a file replaced during upload must not restore its CV/questions.
     if (getFileInput()?.files?.[0] !== file) return;
@@ -2140,6 +2149,7 @@ function updateContextChip() {
     if(workspacePages)await workspacePages.complete(file);
 
   } catch (err) {
+    uploadScan?.stop();
     preparation?.failed(file);
     if (err && err.name === "DraftedContractError") {
       console.error("DraftedContractError", err.code, err.details, err);

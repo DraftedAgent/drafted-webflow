@@ -65,9 +65,9 @@
    loading, ready and error feedback share the same reserved space. */
 #section-input.preparation-section .preparation-job-feedback .preparation-job-hint[hidden] {display:block!important;visibility:hidden;}
 /* Opening control exists only for a readable selected document. */
-#section-input.preparation-section .preparation-preview-open {position:absolute;inset:0;z-index:3;display:block;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:10px;background:transparent;cursor:zoom-in;}
-#section-input.preparation-section .preparation-enlarge-icon {position:absolute;right:34px;top:34px;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--prep-line);border-radius:8px;background:#fffffff0;color:var(--prep-teal);opacity:0;transition:opacity .12s;}
-#section-input.preparation-section .preparation-preview-open:is(:hover,:focus-visible) .preparation-enlarge-icon {opacity:1;}
+#section-input.preparation-section .preparation-preview-open {position:absolute;top:32px;right:48px;z-index:3;display:block;width:38px;height:38px;margin:0;padding:0;border:0;border-radius:8px;background:transparent;cursor:zoom-in;opacity:0;transition:opacity .12s;}
+#section-input.preparation-section .preparation-enlarge-icon {display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--prep-line);border-radius:8px;background:#fffffff0;color:var(--prep-teal);}
+#section-input.preparation-section .input-right:is(:hover,:focus-within) .preparation-preview-open {opacity:1;}
 #section-input.preparation-section .preparation-pdf-dialog {position:fixed;inset:0;display:none;flex-direction:column;gap:14px;width:calc(100% - 48px);max-width:1280px;height:calc(100dvh - 48px);max-height:none;margin:auto;padding:20px;border:1px solid var(--prep-line);border-radius:12px;background:#edf3f7;box-sizing:border-box;color:var(--prep-ink);box-shadow:0 16px 80px #102d4b44;}
 #section-input.preparation-section .preparation-pdf-dialog[open] {display:flex;}
 .preparation-pdf-dialog::backdrop {background:#0c1724a6;}
@@ -75,8 +75,8 @@
 #section-input.preparation-section .preparation-pdf-toolbar h2 {margin:0;font:600 1.125rem/1.4 system-ui;}
 #section-input.preparation-section .preparation-pdf-close {flex:none;min-height:44px;padding:8px 14px;border:1px solid var(--prep-line);border-radius:7px;background:#fff;color:var(--prep-ink);font:600 .9375rem/1.4 system-ui;cursor:pointer;}
 #section-input.preparation-section .preparation-pdf-dialog .cv-preview-wrap {flex:1;height:0;min-height:0;max-height:none;}
-@media(hover:none) {#section-input.preparation-section .preparation-enlarge-icon {opacity:1;}}
-@media(prefers-reduced-motion:reduce) {#section-input.preparation-section .preparation-enlarge-icon {transition:none;}}
+@media(hover:none) {#section-input.preparation-section .preparation-preview-open {opacity:1;}}
+@media(prefers-reduced-motion:reduce) {#section-input.preparation-section .preparation-preview-open {transition:none;}}
 @media(max-width:800px) {
   #section-input.preparation-section {padding:32px 22px!important;}
   #section-input.preparation-section .preparation-layout {grid-template-columns:minmax(0,1fr);gap:32px;max-width:650px;}
@@ -84,7 +84,7 @@
   #section-input.preparation-section .preparation-introduction {font-size:16px;}
   #section-input.preparation-section .input-right {padding:20px;}
   #section-input.preparation-section .preparation-pdf-dialog {width:calc(100% - 16px);height:calc(100dvh - 16px);padding:12px;gap:10px;border-radius:8px;}
-  #section-input.preparation-section .preparation-enlarge-icon {top:28px;right:28px;}
+  #section-input.preparation-section .preparation-preview-open {top:28px;right:44px;}
   #section-input.preparation-section .cv-preview-wrap {height:min(480px,58dvh);min-height:260px;}
 }
 @media(max-width:400px) {
