@@ -1,0 +1,23 @@
+{
+  "url": "https://thisismywork.app",
+  "access": "anonymous; no invitation or login",
+  "sourceCommit": "50cb81a025af80912f4e1c2028f488261622b0eb",
+  "workerVersion": "346856c2-6b32-45e3-96f5-d000e130f887",
+  "previousWorkerVersion": "6f1b3b18-552d-4a90-b412-e4d499764d26",
+  "budgetIdentityUnchanged": "invited-test-round-1",
+  "limits": {
+    "total": 100,
+    "perMinute": 20,
+    "concurrent": 2
+  },
+  "killSwitch": "LIVE_BACKEND=disabled",
+  "realBackendCallsThisChange": 0,
+  "checks": [
+    "6 isolated gateway tests including anonymous shared quota across visitor/storage recreation and kill switch",
+    "local workerd browser flow without credentials and mocked upload",
+    "public home and editor200 in two fresh anonymous browser contexts with new tabs",
+    "public manifest matches source commit"
+  ],
+  "dnsNote": "Default local resolver still returned old GoDaddy origin. Public browser verification used Cloudflare edge188.114.96.1 with valid hostname/TLS, no certificate bypass.",
+  "verifiedAt": "2026-11-01T19:07:57.686480+00:00"
+}
