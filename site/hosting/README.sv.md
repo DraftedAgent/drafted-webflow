@@ -1,14 +1,16 @@
 # Inbjuden testversion på thisismywork.app
 
-Status 2026-11-01: ägaren har ersatt den tidigare föreslagna draftedagent.com
-med thisismywork.app. Inloggning och registrering hos GoDaddy är verifierade.
-Cloudflare Free-zonen är förberedd, ännu ingen webbpublicering. GoDaddy-zonen
-är exporterad, DNSSEC är av och alla fem dataposter är återlästa hos Cloudflare
-(två A-adresser bakom GoDaddys WebsiteBuilder, www, _domainconnect och _dmarc).
-Inga MX-poster fanns. Före-exportens SHA256:
-FE4A36E66C9B58CFE7EE5A1C324E1E778AC88C5D40BC19FF6954D252743E8E3F.
-Originalnamnservrar ns63.domaincontrol.com och ns64.domaincontrol.com;
-tilldelade Cloudflare-servrar achiel.ns.cloudflare.com och edna.ns.cloudflare.com.
+Status 2026-11-01: publicerad på https://thisismywork.app, Cloudflare Free.
+Publicerad källcommit: `8f8c40b098c259f2f64e58eeb9b2f838cd773ce6`.
+Worker-version: `6f1b3b18-552d-4a90-b412-e4d499764d26`.
+Exakt leverans och verifiering: `deployment-receipt.json`.
+
+Domänen ersätter ägarens tidigare draftedagent.com. GoDaddy-zonen säkerhetskopierad
+utanför Git under `%LOCALAPPDATA%/Drafted/dev-system-backups/dns/thisismywork.app/20261101/godaddy-before.txt`.
+SHA256 FE4A36E66C9B58CFE7EE5A1C324E1E778AC88C5D40BC19FF6954D252743E8E3F.
+Namnservrar nu achiel/edna.ns.cloudflare.com, tidigare ns63/ns64.domaincontrol.com.
+Gamla apex A13.248.243.5 och76.223.105.230 ersatta av Worker-domänen.
+DMARC, www och _domainconnect bevarade; inga MX/SPF/DKIM fanns och DNSSEC var av.
 
 ## Leverans
 
@@ -105,3 +107,29 @@ Back to setup, fortsätt igen, bakåt/framåt och omladdning. Testa även på ri
 mobil med öppet skärmtangentbord, dokument-scroll och PDF-utskrift/delning.
 Ladda inte om under pågående AI-anrop: ett avbrott stoppar inte säkert redan
 startad backendbearbetning, men anropet ska inte köras om automatiskt.
+
+## Genomförd publik verifiering
+
+10 riktiga workflowanrop med syntetiskt CV/annons/svar; ett tidigare transportfel
+stoppades före n8n och räknas ändå i gatewaybudgeten.89av100återstår.
+Upload utan/med annons, chatt, Apply, erfarenhetsplan/svar, Tailor,
+Original/Edited-exportunderlag, direktbesök, reload och återgång/bakåt/framåt passerar.
+Anonymt krävs lösenord även för assets. Publicerat build.json matchar exakt lokalt.
+Ingen n8n-ändring behövdes eller genomfördes; tidigare origins/version är bevarade.
+
+Mobil390x844 och reducerad tangentbordsvy390x450 kontrollerade; fysisk mobil
+återstår. PDF-utskriftsunderlag verifierat från aktuell redigerad version,
+operativsystemets spara-dialog inte automatiserad. Första mobilassertionen var
+felaktig: erfarenhetsfliken var aktiv, så chattfältet var dolt som avsett.
+Endast återstående kontroller kördes därefter, inga lyckade AI-steg upprepades.
+
+DNS syns korrekt hos1.1.1.1 och8.8.8.8. Lokal standardresolver hade fortfarande
+gammalt svar vid kontrollen. Publika browserprov använde den verifierade Cloudflare-
+IP-adressen med thisismywork.app som hostname och normal TLS-validering.
+Ingen certifikatvarning ignorerades. Länken kan tillfälligt visa gammal sida för
+användare vars DNS-cache inte hunnit uppdateras. Använd adressen utan www.
+
+Privat inbjudningsfil med lösenord: `%LOCALAPPDATA%/Drafted/invited-test/Invitation.txt`.
+Den ligger utanför Git med begränsad filåtkomst. Ingen inbjudan har skickats.
+Dev och fryst stabil version är bevarade. Senare dokumentationscommits ändrar
+inte den publicerade källcommitten; publicering sker aldrig automatiskt från Dev.

@@ -1,0 +1,73 @@
+{
+  "domain": "https://thisismywork.app",
+  "publishedSourceCommit": "8f8c40b098c259f2f64e58eeb9b2f838cd773ce6",
+  "workerVersion": "6f1b3b18-552d-4a90-b412-e4d499764d26",
+  "worker": "drafted-invited-test",
+  "accountId": "6eb5ff1b6c3fd0cb1f779b4e04a97bc0",
+  "zoneId": "d437f88c1ae94577944ef40c5d1d16d6",
+  "plan": "Cloudflare Free",
+  "backend": "real existing n8n/AI via same-origin protected proxy",
+  "backendChanges": 0,
+  "uploadWorkflowVersion": "dd665329-f992-4158-86ab-d5c32260e255",
+  "gatewayRequests": 11,
+  "realWorkflowRequests": 10,
+  "remainingRoundBudget": 89,
+  "dns": {
+    "nameservers": [
+      "achiel.ns.cloudflare.com",
+      "edna.ns.cloudflare.com"
+    ],
+    "replacedA": [
+      "13.248.243.5",
+      "76.223.105.230"
+    ],
+    "preserved": [
+      "www CNAME",
+      "_domainconnect CNAME",
+      "_dmarc TXT"
+    ],
+    "oldNameservers": [
+      "ns63.domaincontrol.com",
+      "ns64.domaincontrol.com"
+    ],
+    "dnssecBefore": "off",
+    "backupSha256": "FE4A36E66C9B58CFE7EE5A1C324E1E778AC88C5D40BC19FF6954D252743E8E3F"
+  },
+  "publicVerification": {
+    "httpsValid": true,
+    "anonymous401": [
+      "/",
+      "/editor",
+      "/drafted-editor.js",
+      "/build.json"
+    ],
+    "manifestExact": true,
+    "realChecks": [
+      "Public upload without job and CV contract",
+      "Chat response through actual editor",
+      "Explicit Apply response; Original remains unchanged",
+      "Export PDF uses edited CV from both comparison modes",
+      "Job context and experience-question planning",
+      "Experience answer interpretation",
+      "Tailor proposal through existing editor",
+      "Reload and unchanged resume do not reprocess",
+      "Browser history without repeat processing",
+      "Direct editor without local work shows setup path",
+      "Two-page upload with job advertisement",
+      "Mobile Chat composer accessible including reduced keyboard viewport",
+      "With-job reload and resume without new requests"
+    ],
+    "edgeAddress": "188.114.96.1",
+    "dnsNote": "1.1.1.1 and8.8.8.8 resolved Cloudflare; default local DNS still returned old origin at verification. Browser used host resolver mapping, with normal hostname/TLS validation."
+  },
+  "limitations": [
+    "Physical mobile keyboard not tested; emulated390x844 and390x450 tested.",
+    "PDF print payload verified from real edited data; native save dialog not automated.",
+    "Shared password,100total gateway calls,2concurrent; direct pre-existing n8n endpoints outside this budget.",
+    "No account sync; CV state remains browser-local.",
+    "Use apex thisismywork.app; www not configured as Worker route."
+  ],
+  "stableCommit": "7b9ab1936c914dcfc52914c0d80934b79c6d2706",
+  "checkedAt": "2026-11-01T19:01:11.558364+00:00",
+  "evidenceDirectory": "output/pdf/invited-site"
+}
