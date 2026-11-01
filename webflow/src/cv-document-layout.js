@@ -42,7 +42,9 @@
       const metadata = type === 'experience' ? [b.title,b.employer,b.startDate,b.endDate] : type === 'education' ? [b.degree,b.program,b.institution,b.startDate,b.endDate] : [];
       if (![b.text,...metadata].some(value => String(value || '').trim())) continue;
       if (type !== 'summary' && !seen.has(type)) {
-        add('h2', 'cv-section-heading', String(b.label || type), '', true);
+        // Entry labels may name a role or qualification, not the whole section.
+        const sectionHeading = type === 'experience' ? 'Experience' : type === 'education' ? 'Education' : b.label || type;
+        add('h2', 'cv-section-heading', String(sectionHeading), '', true);
         seen.add(type);
       }
       if (type === 'experience' || type === 'education') {
