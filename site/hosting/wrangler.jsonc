@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "drafted-invited-test",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "vars": {"LIVE_BACKEND": "enabled"},
+  "preview_urls": false,
+  "assets": {"directory": "../hosting-dist/invited", "binding": "ASSETS", "run_worker_first": true, "html_handling": "none", "not_found_handling": "none"},
+  "durable_objects": {"bindings": [{"name": "TEST_BUDGET", "class_name": "TestBudget"}]},
+  "migrations": [{"tag": "v1", "new_sqlite_classes": ["TestBudget"]}],
+  "observability": {"enabled": false},
+  "routes": [{"pattern": "thisismywork.app", "custom_domain": true}]
+}

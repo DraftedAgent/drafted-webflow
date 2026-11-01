@@ -12,15 +12,18 @@
   #section-input.preparation-section .cv-preview-box {display:flex;flex-direction:column;flex:1;}
   #section-input.preparation-section .cv-preview-box>.cv-preview-wrap {flex:1;height:0;min-height:0;aspect-ratio:auto;}
   @media(min-width:801px) {
-    #section-input.preparation-section {padding-block:clamp(16px,3svh,32px)!important;}
+    #section-input.preparation-section {--prep-section-pad:clamp(16px,3svh,32px);padding-block:var(--prep-section-pad)!important;}
+    #section-input.preparation-section .preparation-layout {min-height:calc(100svh - var(--prep-section-pad) - var(--prep-section-pad));}
     #section-input.preparation-section .input-left {gap:16px;}
+    #section-input.preparation-section .input-left> * {flex:none;}
+    #section-input.preparation-section .input-left>.preparation-step:has(#job-ad-input) {display:flex;flex-direction:column;flex:1 0 auto;}
     #section-input.preparation-section .preparation-intro {margin:0;}
     #section-input.preparation-section .preparation-title {font-size:clamp(28px,2.6vw,38px);}
     #section-input.preparation-section .preparation-introduction {margin-top:10px;font-size:16px;line-height:1.5;}
     #section-input.preparation-section .preparation-step-heading {margin-bottom:10px;gap:12px;}
     #section-input.preparation-section .preparation-step-title {font-size:18px;}
     #section-input.preparation-section .preparation-step-help {font-size:13px;}
-    #section-input.preparation-section #job-ad-input {height:clamp(100px,calc(100svh - 510px),180px);min-height:100px;padding:12px 14px;line-height:1.5;}
+    #section-input.preparation-section #job-ad-input {flex:1 0 auto;height:clamp(100px,calc(100svh - 510px),180px);min-height:100px;max-height:none;padding:12px 14px;line-height:1.5;}
     #section-input.preparation-section .preparation-job-feedback {margin-top:6px;}
     #section-input.preparation-section :is(.preparation-job-hint,#jobcontext-status) {padding:6px 10px;}
     #section-input.preparation-section .file-picker {padding:12px 14px;}

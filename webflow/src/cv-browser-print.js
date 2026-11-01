@@ -2,7 +2,7 @@
 (function(global){
   'use strict';
   async function prepare(host,title,stylesheet){
-    const check=()=>{if(host.dataset.cvPreviewMode==='suggested')throw Error('Switch to Current before exporting.');if(host.dataset.cvPreviewMode==='original')throw Error('Use Export edited CV to export your current CV.');};check();
+    const check=()=>{if(host.dataset.cvPreviewMode==='suggested')throw Error('Switch to Current before exporting.');if(host.dataset.cvPreviewMode==='original')throw Error('Use Export PDF to export your current CV.');};check();
     await global.DraftedCvLayout.ready(host);
     check();
     const pages=[...host.querySelectorAll('.cv-page')];
@@ -42,7 +42,7 @@
     const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
     controls.insertBefore(button,controls.querySelector('.workspace-close-preview'));controls.append(status);
     let state='loading',busy=false;
-    const refresh=()=>{const suggested=host.dataset.cvPreviewMode==='suggested',original=host.dataset.cvPreviewMode==='original',label=original?'Export edited CV':'Export PDF';button.disabled=suggested||busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.title=suggested?'Switch to Current before exporting.':label;button.setAttribute('aria-label',label);const text=button.querySelector('.workspace-action-label');if(text)text.textContent=label;button.setAttribute('aria-busy',String(busy));};
+    const refresh=()=>{const suggested=host.dataset.cvPreviewMode==='suggested',label='Export PDF';button.disabled=suggested||busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.title=suggested?'Switch to Current before exporting.':label;button.setAttribute('aria-label',label);const text=button.querySelector('.workspace-action-label');if(text)text.textContent=label;button.setAttribute('aria-busy',String(busy));};
     button.addEventListener('click',async()=>{
       if(button.disabled||host.dataset.cvPreviewMode==='suggested')return;
       busy=true;refresh();status.hidden=true;status.textContent='';let frame,temporary;

@@ -6,3 +6,7 @@ webflow/dist/
 /site/hosting-dist/
 /site/integration-dist/
 /site/.local-releases/
+/.wrangler/
+/site/hosting/.wrangler/
+/site/hosting/.dev.vars*
+/site/hosting/site/hosting-work/
