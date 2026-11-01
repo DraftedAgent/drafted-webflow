@@ -74,3 +74,10 @@
   }
 }
 @media print {.workspace-divider {display:none!important;}}
+@media(max-width:700px) {
+  .section-editor.discovery-enabled:has(#drafted-discovery-guidance:not([hidden])):not(:has(.discovery-mode)) .editor-layout {grid-template-rows:minmax(0,3fr) minmax(0,1fr);}
+  .section-editor.discovery-enabled #drafted-discovery-guidance {min-block-size:300px;padding:18px;}
+  .section-editor.discovery-enabled .chat-messages.is-discovery-start > #drafted-discovery-guidance h2 {font-size:18px;margin-bottom:8px;}
+  .section-editor.discovery-enabled .chat-messages.is-discovery-start > #drafted-discovery-guidance p {font-size:14px;margin-bottom:12px;}
+  .discovery-preparing-art {max-height:140px;margin-bottom:10px;}
+}

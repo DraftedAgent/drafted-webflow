@@ -89,3 +89,11 @@ har ingen flagga för riktiga anrop. Den tidigare separat förberedda aktivering
 och dess kostnads-/testgodkännande dokumenteras här:
 [integrationsunderlag](../integration/APPROVAL.sv.md).
 Detta arbete godkänner eller utför inte de externa stegen.
+
+Interaktiv simulerad Dev på8825 väntar9sekunder innan ett nytt plan-svar för
+upplevelsefrågorna skickas. Detta gör väntanimationen möjlig att granska.
+Det är en lokal simulerad svarsfördröjning, inte en timer i produktgränssnittet.
+8826/riktiga anrop och den frysta referensen påverkas inte. Alex Example är
+syntetiskt underlag, inte cache av den uppladdade filens innehåll.
+Omladdning återställer redan förberett arbete: använd ett nytt privat fönster
+utan tidigare privat session och ladda upp CV + jobbannons för en ny körning.

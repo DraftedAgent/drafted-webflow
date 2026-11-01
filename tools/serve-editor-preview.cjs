@@ -29,7 +29,7 @@ const server=http.createServer(async(req,res)=>{
  if(req.method==='POST'){
   req.setEncoding('utf8');
   let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>1000000)return json(413,{error:'Preview input too large'});}
-  if(pathname==='/webflow-experience-discovery'){let r;try{r=JSON.parse(body);}catch{return json(400,{error:'invalid JSON'});}const result=await (sourceDiscovery||paginationDiscovery||outcomeDiscovery||discovery)(r);return json(result.status,result.body);}
+  if(pathname==='/webflow-experience-discovery'){let r;try{r=JSON.parse(body);}catch{return json(400,{error:'invalid JSON'});}if(r.operation==='plan'){const delay=Math.max(0,Math.min(30000,Number(process.env.DRAFTED_PREVIEW_PLAN_DELAY_MS)||0));if(delay)await new Promise(resolve=>setTimeout(resolve,delay));if(res.destroyed)return;}const result=await (sourceDiscovery||paginationDiscovery||outcomeDiscovery||discovery)(r);return json(result.status,result.body);}
   calls.push({operation:pathname,synthetic:true});
   if(pathname==='/preview-api/rewrite'&&sourceFixture){const input=JSON.parse(body),next=structuredClone(input.blocks);next.find(b=>b.blockId==='project-1').text+='\nManual edit';return json(200,{...envelope(next),cvTitle:input.cvTitle||'Alex Example',cvVersionId:input.cvVersionId});}
   if(pathname==='/preview-api/rewrite'&&headerFixture){const updated=structuredClone(headerFixture);updated.blocks.find(b=>b.type==='summary').text+='\nSynthetic header verification edit.';return json(200,headerFixtures.envelope(updated));}
