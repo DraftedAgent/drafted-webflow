@@ -1,4 +1,4 @@
-// Invitation-only test gateway. No CVs, request bodies or credentials are stored.
+// Open test gateway. No CVs, request bodies or credentials are stored.
 const upstream = 'https://drafted.app.n8n.cloud';
 const allowed = new Set(['webflow-upload-cv','webflow-editor-rewrite','webflow-chat-cv','webflow-export-pdf','webflow-jobcontext-extract','tailor-cv','webflow-experience-discovery'].map(x=>'/webhook/'+x));
 const publicOrigin = 'https://thisismywork.app';
@@ -9,18 +9,10 @@ const security = {
 };
 function response(body,status=200,headers={}) {return new Response(body,{status,headers:{...security,...headers}});}
 function failure(message,status){return response(JSON.stringify({ok:false,error:message}),status,{'Content-Type':'application/json'});}
-async function digest(value){return new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));}
-async function authorized(request,env){
-  if(!env.TEST_PASSWORD || env.TEST_PASSWORD.length<24)return false;
-  let decoded='';try{const a=request.headers.get('Authorization')||'';if(!a.startsWith('Basic '))return false;decoded=atob(a.slice(6));}catch{return false;}
-  const a=await digest(decoded),b=await digest('tester:'+env.TEST_PASSWORD);let diff=0;
-  for(let i=0;i<a.length;i++)diff|=a[i]^b[i];return diff===0;
-}
 export default {async fetch(request,env){
   const origin=env.PUBLIC_ORIGIN||publicOrigin;
   const url=new URL(request.url);
   if(url.origin!==origin)return response('Not found',404);
-  if(!await authorized(request,env))return response('Drafted invitation required.',401,{'WWW-Authenticate':'Basic realm="Drafted invited testers", charset="UTF-8"'});
   if(url.pathname.startsWith('/api/')){
     const path=url.pathname.slice(4);
     if(!allowed.has(path)||url.search||request.method!=='POST')return failure('Request not allowed.',405);

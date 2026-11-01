@@ -22,7 +22,7 @@ const config=`(function(){'use strict';
 fs.writeFileSync(path.join(out,'local-config.js'),config);
 for(const file of ['index.html','editor/index.html']){
  const p=path.join(out,file);let html=fs.readFileSync(p,'utf8');
- html=html.replace(/<aside class="drafted-environment"[\s\S]*?<\/aside>/,'<aside class="drafted-environment" id="drafted-environment" role="status"><strong>Invited test</strong><span>Real AI processing · Your CV is sent to n8n and AI.</span></aside>');
+ html=html.replace(/<aside class="drafted-environment"[\s\S]*?<\/aside>/,'<aside class="drafted-environment" id="drafted-environment" role="status"><strong>Open test</strong><span>Real AI processing · Your CV is sent to n8n and AI.</span></aside>');
  fs.writeFileSync(p,html);
 }
 const manifest=JSON.parse(fs.readFileSync(path.join(out,'build.json'),'utf8'));
