@@ -1,0 +1,36 @@
+{
+  "url": "https://getmedrafted.com",
+  "replaces": "https://thisismywork.app",
+  "access": "anonymous; no invitation or login",
+  "sourceCommit": "cb52956466dd21fab9aad0059db95850a45e6b8d",
+  "workerVersion": "418605a5-e0de-443a-b904-46682788186c",
+  "previousWorkerVersion": "346856c2-6b32-45e3-96f5-d000e130f887",
+  "workerName": "drafted-invited-test",
+  "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
+  "budgetIdentityUnchanged": "invited-test-round-1",
+  "limits": {"total": 100, "perMinute": 20, "concurrent": 2},
+  "killSwitch": "LIVE_BACKEND=disabled",
+  "realBackendCallsThisChange": 0,
+  "n8nChanges": false,
+  "dns": {
+    "zoneId": "aaa0a8ec46c07322ae8e39dde0d4dc9f",
+    "plan": "Free",
+    "nameservers": ["achiel.ns.cloudflare.com", "edna.ns.cloudflare.com"],
+    "previousNameservers": ["ns19.domaincontrol.com", "ns20.domaincontrol.com"],
+    "backup": "%LOCALAPPDATA%/Drafted/dev-system-backups/dns/getmedrafted.com/20261101/godaddy-before.txt",
+    "backupSha256": "71E905F38023BA51C5E05A436E325F78D1CA6059C811C433DFD2706E4FD91D19",
+    "preserved": ["_dmarc TXT", "www CNAME", "_domainconnect CNAME"],
+    "replacedParkedA": ["15.197.148.33", "3.33.130.190"],
+    "dnssec": "already disabled; not changed"
+  },
+  "checks": [
+    "6 isolated gateway tests passed with new origin",
+    "clean source build; protected Webflow outputs and stable pointer unchanged",
+    "Wrangler deployment successful; only getmedrafted.com custom domain; old domain removed",
+    "GoDaddy UI confirms assigned Cloudflare nameservers",
+    "1.1.1.1 and 8.8.8.8 resolve new NS delegation"
+  ],
+  "status": "deployed; Cloudflare zone activation and ordinary public HTTPS verification pending",
+  "publicVerification": "No successful public page check yet: authoritative A response empty while Cloudflare zone pending. Do not present deployment as a working public link until verified.",
+  "rollback": "See README.sv.md. Do not blindly roll back to a Worker using the old origin. Preserve new origin and budget identity. DNS rollback restores parked GoDaddy zone, not Drafted."
+}
