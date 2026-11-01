@@ -10,5 +10,5 @@
   "durable_objects": {"bindings": [{"name": "TEST_BUDGET", "class_name": "TestBudget"}]},
   "migrations": [{"tag": "v1", "new_sqlite_classes": ["TestBudget"]}],
   "observability": {"enabled": false},
-  "routes": [{"pattern": "thisismywork.app", "custom_domain": true}]
+  "routes": [{"pattern": "getmedrafted.com", "custom_domain": true}]
 }

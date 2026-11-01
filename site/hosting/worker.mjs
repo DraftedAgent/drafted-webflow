@@ -1,7 +1,7 @@
 // Open test gateway. No CVs, request bodies or credentials are stored.
 const upstream = 'https://drafted.app.n8n.cloud';
 const allowed = new Set(['webflow-upload-cv','webflow-editor-rewrite','webflow-chat-cv','webflow-export-pdf','webflow-jobcontext-extract','tailor-cv','webflow-experience-discovery'].map(x=>'/webhook/'+x));
-const publicOrigin = 'https://thisismywork.app';
+const publicOrigin = 'https://getmedrafted.com';
 const security = {
   'Cache-Control':'no-store', 'X-Robots-Tag':'noindex, nofollow, noarchive',
   'Referrer-Policy':'no-referrer', 'X-Content-Type-Options':'nosniff',

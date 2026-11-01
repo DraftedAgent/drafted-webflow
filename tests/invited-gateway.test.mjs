@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import worker,{TestBudget} from '../site/hosting/worker.mjs';
-const origin='https://thisismywork.app', password='synthetic-test-password-123456789';
+const origin='https://getmedrafted.com', password='synthetic-test-password-123456789';
 function storage(){const map=new Map();let queue=Promise.resolve();const tx={get:async k=>structuredClone(map.get(k)),put:async(k,v)=>map.set(k,structuredClone(v))};return {...tx,transaction:fn=>{const p=queue.then(()=>fn(tx));queue=p.catch(()=>{});return p;}};}
 function environment(){const db=storage(),budget=new TestBudget({storage:db});let assetPath='';return {LIVE_BACKEND:'enabled',TEST_PASSWORD:password,TEST_BUDGET:{idFromName:x=>x,get:()=>budget},ASSETS:{fetch:async r=>{assetPath=new URL(r.url).pathname;return new Response('<html>app</html>');}},db,path:()=>assetPath};}
 const auth={Authorization:'Basic '+btoa('tester:'+password)};
