@@ -4,10 +4,17 @@ const root=path.resolve(__dirname,'..'),dist=path.join(root,'site/dist');
 process.env.DRAFTED_PREVIEW_SCENARIO ||= 'structured-context';
 const {server:fixture}=require('./serve-editor-preview.cjs');
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.ttf':'font/ttf','.wasm':'application/wasm','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4'};
-const server=http.createServer((req,res)=>{
+const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,'http://localhost'),p=url.pathname;
  res.setHeader('Content-Security-Policy',"default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'");
  res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
+ // Local simulation consumes bytes in memory and never forwards or stores audio.
+ if(req.method==='POST'&&p==='/preview-api/transcribe'){
+  let size=0;try{for await(const chunk of req){size+=chunk.length;if(size>8*1024*1024){res.writeHead(413);res.end();return;}}}catch{return;}
+  if(!size){res.writeHead(400);res.end();return;}
+  await new Promise(resolve=>setTimeout(resolve,1500));res.writeHead(200,{'Content-Type':'application/json'});
+  return res.end(JSON.stringify({ok:true,text:'Simulerat diktat för lokal granskning. This is a simulated transcript, not a recognition of your recording.'}));
+ }
  if((req.method==='POST'&&['/preview-api/upload','/preview-api/rewrite','/preview-api/chat','/preview-api/export','/preview-api/jobcontext','/preview-api/tailor','/webflow-experience-discovery'].includes(p))||(req.method==='GET'&&p==='/preview-status'))return fixture.emit('request',req,res);
  if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405);return res.end();}
  const evidence=p.startsWith('/evidence/'),base=evidence?path.join(root,'output/pdf/standalone'):dist;

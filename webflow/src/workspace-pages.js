@@ -27,7 +27,13 @@
     function focusPage(){requestAnimationFrame(()=>{const target=isEditor()?(global.DraftedWorkspaceStore.valid(adapter.capture())?section.querySelector('.workspace-document-title'):empty.querySelector('h1')):document.getElementById('preparation-title');if(target){target.tabIndex=-1;target.focus({preventScroll:true});}});}
     async function save(){if(restoring||leaving||!store||!storageReady)return;const state=adapter.capture();state.sourceHash=sourceHash;try{saving=store.save(state,{selected:input.files?.[0]||null,source:adapter.sourceFile()});await saving;if(error&&!leaving)notify(state.cv&&!adapter.sourceFile()?'Your editor work is restored. The original file is unavailable; choose it again to restore its preview.':'');}catch(e){if(!leaving)notify(e.message);throw e;}}
     function schedule(){if(restoring||scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;save().catch(()=>{});});}
-    async function navigate(path){try{await ready;await save();history.replaceState({...history.state,workspaceScroll:global.scrollY},'');history.pushState({draftedWorkspace:true},'',path);render();if(!isEditor())setup.scrollIntoView({behavior:'instant',block:'start'});focusPage();requestAnimationFrame(schedule);}catch(e){notify(e.message);}}
+    async function navigate(path,{transition=false}={}){try{
+      const prepare=async()=>{await ready;await save();};
+      const commit=()=>{history.replaceState({...history.state,workspaceScroll:global.scrollY},'');history.pushState({draftedWorkspace:true},'',path);render();};
+      if(transition&&!isEditor()&&global.DraftedWorkspaceStore.valid(adapter.capture())&&global.DraftedWorkspaceTransition)await global.DraftedWorkspaceTransition.run(prepare,commit);
+      else{await prepare();commit();}
+      if(!isEditor())setup.scrollIntoView({behavior:'instant',block:'start'});focusPage();requestAnimationFrame(schedule);
+    }catch(e){notify(e.message);}}
     back.addEventListener('click',event=>{if(event.button||event.metaKey||event.ctrlKey||event.shiftKey)return;event.preventDefault();navigate('/#section-input');});
     empty.querySelector('a').addEventListener('click',event=>{event.preventDefault();navigate('/#section-input');});
     global.addEventListener('popstate',()=>{render();if(!isEditor()&&location.hash!=='#section-input')global.scrollTo(0,history.state?.workspaceScroll||0);focusPage();requestAnimationFrame(schedule);});
@@ -44,7 +50,7 @@
       try{store=global.DraftedWorkspaceStore.create();const saved=await store.load();storageReady=true;if(saved){sourceHash=saved.state.sourceHash||(saved.files.source?await store.fingerprint(saved.files.source):null);await adapter.restore(saved.state,saved.files);if(saved.state.cv&&!saved.files.source)notify('Your editor work is restored. The original file is unavailable; choose it again to restore its preview.');if(saved.state.jobEditor?.open&&isEditor()){jobDraft.value=saved.state.jobEditor.draft;requestAnimationFrame(()=>{showJobState();dialog.showModal();jobDraft.focus({preventScroll:true});});}}}
       catch(e){notify(e.message);}finally{restoring=false;delete root.dataset.workspaceBooting;render();}
     })();
-    document.addEventListener('input',schedule,true);document.addEventListener('change',schedule,true);document.addEventListener('click',schedule,true);let scrollTimer;document.addEventListener('scroll',()=>{clearTimeout(scrollTimer);scrollTimer=setTimeout(schedule,100);},{capture:true,passive:true});
+    document.addEventListener('drafted-draft-change',schedule);document.addEventListener('input',schedule,true);document.addEventListener('change',schedule,true);document.addEventListener('click',schedule,true);let scrollTimer;document.addEventListener('scroll',()=>{clearTimeout(scrollTimer);scrollTimer=setTimeout(schedule,100);},{capture:true,passive:true});
     new MutationObserver(schedule).observe(section,{subtree:true,childList:true,characterData:true});
     // Snapshot before navigation aborts fetch. Its rejection/finally must not
     // overwrite an interrupted request with an ordinary failed/finished state.
@@ -52,7 +58,7 @@
     global.addEventListener('beforeunload',checkpointExit);global.addEventListener('pagehide',checkpointExit);
     return {ready,save,schedule,restoring:()=>restoring,
       async beforeContinue(file){await ready;if(!store||!storageReady)throw Error('Workspace storage is unavailable. Enable browser storage before continuing.');const hash=await store.fingerprint(file);if(input.files?.[0]!==file)return false;if(global.DraftedWorkspaceStore.valid(adapter.capture())){if(hash===sourceHash){if(!adapter.sourceFile())adapter.adoptSource(file);await navigate(editorPath);return 'resume';}if(!await confirmReplacement())return false;}return 'upload';},
-      async complete(file){sourceHash=await store.fingerprint(file);await navigate(editorPath);},
+      async complete(file){sourceHash=await store.fingerprint(file);await navigate(editorPath,{transition:true});},
       showSetup:()=>navigate('/#section-input'),notify};
   }
   global.DraftedWorkspacePages={enabled:true,create};

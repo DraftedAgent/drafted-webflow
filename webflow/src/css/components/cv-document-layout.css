@@ -120,3 +120,28 @@
   .cv-layout {margin:0!important;padding:0!important;}
   :is(.cv-layout,#editor-preview-text) .cv-page {print-color-adjust:exact;-webkit-print-color-adjust:exact;}
 }
+/* Studio / Executive: presentation only; measured before pagination and shared by print. */
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page {padding:19mm 18mm 18mm;color:#272d31;font-size:10pt;line-height:1.48;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page-content:has(.cv-person-name) {border-top:.5mm solid #3f666b;padding-top:7mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-block:has(.cv-header-contact) {float:right;width:45mm;margin-left:7mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page .cv-header-contact {font-size:8.5pt;text-align:right;color:#59666a;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page .cv-person-name {font-size:38pt;font-weight:400;line-height:1.05;letter-spacing:-.045em;max-width:100mm;margin-bottom:4mm;color:#272d31;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page .cv-headline {font-size:8pt;letter-spacing:.09em;line-height:1.6;margin-bottom:8mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-block[data-kind=summary] {clear:both;margin-left:34mm;margin-bottom:6mm;font-size:10.5pt;line-height:1.58;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-block:is([data-kind=experience],[data-kind=education]) {padding-left:34mm;margin-bottom:2mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page .cv-entry-date {float:left;width:28mm;margin-left:-34mm;padding-top:1mm;font-size:7.8pt;line-height:1.5;color:#55777a;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page .cv-section-heading {clear:both;font-size:9pt;letter-spacing:.14em;color:#436a6f;font-weight:400;border-top:.2mm solid #cfd9db;padding-top:3mm;margin:5mm 0 3mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page :is(.cv-exp-title,.cv-edu-degree) {font-size:12pt;letter-spacing:-.015em;margin-top:0;color:#272d31;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-page .cv-entry-meta {font-size:9.5pt;margin-bottom:2mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page {padding:17mm 18mm 18mm;color:#192d40;font-size:10pt;line-height:1.45;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page .cv-person-name {font:400 38pt/1.08 Georgia,'Times New Roman',serif;letter-spacing:-.035em;margin-bottom:3mm;color:#192d40;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page .cv-headline {font-size:8pt;letter-spacing:.12em;margin-bottom:4mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page .cv-header-contact {font-size:8pt;white-space:normal;border-bottom:1.1mm solid #1d354a;padding-bottom:5mm;margin-bottom:7mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page .cv-section-heading {font:400 17pt/1.2 Georgia,'Times New Roman',serif;text-transform:none;letter-spacing:-.015em;border-top:0;border-bottom:.25mm solid #9baab5;padding:0 0 2mm;margin:6mm 0 4mm;color:#192d40;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page .cv-entry-date {float:right;width:32mm;text-align:right;font-size:8pt;line-height:1.5;color:#526474;margin:1mm 0 0 6mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page :is(.cv-exp-title,.cv-edu-degree) {font-size:11pt;margin-top:0;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page .cv-entry-meta {font-size:9.5pt;margin-bottom:2mm;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-page .cv-block-body {clear:both;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="executive_v1"] .cv-block:is([data-kind=experience],[data-kind=education]) {margin-bottom:3mm;}
+:is(.cv-layout,#editor-preview-text):is([data-cv-design="studio_v1"],[data-cv-design="executive_v1"]) .cv-page .cv-entry-date {white-space:pre-wrap;overflow-wrap:anywhere;}
+:is(.cv-layout,#editor-preview-text)[data-cv-design="studio_v1"] .cv-block[data-kind=skills] {margin-left:34mm;}

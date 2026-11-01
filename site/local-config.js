@@ -2,6 +2,7 @@
 (function(){
  'use strict';
  const base=location.origin;
+ window.__DRAFTED_DICTATION__=Object.freeze({mode:'simulated',endpoint:'/preview-api/transcribe'});
  window.DraftedEnvironment?.show('simulated');
  if(!['127.0.0.1','localhost','[::1]'].includes(location.hostname))throw Error('This build is for local verification only.');
  const nativeFetch=window.fetch.bind(window);

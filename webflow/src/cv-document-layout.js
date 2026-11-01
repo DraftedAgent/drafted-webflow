@@ -22,7 +22,8 @@
     return el;
   };
 
-  function unitsFromBlocks(blocks, title) {
+  function unitsFromBlocks(blocks, title, templateId) {
+    const designed=['studio_v1','executive_v1'].includes(templateId);
     const units = [], seen = new Set();
     const add = (tag, cls, text, id = '', keep = false, source = false) => {
       if (text !== '') units.push({tag, cls, text, id, keep, source});
@@ -33,7 +34,7 @@
     const labels={name:['name','full name','namn'],headline:['professional headline','headline','yrkestitel','profilrad'],contact:['contact details','contact','kontaktuppgifter','kontakt']};
     const role=b=>['otherSections','block'].includes(b.type)?Object.keys(labels).find(key=>labels[key].includes(String(b.label||'').trim().toLowerCase())):undefined;
     const header=sorted.filter(b=>role(b)&&String(b.text||'').trim());
-    for(const kind of ['name','headline','contact']){
+    for(const kind of (templateId==='studio_v1'?['contact','name','headline']:['name','headline','contact'])){
       for(const b of header.filter(b=>role(b)===kind))add(kind==='name'?'h1':'p',kind==='name'?'cv-title cv-person-name':kind==='headline'?'cv-headline':'cv-header-contact',String(b.text),String(b.blockId),true,true);
       if(kind==='headline'&&!header.length)add('p','cv-headline cv-document-label',title,'',true);
     }
@@ -47,10 +48,16 @@
       }
       if (type === 'experience' || type === 'education') {
         const heading = type === 'experience' ? b.title : [b.degree, b.program].filter(Boolean).join(', ');
-        add('h3', type === 'experience' ? 'cv-exp-title' : 'cv-edu-degree', String(heading || ''), id, true);
         const organization = type === 'experience' ? b.employer : b.institution;
         const period = [b.startDate, b.endDate].filter(Boolean).join(' – ');
+        if(designed){
+          add('p','cv-entry-date',period,id,true);
+          add('h3',type==='experience'?'cv-exp-title':'cv-edu-degree',String(type==='experience'?(organization||heading):heading||''),id,true);
+          add('p','cv-entry-meta',String(type==='experience'?(organization?heading:''):organization||''),id,true);
+        }else{
+        add('h3', type === 'experience' ? 'cv-exp-title' : 'cv-edu-degree', String(heading || ''), id, true);
         add('p', 'cv-entry-meta', [organization, period].filter(Boolean).join('  ·  '), id, true);
+        }
       }
       // Keep source characters, including bullet markers and line breaks, verbatim.
       // Lists get semantic <ul>/<li> structure; the original marker stays visible.
@@ -65,7 +72,7 @@
       }
       flush();
     }
-    return units;
+    return units.map(u=>({...u,kind:sorted.find(b=>String(b.blockId)===u.id)?.type||''}));
   }
 
   function linkify(pages) {
@@ -117,7 +124,7 @@
       let block = content.lastElementChild;
       if (!block || block.dataset.blockId !== unit.id || !unit.id) {
         block = node('section', unit.id ? 'cv-block' : 'cv-document-heading');
-        if (unit.id) block.dataset.blockId = unit.id;
+        if (unit.id) {block.dataset.blockId = unit.id;block.dataset.kind=unit.kind;}
         content.append(block);
       }
       const el = node(unit.tag, unit.cls, text);
@@ -267,7 +274,7 @@
     host.dataset.layoutState = 'loading'; host.setAttribute('aria-busy', 'true'); model.onState?.('loading');
     viewer.pending = (model.blocks.length ? fontsReady() : Promise.resolve()).then(() => {
       if (generation !== viewer.generation) return;
-      const pages = model.blocks.length ? paginate(unitsFromBlocks(model.blocks, model.title), templateId) : [];
+      const pages = model.blocks.length ? paginate(unitsFromBlocks(model.blocks, model.title, templateId), templateId) : [];
       host.dataset.cvDesign = templateId;
       host.replaceChildren(...pages.map(page => { const slot = node('div', 'cv-page-slot'); slot.append(page); return slot; }));
       viewer.scale(); host.dataset.pageCount = String(pages.length); host.dataset.layoutState = 'ready';

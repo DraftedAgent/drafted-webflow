@@ -1,0 +1,8 @@
+@media screen {
+ .workspace-transfer {position:fixed;z-index:900;background:white;overflow:hidden;pointer-events:none;outline:1px solid transparent;outline-offset:0;box-shadow:0 8px 32px #142a3d12;transform-origin:top left;}
+ .workspace-transfer>* {transform-origin:top left;}
+ html[data-workspace-transfer] .section-editor .cv-document {visibility:hidden;}
+ .workspace-transfer-status {position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:901;padding:10px 18px;border:1px solid #c8dedf;border-radius:6px;background:#f6fafb;color:#142a3d;font:14px/1.4 system-ui;}
+ .workspace-transfer-status[hidden] {display:none;}
+}
+@media print {.workspace-transfer,.workspace-transfer-status {display:none!important;}}

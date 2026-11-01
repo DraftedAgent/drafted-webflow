@@ -1,0 +1,41 @@
+{
+  "status": "Enabled for local Dev integration 8826 only; owner approval 2026-11-01",
+  "model": "gpt-transcribe",
+  "modelStatus": "Current recommended recorded-speech transcription model, verified against official documentation 2026-11-01. Replaces unactivated gpt-4o-mini-transcribe proposal at owner request.",
+  "estimatedUSDPerMinute": 0.0045,
+  "maximumClipSeconds": 120,
+  "maximumBytes": 8388608,
+  "estimateUSDPerMaximumClip": 0.009,
+  "newProvider": false,
+  "localMode": "8825 retains labelled simulation. 8826 uses same-origin /api/dictation through a server-held DPAPI secret to the dedicated n8n workflow.",
+  "paidVerificationProposal": "Completed exactly one Swedish 6.94s and one English 5.585s synthetic clip. Both HTTP200. English exact; Swedish substituted arbetssättet with arbetsflödet. Total12.525seconds; estimated transcription cost about USD0.00094, not a billing receipt. No repeated paid tests.",
+  "rollback": "Set budget.enabled=false to block local calls immediately. Typed inputs and simulation remain usable. Dedicated n8n deactivation is a separate explicit action; no existing workflows modified. Encrypted pre-create and pre-activation snapshots under LOCALAPPDATA/Drafted/dev-system-backups/n8n/. No public deployment.",
+  "browserLimits": [
+    "MediaRecorder, microphone permission, and HTTPS or loopback localhost required.",
+    "WebM/Opus preferred, MP4 fallback for compatible Safari. No Ogg-only recorder support.",
+    "Actual iPhone/Android hardware, OS interruption and Swedish/English recognition accuracy remain unverified.",
+    "127.0.0.1 on a phone refers to that phone. A LAN HTTP URL is not a secure microphone context; a separately approved HTTPS test path is needed for physical-device testing.",
+    "Leaving/reloading the document cancels audio and in-flight transcription. Audio is not persisted for resuming."
+  ],
+  "sources": [
+    "https://developers.openai.com/api/docs/pricing",
+    "https://developers.openai.com/api/docs/guides/speech-to-text",
+    "https://developers.openai.com/api/docs/models/gpt-transcribe"
+  ],
+  "workflow": {
+    "id": "SYolQaSRsqkf5BDT",
+    "versionId": "81b45b77-f6a8-4a33-8b2d-2a58b9d2403c",
+    "active": true,
+    "endpoint": "/webhook/drafted-transcribe"
+  },
+  "approvedExternalChanges": [
+    "Create one dedicated POST /webhook/drafted-transcribe endpoint in existing n8n using the server-held OpenAI credential. Do not change existing CV/chat contracts.",
+    "Disable success/error execution payload retention for this workflow and avoid binary persistence/logging; verify hosting-level binary retention before activation.",
+    "Validate audio MIME and magic, streamed byte limit and server-inspected duration <=120s. inspectDuration is intentionally mandatory but not wired until the runtime is confirmed.",
+    "Apply explicit request/concurrency budget and a transcription kill switch before provider invocation; no automatic retries. Proposed initial budget: 100 clips, 10 per minute, 2 concurrent.",
+    "Allow exact local integration origin http://127.0.0.1:8826; preserve existing origins. Add only this route to integration CSP/fetch allowlist and enable dictation configuration after approval.",
+    "Future public deployment only: add route to existing Cloudflare gateway and shared server-controlled budget. No public deployment is included now."
+  ],
+  "implementation": "Browser normalizes to mono 16kHz PCM WAV. Gateway and n8n derive duration from strict canonical sample bytes; max normalized bytes 3840044. n8n receives JSON, passes inline binary to OpenAI, without binary-storage helper. Execution success/error/manual/progress retention disabled; zero retained execution records after tests. Provider infrastructure retention is not claimed to be zero.",
+  "budget": "Persistent local server budget: 100 clips total, 10/minute, 2 concurrent; reservations before provider calls; no automatic retries. All tabs share budget. LOCALAPPDATA/Drafted/dictation/budget.json: set enabled=false for immediate kill switch; never reset used to bypass limits."
+}

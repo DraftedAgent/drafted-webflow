@@ -23,11 +23,11 @@
         if(a.revisions.length>1){const revisions=el('details',null,'discovery-revisions');revisions.append(el('summary','Original answer and revisions'));for(const revision of a.revisions){revisions.append(el('p',`Revision ${revision.revision}`),el('blockquote',revision.text,'discovery-answer'));if(revision.experienceContext)revisions.append(el('p','Context: '+root.DraftedExperienceContext.describe(revision.experienceContext),'discovery-saved-context'));}details.append(revisions);}
         if(a.status==='processing')details.append(el('p','Answer saved. Checking it in the background.','discovery-note'));
         if(a.status==='error'){details.append(el('p','Your answer is saved. We could not check it.','discovery-note'));if(onRetry)details.append(button(`Retry answer ${r.queue.indexOf(q)+1}`,()=>onRetry(a.id)));}
-        details.append(button(`Correct answer ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,a.revisions.at(-1).text);session.correct(q.id);}));
+        details.append(button(`Correct answer ${r.queue.indexOf(q)+1}`,()=>{if(!drafts.has(q.id))drafts.set(q.id,a.revisions.at(-1).text);session.correct(q.id);}));
       }
       for(const q of r.phase==='complete'?r.queue.filter(q=>!answers.some(a=>a.questionId===q.id)):[]){
         details.append(el('p',q.question,'discovery-history-question'),el('p',q.status==='skipped'?'Skipped':'No answer saved','discovery-note'));
-        details.append(button(`Answer question ${r.queue.indexOf(q)+1}`,()=>{drafts.set(q.id,'');session.correct(q.id);}));
+        details.append(button(`Answer question ${r.queue.indexOf(q)+1}`,()=>{if(!drafts.has(q.id))drafts.set(q.id,'');session.correct(q.id);}));
       }
       container.append(details);
     }
@@ -75,9 +75,13 @@
           const saved=session.snapshot().answers.find(a=>a.id===q.answerId)?.revisions.at(-1)?.experienceContext;
           if(saved)container.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(saved),'discovery-saved-context'));
           container.append(label);
-          actions.append(button(r.phase==='correct'?'Save correction':'Send answer',()=>{const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
+          root.DraftedDictation?.attach(input,{key:'question:'+mountedRound+':'+q.id+':'+(followup?'followup':'answer'),label:'experience answer',maxLength:50000,
+            read:()=>drafts.get(q.id)||'',write:value=>{drafts.set(q.id,value);if(input.isConnected){input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));}onStateChange();},
+            alive:()=>!disposed&&session.round().id===mountedRound});
+
+          actions.append(button(r.phase==='correct'?'Save correction':'Send answer',()=>{root.DraftedDictation?.cancelFor('question:'+mountedRound+':'+q.id+':');const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
           if(r.phase==='error'&&onRetry)actions.append(button('Try again',()=>onRetry()));
-          actions.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();drafts.delete(q.id);}));
+          actions.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();if(!root.DraftedDictation?.isActiveFor('question:'+mountedRound+':'+q.id+':'))drafts.delete(q.id);}));
         }
         const pending=session.results().pending;if(pending)container.append(el('p',`${pending===1?'An earlier answer is':pending+' earlier answers are'} being checked. You can keep going.`,'discovery-note'));
         actions.append(button('Finish the questions',()=>session.finish()));container.append(actions);if(originalContext)container.append(originalContext);
@@ -89,7 +93,7 @@
       renderedPhase=r.phase;
       if(selection){const input=container.querySelector('textarea');if(input){input.focus({preventScroll:true});input.setSelectionRange(selection.start,selection.end);}}
     }
-    const stopObserving=session.observe(render);render();return {render,snapshotDrafts:()=>[...drafts]};
+    const stopObserving=session.observe(render);render();return {render,snapshotDrafts:()=>[...drafts],dispose(){disposed=true;stopObserving();}};
   }
   root.DraftedExperienceDiscoveryUI={mount};
 })(globalThis);
