@@ -27,7 +27,7 @@ test('rejects foreign origins, unapproved paths, methods and oversized bodies be
 });
 test('forwards exact request only to existing n8n, strips credentials, counts once, never retries',async()=>{
  const env=environment(),previous=globalThis.fetch;let calls=0;
- globalThis.fetch=async(url,options)=>{calls++;assert.equal(url,'https://drafted.app.n8n.cloud/webhook/webflow-chat-cv');assert.deepEqual(Object.keys(options.headers).sort(),['Content-Type','Origin']);assert.equal(new TextDecoder().decode(options.body),'{"message":"synthetic"}');assert.equal(options.redirect,'error');return new Response('{"ok":true}',{headers:{'Set-Cookie':'private=1','Content-Type':'application/json'}});};
+ globalThis.fetch=async(url,options)=>{calls++;assert.equal(url,'https://drafted.app.n8n.cloud/webhook/webflow-chat-cv');assert.deepEqual(Object.keys(options.headers).sort(),['Content-Type','Origin']);assert.equal(new TextDecoder().decode(options.body),'{"message":"synthetic"}');assert.equal(options.redirect,'manual');return new Response('{"ok":true}',{headers:{'Set-Cookie':'private=1','Content-Type':'application/json'}});};
  try{const result=await worker.fetch(api(),env);assert.equal(result.status,200);assert.equal(result.headers.get('Set-Cookie'),null);assert.equal(calls,1);assert.equal((await env.db.get('budget')).used,1);assert.deepEqual((await env.db.get('budget')).leases,{});
  globalThis.fetch=async()=>{calls++;throw Error('network');};assert.equal((await worker.fetch(api(),env)).status,502);assert.equal(calls,2);assert.equal((await env.db.get('budget')).used,2);
  }finally{globalThis.fetch=previous;}

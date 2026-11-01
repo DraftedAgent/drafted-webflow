@@ -38,7 +38,8 @@ export default {async fetch(request,env){
     const reservation=await gate.fetch(new Request('https://budget/reserve',{method:'POST',body:JSON.stringify({ticket})}));
     if(!reservation.ok)return failure(await reservation.text(),429);
     try{
-      const result=await fetch(upstream+path,{method:'POST',headers:{'Content-Type':type,'Origin':origin},body,redirect:'error',signal:AbortSignal.timeout(180000)});
+      const result=await fetch(upstream+path,{method:'POST',headers:{'Content-Type':type,'Origin':origin},body,redirect:'manual',signal:AbortSignal.timeout(180000)});
+      if(result.status>=300&&result.status<400)return failure('Unexpected backend redirect. Contact the test organiser.',502);
       // Do not relay upstream cookies, credentials, redirects or CORS headers.
       return response(await result.arrayBuffer(),result.status,{'Content-Type':result.headers.get('Content-Type')||'application/json'});
     }catch{return failure('The analysis request was interrupted. Please retry explicitly if needed.',502);}
