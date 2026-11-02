@@ -1646,3 +1646,10 @@ Synthetic full-context suite passes desktop1440/mobile390: exact x/y/width/heigh
 ## DEV-226 — Remove idle composer scope labels (2026-11-02)
 
 Presentation-only: idle context chip-label is empty instead of Scope/Chat/No explicit selection. Existing section chips, fixed Full CV toggle, helper placement and selection/removal handlers retained. Dev/integration rebuilt; public assets unchanged. No backend or publication.
+
+
+## DEV-227 — Publish approved Dev through758eafa (2026-11-02)
+
+Owner requested publication. Captured current Worker8c4a191f-cce2-47bd-89bc-fb2390c58909 as rollback; clean source758eafabb80051a61c3ee2b55d165c0c89e9efbd built with existing public builder and deployed to existing getmedrafted.com Worker584dc2c4-ce9f-4ac3-942c-c6135ede1f2f. Includes responsive upload/PDF resolution/hero replay,100%initial editor zoom, wider template selector, stable Send/context lifecycle and Full CV toggle/paper marks/removed scope labels. Durable Object/budget identity, secrets, domain, endpoints and live mode retained. Structured-selection backend candidates remain unapproved and NOT activated; real backend currently requires typed/dictated text with selection. No n8n/model/provider execution or DNS change.
+
+Full-context and contextual-selection desktop/mobile synthetic tests and9gateway unit tests pass. Public manifest/file hashes, home/editor routes/icons and pre-backend invalid API guards verified. Public-origin editor/coverage/answers/Tailor/Apply/reload test uses intercepted synthetic API responses. Receipt site/hosting/current-release.json; no main merge or stable promotion.

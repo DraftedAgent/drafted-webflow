@@ -1,9 +1,9 @@
 {
   "url": "https://getmedrafted.com",
-  "publishedSourceCommit": "aae1874fb737b5a3907744bd2b894d8b19811a06",
-  "workerVersion": "8c4a191f-cce2-47bd-89bc-fb2390c58909",
-  "previousWorkerVersion": "73ddd170-d3d6-4e81-85fc-8441dfbb4d3d",
-  "publishedUTC": "2026-11-02T15:53:00.581200+00:00",
+  "publishedSourceCommit": "758eafabb80051a61c3ee2b55d165c0c89e9efbd",
+  "workerVersion": "584dc2c4-ce9f-4ac3-942c-c6135ede1f2f",
+  "previousWorkerVersion": "8c4a191f-cce2-47bd-89bc-fb2390c58909",
+  "publishedUTC": "2026-11-02T21:29:52.621904+00:00",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
@@ -15,7 +15,7 @@
   },
   "workflowExecutionOrModelCalls": 0,
   "verification": "Served hashes, / and /editor, favicon and pre-backend rejection gates verified. Public-origin browser tests use intercepted synthetic APIs, not provider execution. Gateway unit tests pass.",
-  "rollback": "wrangler rollback 73ddd170-d3d6-4e81-85fc-8441dfbb4d3d --config site/hosting/wrangler.jsonc",
+  "rollback": "wrangler rollback 8c4a191f-cce2-47bd-89bc-fb2390c58909 --config site/hosting/wrangler.jsonc",
   "changesExcluded": [
     "DNS",
     "n8n workflows",
@@ -23,5 +23,6 @@
     "budget reset",
     "main merge",
     "stable promotion"
-  ]
+  ],
+  "pendingBackend": "Structured selection request candidates are not deployed. Empty selection-only sends remain disabled against current real backend; typed/dictated messages with optional selection remain supported."
 }
