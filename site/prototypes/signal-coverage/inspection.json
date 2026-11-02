@@ -1,0 +1,15 @@
+{
+  "inspectedAt": "2026-11-01",
+  "method": "Read-only saved definition inspection and repository source/contract review; no workflow or AI execution",
+  "baseCommit": "785ccead476b988ad4825d71c9b71b801e5e58ed",
+  "branch": "codex/local-dev",
+  "workflows": [
+    {"id":"ytcb-PU8k9igpv5B7BmX7","name":"flow-jobcontext-extract","active":true,"savedVersion":"5f91b0bd-f187-4295-a66e-f0d5ce417625","activeVersion":"5f91b0bd-f187-4295-a66e-f0d5ce417625","nodes":8},
+    {"id":"zeIzzxPwD2Y91OyD","name":"Drafted Experience Discovery v1 (inactive development)","active":true,"savedVersion":"5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5","activeVersion":"5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5","nodes":10,"internalAssessmentAuditPresent":true}
+  ],
+  "repositoryEvidence": ["contracts/jobcontext-contract.md","contracts/experience-discovery-v1.md","contracts/experience-context-v1.md","backend/discovery-plan-assessments.cjs","backend/n8n-discovery-assessments-candidate.cjs","webflow/src/experience-discovery-contract.js","webflow/src/experience-discovery.js","webflow/src/experience-discovery-editor.js","webflow/src/drafted-editor.js","webflow/src/workspace-store.js"],
+  "missingForProductIntegration": ["Source-anchored original job-ad provenance and evidence-backed requirement/preference classification","Complete public four-status read-only coverage projection bound to exact CV/job/catalog contents","Focused signal entry into existing controller without replacing active queues or sources","Persisted coverage freshness and Apply-driven assessment lifecycle"],
+  "externalChanges": "none",
+  "realModelCalls": 0,
+  "currentGuarantee": "The prototype verifies source/version/lifecycle behavior with synthetic data. Neither fixture semantics nor read-only schema inspection verifies real-model coverage quality."
+}

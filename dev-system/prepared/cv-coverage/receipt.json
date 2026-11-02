@@ -1,0 +1,21 @@
+{
+  "preparedAt": "2026-11-02T07:59:12.326Z",
+  "baseCommit": "785ccead476b988ad4825d71c9b71b801e5e58ed",
+  "sourceWorkflowId": "zeIzzxPwD2Y91OyD",
+  "sourceSavedVersion": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+  "sourceActiveVersion": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+  "model": "gpt-6-luna",
+  "modelCredential": "existing reference only; no credential value retrieved",
+  "candidateFile": "dev-system/prepared/cv-coverage/workflow.private-unconfigured.json",
+  "candidateSHA256": "8b4342291024a5e6e7a2b7c8533b5ddf4dd4627cf20c8a09ff6dbc58fadbaf6b",
+  "externalActions": [],
+  "guard": "UNCONFIGURED — denies all calls before model invocation",
+  "activationStatus": "NOT CREATED OR ACTIVATED",
+  "remaining": [
+    "Owner approval of new dedicated workflow and private local gateway scope",
+    "Verified encrypted absent-prestate/create payload before workflow creation, and before-state snapshot before activation",
+    "Configure private gateway secret outside Git and its SHA256 in n8n",
+    "Persistent server-controlled request budget before enabling live coverage",
+    "A bounded real semantic-quality test, separately approved; no real model calls in local validation"
+  ]
+}

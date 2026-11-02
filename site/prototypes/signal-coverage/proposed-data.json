@@ -1,0 +1,575 @@
+{
+  "notice": "PROPOSED PROFILE — synthetic example, not a supported deployed API contract",
+  "request": {
+    "coverageSchemaVersion": "1.0-draft",
+    "operation": "assessCoverage",
+    "requestId": "study-request-1",
+    "inputRef": {
+      "cvVersionId": "study-cv-v1",
+      "cvBlocksHash": "sha256:7ef07ebf69efcb1f277ea407c4c922516a0db3b258104b837d1012a54190ed91",
+      "jobRevisionId": "study-job-v1",
+      "jobTextHash": "sha256:3226f1dda5ec7174d5a6e1a3e7321ba2d8dac24f45ad63984c138d34833d082e",
+      "signalCatalogRevision": "study-catalog-v1",
+      "signalCatalogHash": "sha256:91a126f8d0066cd0b3500caceebe7483ec076eda7633088ebadc0a9b38903ac2",
+      "policyVersion": "coverage-policy-proposal-1"
+    },
+    "cv": {
+      "blocksSchemaVersion": "1.0",
+      "blocks": [
+        {
+          "blockId": "name",
+          "type": "otherSections",
+          "label": "Name",
+          "order": 0,
+          "text": "ALEX EXAMPLE"
+        },
+        {
+          "blockId": "headline",
+          "type": "otherSections",
+          "label": "Professional headline",
+          "order": 1,
+          "text": "Product Manager"
+        },
+        {
+          "blockId": "contact",
+          "type": "otherSections",
+          "label": "Contact details",
+          "order": 2,
+          "text": "Stockholm · alex@example.test"
+        },
+        {
+          "blockId": "profile",
+          "type": "summary",
+          "label": "Profile",
+          "order": 3,
+          "text": "Product manager working across discovery, product planning and digital delivery."
+        },
+        {
+          "blockId": "exp-product",
+          "type": "experience",
+          "label": "Experience",
+          "order": 10,
+          "employer": "Example Studio",
+          "title": "Product Manager",
+          "startDate": "2022",
+          "endDate": "2025",
+          "text": "• Owned a product roadmap and translated quarterly goals into delivery plans.\n• Prioritized initiatives by customer impact and engineering effort.\n• Conducted customer interviews and used the findings to revise onboarding priorities.\n• Worked with engineering and design from discovery through release.\n• Aligned sales, operations and engineering around priorities and trade-offs.\n• Reviewed adoption data to identify onboarding friction and prioritize improvements.\n• Explained product decisions to engineering teams and non-technical stakeholders."
+        },
+        {
+          "blockId": "exp-delivery",
+          "type": "experience",
+          "label": "Experience",
+          "order": 20,
+          "employer": "Example Platform",
+          "title": "Delivery Coordinator",
+          "startDate": "2019",
+          "endDate": "2022",
+          "text": "• Coordinated product releases, testing and rollout for a customer platform.\n• Supported supplier contract discussions and documented agreed delivery terms."
+        },
+        {
+          "blockId": "education",
+          "type": "education",
+          "label": "Education",
+          "order": 30,
+          "institution": "Example University",
+          "degree": "BSc",
+          "program": "Information Systems",
+          "startDate": "2016",
+          "endDate": "2019",
+          "text": "BSc in Information Systems."
+        }
+      ]
+    },
+    "job": {
+      "text": "Product Manager — Example Platform\n\nYou will own the product roadmap and turn product strategy into delivery plans.\n\nPrioritize initiatives using expected customer impact and delivery effort.\n\nRun customer interviews and use the findings to guide product decisions.\n\nWork closely with engineering and design throughout discovery and delivery.\n\nAlign cross-functional stakeholders around priorities and trade-offs.\n\nCoordinate product releases, including testing and rollout.\n\nUse adoption data to identify friction and guide improvements.\n\nExplain product decisions clearly to technical and non-technical audiences.\n\nExperience supporting international product launches is preferred.\n\nExperience negotiating commercial supplier agreements is a plus.\n\nSQL experience for exploring product and adoption data is desirable.\n\nA relevant qualification or equivalent professional experience is expected.",
+      "signals": [
+        {
+          "signalId": "signal-1",
+          "legacyRef": {
+            "field": "topPriorities",
+            "index": 0
+          },
+          "text": "Own the product roadmap",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "You will own the product roadmap and turn product strategy into delivery plans.",
+              "start": 36,
+              "end": 115,
+              "paragraph": 2
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "You will own the product roadmap and turn product strategy into delivery plans.",
+              "start": 36,
+              "end": 115,
+              "paragraph": 2
+            }
+          ]
+        },
+        {
+          "signalId": "signal-2",
+          "legacyRef": {
+            "field": "topPriorities",
+            "index": 1
+          },
+          "text": "Prioritize by impact",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "Prioritize initiatives using expected customer impact and delivery effort.",
+              "start": 117,
+              "end": 191,
+              "paragraph": 3
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Prioritize initiatives using expected customer impact and delivery effort.",
+              "start": 117,
+              "end": 191,
+              "paragraph": 3
+            }
+          ]
+        },
+        {
+          "signalId": "signal-3",
+          "legacyRef": {
+            "field": "topPriorities",
+            "index": 2
+          },
+          "text": "Use customer research",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "Run customer interviews and use the findings to guide product decisions.",
+              "start": 193,
+              "end": 265,
+              "paragraph": 4
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Run customer interviews and use the findings to guide product decisions.",
+              "start": 193,
+              "end": 265,
+              "paragraph": 4
+            }
+          ]
+        },
+        {
+          "signalId": "signal-4",
+          "legacyRef": {
+            "field": "topPriorities",
+            "index": 3
+          },
+          "text": "Work with engineering and design",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "Work closely with engineering and design throughout discovery and delivery.",
+              "start": 267,
+              "end": 342,
+              "paragraph": 5
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Work closely with engineering and design throughout discovery and delivery.",
+              "start": 267,
+              "end": 342,
+              "paragraph": 5
+            }
+          ]
+        },
+        {
+          "signalId": "signal-5",
+          "legacyRef": {
+            "field": "topPriorities",
+            "index": 4
+          },
+          "text": "Align stakeholders",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "Align cross-functional stakeholders around priorities and trade-offs.",
+              "start": 344,
+              "end": 413,
+              "paragraph": 6
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Align cross-functional stakeholders around priorities and trade-offs.",
+              "start": 344,
+              "end": 413,
+              "paragraph": 6
+            }
+          ]
+        },
+        {
+          "signalId": "signal-6",
+          "legacyRef": {
+            "field": "topPriorities",
+            "index": 5
+          },
+          "text": "Deliver product releases",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "Coordinate product releases, including testing and rollout.",
+              "start": 415,
+              "end": 474,
+              "paragraph": 7
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Coordinate product releases, including testing and rollout.",
+              "start": 415,
+              "end": 474,
+              "paragraph": 7
+            }
+          ]
+        },
+        {
+          "signalId": "signal-7",
+          "legacyRef": {
+            "field": "topPriorities",
+            "index": 6
+          },
+          "text": "Use adoption data",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "Use adoption data to identify friction and guide improvements.",
+              "start": 476,
+              "end": 538,
+              "paragraph": 8
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Use adoption data to identify friction and guide improvements.",
+              "start": 476,
+              "end": 538,
+              "paragraph": 8
+            }
+          ]
+        },
+        {
+          "signalId": "signal-8",
+          "legacyRef": {
+            "field": "topPriorities",
+            "index": 7
+          },
+          "text": "Communicate decisions clearly",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "Explain product decisions clearly to technical and non-technical audiences.",
+              "start": 540,
+              "end": 615,
+              "paragraph": 9
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Explain product decisions clearly to technical and non-technical audiences.",
+              "start": 540,
+              "end": 615,
+              "paragraph": 9
+            }
+          ]
+        },
+        {
+          "signalId": "signal-9",
+          "legacyRef": {
+            "field": "mustHave",
+            "index": 0
+          },
+          "text": "Support international launches",
+          "requirement": {
+            "kind": "preferred",
+            "evidence": {
+              "quote": "Experience supporting international product launches is preferred.",
+              "start": 617,
+              "end": 683,
+              "paragraph": 10
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Experience supporting international product launches is preferred.",
+              "start": 617,
+              "end": 683,
+              "paragraph": 10
+            }
+          ]
+        },
+        {
+          "signalId": "signal-10",
+          "legacyRef": {
+            "field": "mustHave",
+            "index": 1
+          },
+          "text": "Negotiate commercial agreements",
+          "requirement": {
+            "kind": "preferred",
+            "evidence": {
+              "quote": "Experience negotiating commercial supplier agreements is a plus.",
+              "start": 685,
+              "end": 749,
+              "paragraph": 11
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "Experience negotiating commercial supplier agreements is a plus.",
+              "start": 685,
+              "end": 749,
+              "paragraph": 11
+            }
+          ]
+        },
+        {
+          "signalId": "signal-11",
+          "legacyRef": {
+            "field": "mustHave",
+            "index": 2
+          },
+          "text": "Explore data with SQL",
+          "requirement": {
+            "kind": "preferred",
+            "evidence": {
+              "quote": "SQL experience for exploring product and adoption data is desirable.",
+              "start": 751,
+              "end": 819,
+              "paragraph": 12
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "SQL experience for exploring product and adoption data is desirable.",
+              "start": 751,
+              "end": 819,
+              "paragraph": 12
+            }
+          ]
+        },
+        {
+          "signalId": "signal-12",
+          "legacyRef": {
+            "field": "mustHave",
+            "index": 3
+          },
+          "text": "Relevant qualification or equivalent experience",
+          "requirement": {
+            "kind": "required",
+            "evidence": {
+              "quote": "A relevant qualification or equivalent professional experience is expected.",
+              "start": 821,
+              "end": 896,
+              "paragraph": 13
+            }
+          },
+          "adEvidence": [
+            {
+              "quote": "A relevant qualification or equivalent professional experience is expected.",
+              "start": 821,
+              "end": 896,
+              "paragraph": 13
+            }
+          ]
+        }
+      ],
+      "offsetUnit": "utf16_code_unit",
+      "endOffsetIsExclusive": true,
+      "sourceFormat": "plain_text_preserved",
+      "signalCountDefinition": "Every topPriorities/mustHave catalog entry once, no keywords or success metrics; no inferred cross-catalog deduplication."
+    }
+  },
+  "response": {
+    "coverageSchemaVersion": "1.0-draft",
+    "ok": true,
+    "requestId": "study-request-1",
+    "assessmentId": "study-assessment-1",
+    "inputRef": {
+      "cvVersionId": "study-cv-v1",
+      "cvBlocksHash": "sha256:7ef07ebf69efcb1f277ea407c4c922516a0db3b258104b837d1012a54190ed91",
+      "jobRevisionId": "study-job-v1",
+      "jobTextHash": "sha256:3226f1dda5ec7174d5a6e1a3e7321ba2d8dac24f45ad63984c138d34833d082e",
+      "signalCatalogRevision": "study-catalog-v1",
+      "signalCatalogHash": "sha256:91a126f8d0066cd0b3500caceebe7483ec076eda7633088ebadc0a9b38903ac2",
+      "policyVersion": "coverage-policy-proposal-1"
+    },
+    "provenance": {
+      "kind": "advisory_assessment",
+      "model": "synthetic-design-fixture",
+      "generatedAt": "2026-11-01T00:00:00Z"
+    },
+    "assessments": [
+      {
+        "signalId": "signal-1",
+        "status": "clearly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-product",
+            "quote": "Owned a product roadmap and translated quarterly goals into delivery plans.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:bc20fabc2777287258ed8e78ce6199bb321cc858db708af93e7e93b80742cb64"
+          }
+        ],
+        "explanation": "The CV describes both roadmap ownership and delivery planning."
+      },
+      {
+        "signalId": "signal-2",
+        "status": "clearly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-product",
+            "quote": "Prioritized initiatives by customer impact and engineering effort.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:bc20fabc2777287258ed8e78ce6199bb321cc858db708af93e7e93b80742cb64"
+          }
+        ],
+        "explanation": "The documented prioritization approach covers both dimensions."
+      },
+      {
+        "signalId": "signal-3",
+        "status": "clearly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-product",
+            "quote": "Conducted customer interviews and used the findings to revise onboarding priorities.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:bc20fabc2777287258ed8e78ce6199bb321cc858db708af93e7e93b80742cb64"
+          }
+        ],
+        "explanation": "Research activity and its role in product decisions are explicit."
+      },
+      {
+        "signalId": "signal-4",
+        "status": "clearly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-product",
+            "quote": "Worked with engineering and design from discovery through release.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:bc20fabc2777287258ed8e78ce6199bb321cc858db708af93e7e93b80742cb64"
+          }
+        ],
+        "explanation": "Both disciplines and the stages of work are represented."
+      },
+      {
+        "signalId": "signal-5",
+        "status": "clearly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-product",
+            "quote": "Aligned sales, operations and engineering around priorities and trade-offs.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:bc20fabc2777287258ed8e78ce6199bb321cc858db708af93e7e93b80742cb64"
+          }
+        ],
+        "explanation": "Named functions and trade-off discussions provide direct support."
+      },
+      {
+        "signalId": "signal-6",
+        "status": "clearly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-delivery",
+            "quote": "Coordinated product releases, testing and rollout for a customer platform.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:eb3b7e9997b63cab7b30055df01c56c2446585c182fe650151de081bea0a75ff"
+          }
+        ],
+        "explanation": "Testing and rollout are included in the documented delivery work."
+      },
+      {
+        "signalId": "signal-7",
+        "status": "clearly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-product",
+            "quote": "Reviewed adoption data to identify onboarding friction and prioritize improvements.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:bc20fabc2777287258ed8e78ce6199bb321cc858db708af93e7e93b80742cb64"
+          }
+        ],
+        "explanation": "The CV links adoption analysis to product improvements."
+      },
+      {
+        "signalId": "signal-8",
+        "status": "clearly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-product",
+            "quote": "Explained product decisions to engineering teams and non-technical stakeholders.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:bc20fabc2777287258ed8e78ce6199bb321cc858db708af93e7e93b80742cb64"
+          }
+        ],
+        "explanation": "The audience and communication activity are explicit."
+      },
+      {
+        "signalId": "signal-9",
+        "status": "partly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-delivery",
+            "quote": "Coordinated product releases, testing and rollout for a customer platform.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:eb3b7e9997b63cab7b30055df01c56c2446585c182fe650151de081bea0a75ff"
+          }
+        ],
+        "explanation": "Release work is described. International scope does not appear in this CV."
+      },
+      {
+        "signalId": "signal-10",
+        "status": "partly_represented",
+        "cvEvidence": [
+          {
+            "blockId": "exp-delivery",
+            "quote": "Supported supplier contract discussions and documented agreed delivery terms.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:eb3b7e9997b63cab7b30055df01c56c2446585c182fe650151de081bea0a75ff"
+          }
+        ],
+        "explanation": "Contract discussions and agreed delivery terms are documented. Personal responsibility for commercial negotiation is not described."
+      },
+      {
+        "signalId": "signal-11",
+        "status": "not_represented",
+        "cvEvidence": [],
+        "explanation": "No supporting SQL work was found in this CV. This does not establish whether you have that experience."
+      },
+      {
+        "signalId": "signal-12",
+        "status": "needs_review",
+        "cvEvidence": [
+          {
+            "blockId": "education",
+            "quote": "BSc in Information Systems.",
+            "cvVersionId": "study-cv-v1",
+            "blockTextHash": "sha256:338de9efcf4dd3351050f0a3851ad784f374c971b9d750005f7bafaf97422b97"
+          }
+        ],
+        "explanation": "The CV names a qualification. The ad does not define which qualifications or equivalent experience it considers relevant."
+      }
+    ]
+  },
+  "separateSourceLinkExample": {
+    "signalId": "signal-11",
+    "jobRevisionId": "study-job-v1",
+    "sourceKind": "user_statement",
+    "roundId": "example-round-id",
+    "questionId": "example-question-id",
+    "answerId": "example-answer-id",
+    "answerRevision": 1,
+    "relationship": "new_underlying_information_not_yet_in_cv",
+    "affectsCvCoverage": false
+  }
+}

@@ -97,3 +97,23 @@ Det är en lokal simulerad svarsfördröjning, inte en timer i produktgränssnit
 syntetiskt underlag, inte cache av den uppladdade filens innehåll.
 Omladdning återställer redan förberett arbete: använd ett nytt privat fönster
 utan tidigare privat session och ladda upp CV + jobbannons för en ny körning.
+
+## CV-täckning — DEV-189, 2026-11-02
+
+Ägarens avgränsade godkännande har aktiverat en separat coverage-koppling på
+8826. Dev8825 och stabil8827 fortsätter med simulering. Ingen publik frontend
+har ändrats. Det nya workflowet är `JaUV7PezrztJGpr7`, aktiv version
+`29b5205b-d4bc-4a93-86c2-7cb4604d4aca`, modell `gpt-6-luna`.
+
+Ny separat DPAPI-credential ligger utanför Git. Den privata budgeten i
+`%LOCALAPPDATA%/Drafted/coverage/budget.json` delas mellan flikar/omstarter:
+100 coverageanrop totalt,10/minut,2 samtidiga. Sätt enbart `enabled:false`
+för att stoppa nya coverageanrop; nollställ inte `used`. Övriga AI-flöden har
+sina befintliga resurser och gränser. Kostnader använder befintliga konton.
+
+Tre godkända syntetiska riktiga workflowanrop är förbrukade. Två avvisades;
+ett komplett assessment efter JSON-formaträttning lyckades. Det använde en
+syntetisk lokalt förankrad signalkatalog. Verklig ankargenerering efter
+rättningen och komplett före/efter-jämförelse är inte verifierade. Inga fler
+agentdrivna riktiga verifieringsanrop får göras på detta godkännande.
+Detaljer och krypterade snapshotmanifest: `dev-system/prepared/cv-coverage/delivery.json`.

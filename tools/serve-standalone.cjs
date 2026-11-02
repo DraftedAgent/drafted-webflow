@@ -3,11 +3,13 @@ const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),
 const root=path.resolve(__dirname,'..'),dist=path.join(root,'site/dist');
 process.env.DRAFTED_PREVIEW_SCENARIO ||= 'structured-context';
 const {server:fixture}=require('./serve-editor-preview.cjs');
+const coverage=require('../backend/cv-coverage.cjs').createHandler({model:require('../backend/cv-coverage-fixture.cjs').model,modelName:'synthetic-fixture-only'});
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.ttf':'font/ttf','.wasm':'application/wasm','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4'};
 const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,'http://localhost'),p=url.pathname;
  res.setHeader('Content-Security-Policy',"default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'");
  res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
+ if(req.method==='POST'&&p==='/preview-api/coverage'){req.setEncoding('utf8');let text='',size=0;for await(const c of req){size+=Buffer.byteLength(c);if(size>1000000){res.writeHead(413);return res.end();}text+=c.toString();}let input;try{input=JSON.parse(text);}catch{res.writeHead(400);return res.end();}const result=await coverage(input);res.writeHead(result.status,{'Content-Type':'application/json'});return res.end(JSON.stringify(result.body));}
  // Local simulation consumes bytes in memory and never forwards or stores audio.
  if(req.method==='POST'&&p==='/preview-api/transcribe'){
   let size=0;try{for await(const chunk of req){size+=chunk.length;if(size>8*1024*1024){res.writeHead(413);res.end();return;}}}catch{return;}

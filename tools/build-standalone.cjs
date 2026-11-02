@@ -16,9 +16,9 @@ function build(options={}){
  const before=Object.fromEntries(protectedPaths.map(p=>[p,sha(fs.readFileSync(path.join(root,p)))]));
  const hero=require('./build-initial-hero.cjs');
  const modules=read('webflow/build.sh').match(/for module in (.+?); do/)[1].split(/\s+/);
- const js=read('site/dictation-wav.js')+'\n;\n'+read('site/dictation.js')+'\n;\n'+read('site/workspace-transition.js')+'\n;\n'+read('site/cv-analysis-scan.js')+'\n;\n'+read('site/workspace-layout.js')+'\n;\n'+['workspace-store.js','workspace-pages.js',...modules].map(p=>read('webflow/src/'+p)).join('\n;\n')+'\n;\n'+read('webflow/src/drafted-editor.js').replaceAll('__DRAFTED_BUILD_ID__','standalone-local');
+ const js=read('site/dictation-wav.js')+'\n;\n'+read('site/dictation.js')+'\n;\n'+read('site/workspace-transition.js')+'\n;\n'+read('site/cv-analysis-scan.js')+'\n;\n'+read('site/workspace-layout.js')+'\n;\n'+['workspace-store.js','workspace-pages.js',...modules].map(p=>read('webflow/src/'+p)).join('\n;\n')+'\n;\n'+['cv-coverage-contract.js','cv-coverage-client.js','cv-coverage-view.js'].map(p=>read('webflow/src/'+p)).join('\n;\n')+'\n;\n'+read('webflow/src/drafted-editor.js').replaceAll('__DRAFTED_BUILD_ID__','standalone-local');
  const cssFile=p=>read(p).replace(/@import\s+url\(["']([^"']+)["']\);/g,(_,rel)=>cssFile(path.posix.join(path.posix.dirname(p),rel)));
- const base=read('site/base.css')+'\n'+read('site/environment.css'),pages=read('webflow/src/css/components/workspace-pages.css')+'\n'+read('site/workspace-layout.css')+'\n'+read('site/cv-analysis-scan.css')+'\n'+read('site/workspace-transition.css')+'\n'+read('site/dictation.css');
+ const base=read('site/base.css')+'\n'+read('site/environment.css'),pages=read('webflow/src/css/components/workspace-pages.css')+'\n'+read('site/workspace-layout.css')+'\n'+read('site/cv-analysis-scan.css')+'\n'+read('site/workspace-transition.css')+'\n'+read('site/dictation.css')+'\n'+read('webflow/src/css/components/cv-coverage.css');
  // Preserve the document styles exactly; only asset URLs are relocated.
  const css=(base+'\n'+cssFile('webflow/src/css/index.css')+'\n'+pages).replaceAll('./webflow/assets/','./assets/');
  fs.mkdirSync(path.join(out,'editor'),{recursive:true});

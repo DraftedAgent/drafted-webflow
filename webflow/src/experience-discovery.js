@@ -44,7 +44,23 @@
     }
     round(){if(!this.state.round||this.state.round.contextRevision!==this.state.context?.revision)throw Error('NO_CURRENT_ROUND');return this.state.round;}
     allQuestions(){const r=this.round();return r.queue.concat(r.reserve||[]);}
-    moreCount(){return (this.round().reserve||[]).filter(q=>q.status==='unanswered').length;}
+    moreCount(){return this.round().focus?0:(this.round().reserve||[]).filter(q=>q.status==='unanswered').length;}
+    focusSignal(ref,{question,signalId,assessmentId,adQuote}){
+      const c=this.state.context,r=this.round();
+      if(!['topPriorities','mustHave'].includes(ref?.field)||!Number.isInteger(ref.index)||!c.jobContext[ref.field]?.[ref.index])throw Error('UNKNOWN_SIGNAL');
+      if(r.focus)this.leaveFocus();
+      const same=q=>q.signalRefs.some(x=>x.field===ref.field&&x.index===ref.index);
+      let q=r.queue.find(same)||r.reserve?.find(same);const reserveIndex=(r.reserve||[]).findIndex(x=>x.id===q?.id);
+      if(q&&q.id===this.current()?.id&&['question','followup','correct','error'].includes(r.phase))return q;
+      const back={index:r.index,phase:r.phase,total:r.total,batchStart:r.batchStart,notice:r.notice,finishedEarly:r.finishedEarly};
+      if(!q){requireText(question);if(question.length>500||this.allQuestions().length>=100)throw Error('INVALID_FOCUSED_QUESTION');q={id:this.id(),topicKey:'focused-'+this.id(),signalRefs:[copy(ref)],question,status:'unanswered',followupUsed:false,answerId:null};}
+      if(!r.queue.includes(q)){r.reserve=(r.reserve||[]).filter(x=>x.id!==q.id);r.queue.push(q);}
+      r.focus={questionId:q.id,signalId,assessmentId,adQuote,returnTo:back,reserveIndex};r.index=r.queue.indexOf(q);r.notice='';r.finishedEarly=false;
+      r.phase=q.status==='needs_detail'&&q.followup?'followup':q.answerId?'correct':'question';this.state.revision++;return q;
+    }
+    leaveFocus(){const r=this.round();if(!r.focus)return;const focus=r.focus,saved=focus.returnTo,q=r.queue.find(q=>q.id===focus.questionId);if(r.queue.indexOf(q)>=saved.total&&!q.answerId&&q.status==='unanswered'){r.queue=r.queue.filter(x=>x.id!==q.id);r.reserve=r.reserve||[];r.reserve.splice(focus.reserveIndex>=0?focus.reserveIndex:0,0,q);}r.focus=null;Object.assign(r,saved);
+      if(['question','correct'].includes(r.phase)&&['recorded','skipped','no','unknown','covered','processing'].includes(this.current()?.status)){r.index--;this.advance();}this.state.revision++;
+    }
     continueQuestions(){
       const r=this.round();if(r.phase!=='complete')throw Error('ROUND_NOT_COMPLETE');
       // Do not generate/replan, repeat answered questions or discard original sources.
@@ -54,7 +70,7 @@
       r.total=r.queue.length;r.index=r.batchStart;r.phase='question';r.finishedEarly=false;r.notice='';this.state.revision++;return true;
     }
     current(){return this.round().queue[this.round().index]||null;}
-    start(){const r=this.round();if(r.phase!=='offer')throw Error('INVALID_PHASE');r.phase=r.total?'question':'complete';}
+    start(){const r=this.round();if(r.phase!=='offer')throw Error('INVALID_PHASE');r.phase=r.total?'question':'complete';if(r.phase==='question'&&['recorded','covered','skipped','no','unknown','processing'].includes(this.current()?.status)){r.index--;this.advance();}}
     submit(text,{defer=false}={}){
       const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');requireText(text);if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       const negative=isNegativeAnswer(text,q.question);
@@ -80,7 +96,7 @@
       if(!drafts.length){if(!background){this.askFollowup();return;}a.status=q.status='needs_detail';this.settleBackground();this.notify();return;}
       a.drafts=copy(drafts);for(const later of r.reserve||[])if(later.status==='unanswered'&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';a.status=q.status='recorded';this.state.revision++;if(background){for(const later of this.allQuestions()){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
     }
-    settleBackground(){const r=this.round();if(r.phase!=='complete'||r.finishedEarly)return;const index=r.queue.findIndex(q=>q.status==='needs_detail'&&!q.followupUsed);if(index>=0){r.index=index;this.askFollowup();}}
+    settleBackground(){const r=this.round();if(r.phase!=='complete'||r.finishedEarly)return;const index=r.queue.findIndex(q=>(!r.focus||q.id===r.focus.questionId)&&q.status==='needs_detail'&&!q.followupUsed);if(index>=0){r.index=index;this.askFollowup();}}
     askFollowup(){const r=this.round(),q=this.current(),a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='needs_detail';q.status='needs_detail';if(!q.followupUsed){const revision=a?.revisions.find(v=>v.revision===a.currentRevision);if(!revision)throw Error('FOLLOWUP_SOURCE_UNAVAILABLE');q.followup={roundId:r.id,questionId:q.id,answerId:a.id,answerRevision:revision.revision,question:followupQuestion(revision.text,r.language)};q.followupUsed=true;r.phase='followup';r.notice='Can you give one specific example in response to the original question?';}else this.advance();}
     followupContext(){
       const r=this.round(),ref=this.current()?.followup,seen=new Set();
@@ -94,7 +110,7 @@
       };
       return copy({turns:resolve(ref),question:ref.question});
     }
-    advance(){const r=this.round(),covered=new Set(this.state.answers.filter(a=>a.roundId===r.id&&a.status==='recorded').flatMap(a=>a.drafts.flatMap(d=>d.coveredQuestionIds)));r.index++;let n=0;
+    advance(){const r=this.round();if(r.focus){r.phase='complete';r.notice='';this.settleBackground();return;}const covered=new Set(this.state.answers.filter(a=>a.roundId===r.id&&a.status==='recorded').flatMap(a=>a.drafts.flatMap(d=>d.coveredQuestionIds)));r.index++;let n=0;
       while(r.index<r.total){const q=r.queue[r.index];if(covered.has(q.id)&&q.status==='unanswered'){q.status='covered';n++;}if(!['recorded','covered','skipped','no','unknown','processing','error','needs_detail'].includes(q.status))break;r.index++;}
       r.notice=n?(r.language==='sv'?'Ditt svar besvarade också en senare fråga.':'Your answer also covered a later question.'):'';r.phase=r.index>=r.total?'complete':'question';
       this.settleBackground();
@@ -102,7 +118,7 @@
     invalidate(answerId){const a=this.state.answers.find(a=>a.id===answerId);if(!a)return;a.status='pending';for(const q of this.state.round?this.allQuestions():[])if(q.status==='covered'&&a.drafts.some(d=>d.coveredQuestionIds.includes(q.id)))q.status='unanswered';}
     correct(id){const r=this.round(),index=r.queue.findIndex(q=>q.id===id);if(index<0)throw Error('UNKNOWN_QUESTION');r.finishedEarly=false;r.index=index;r.phase='correct';r.notice='';}
     skip(){const r=this.round(),q=this.current();if(!q||!['question','followup','correct','error'].includes(r.phase))throw Error('INVALID_PHASE');if(q.answerId){this.invalidate(q.answerId);this.state.answers.find(a=>a.id===q.answerId).status='skipped';}q.status='skipped';this.advance();}
-    finish(){this.round().finishedEarly=true;this.round().phase='complete';}
+    finish(){if(!this.round().focus)this.round().finishedEarly=true;this.round().phase='complete';}
     sourceContext(applications=[]){
       const snap=this.snapshot(),r=this.round();
       return {contextRevision:snap.context.revision+':'+snap.revision+':'+r.phase+':'+r.index,roundId:r.id,

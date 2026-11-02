@@ -1,8 +1,32 @@
 (function(root){
   'use strict';
+  function tailorMoment({onTailor,onMore,moreCount=0,pending=0,animate=false,hasAnswers=true}){
+    const area=document.createElement('section');area.className='discovery-tailor-moment';
+    if(animate)area.classList.add('moment-enter');
+    area.setAttribute('aria-label','Ready for tailoring');
+    area.innerHTML=`<div class="tailor-moment-main">
+      <svg class="tailor-moment-art" viewBox="0 0 480 208" aria-hidden="true" focusable="false">
+        <g class="moment-links" fill="none"><path d="M163 39H215Q228 39 228 52V91Q228 104 241 104H304"/><path d="M163 104H304"/><path d="M163 169H215Q228 169 228 156V117Q228 104 241 104H304"/></g>
+        <g class="moment-source source-cv"><rect x="18" y="14" width="145" height="50" rx="4"/><path class="source-lines" d="M31 29h32 M31 37h50 M31 45h42"/><text x="94" y="43">CV</text><path class="moment-corner" d="M18 23v-9h9 M154 64h9v-9"/></g>
+        <g class="moment-source source-answers"><rect x="18" y="79" width="145" height="50" rx="4"/><path class="source-lines" d="M31 94h32 M31 102h50 M31 110h42"/><text x="94" y="108">Experience</text><path class="moment-corner" d="M18 88v-9h9 M154 129h9v-9"/></g>
+        <g class="moment-source source-job"><rect x="18" y="144" width="145" height="50" rx="4"/><path class="source-lines" d="M31 159h32 M31 167h50 M31 175h42"/><text x="94" y="173">Job context</text><path class="moment-corner" d="M18 153v-9h9 M154 194h9v-9"/></g>
+        <g class="moment-document"><rect x="304" y="24" width="139" height="160" rx="4"/><path class="document-heading" d="M324 48h60 M324 57h89"/><path class="document-rule" d="M324 69h99 M324 120h99"/><path class="document-lines" d="M324 84h90 M324 92h99 M324 100h76 M324 135h90 M324 143h99 M324 151h83 M324 159h95"/><path class="moment-corner" d="M304 37V24h13 M430 184h13v-13"/><path class="document-accent" d="M321 80v24 M321 131v32"/></g>
+        <g class="moment-junction"><circle cx="228" cy="104" r="4"/><circle cx="304" cy="104" r="2.5"/></g>
+      </svg>
+      <h2>Now, bring it all together.</h2>
+      <p class="tailor-moment-description"></p>
+      <button type="button" class="discovery-finish-primary tailor-moment-primary">Tailor my CV <span aria-hidden="true">→</span></button>
+      <p class="tailor-moment-reassurance">Review the suggestions before applying any changes.</p>
+    </div>`;
+    area.querySelector('.tailor-moment-description').textContent=hasAnswers?'Turn your CV and the experience you’ve shared into tailored suggestions for this role.':'Use your CV and the job context to explore tailored suggestions for this role.';
+    const primary=area.querySelector('button');primary.addEventListener('click',()=>{if(primary.disabled)return;primary.disabled=true;primary.setAttribute('aria-busy','true');primary.replaceChildren(document.createTextNode('Preparing your suggestions…'));onTailor();});
+    if(pending){const status=document.createElement('p');status.className='discovery-note tailor-moment-pending';status.setAttribute('role','status');status.textContent=`${pending===1?'One answer is':pending+' answers are'} still being checked.`;area.querySelector('.tailor-moment-description').after(status);}
+    if(moreCount){const optional=document.createElement('div');optional.className='tailor-moment-optional';const more=document.createElement('button');more.type='button';more.textContent=`Explore more questions (${moreCount})`;more.addEventListener('click',onMore);const note=document.createElement('p');note.textContent='Optional — you can tailor your CV now.';optional.append(more,note);area.append(optional);}
+    return area;
+  }
   function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready',onEditExperienceContext=null,initialDrafts=[]}={}){
     const drafts=new Map(initialDrafts),mountedRound=session.round().id;
-    let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null;
+    let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null,momentShown=false;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
     const button=(label,fn)=>{const b=el('button',label);b.type='button';b.disabled=busy;b.addEventListener('click',async()=>{
       const question=session.current()?.id;
@@ -35,15 +59,13 @@
     function requirementList(q,host){const list=el('ul');for(const text of requirements(q))list.append(el('li',text));host.append(list);}
     function outcome(){
       const state=getTailorState();
-      container.append(el('h2',state==='ready'?'Ready to tailor your CV.':'Review your answers'));
+      if(state==='ready'&&onFinishAndTailor){container.append(tailorMoment({animate:!momentShown,hasAnswers:session.accountsForRound().length>0,pending:session.results().pending,moreCount:session.moreCount(),onMore:()=>{session.continueQuestions();render();},onTailor:()=>{const result=onFinishAndTailor();continueToEditor();return result;}}));momentShown=true;return;}
+      container.append(el('h2','Review your answers'));
       if(state==='preparing'){const status=el('p','Preparing your suggestions…');status.setAttribute('role','status');container.append(status);}
       const pending=session.results().pending;
       if(pending){const status=el('p',`${pending===1?'One answer is':pending+' answers are'} still being checked.`,'discovery-note');status.setAttribute('role','status');container.append(status);}
-      if(session.moreCount())container.append(button(`Explore more questions (${session.moreCount()})`,()=>session.continueQuestions()));
-      else container.append(el('p','No further relevant questions were identified for this CV and job ad.','discovery-note'));
-      if(onFinishAndTailor&&state==='ready'){const finish=button('Finish and tailor my CV',()=>{const result=onFinishAndTailor();continueToEditor();return result;});finish.disabled=busy;finish.className='discovery-finish-primary';container.append(finish);}
     }
-    const continueToEditor=()=>{disposed=true;stopObserving();onContinue(session.accountsForRound());};
+    const continueToEditor=()=>{onContinue(session.accountsForRound());};
     function render(){
       let r;try{r=session.round();if(disposed||r.id!==mountedRound||!container.isConnected)return;}catch{return;}
       const focused=container.contains(document.activeElement)&&document.activeElement.tagName==='TEXTAREA'?document.activeElement:null;
@@ -51,11 +73,13 @@
       const historyOpen=r.phase==='complete'&&renderedPhase!=='complete'?false:container.querySelector('.discovery-history')?.open;
       const originalContextOpen=renderedQuestion===session.current()?.id&&container.querySelector('.discovery-original-context')?.open;
       container.replaceChildren();container.classList.add('experience-discovery');
+      container.classList.toggle('discovery-complete',r.phase==='complete'&&getTailorState()==='ready');
+      if(r.focus){const context=el('section',null,'discovery-signal-context');context.append(el('p','Experience for this signal','discovery-result-label'),el('blockquote',r.focus.adQuote||''));container.append(context);}
       if(r.phase==='offer'){container.append(el('h2',r.total?`${r.total} relevant experience ${r.total===1?'topic is':'topics are'} not clear in your CV.`:'We can continue with what is available.'));if(r.total)container.append(button('Start the questions',()=>session.start()));container.append(button('Continue with what is available',()=>{session.finish();continueToEditor();}));}
       else if(r.phase==='complete')outcome();
       else{
         const batchStart=r.index<r.batchStart?0:r.batchStart||0;
-        const q=session.current(),followup=r.phase==='followup',progress=el('p',followup?`Follow-up · Question ${r.index-batchStart+1} of ${r.total-batchStart}`:`${r.index-batchStart+1}/${r.total-batchStart}`,'discovery-progress');progress.setAttribute('aria-label',`Question ${r.index-batchStart+1} of ${r.total-batchStart}`);container.append(progress);
+        const q=session.current(),followup=r.phase==='followup',progress=el('p',r.focus?'Focused experience':followup?`Follow-up · Question ${r.index-batchStart+1} of ${r.total-batchStart}`:`${r.index-batchStart+1}/${r.total-batchStart}`,'discovery-progress');progress.setAttribute('aria-label',r.focus?'Focused experience question':`Question ${r.index-batchStart+1} of ${r.total-batchStart}`);container.append(progress);
         let originalContext=null;
         if(followup){
           let source;try{source=session.followupContext();}catch{}
@@ -71,6 +95,7 @@
         const actions=el('div');actions.className='discovery-question-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Answer actions');
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
+          if(r.phase==='correct'&&!drafts.has(q.id)){const answer=session.snapshot().answers.find(a=>a.id===q.answerId);if(answer)drafts.set(q.id,answer.revisions.at(-1).text);}
           const label=el('label',followup?'Your clarification':'A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
           const saved=session.snapshot().answers.find(a=>a.id===q.answerId)?.revisions.at(-1)?.experienceContext;
           if(saved)container.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(saved),'discovery-saved-context'));
@@ -89,11 +114,16 @@
       history();if(historyOpen&&container.querySelector('.discovery-history'))container.querySelector('.discovery-history').open=true;
       if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}
       onStateChange();
+      if(r.phase==='complete'&&renderedPhase!=='complete')requestAnimationFrame(()=>{
+        if(disposed||!container.isConnected)return;
+        container.querySelector('.tailor-moment-primary')?.focus({preventScroll:true});
+        const pane=container.closest('.chat-messages');if(pane)pane.scrollTop=0;
+      });
       renderedQuestion=session.current()?.id;
       renderedPhase=r.phase;
       if(selection){const input=container.querySelector('textarea');if(input){input.focus({preventScroll:true});input.setSelectionRange(selection.start,selection.end);}}
     }
     const stopObserving=session.observe(render);render();return {render,snapshotDrafts:()=>[...drafts],dispose(){disposed=true;stopObserving();}};
   }
-  root.DraftedExperienceDiscoveryUI={mount};
+  root.DraftedExperienceDiscoveryUI={mount,tailorMoment};
 })(globalThis);

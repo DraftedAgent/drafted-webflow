@@ -1,0 +1,153 @@
+{
+  "newServices": 0,
+  "workingTree": "uncommitted dev; no push or frontend deployment",
+  "publicDeployment": false,
+  "baseCommit": "785ccead476b988ad4825d71c9b71b801e5e58ed",
+  "tests": {
+    "sqlStatus": "partial",
+    "attempts": [
+      {
+        "step": 1,
+        "operation": "anchorSignals",
+        "startedAt": "2026-11-02T08:09:03.446Z",
+        "requestId": "de19fee4-06ae-4613-9e7a-8921a5ea6513",
+        "status": 400,
+        "failure": "Coverage could not be completed safely. Your CV and answers are unchanged."
+      },
+      {
+        "step": 2,
+        "operation": "assessCoverage",
+        "startedAt": "2026-11-02T08:14:22.395Z",
+        "requestId": "b97c5ecb-aded-4bf9-8912-7d3858d27baa",
+        "status": 400,
+        "failure": "Coverage could not be completed safely. Your CV and answers are unchanged."
+      },
+      {
+        "step": 3,
+        "operation": "assessCoverage",
+        "startedAt": "2026-11-02T08:16:30.553Z",
+        "requestId": "cdcc126a-bdbe-4d6d-a0f9-329351b727ca",
+        "status": 200,
+        "completedAt": "2026-11-02T08:16:41.739Z",
+        "boundToRequest": true,
+        "counts": {
+          "clear": 9,
+          "partial": 2,
+          "not_represented": 1,
+          "needs_review": 0
+        },
+        "model": "gpt-6-luna",
+        "sqlStatus": "partial"
+      }
+    ],
+    "maximumApproved": 3,
+    "successfulAssessmentCounts": {
+      "not_represented": 1,
+      "partial": 2,
+      "clear": 9,
+      "needs_review": 0
+    },
+    "requestsMade": 3,
+    "savedExecutionsReturned": 0,
+    "catalogSourceForAssessments": "synthetic-fixture; real anchoring failed; not a verified provider catalog",
+    "remaining": [
+      "Real provider-generated ad anchoring after decoder fix",
+      "Initial real assessment after fix and before/after comparison",
+      "Swedish semantic evaluation",
+      "Physical mobile hardware"
+    ]
+  },
+  "localGateway": {
+    "killSwitch": "Set enabled false in the same private budget file; do not reset used",
+    "budgetPath": "%LOCALAPPDATA%/Drafted/coverage/budget.json",
+    "budgetUsed": 3,
+    "origin": "http://127.0.0.1:8826",
+    "concurrency": 2,
+    "budgetMaximum": 100,
+    "enabled": true,
+    "perMinute": 10
+  },
+  "dev": "DEV-189",
+  "unchangedSource": {
+    "versionId": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5",
+    "id": "zeIzzxPwD2Y91OyD",
+    "activeVersionId": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5"
+  },
+  "snapshots": [
+    {
+      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\coverage-new\\20261102T080713254Z__coverage-new__absent__create__pre-DEV-189.clixml.manifest.json",
+      "rawSavedSHA256": "1750751b05e8367f058b0a44bebd1671692f6773492ef34191a1342b768526d2",
+      "envelopeEncoding": "gzip-base64-v1",
+      "rawPublishedSHA256": "5ad38304b535c2987dbd24657c1a11b884984ff600d9f389deb0d4e634fee792",
+      "encryptedSHA256": "a286f22bf14ccb0ad455c7130f04895c87cf61db4db2a83cef7b63fef62b7b13"
+    },
+    {
+      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T080716117Z__JaUV7PezrztJGpr7__cc588a70-a1b7-442e-a8ac-a52d3f59c4e7__created__pre-DEV-189.clixml.manifest.json",
+      "rawSavedSHA256": "6bd02ec0be122ab96733e8de14216a44213bd2c60036ba37eeca1acc0f3340eb",
+      "envelopeEncoding": "gzip-base64-v1",
+      "rawPublishedSHA256": "5ad38304b535c2987dbd24657c1a11b884984ff600d9f389deb0d4e634fee792",
+      "encryptedSHA256": "6b752b731ade63a5090201b43b6ac47d84433863ff3f3b7ddb177308249454cb"
+    },
+    {
+      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T080726019Z__JaUV7PezrztJGpr7__cc588a70-a1b7-442e-a8ac-a52d3f59c4e7__activate__pre-DEV-189.clixml.manifest.json",
+      "rawSavedSHA256": "6bd02ec0be122ab96733e8de14216a44213bd2c60036ba37eeca1acc0f3340eb",
+      "envelopeEncoding": "gzip-base64-v1",
+      "rawPublishedSHA256": "5ad38304b535c2987dbd24657c1a11b884984ff600d9f389deb0d4e634fee792",
+      "encryptedSHA256": "aefda61730e139c78f3b0d90065ddc047f0f4e9465e70d77e1644635573b63f2"
+    },
+    {
+      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T080728863Z__JaUV7PezrztJGpr7__cc588a70-a1b7-442e-a8ac-a52d3f59c4e7__activated__pre-DEV-189.clixml.manifest.json",
+      "rawSavedSHA256": "2783d5138c8974a142ba6bd74ed708d548c1068c083374963bbd26843ce34498",
+      "envelopeEncoding": "gzip-base64-v1",
+      "rawPublishedSHA256": "9bd22cdbe9b87ffebbe66a125bcd786654ddd73f72b6df3fe86b70b322fda0cb",
+      "encryptedSHA256": "93fc6fd9053e46e433da199e84ce772621728e264fac6d93649d9ea2e989917d"
+    },
+    {
+      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T081602694Z__JaUV7PezrztJGpr7__cc588a70-a1b7-442e-a8ac-a52d3f59c4e7__repair-output__pre-DEV-189.clixml.manifest.json",
+      "rawSavedSHA256": "e435d0c47159402357c7eb225fc473b6e2f004eaf403a6675090f537f185932f",
+      "envelopeEncoding": "gzip-base64-v1",
+      "rawPublishedSHA256": "9bd22cdbe9b87ffebbe66a125bcd786654ddd73f72b6df3fe86b70b322fda0cb",
+      "encryptedSHA256": "681cd29193eab445d55a98b71fab58e1fcf606ba15b946e9e9fe064de06816cf"
+    },
+    {
+      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T081612035Z__JaUV7PezrztJGpr7__29b5205b-d4bc-4a93-86c2-7cb4604d4aca__repaired-saved__pre-DEV-189.clixml.manifest.json",
+      "rawSavedSHA256": "59cffd10a93cf2c3f1513dacfe978b84930d3135ba32f8f71b611e4041177f9b",
+      "envelopeEncoding": "gzip-base64-v1",
+      "rawPublishedSHA256": "aed89eb1188b481a9e8cd992890ae02a57ffd08eade1fd241e68586c6c6dcac0",
+      "encryptedSHA256": "d54d0ddec8eb98ff558ebf961fcff85349b7245f020157b55931c93967aa3547"
+    },
+    {
+      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T081619549Z__JaUV7PezrztJGpr7__29b5205b-d4bc-4a93-86c2-7cb4604d4aca__repaired-active__pre-DEV-189.clixml.manifest.json",
+      "rawSavedSHA256": "59cffd10a93cf2c3f1513dacfe978b84930d3135ba32f8f71b611e4041177f9b",
+      "envelopeEncoding": "gzip-base64-v1",
+      "rawPublishedSHA256": "aed89eb1188b481a9e8cd992890ae02a57ffd08eade1fd241e68586c6c6dcac0",
+      "encryptedSHA256": "59649392e59e3497ef16b9cd6061f4df751d48c31f5a726871494a81d04c2b41"
+    }
+  ],
+  "recordedUTC": "2026-11-02T08:19:12.1432089Z",
+  "approval": "Owner replied ja det godkänner jag to documented coverage activation and maximum three synthetic real requests",
+  "billing": "Existing n8n/OpenAI quota; actual billed cost not measured",
+  "repair": "Only result JSON-object normalization; same credential reference/model/route/guard; original candidate retained as approved historical artifact",
+  "approvedOriginalCandidateSHA256": "8b4342291024a5e6e7a2b7c8533b5ddf4dd4627cf20c8a09ff6dbc58fadbaf6b",
+  "workflow": {
+    "active": true,
+    "versionId": "29b5205b-d4bc-4a93-86c2-7cb4604d4aca",
+    "name": "Drafted CV Coverage v1 — private gateway required",
+    "activeVersionId": "29b5205b-d4bc-4a93-86c2-7cb4604d4aca",
+    "settings": {
+      "saveExecutionProgress": false,
+      "saveManualExecutions": false,
+      "saveDataErrorExecution": "none",
+      "saveDataSuccessExecution": "none",
+      "executionTimeout": 90,
+      "executionOrder": "v1"
+    },
+    "model": "gpt-6-luna",
+    "id": "JaUV7PezrztJGpr7"
+  },
+  "correctedUnconfiguredCandidate": {
+    "path": "dev-system/prepared/cv-coverage/workflow.output-normalized-unconfigured.json",
+    "sha256": "99a3de41b125d0e41d425ebf999825c74046724ed85088c8e8d497e395299980",
+    "guard": "UNCONFIGURED; this checked-in candidate cannot invoke a provider"
+  }
+}

@@ -69,3 +69,56 @@
 .tailor-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
 .tailor-actions button{margin:0}
 .discovery-guidance .tailor-primary{background:#111;color:#fff;border-color:#111}
+
+/* Collected sources become one deliberate next step. No CV mutation occurs here. */
+.chat-card.discovery-mode .chat-messages:has(.discovery-complete){flex-direction:column;align-items:stretch}
+.chat-card.discovery-mode .drafted-discovery:has(.discovery-complete){display:flex;flex-direction:column;flex:1;width:100%;min-height:100%}
+.drafted-discovery .discovery-complete{display:flex;flex-direction:column;flex:1;min-width:0}
+.discovery-tailor-moment{display:flex;flex-direction:column;flex:1;width:100%;max-width:570px;margin-inline:auto;color:#142c3b;text-align:left}
+.tailor-moment-main{margin-block:auto;padding:24px 20px 30px}
+.tailor-moment-art{display:block;width:min(100%,440px);height:auto;margin:0 0 26px;overflow:visible}
+.tailor-moment-art rect{fill:#fff;stroke:#cfdee2;stroke-width:.8}
+.tailor-moment-art path,.tailor-moment-art rect{vector-effect:non-scaling-stroke}
+.tailor-moment-art .source-lines{fill:none;stroke:#586e7d;stroke-width:1;opacity:.7}
+.tailor-moment-art text{fill:#57707e;font:10px system-ui;letter-spacing:.015em}
+.tailor-moment-art .moment-links{stroke:#73aaa9;stroke-width:1;stroke-dasharray:220;stroke-dashoffset:0}
+.tailor-moment-art .moment-corner{fill:none;stroke:#009a98;stroke-width:1}
+.tailor-moment-art .moment-document rect{stroke:#9bbfc2;fill:#fbfdfd}
+.tailor-moment-art .document-heading{fill:none;stroke:#203c4c;stroke-width:1.8}
+.tailor-moment-art .document-rule{fill:none;stroke:#d3e0e4;stroke-width:.7}
+.tailor-moment-art .document-lines{fill:none;stroke:#57707e;stroke-width:1;opacity:.72}
+.tailor-moment-art .document-accent{fill:none;stroke:#00a7a0;stroke-width:1}
+.tailor-moment-art .moment-junction{fill:#008e91;stroke:#fff;stroke-width:1.5}
+.experience-discovery .discovery-tailor-moment h2,.discovery-guidance .discovery-tailor-moment h2{font:650 clamp(29px,2.6vw,40px)/1.12 system-ui;letter-spacing:-.045em;margin:0 0 16px;max-width:440px;color:#142c3b;text-wrap:balance}
+.experience-discovery .tailor-moment-description,.discovery-guidance .tailor-moment-description{font:400 16px/1.65 system-ui;color:#5a707f;max-width:410px;margin:0 0 26px;text-wrap:pretty}
+.experience-discovery .tailor-moment-primary,.discovery-guidance .tailor-moment-primary{display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;min-height:58px;max-width:410px;margin:0;padding:15px 21px;border:1px solid #142e3f;border-radius:7px;background:#142e3f;color:white;font:600 17px/1.35 system-ui;box-shadow:0 5px 12px #142e3f0a;transition:background .15s,border-color .15s}
+.tailor-moment-primary span{font-size:26px;font-weight:400;line-height:1;color:#05c5b7}
+.experience-discovery .tailor-moment-primary:hover,.discovery-guidance .tailor-moment-primary:hover{background:#204457;border-color:#204457}
+.experience-discovery .tailor-moment-primary:focus-visible,.discovery-guidance .tailor-moment-primary:focus-visible{outline:3px solid #009a98;outline-offset:4px}
+.experience-discovery .tailor-moment-reassurance,.discovery-guidance .tailor-moment-reassurance{font:400 12px/1.6 system-ui;color:#647987;max-width:410px;margin:11px 0 0}
+.tailor-moment-optional{margin:0 20px;padding:20px 0 22px;border-top:1px solid #e1eaed}
+.experience-discovery .tailor-moment-optional button,.discovery-guidance .tailor-moment-optional button{border:0;border-radius:3px;padding:2px 0;margin:0;background:transparent;color:#376471;font:500 14px/1.5 system-ui;text-align:left}
+.experience-discovery .tailor-moment-optional p,.discovery-guidance .tailor-moment-optional p{font:400 12px/1.55 system-ui;color:#71838e;margin:5px 0 0}
+.experience-discovery.discovery-complete>.discovery-history{margin:0 20px 18px;padding-top:18px;border-color:#e1eaed}
+.discovery-complete>.discovery-history>summary{font:400 13px/1.6 system-ui;color:#607581}
+.discovery-complete>.discovery-history[open]{margin-top:12px}
+.discovery-guidance:has(.discovery-tailor-moment){padding:0;background:transparent;border:0;flex:1}
+.experience-discovery .tailor-moment-pending{margin:-14px 0 18px}
+.moment-enter .moment-source{animation:moment-source-in .48s cubic-bezier(.2,.7,.25,1) both}
+.moment-enter .source-answers{animation-delay:.065s}.moment-enter .source-job{animation-delay:.13s}
+.moment-enter .moment-links{animation:moment-connect .56s .13s cubic-bezier(.35,0,.2,1) both}
+.moment-enter .moment-document{animation:moment-document-in .5s .23s cubic-bezier(.2,.7,.25,1) both;transform-origin:374px 104px}
+.moment-enter .moment-junction{animation:moment-lock .2s .62s ease-out both}
+@keyframes moment-source-in{from{opacity:0;transform:translateX(-7px)}to{opacity:1;transform:none}}
+@keyframes moment-connect{from{stroke-dashoffset:220;opacity:0}to{stroke-dashoffset:0;opacity:1}}
+@keyframes moment-document-in{from{opacity:0;transform:translateX(7px)}to{opacity:1;transform:none}}
+@keyframes moment-lock{from{opacity:0}to{opacity:1}}
+@media(max-width:700px){.tailor-moment-main{padding:18px 12px 26px}.tailor-moment-art{width:min(100%,370px);margin-bottom:20px}.experience-discovery .discovery-tailor-moment h2,.discovery-guidance .discovery-tailor-moment h2{font-size:30px;max-width:330px}.experience-discovery .tailor-moment-description,.discovery-guidance .tailor-moment-description{font-size:15px;margin-bottom:22px}.tailor-moment-optional{margin-inline:12px}.experience-discovery.discovery-complete>.discovery-history{margin-inline:12px}.experience-discovery .tailor-moment-primary,.discovery-guidance .tailor-moment-primary{min-height:54px;font-size:16px}}
+@media(prefers-reduced-motion:reduce){.discovery-tailor-moment *, .discovery-tailor-moment *::before{animation:none!important;transition:none!important}}
+.section-editor .discovery-tailor-moment button.tailor-moment-primary{background:#142e3f;border-color:#142e3f;color:#fff}
+.section-editor .discovery-tailor-moment button.tailor-moment-primary:hover{background:#204457;border-color:#204457}
+@media screen and (max-width:700px) and (min-height:600px){
+  .section-editor.discovery-enabled:has(.chat-card.discovery-mode .discovery-complete) .editor-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,4fr) minmax(0,1fr)}
+  .discovery-complete .tailor-moment-art{width:min(100%,300px);margin-bottom:18px}
+  .discovery-complete .tailor-moment-main{padding-top:12px;padding-bottom:24px}
+}

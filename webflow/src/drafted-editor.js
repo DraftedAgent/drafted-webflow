@@ -26,6 +26,7 @@ const N8N_JOBCONTEXT_URL = draftedEndpoints.jobcontext || "https://drafted.app.n
 const N8N_TAILOR_URL = draftedEndpoints.tailor || "https://drafted.app.n8n.cloud/webhook/tailor-cv";
 const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n.cloud/webhook/webflow-experience-discovery";
 let discoveryController = null;
+let coverageController = null;
 let discoveryCvFile = null;
 let tailorInFlight = false;
 let tailorAppliedStamp = null;
@@ -548,6 +549,7 @@ maybeShowTailor();
      }
 
      function refreshTailorPresentation() {
+       coverageController?.refreshSources();
        tailorReviewCheck?.();
        const state=tailorPresentationState();
        chatMessagesEl?.classList.toggle('is-tailor-preparing',state==='preparing');
@@ -785,6 +787,7 @@ maybeShowTailor();
     }
   function maybeShowTailor() {
     syncWorkspaceJobContext();
+    if(!workspacePages?.restoring())coverageController?.sync();
     if(!workspacePages?.restoring())discoveryController?.sync();
     const hasJobContext =
       !!(window.__DRAFTED_JOBCONTEXT__ &&
@@ -1552,6 +1555,20 @@ function setApplyLabel() {
     });
   }
 
+  function currentCoverageInput(){
+    const cv=isPreviewingProposal&&previewSnapshot?previewSnapshot:{cvVersionId,documentBlocksState};
+    return {cvVersionId:cv.cvVersionId||'',blocks:deepClone(cv.documentBlocksState||[]),jobText:jobAdInputEl?.value||'',jobContext:deepClone(window.__DRAFTED_JOBCONTEXT__||null)};
+  }
+  if(window.DraftedCoverageView&&chatMessagesEl){
+    coverageController=DraftedCoverageView.create({host:chatMessagesEl,getInput:currentCoverageInput,
+      config:window.__DRAFTED_COVERAGE__||{enabled:false},onStateChange:()=>workspacePages?.schedule(),onOpen:()=>discoveryController?.showChat(),
+      getSources:ref=>discoveryController?.sourcesForSignal(ref)||[],onSignal:(signal,current)=>discoveryController.openSignal(signal,current),
+      onFind:async id=>{if(isPreviewingProposal)return;documentComparison?.edited();await renderDocument(documentTextState);await DraftedCvLayout.ready(editorPreviewEl);if(innerWidth<=700)document.querySelector('.workspace-expand-preview')?.click();requestAnimationFrame(()=>{
+        editorPreviewEl.querySelectorAll('.is-coverage-target').forEach(n=>n.classList.remove('is-coverage-target'));const nodes=[...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].filter(n=>n.dataset.blockId===id);nodes.forEach(n=>n.classList.add('is-coverage-target'));const n=nodes[0],pane=editorPreviewEl.closest('.cv-document');if(n&&pane){pane.scrollTop+=n.getBoundingClientRect().top-pane.getBoundingClientRect().top-30;n.tabIndex=-1;n.focus({preventScroll:true});}});},
+      onAd:span=>{const raw=jobAdInputEl.value;if(raw.slice(span.start,span.end)!==span.quote)return;let dialog=document.getElementById('coverage-job-source');if(!dialog){dialog=document.createElement('dialog');dialog.id='coverage-job-source';dialog.className='workspace-job-dialog workspace-coverage-source-dialog';dialog.setAttribute('aria-label','Source in full job description');document.querySelector('.section-editor').append(dialog);}dialog.replaceChildren();const title=document.createElement('h2');title.textContent='Job description';const close=document.createElement('button');close.type='button';close.textContent='Close';close.onclick=()=>dialog.close();const content=document.createElement('div');content.className='coverage-original-job';const mark=document.createElement('mark');mark.textContent=span.quote;content.append(document.createTextNode(raw.slice(0,span.start)),mark,document.createTextNode(raw.slice(span.end)));dialog.append(title,close,content);dialog.showModal();requestAnimationFrame(()=>{dialog.scrollTop+=mark.getBoundingClientRect().top-dialog.getBoundingClientRect().top-80;});}
+    });
+  }
+
   
   function deepClone(obj) {
     try { return JSON.parse(JSON.stringify(obj)); } catch { return obj; }
@@ -1723,6 +1740,7 @@ function setApplyLabel() {
      RENDER BLOCK HTML
      =============================== */
   function renderDocument(text) {
+    queueMicrotask(()=>{if(!workspacePages?.restoring())coverageController?.sync();});
     tailorReviewCheck?.();
     tailorCvPreview?.beforeRender();
     documentComparison?.sync(!!tailorCvPreview||isPreviewingProposal);
@@ -2135,7 +2153,7 @@ function updateContextChip() {
     clearNativeSelection();
     updateContextChip();
 
-    if (chatMessagesEl) Array.from(chatMessagesEl.children).filter(el => !el.classList.contains('drafted-discovery') && el.id!=='drafted-discovery-guidance' && !el.classList.contains('workspace-earlier-answers')).forEach(el => el.remove());
+    if (chatMessagesEl) Array.from(chatMessagesEl.children).filter(el => !el.classList.contains('drafted-discovery') && el.id!=='drafted-discovery-guidance' && !el.classList.contains('workspace-earlier-answers') && !el.classList.contains('workspace-coverage-panel')).forEach(el => el.remove());
     chatHistory = [];
     pendingProposal = null;
     pendingProposalMeta = null;
@@ -2800,7 +2818,7 @@ function bindPdfDownloadButton() {
       pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
       jobText:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
       setupStatus:{text:document.getElementById('preparation-status').textContent,state:document.getElementById('preparation-status').dataset.state,hidden:document.getElementById('preparation-status').hidden,processing:uploadInFlight},
-      draft:editorInput.value,discovery:discoveryController?.snapshot(),ledger:{groups:tailorSourceLedger.groups,history:tailorSourceLedger.history},
+      draft:editorInput.value,discovery:discoveryController?.snapshot(),coverage:coverageController?.snapshot(),ledger:{groups:tailorSourceLedger.groups,history:tailorSourceLedger.history},
       jobEditor:{open:!!document.querySelector('.workspace-job-dialog')?.open,draft:document.getElementById('workspace-job-input')?.value||''},
       tailorReview:tailorReviewState,tailorAppliedStamp,tailorDraft:chatMessagesEl.querySelector('.tailor-suggestion textarea')?.value||'',
       interrupted:!!window.__DRAFTED_CHAT__?.inFlight||tailorInFlight||isGeneratingSuggestionPreview,
@@ -2822,10 +2840,11 @@ function bindPdfDownloadButton() {
     documentLanguage=saved.language||'en';selectedCvDesign=DraftedCvDesigns.some(d=>d.id===saved.design)?saved.design:'classic_v1';document.getElementById('cv-design').value=selectedCvDesign;
     restoreSnapshot(saved.cv);documentComparison?.restore(saved.comparison);renderDocument(documentTextState);setCvLoadedUI(true);setEditorPlaceholder(false);
     isPreviewingProposal=!!saved.isPreviewingProposal;previewSnapshot=saved.previewSnapshot||null;pendingProposal=saved.pendingProposal||null;pendingProposalMeta=saved.pendingProposalMeta||null;pendingSuggestion=saved.pendingSuggestion||null;
-    for(const el of [...chatMessagesEl.children])if(!el.matches('.drafted-discovery,.discovery-guidance,.workspace-earlier-answers'))el.remove();
+    for(const el of [...chatMessagesEl.children])if(!el.matches('.drafted-discovery,.discovery-guidance,.workspace-earlier-answers,.workspace-coverage-panel'))el.remove();
     chatHistory=[];for(const message of saved.messages||[])appendChat(message.role,message.text);chatHistory=Array.isArray(saved.chatHistory)?saved.chatHistory:[];
     editorInput.value=saved.draft||'';tailorSourceLedger.groups=saved.ledger?.groups||[];tailorSourceLedger.history=saved.ledger?.history||[];
     if(saved.discovery)discoveryController?.restore(saved.discovery);
+    await coverageController?.restore(saved.coverage);
     tailorAppliedStamp=saved.tailorAppliedStamp||null;tailorReviewState=saved.tailorReview||null;
     if(tailorReviewState){const review=tailorReviewState;showTailorSuggestion(review.data,review.stamp,review.request,new Set(review.omittedContext));const draft=chatMessagesEl.querySelector('.tailor-suggestion textarea');if(draft)draft.value=saved.tailorDraft||'';}
     if(pendingProposal||pendingSuggestion)appendProposalCard(pendingProposalMeta);setApplyLabel();syncWorkspaceJobContext();refreshTailorPresentation();
@@ -2833,4 +2852,4 @@ function bindPdfDownloadButton() {
     await DraftedCvLayout.ready(editorPreviewEl);DraftedCvLayout.setZoom(editorPreviewEl,saved.zoom||'fit');
     requestAnimationFrame(()=>{chatMessagesEl.scrollTop=saved.scroll?.chat||0;const pane=editorPreviewEl.closest('.cv-document');if(pane)pane.scrollTop=saved.scroll?.document||0;});
   }
-  onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,sourceFile:()=>discoveryCvFile,adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;}});});
+  onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,sourceFile:()=>discoveryCvFile,adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;if(!coverageController?.model.restoreBlocked)coverageController?.sync();}});});
