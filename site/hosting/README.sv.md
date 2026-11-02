@@ -1,5 +1,9 @@
 # Öppen testversion på getmedrafted.com
 
+Senast verifierad publicering: **DEV-196, 2026-11-02**, källcommit `bb82cb3`,
+Worker-version `73ddd170-d3d6-4e81-85fc-8441dfbb4d3d`. Se `current-release.json`
+för aktuellt kvitto. Äldre domän-/publiceringskvitton nedan är historiska.
+
 Aktuell adress från DEV-175: https://getmedrafted.com är öppen utan lösenord,
 inbjudan eller konto. Tidigare inbjudningsuppgifter behövs inte.
 
