@@ -1,203 +1,27 @@
 {
-  "budgetIdentity": "invited-test-round-1",
-  "retention": "success/error/manual/progress disabled for both changed workflows",
-  "providerVerification": "No new paid end-to-end model test in this release. Previously recorded limited real tests remain the only provider evidence. Actual downloaded public-origin guards tested locally; public frontend/API shape gates verified.",
-  "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
-  "workflowExecutionOrModelCalls": 0,
-  "snapshots": [
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\cloudflare-drafted-invited-test\\20261102T122728155Z__cloudflare-drafted-invited-test__418605a5-e0de-443a-b904-46682788186c__public-capture__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "a96768fb170adcd880825ac23ab7cdb79fb2848e0da5c90778339c820b3aaa62",
-      "encryptedSHA256": "fba5c70b8633e5a47ea74eff267632d489f970ddb3b1d3bb6ed272b9fd346d95",
-      "rawSavedSHA256": "f31ba5c5fce1aca892b3b38fb17543ffa858fff4464792b864febf14200218e1"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\cloudflare-drafted-invited-test\\20261102T123017183Z__cloudflare-drafted-invited-test__418605a5-e0de-443a-b904-46682788186c__public-secrets__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "54b9447637492de2da25c96e1ceda373bfeeb3646801f08df16aacdd5f9a8116",
-      "encryptedSHA256": "a9f911104253331683ded41804bd2ce1bcb8d0268e64a7a395881ed7b1bad3e9",
-      "rawSavedSHA256": "e519c21c93f0f98fd5d1d99e060a64337fc41e33087ec46b519ea9d7d476bd82"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\cloudflare-drafted-invited-test\\20261102T123036964Z__cloudflare-drafted-invited-test__658a62aa-6ebc-4e21-804a-1b6307177222__public-secrets__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "e2400848dcea4d51ca9d0618b4089c45fb3af20197d0fa5731aafae2488d520f",
-      "encryptedSHA256": "9340e73a0d63ed0c2d3996ab767431c2aa90c3a8338f881ed5b28ac7fd8343e8",
-      "rawSavedSHA256": "1a455e523be76db08512ad53ea11de41452d821bff86accbf45ec9de378ea7dd"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\SYolQaSRsqkf5BDT\\20261102T122731403Z__SYolQaSRsqkf5BDT__81b45b77-f6a8-4a33-8b2d-2a58b9d2403c__public-origin-before__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "7d97f5b14082fa97018e914031e8afe1f10b4707780dd45434d6c06b08325b2b",
-      "encryptedSHA256": "abe4a91e3ef843f1b90fdba9f0c7e954d3d2f606b22625eb4c1e6619c8f06e2e",
-      "rawSavedSHA256": "c3a7d95fbe12d3cdb0f80cad57f8a64ddff309772a9334013f3b9efce10db35a"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\SYolQaSRsqkf5BDT\\20261102T122918030Z__SYolQaSRsqkf5BDT__81b45b77-f6a8-4a33-8b2d-2a58b9d2403c__public-origin-update__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "7d97f5b14082fa97018e914031e8afe1f10b4707780dd45434d6c06b08325b2b",
-      "encryptedSHA256": "115186ac140cf74bc981097f1502d10641a1c0fe62e1b3c624dcf30a598aacd7",
-      "rawSavedSHA256": "c3a7d95fbe12d3cdb0f80cad57f8a64ddff309772a9334013f3b9efce10db35a"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\SYolQaSRsqkf5BDT\\20261102T122920452Z__SYolQaSRsqkf5BDT__fe2a7720-f3fa-486c-9975-5da0678b3082__public-origin-saved__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "f867c32e51136d4f60b7c6acfa8f6aced21f138621a71c39a7898d50658f76ef",
-      "encryptedSHA256": "2203dd308bd1ce949f9b6fe5cee2c19bc4aa6afb9a4a3906d4422b6a852b4c4c",
-      "rawSavedSHA256": "c1a9a72b7aee5083486cf544b7c28e70ca993c0966a4a2154f7791dc3468a2c9"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\SYolQaSRsqkf5BDT\\20261102T122921419Z__SYolQaSRsqkf5BDT__fe2a7720-f3fa-486c-9975-5da0678b3082__public-origin-active__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "f867c32e51136d4f60b7c6acfa8f6aced21f138621a71c39a7898d50658f76ef",
-      "encryptedSHA256": "f191446b8093d9bf419d661b7152aa91d6a4e77f37a0fc4d7d557381ae78daea",
-      "rawSavedSHA256": "c1a9a72b7aee5083486cf544b7c28e70ca993c0966a4a2154f7791dc3468a2c9"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T122733550Z__JaUV7PezrztJGpr7__29b5205b-d4bc-4a93-86c2-7cb4604d4aca__public-origin-before__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "aed89eb1188b481a9e8cd992890ae02a57ffd08eade1fd241e68586c6c6dcac0",
-      "encryptedSHA256": "4c2cafc887f437c62c28d400364bd424aada1e33035ed27b2635aa1f87a80af1",
-      "rawSavedSHA256": "59cffd10a93cf2c3f1513dacfe978b84930d3135ba32f8f71b611e4041177f9b"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T122923056Z__JaUV7PezrztJGpr7__29b5205b-d4bc-4a93-86c2-7cb4604d4aca__public-origin-update__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "aed89eb1188b481a9e8cd992890ae02a57ffd08eade1fd241e68586c6c6dcac0",
-      "encryptedSHA256": "f55b8234b955323c64a2302bcbe22a04e8d965c70b4cafc010c4a42a21d964d5",
-      "rawSavedSHA256": "59cffd10a93cf2c3f1513dacfe978b84930d3135ba32f8f71b611e4041177f9b"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T122930880Z__JaUV7PezrztJGpr7__b7825185-6927-4dac-b089-11344fb5e185__public-origin-saved__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "05ffb95af753c651adc6462dc56907aed8222f90c77b65b1b81de69b21274056",
-      "encryptedSHA256": "5fc4e12dad6c07659c93f80ddda9e9e0f4a3e82d2e5480cd37a47edd344a3f18",
-      "rawSavedSHA256": "a727992d3023fd15b975142ccca459a78c625281fbee850e43ef736d85e4c7ad"
-    },
-    {
-      "manifest": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\JaUV7PezrztJGpr7\\20261102T122938256Z__JaUV7PezrztJGpr7__b7825185-6927-4dac-b089-11344fb5e185__public-origin-active__pre-DEV-196.clixml.manifest.json",
-      "rawPublishedSHA256": "05ffb95af753c651adc6462dc56907aed8222f90c77b65b1b81de69b21274056",
-      "encryptedSHA256": "3c9de062a21f7f24ef94748422f1cf1fb1ecbca8d702dd0120b8ba303365491a",
-      "rawSavedSHA256": "a727992d3023fd15b975142ccca459a78c625281fbee850e43ef736d85e4c7ad"
-    }
-  ],
-  "modelsAndCredentialReferences": "unchanged",
-  "verifiedUTC": "2026-11-02T12:38:59.1252513Z",
-  "newSameOriginEndpoints": [
-    "/api/coverage",
-    "/api/dictation"
-  ],
-  "sourceDirty": false,
-  "killSwitch": "LIVE_BACKEND=disabled",
-  "workerVersion": "73ddd170-d3d6-4e81-85fc-8441dfbb4d3d",
-  "rollback": {
-    "worker": "wrangler rollback 418605a5-e0de-443a-b904-46682788186c --config site/hosting/wrangler.jsonc",
-    "note": "Current-domain baseline; do not change Durable Object identity. Backend origin additions are additive; restoring them requires the saved snapshot and scoped approval."
-  },
-  "checks": [
-    "Public / and /editor HTTP200",
-    "Public build and six asset hashes equal clean source build",
-    "Four exact D favicon artifacts match",
-    "Actual public frontend desktop/mobile/zero-plan full synthetic coverage/focused answers/Tailor/Apply/reload tests with all API POSTs intercepted",
-    "Workerd local direct editor/upload/recovery/comparison/mobile tests with live backend disabled",
-    "Eleven shared gateway/WAV tests including new routes, private headers, invalid inputs, forged results and preserved anonymous quota",
-    "Server secret bindings and unchanged DO namespace verified in deployed version",
-    "Public invalid feature inputs rejected before budget/upstream; foreign origin rejected"
-  ],
-  "n8nOriginChanges": [
-    {
-      "change": "Public origin added; local origin, token hash, model, retention and routing preserved",
-      "before": "81b45b77-f6a8-4a33-8b2d-2a58b9d2403c",
-      "id": "SYolQaSRsqkf5BDT",
-      "versionId": "fe2a7720-f3fa-486c-9975-5da0678b3082",
-      "activeVersionId": "fe2a7720-f3fa-486c-9975-5da0678b3082"
-    },
-    {
-      "change": "Public origin added; local origin, token hash, model, retention and routing preserved",
-      "before": "29b5205b-d4bc-4a93-86c2-7cb4604d4aca",
-      "id": "JaUV7PezrztJGpr7",
-      "versionId": "b7825185-6927-4dac-b089-11344fb5e185",
-      "activeVersionId": "b7825185-6927-4dac-b089-11344fb5e185"
-    }
-  ],
-  "beforeWorkerVersion": "418605a5-e0de-443a-b904-46682788186c",
-  "secretProvisioningVersion": "658a62aa-6ebc-4e21-804a-1b6307177222",
-  "serverSecretBindings": [
-    "COVERAGE_GATEWAY_KEY",
-    "DICTATION_GATEWAY_KEY"
-  ],
-  "servedByteChecks": {
-    "verifiedAt": "2026-11-02T12:36:10.722Z",
-    "sourceCommit": "bb82cb35e14b431863d5d0bcee5b10806f3e9c2d",
-    "dirty": false,
-    "checked": [
-      "index.html",
-      "editor/index.html",
-      "drafted-editor.js",
-      "drafted-editor.css",
-      "local-config.js",
-      "environment.js",
-      "/",
-      "/editor",
-      "drafted-favicon.svg",
-      "drafted-favicon-16.png",
-      "drafted-favicon-32.png",
-      "drafted-favicon.ico"
-    ],
-    "invalid": [
-      {
-        "route": "/api/coverage",
-        "status": 400,
-        "spendsBudget": false,
-        "invokesBackend": false
-      },
-      {
-        "route": "/api/dictation",
-        "status": 400,
-        "spendsBudget": false,
-        "invokesBackend": false
-      },
-      {
-        "route": "/api/coverage",
-        "status": 403,
-        "spendsBudget": false,
-        "invokesBackend": false
-      }
-    ],
-    "realWorkflowOrModelCalls": 0
-  },
-  "paidTestSeriesRepeated": false,
-  "credentialsInFrontend": false,
-  "remaining": [
-    "Fresh paid provider end-to-end verification not performed",
-    "Real phone and keyboard hardware not tested",
-    "Earlier coverage semantic-quality limitations remain advisory"
-  ],
-  "workerName": "drafted-invited-test",
-  "deploymentManifest": {
-    "build": "drafted-invited-test",
-    "channel": "dev",
-    "revision": "bb82cb35e14b431863d5d0bcee5b10806f3e9c2d",
-    "dirty": false,
-    "mode": "integration-live-gated",
-    "localOnly": false,
-    "sourceGeometry": "c048913bc11db7a1f097f7f9dd217c9ea342c7abdd0d49990e4f86ea545869a5",
-    "files": {
-      "index.html": "d922fba9a00aac135c0873a27dcf789f3aa2dd4e3b61091187d31b718593b1a1",
-      "editor/index.html": "318e2d05177be2cb11a63805857485e71f7679d7410c992b9e4ea8a757666f5a",
-      "drafted-editor.js": "44a757676126b78178e9f26c5d09970627501277b124e68b570421c96ca801c9",
-      "drafted-editor.css": "5c7cde3772ccfa31e345fca0a05182829a8056eb3c45c64285c2a5d8a0ed9dde",
-      "local-config.js": "536fd31eb38330b8635f7fa0f70fe88833cac55f2c390c676b2f043c24108395",
-      "environment.js": "95a83552095b383a9ff863e9ad7c6f0b4ea71e87326ed08abde33d981eef61e2"
-    }
-  },
-  "dev": "DEV-196",
-  "publishedSourceCommit": "bb82cb35e14b431863d5d0bcee5b10806f3e9c2d",
   "url": "https://getmedrafted.com",
-  "changesExcluded": [
-    "DNS",
-    "hosting plan/subscription",
-    "main merge",
-    "stable promotion",
-    "budget reset",
-    "other n8n workflows"
-  ],
+  "publishedSourceCommit": "aae1874fb737b5a3907744bd2b894d8b19811a06",
+  "workerVersion": "8c4a191f-cce2-47bd-89bc-fb2390c58909",
+  "previousWorkerVersion": "73ddd170-d3d6-4e81-85fc-8441dfbb4d3d",
+  "publishedUTC": "2026-11-02T15:53:00.581200+00:00",
+  "budgetIdentity": "invited-test-round-1",
+  "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
     "perMinute": 20,
     "concurrent": 2,
     "total": 100,
     "sharedBy": "All seven existing API routes plus coverage and dictation",
     "usedState": "preserved; not reset or inspected"
-  }
+  },
+  "workflowExecutionOrModelCalls": 0,
+  "verification": "Served hashes, / and /editor, favicon and pre-backend rejection gates verified. Public-origin browser tests use intercepted synthetic APIs, not provider execution. Gateway unit tests pass.",
+  "rollback": "wrangler rollback 73ddd170-d3d6-4e81-85fc-8441dfbb4d3d --config site/hosting/wrangler.jsonc",
+  "changesExcluded": [
+    "DNS",
+    "n8n workflows",
+    "model/credentials",
+    "budget reset",
+    "main merge",
+    "stable promotion"
+  ]
 }
