@@ -68,3 +68,36 @@ zonen; detta återställer GoDaddy-parkeringen, inte Drafted. För kodåtergång
 nya domänen: bygg föregående verifierade app med den nya origin-/route-konfigurationen
 och samma budgetidentitet. Rulla inte blint tillbaka en Worker med gammal origin.
 AI kan stoppas omedelbart med kommandot ovan. Publiceringskvitto: domain-release.json.
+
+## Samlad Dev-leverans — DEV-196, 2026-11-02
+
+Den godkända leveransen inkluderar nuvarande standalone Dev: hero/övergång,
+Studio/Executive, tal-till-text, erfarenhetsfrågornas vänteläge och svarskontroller,
+tailoring-ytan, versionsbunden signaltäckning/källnavigering samt D-favicon.
+`tools/build-invited-test.cjs` använder samma komponenter och ger de två nya
+funktionerna samma-origin-adresserna `/api/coverage` och `/api/dictation`.
+
+Worker läser två serverhemligheter, COVERAGE_GATEWAY_KEY och DICTATION_GATEWAY_KEY.
+Värdena ligger endast i Cloudflare Secrets och respektive befintlig privat
+DPAPI-credential; de byggs aldrig in i HTML/JS eller sparas i Git. De två
+nya flödena tillåter nu även https://getmedrafted.com, med localhost8826 bevarat.
+Modeller, credentialreferenser, kontrakt och avstängd payload-retention behålls.
+
+Samtliga nio API-vägar delar samma befintliga Durable Object, migrationsetikett,
+100-total/20-minut/2-samtidiga och LIVE_BACKEND-kill switch. Ingen budgetreset,
+ny hostingtjänst, DNS-ändring, prenumeration eller kontomodell ingår.
+Riktig signaltäckning behöver två anrop för ny annons och ett efter CV-Apply;
+varje transkribering ett. Befintlig förbrukning kvarstår.
+
+Återställningsversion på nuvarande domän före denna leverans:
+`418605a5-e0de-443a-b904-46682788186c`. Full krypterad Worker-/n8n-before-state
+med verifierade hash/dekrypteringsrundor finns under
+`%LOCALAPPDATA%/Drafted/dev-system-backups/n8n/` och privat release-baseline under
+`%LOCALAPPDATA%/Drafted/public-release-20261102/`. Budgetidentiteten får inte bytas.
+Se separat releasekvitto för slutlig publicerad källcommit och Worker-version.
+
+Verifiering använder syntetiska svar med blockerade externa/API-POST-anrop i
+webbläsaren. `node tools/release/verify-public-mocked.cjs` kör fulla UI-flödet mot
+publicerade frontendfiler men utför inga riktiga modell-/workflowanrop. Tidigare
+avgränsade riktiga prov upprepas inte av denna publicering. Svensk semantisk
+kvalitet och fysisk mobil är inte fullständigt verifierade.

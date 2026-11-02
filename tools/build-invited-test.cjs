@@ -8,6 +8,8 @@ if(!out.startsWith(path.resolve(root,'site/hosting-dist')+path.sep))throw Error(
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out,{recursive:true});
 for(const file of ['assets','editor','index.html','drafted-editor.css','drafted-editor.js','local-config.js','environment.js','build.json'])fs.cpSync(path.join(source,file),path.join(out,file),{recursive:true});
 const config=`(function(){'use strict';
+ window.__DRAFTED_COVERAGE__=Object.freeze({enabled:true,endpoint:'/api/coverage',mode:'public-live'});
+ window.__DRAFTED_DICTATION__=Object.freeze({mode:'live',endpoint:'/api/dictation'});
  const nativeFetch=window.fetch.bind(window),backend='https://drafted.app.n8n.cloud';
  window.fetch=(input,init)=>{
   const url=new URL(input instanceof Request?input.url:input,location.href);
