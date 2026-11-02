@@ -100,16 +100,16 @@
           const saved=session.snapshot().answers.find(a=>a.id===q.answerId)?.revisions.at(-1)?.experienceContext;
           if(saved)container.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(saved),'discovery-saved-context'));
           container.append(label);
-          root.DraftedDictation?.attach(input,{key:'question:'+mountedRound+':'+q.id+':'+(followup?'followup':'answer'),label:'experience answer',maxLength:50000,
+          root.DraftedDictation?.attach(input,{key:'question:'+mountedRound+':'+q.id+':'+(followup?'followup':'answer'),label:'experience answer',maxLength:50000,variant:'answer',
             read:()=>drafts.get(q.id)||'',write:value=>{drafts.set(q.id,value);if(input.isConnected){input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));}onStateChange();},
             alive:()=>!disposed&&session.round().id===mountedRound});
 
-          actions.append(button(r.phase==='correct'?'Save correction':'Send answer',()=>{root.DraftedDictation?.cancelFor('question:'+mountedRound+':'+q.id+':');const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;}));
-          if(r.phase==='error'&&onRetry)actions.append(button('Try again',()=>onRetry()));
-          actions.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();if(!root.DraftedDictation?.isActiveFor('question:'+mountedRound+':'+q.id+':'))drafts.delete(q.id);}));
+          const send=button(r.phase==='correct'?'Save correction':'Send answer',()=>{root.DraftedDictation?.cancelFor('question:'+mountedRound+':'+q.id+':');const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;});send.className='discovery-answer-primary';
+          const secondary=el('div',null,'discovery-answer-secondary');if(r.phase==='error'&&onRetry)secondary.append(button('Try again',()=>onRetry()));
+          secondary.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();if(!root.DraftedDictation?.isActiveFor('question:'+mountedRound+':'+q.id+':'))drafts.delete(q.id);}));actions.append(secondary,send);
         }
         const pending=session.results().pending;if(pending)container.append(el('p',`${pending===1?'An earlier answer is':pending+' earlier answers are'} being checked. You can keep going.`,'discovery-note'));
-        actions.append(button('Finish the questions',()=>session.finish()));container.append(actions);if(originalContext)container.append(originalContext);
+        const finish=button('Finish the questions',()=>session.finish());finish.className='discovery-finish-link';const finishRow=el('div',null,'discovery-question-finish');finishRow.append(finish);container.append(actions,finishRow);if(originalContext)container.append(originalContext);
       }
       history();if(historyOpen&&container.querySelector('.discovery-history'))container.querySelector('.discovery-history').open=true;
       if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}
