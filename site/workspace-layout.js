@@ -5,12 +5,17 @@
     const layout=section.querySelector('.editor-layout');
     if(!layout||layout.querySelector('.workspace-divider'))return;
     const toolbar=section.querySelector('.workspace-preview-title');
-    const primary=document.createElement('div'),secondary=document.createElement('div');
-    primary.className='workspace-preview-primary';secondary.className='workspace-preview-secondary';
-    for(const node of [...toolbar.children]){
-      (node.matches('.document-comparison,.workspace-zoom')?secondary:primary).append(node);
-    }
-    toolbar.append(primary,secondary);
+    const chat=layout.querySelector('.chat-card');
+    const label=toolbar.querySelector('.workspace-preview-label');
+    label.classList.add('workspace-panel-heading');toolbar.before(label);
+    chat.querySelector('.chat-title').classList.add('workspace-panel-heading');
+    const display=document.createElement('div');display.className='workspace-preview-display';
+    const comparison=toolbar.querySelector('.document-comparison'),zoom=toolbar.querySelector('.workspace-zoom');
+    for(const node of [...toolbar.children])if(node!==comparison&&node!==zoom)display.append(node);
+    if(comparison)toolbar.append(comparison);toolbar.append(display);if(zoom)toolbar.append(zoom);
+    const body=document.createElement('div');body.className='workspace-conversation-body';
+    for(const node of [...chat.children])if(!node.matches('.chat-title,.workspace-editor-toolbar'))body.append(node);
+    chat.append(body);layout.classList.add('workspace-aligned-panels');
     const left=layout.querySelector('.editor-left'),right=layout.querySelector('.editor-right');
     left.id='workspace-conversation-panel';right.id='workspace-document-panel';
     const divider=document.createElement('div');divider.className='workspace-divider';divider.tabIndex=0;

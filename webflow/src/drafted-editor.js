@@ -1479,10 +1479,14 @@ function setApplyLabel() {
     const jobRow=document.createElement('div');jobRow.className='workspace-job-context';jobRow.hidden=true;
     const jobLabel=document.createElement('span');jobLabel.className='workspace-job-label';jobLabel.textContent='Job context';
     const jobRole=document.createElement('span');jobRole.className='workspace-job-role';
-    const jobDetails=document.createElement('details');jobDetails.className='workspace-job-details';
-    const jobSummary=document.createElement('summary');jobSummary.textContent='View job description';
-    const jobText=document.createElement('div');jobText.className='workspace-job-text';
-    jobDetails.append(jobSummary,jobText);jobRow.append(jobLabel,jobRole,jobDetails);topbar.after(jobRow);
+    jobRow.append(jobLabel,jobRole);
+    if(!window.DraftedWorkspacePages?.enabled){
+      const jobDetails=document.createElement('details');jobDetails.className='workspace-job-details';
+      const jobSummary=document.createElement('summary');jobSummary.textContent='View job description';
+      const jobText=document.createElement('div');jobText.className='workspace-job-text';
+      jobDetails.append(jobSummary,jobText);jobRow.append(jobDetails);
+    }
+    if(!window.DraftedWorkspacePages?.enabled)topbar.after(jobRow);
     const composer=document.createElement('div');composer.className='workspace-composer';
     const inputRow=section.querySelector('.chat-input-row'),scopeRow=section.querySelector('.context-chip-row');
     if(inputRow){inputRow.before(composer);if(scopeRow)composer.append(scopeRow);composer.append(inputRow);}
@@ -1517,15 +1521,7 @@ function setApplyLabel() {
     const exportButton=previewTitle.querySelector('.workspace-print-button');
     const exportLabel=document.createElement('span');exportLabel.className='workspace-action-label';exportLabel.textContent='Export PDF';exportButton.append(exportLabel);
     actions.append(exportButton,previewTitle.querySelector('.workspace-print-status'));
-    const copy=DraftedWorkspaceView.iconButton('Copy text','workspace-copy-button','<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
-    copy.disabled=true;
-    const copyStatus=document.createElement('span');copyStatus.className='workspace-sr-only';copyStatus.setAttribute('role','status');
-    copy.addEventListener('click',async()=>{
-      if(tailorCvPreview?.suggested())return;
-      try{await navigator.clipboard.writeText([documentTitle,documentTextState].filter(Boolean).join('\n\n'));copyStatus.textContent='Copied';}
-      catch{copyStatus.textContent='Copy unavailable';}
-    });
-    previewTitle.insertBefore(copy,previewTitle.querySelector('.workspace-close-preview'));previewTitle.append(copyStatus);
+
   })();
 
   function syncWorkspaceJobContext() {
@@ -1533,8 +1529,8 @@ function setApplyLabel() {
     const context=window.__DRAFTED_JOBCONTEXT__,text=jobAdInputEl?.value?.trim()||'';
     row.hidden=!context||!text;
     row.querySelector('.workspace-job-role').textContent=context?.roleTitle||'';
-    row.querySelector('.workspace-job-text').textContent=text;
-    if(row.hidden)row.querySelector('details').open=false;
+    const legacyText=row.querySelector('.workspace-job-text');if(legacyText)legacyText.textContent=text;
+    const legacyDetails=row.querySelector('details');if(row.hidden&&legacyDetails)legacyDetails.open=false;
   }
 
   if (window.DraftedDiscoveryEditor && chatMessagesEl) {
@@ -1763,7 +1759,6 @@ function setApplyLabel() {
         previewView?.setState(state);
         previewZoom?.setState(state);
         browserPrint?.setState(state);
-        const copy=document.querySelector('.workspace-copy-button');if(copy)copy.disabled=state!=='ready'||!!presentation;
         const counter=document.querySelector('.workspace-page-count');
         if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
       },

@@ -62,6 +62,15 @@
       // Keep source characters, including bullet markers and line breaks, verbatim.
       // Lists get semantic <ul>/<li> structure; the original marker stays visible.
       const lines = String(b.text || '').match(/[^\n]*(?:\n|$)/g) || [];
+      if(type==='skills'){
+        // Skills are individual entries, not paragraphs separated by phantom lines.
+        // Preserve every source character (including ledger separators) for citations/diffs.
+        for(const line of lines.filter(Boolean)){
+          const gap=!line.trim(),list=/^\s*(?:[-*•▪‣]|\d+[.)])\s+/.test(line);
+          add(list?'li':'p','cv-block-body cv-skills-line'+(gap?' cv-skills-gap':list?' cv-list-item':''),line,id,false,true);
+        }
+        continue;
+      }
       let paragraph = '';
       const flush = () => { add('p', 'cv-block-body', paragraph, id, false, true); paragraph = ''; };
       for (const line of lines.filter(Boolean)) {

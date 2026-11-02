@@ -25,6 +25,9 @@
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-exp-title,:is(.cv-layout,#editor-preview-text) .cv-page .cv-edu-degree {font:700 11.5pt/1.35 "Drafted Sans",sans-serif;color:#223744;margin:3mm 0 1mm;opacity:1;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-entry-meta {font:400 9.5pt/1.4 "Drafted Sans",sans-serif;color:#52616c;margin:0 0 2.5mm;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-block-body {font:inherit;text-align:left;padding:0;margin:0 0 2.2mm;white-space:pre-wrap;}
+/* Skills line boundaries are block structure; source-only newline nodes retain offsets without adding visual rows. */
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-skills-line {white-space:normal;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-skills-gap {margin:0;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-list {list-style:none;margin:0;padding:0;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-list-item {padding-left:3.5mm;text-indent:-3.5mm;}
 :is(.cv-layout,#editor-preview-text) .cv-page .cv-list-item.cv-break-long-token {word-break:break-all;}
