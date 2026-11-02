@@ -40,7 +40,7 @@
   update();
   return {begin(model){original=freeze(copy(model));mode='edited';marks=false;stamp=JSON.stringify(model);anchor=null;restorePending=false;update();},
    sync(blocked){const current=JSON.stringify(getEdited());if(!blocked&&stamp!==current){mode='edited';stamp=current;restorePending=false;}suspended=blocked;clear('drafted-document');update();},
-   edited(){mode='edited';restorePending=false;update();},model:()=>!suspended&&mode==='original'?original:null,afterRender,
+   edited({clearChanges=false}={}){mode='edited';restorePending=false;if(clearChanges){marks=false;clear('drafted-document');}update();},model:()=>!suspended&&mode==='original'?original:null,afterRender,
    beforeRender(){clear('drafted-document');},original:()=>original,mode:()=>mode,
    snapshot:()=>({schema:1,original:original?copy(original):null,mode,marks}),
    restore(saved){

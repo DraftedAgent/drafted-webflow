@@ -55,3 +55,10 @@ Changing preview mode, zoom, template or un-applied answer does not trigger cove
 - Prepared n8n graph: `backend/n8n-cv-coverage-definition.cjs` and `dev-system/prepared/cv-coverage/receipt.json`.
 
 DEV-189 (2026-11-02): owner-approved private workflow is active on local integration8826. One complete real assessment passed the actual n8n engine after JSON-object output normalization; two earlier requests were rejected. The successful assessment used synthetic, locally anchored catalog input. Real provider-generated ad anchoring after that fix and an initial/post-Apply real comparison remain unverified; the three-request approval is exhausted. Local VM/full-editor tests remain distinct from semantic evaluation. See `dev-system/prepared/cv-coverage/delivery.json` for exact active version, request outcomes and rollback manifests.
+
+
+## Evidence navigation (DEV-192)
+
+Opening a fresh clearly represented signal locates its validated evidence in the current Edited CV, disables comparison change marks and centers the cited range as far as scroll bounds permit. Find in current CV uses the same path for an individual citation. Exact quote mapping uses ordered data-cv-source text, including pagination and link text; mismatched sources are rejected instead of guessed. All cited text is marked; a large/multiple-page citation centers its first reachable portion. Multiple evidence ranges are marked together. Custom Highlight is preferred; a text-only mark fallback preserves text/geometry. Both treatments are screen-only. Re-render, comparison interaction or stale assessment clears navigation marks. Existing block-selection ownership is unchanged.
+
+The currently deployed provider compiles selected source IDs into full-block quotes. The frontend therefore may mark an entire cited experience description; it does not invent finer evidence from keyword overlap or model explanations. Finer stored quotes can already be rendered by this navigator but require separately prepared/approved backend source granularity and validation, not an implicit new provider call here.

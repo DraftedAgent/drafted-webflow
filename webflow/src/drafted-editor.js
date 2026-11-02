@@ -27,6 +27,7 @@ const N8N_TAILOR_URL = draftedEndpoints.tailor || "https://drafted.app.n8n.cloud
 const N8N_DISCOVERY_URL = draftedEndpoints.discovery || "https://drafted.app.n8n.cloud/webhook/webflow-experience-discovery";
 let discoveryController = null;
 let coverageController = null;
+let coverageNavigation = null;
 let discoveryCvFile = null;
 let tailorInFlight = false;
 let tailorAppliedStamp = null;
@@ -1559,12 +1560,15 @@ function setApplyLabel() {
     const cv=isPreviewingProposal&&previewSnapshot?previewSnapshot:{cvVersionId,documentBlocksState};
     return {cvVersionId:cv.cvVersionId||'',blocks:deepClone(cv.documentBlocksState||[]),jobText:jobAdInputEl?.value||'',jobContext:deepClone(window.__DRAFTED_JOBCONTEXT__||null)};
   }
+  if(window.DraftedCoverageNavigation){
+    coverageNavigation=DraftedCoverageNavigation.create({host:editorPreviewEl,getBlocks:()=>documentBlocksState||[],prepare:async()=>{if(isPreviewingProposal)throw Error('PROPOSAL_PREVIEW_ACTIVE');documentComparison?.edited({clearChanges:true});await renderDocument(documentTextState);await DraftedCvLayout.ready(editorPreviewEl);if(innerWidth<=700&&!document.querySelector('#cv-preview-dialog')?.open)document.querySelector('.workspace-expand-preview')?.click();}});
+    document.querySelector('.document-comparison')?.addEventListener('click',()=>coverageNavigation.clear());
+  }
   if(window.DraftedCoverageView&&chatMessagesEl){
     coverageController=DraftedCoverageView.create({host:chatMessagesEl,getInput:currentCoverageInput,
-      config:window.__DRAFTED_COVERAGE__||{enabled:false},onStateChange:()=>workspacePages?.schedule(),onOpen:()=>discoveryController?.showChat(),
+      config:window.__DRAFTED_COVERAGE__||{enabled:false},onStateChange:()=>{if(!coverageController?.model.fresh())coverageNavigation?.clear();workspacePages?.schedule();},onOpen:()=>discoveryController?.showChat(),
       getSources:ref=>discoveryController?.sourcesForSignal(ref)||[],onSignal:(signal,current)=>discoveryController.openSignal(signal,current),
-      onFind:async id=>{if(isPreviewingProposal)return;documentComparison?.edited();await renderDocument(documentTextState);await DraftedCvLayout.ready(editorPreviewEl);if(innerWidth<=700)document.querySelector('.workspace-expand-preview')?.click();requestAnimationFrame(()=>{
-        editorPreviewEl.querySelectorAll('.is-coverage-target').forEach(n=>n.classList.remove('is-coverage-target'));const nodes=[...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].filter(n=>n.dataset.blockId===id);nodes.forEach(n=>n.classList.add('is-coverage-target'));const n=nodes[0],pane=editorPreviewEl.closest('.cv-document');if(n&&pane){pane.scrollTop+=n.getBoundingClientRect().top-pane.getBoundingClientRect().top-30;n.tabIndex=-1;n.focus({preventScroll:true});}});},
+      onFind:evidence=>coverageNavigation.show(evidence),
       onAd:span=>{const raw=jobAdInputEl.value;if(raw.slice(span.start,span.end)!==span.quote)return;let dialog=document.getElementById('coverage-job-source');if(!dialog){dialog=document.createElement('dialog');dialog.id='coverage-job-source';dialog.className='workspace-job-dialog workspace-coverage-source-dialog';dialog.setAttribute('aria-label','Source in full job description');document.querySelector('.section-editor').append(dialog);}dialog.replaceChildren();const title=document.createElement('h2');title.textContent='Job description';const close=document.createElement('button');close.type='button';close.textContent='Close';close.onclick=()=>dialog.close();const content=document.createElement('div');content.className='coverage-original-job';const mark=document.createElement('mark');mark.textContent=span.quote;content.append(document.createTextNode(raw.slice(0,span.start)),mark,document.createTextNode(raw.slice(span.end)));dialog.append(title,close,content);dialog.showModal();requestAnimationFrame(()=>{dialog.scrollTop+=mark.getBoundingClientRect().top-dialog.getBoundingClientRect().top-80;});}
     });
   }
@@ -1740,6 +1744,7 @@ function setApplyLabel() {
      RENDER BLOCK HTML
      =============================== */
   function renderDocument(text) {
+    coverageNavigation?.clear();
     queueMicrotask(()=>{if(!workspacePages?.restoring())coverageController?.sync();});
     tailorReviewCheck?.();
     tailorCvPreview?.beforeRender();
