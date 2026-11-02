@@ -134,7 +134,7 @@
   .section-editor .chip-label {flex-wrap:wrap;gap:6px;}
   .section-editor.discovery-enabled .chat-message.ai:not(.drafted-proposal-card) {background:#f3f7f9;border:0;}
   .section-editor.discovery-enabled .chat-message.ai:not(.drafted-proposal-card)::before {content:none;}
-  .section-editor.discovery-enabled .chat-message.user {align-self:flex-end;background:#eaf6f5;border:0;}
+  .section-editor.discovery-enabled .chat-message.user {align-self:flex-end;background:#142a3d;color:#fff;border:0;}
   .section-editor.discovery-enabled .drafted-proposal-card {background:#fff;border:1px solid #00868d;border-radius:8px;box-sizing:border-box;max-width:100%;}
   .drafted-proposal-card pre {white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;background:#f3f7f9;padding:10px;border-radius:4px;}
   .drafted-proposal-card details {margin-top:12px;}
@@ -161,3 +161,18 @@
  .tailor-block-tools.is-compact button {min-height:30px;font-size:11px;}
 }
 @media screen {.tailor-review-stage {overflow:hidden;}}
+
+@media screen {
+ .section-editor.discovery-enabled .chat-message.user a {color:#fff;text-decoration:underline;text-underline-offset:3px;}
+ .section-editor.discovery-enabled .chat-message.ai:not(.drafted-proposal-card) a {color:#174c69;text-decoration:underline;text-underline-offset:3px;}
+ .section-editor.discovery-enabled .chat-message.user a:focus-visible {outline:2px solid white;outline-offset:3px;}
+ .section-editor.discovery-enabled .chat-message:is(.user,.ai):not(.drafted-proposal-card) {padding:12px 14px;overflow-wrap:anywhere;}
+}
+@media screen {
+ .section-editor .workspace-main-actions #tailor-card {display:none!important;}
+}
+@media screen {
+ .workspace-job-dialog .workspace-job-reading {max-height:60dvh;overflow:auto;overscroll-behavior:contain;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;margin-bottom:20px;padding:0 6px 4px 0;}
+ .workspace-job-dialog .workspace-change-job {display:inline-block;color:#007680;font-size:13px;text-underline-offset:3px;margin-bottom:12px;}
+ .workspace-job-change-notice {font-size:13px;line-height:1.5;color:#4b6574;margin:0 0 12px;}
+}

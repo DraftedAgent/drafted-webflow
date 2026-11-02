@@ -1304,6 +1304,15 @@ function applyFullScopeUI(isFull) {
 let isGeneratingSuggestionPreview = false; 
 
   
+function appendAppliedReceipt(receipt){
+  const card=document.createElement('section');card.className='chat-message ai drafted-proposal-card is-completed suggestion-receipt';card.dataset.receiptId=receipt.id;card.setAttribute('aria-label','Accepted and applied');
+  const heading=document.createElement('strong');heading.textContent='✓ Accepted and applied · '+receipt.sections.join(' · ');
+  const description=document.createElement('p');description.textContent=receipt.description;
+  const details=document.createElement('details'),toggle=document.createElement('summary');toggle.textContent='View change';details.append(toggle);
+  for(const block of receipt.changes){const text=document.createElement('div');text.className='suggestion-text';text.textContent=block.text;details.append(text);}
+  card.append(heading,description,details);chatMessagesEl.append(card);return card;
+}
+
 function appendProposalCard(meta) {
   if(!chatMessagesEl)return;
   const ready=!!pendingProposal?.blocks?.length;
@@ -1321,7 +1330,12 @@ function appendProposalCard(meta) {
   for(const name of ['Preview','Decline','Accept']){const button=document.createElement('button');button.type='button';button.textContent=name;button.className=name==='Accept'?'suggestion-accept':'';button.addEventListener('click',()=>{
     if(name==='Decline'){stopPreview();dismissProposal();finish('Declined');chatMessagesEl.append(card);return;}
     if(!current()){stopPreview();const note=document.createElement('p');note.setAttribute('role','status');note.textContent='This suggestion is out of date. Send your request again.';actions.replaceChildren(note);return;}
-    if(name==='Accept'){stopPreview();applyProposal();finish('Accepted');chatMessagesEl.append(card);return;}
+    if(name==='Accept'){
+      stopPreview();const previousVersion=cvVersionId;
+      if(applyProposal()!==true)return;
+      const receipt={id:meta?.association||crypto.randomUUID(),previousVersion,appliedVersion:cvVersionId,appliedAt:new Date().toISOString(),sections:[...new Set(changed.map(b=>b.label||b.type))],changes:deepClone(changed),description:'Applied the reviewed changes.'};
+      appliedChatReceipts.push(receipt);card.remove();appendAppliedReceipt(receipt);chatHistory.push({role:'assistant',content:'Accepted and applied · '+receipt.sections.join(' · '),association:receipt.id});workspacePages?.schedule();return;
+    }
     stopPreview();tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate,baseline:{blocks:deepClone(documentBlocksState)},proposalId:crypto.randomUUID(),render:()=>renderDocument(documentTextState),isCurrent:current,onClose:stopPreview});tailorCvPreview.navigate(changed[0]?.blockId);
     if(matchMedia('(max-width:800px)').matches)DraftedCvLayout.ready(editorPreviewEl).then(()=>document.querySelector('.workspace-expand-preview')?.click());
   });actions.append(button);}
@@ -1377,6 +1391,7 @@ function setApplyLabel() {
   let selectionSources = {};
   let lastClickedBlockId = null;       // shift anchor
   let chatHistory = [];        // { role: "user"|"assistant", content: string }
+  let appliedChatReceipts = [];
   let pendingProposal = null;      // { cvVersionId, cvTitle, blocks, summaryOfChanges? }
   let pendingProposalMeta = null;  // { changedBlockIds: [], summaryOfChanges: [] }
   let pendingSuggestion = null;    // { mode:"blocks|full", selectedBlockIds:[], instruction:"..." }
@@ -2213,6 +2228,7 @@ function updateContextChip() {
 
   clearAllProposalCards();
   setApplyLabel();
+  return true;
 }
 
   function dismissProposal() {
@@ -2679,12 +2695,12 @@ function bindPdfDownloadButton() {
     if(document.documentElement.dataset.workspacePage==='editor'&&document.documentElement.dataset.workspaceReady==='true'&&!document.documentElement.dataset.workspaceBooting)workspaceReading={chat:chatMessagesEl.scrollTop,document:editorPreviewEl.closest('.cv-document')?.scrollTop||0};
     const cv=documentBlocksState?.length?serialSnapshot(snapshotCurrentState()):null;
     return {cv,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,design:selectedCvDesign,chatHistory,
-      messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card)')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent,association:el.dataset.proposalAssociation||null})),
-      selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
+      messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card), :scope > .suggestion-receipt')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent,receiptId:el.dataset.receiptId||null,association:el.dataset.proposalAssociation||null})),
+      appliedChatReceipts,selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
       jobText:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
       setupStatus:{text:document.getElementById('preparation-status').textContent,state:document.getElementById('preparation-status').dataset.state,hidden:document.getElementById('preparation-status').hidden,processing:uploadInFlight},
       draft:editorInput.value,discovery:discoveryController?.snapshot(),coverage:coverageController?.snapshot(),ledger:{groups:tailorSourceLedger.groups,history:tailorSourceLedger.history},
-      jobEditor:{open:!!document.querySelector('.workspace-job-dialog')?.open,draft:document.getElementById('workspace-job-input')?.value||''},
+      jobEditor:{open:false},
       tailorReview:tailorReviewState,tailorAppliedStamp,tailorDraft:chatMessagesEl.querySelector('.tailor-suggestion textarea')?.value||'',
       interrupted:!!window.__DRAFTED_CHAT__?.inFlight||tailorInFlight||isGeneratingSuggestionPreview,
       scroll:workspaceReading,
@@ -2706,7 +2722,8 @@ function bindPdfDownloadButton() {
     restoreSnapshot(saved.cv);documentComparison?.restore(saved.comparison);renderDocument(documentTextState);setCvLoadedUI(true);setEditorPlaceholder(false);
     isPreviewingProposal=!!saved.isPreviewingProposal;previewSnapshot=saved.previewSnapshot||null;pendingProposal=saved.pendingProposal||null;pendingProposalMeta=saved.pendingProposalMeta||null;pendingSuggestion=saved.pendingSuggestion||null;
     for(const el of [...chatMessagesEl.children])if(!el.matches('.drafted-discovery,.discovery-guidance,.workspace-earlier-answers,.workspace-coverage-panel'))el.remove();
-    chatHistory=[];for(const message of saved.messages||[])appendChat(message.role,message.text,message.association);chatHistory=Array.isArray(saved.chatHistory)?saved.chatHistory:[];
+    appliedChatReceipts=Array.isArray(saved.appliedChatReceipts)?saved.appliedChatReceipts:[];
+    chatHistory=[];for(const message of saved.messages||[]){const receipt=appliedChatReceipts.find(r=>r.id===message.receiptId);if(receipt)appendAppliedReceipt(receipt);else appendChat(message.role,message.text,message.association);}chatHistory=Array.isArray(saved.chatHistory)?saved.chatHistory:[];
     selectionSources=saved.selectionSources||{};editorInput.value=saved.draft||'';updateContextChip();tailorSourceLedger.groups=saved.ledger?.groups||[];tailorSourceLedger.history=saved.ledger?.history||[];
     if(saved.discovery)discoveryController?.restore(saved.discovery);
     await coverageController?.restore(saved.coverage);
