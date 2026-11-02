@@ -2,7 +2,7 @@
 (function(global){
   'use strict';
   if(global.DraftedHeroMotion)return;
-  const DURATION=2400,PLAYBACK_RATE=1.15,mounted=new WeakSet(),root=document.documentElement;
+  const DURATION=2400,PLAYBACK_RATE=1.15,mounted=new WeakSet(),replayBound=new WeakSet(),controllers=new WeakMap(),root=document.documentElement;
   const clamp=x=>Math.max(0,Math.min(1,x)),phase=(t,a,b)=>clamp((t-a)/(b-a)),ease=x=>x*x*(3-2*x);
   function mount(brand){
     if(!brand||mounted.has(brand))return;
@@ -15,6 +15,13 @@
       disposed=true;cancelAnimationFrame(frame);observer?.disconnect();clearTimeout(global.__DRAFTED_HERO_DEADLINE__);
       reduced?.removeEventListener('change',preferenceChanged);document.removeEventListener('visibilitychange',visibilityChanged);
       restore();brand.dataset.motionState=state;
+    }
+    controllers.set(brand,{finish});
+    if(!replayBound.has(brand)&&stage){
+      replayBound.add(brand);const template=stage.cloneNode(true);
+      const replay=()=>{controllers.get(brand)?.finish();brand.append(template.cloneNode(true));root.dataset.draftedHero='eligible';mounted.delete(brand);mount(brand);};
+      brand.setAttribute('role','button');brand.tabIndex=0;brand.setAttribute('aria-label','Replay Drafted logo animation');
+      brand.addEventListener('click',replay);brand.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();replay();}});
     }
     function preferenceChanged(){if(reduced.matches)finish('static');}
     function visibilityChanged(){if(document.hidden&&started)finish();else tryStart();}

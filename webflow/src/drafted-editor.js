@@ -832,7 +832,16 @@ maybeShowTailor();
   ) {
     if (jobAdInputEl.dataset.jobContextBound !== "1") {
       jobAdInputEl.dataset.jobContextBound = "1";
-      jobAdInputEl.addEventListener("input", handleJobAdInput);
+      let jobEditBefore=jobAdInputEl.value,jobEditApproved=false;
+      jobAdInputEl.addEventListener('focus',()=>{jobEditBefore=jobAdInputEl.value;jobEditApproved=false;});
+      jobAdInputEl.addEventListener('blur',()=>{jobEditApproved=false;});
+      jobAdInputEl.addEventListener('input',event=>{
+        if(documentBlocksState?.length&&jobAdInputEl.value!==jobEditBefore&&!jobEditApproved){
+          if(!window.confirm('Use this job description? Your CV and saved answers will be kept. Existing suggestions will need to be updated.')){jobAdInputEl.value=jobEditBefore;event.stopImmediatePropagation();return;}
+          jobEditApproved=true;
+        }
+        jobEditBefore=jobAdInputEl.value;handleJobAdInput();
+      });
     }
   } else {
     jobContextDebugLog("disabled: missing jobcontext DOM elements");

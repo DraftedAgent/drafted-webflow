@@ -21,7 +21,7 @@
       const text=el('div','preparation-step-text'),label=el('h2','preparation-step-title',title);label.id=id;
       const description=el('p','preparation-step-help',help);description.id=id+'-help';text.append(label,description);heading.append(badge,text);group.append(heading);return {group,heading,label};
     }
-    const opportunity=step('01','Job description (optional)','Paste the job description to give your CV a clear context.','preparation-opportunity');
+    const opportunity=step('01','Job description','Paste the job description for the role you have in mind.','preparation-opportunity');
     job.removeAttribute('style');job.setAttribute('aria-labelledby',opportunity.label.id);job.setAttribute('aria-describedby','preparation-opportunity-help preparation-job-hint');
     job.placeholder='Paste the job description…';
     const jobHint=el('p','preparation-job-hint','Use at least 200 characters to extract job context.');jobHint.id='preparation-job-hint';

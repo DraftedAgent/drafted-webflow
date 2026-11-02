@@ -24,23 +24,37 @@
       const previous=loading;loading=null;previous?.destroy().catch(()=>{});
       view.replaceChildren();view.scrollTop=0;view.removeAttribute('data-page-count');
     }
+    function nearby(item){const a=item.slot.getBoundingClientRect(),b=view.getBoundingClientRect();return a.bottom>b.top-300&&a.top<b.bottom+300;}
+    function release(item){item.rasterId=(item.rasterId||0)+1;item.task?.cancel();item.paper.querySelector('canvas')?.remove();item.pixels=0;}
+    async function raster(item,token){
+      if(!item.page||token!==revision)return;
+      const factor=parseFloat(item.paper.dataset.displayScale)||1;
+      const output=Math.min(factor*(global.devicePixelRatio||1),Math.sqrt(8000000/(item.viewport.width*item.viewport.height)));
+      const width=Math.ceil(item.viewport.width*output),height=Math.ceil(item.viewport.height*output);
+      if(item.requestWidth===width&&item.paper.querySelector('canvas'))return;
+      item.requestWidth=width;const ticket=item.rasterId=(item.rasterId||0)+1;item.task?.cancel();
+      const canvas=document.createElement('canvas');canvas.setAttribute('aria-hidden','true');canvas.width=width;canvas.height=height;canvas.style.width=item.viewport.width+'px';canvas.style.height=item.viewport.height+'px';
+      const task=item.page.render({canvasContext:canvas.getContext('2d'),viewport:item.viewport,transform:[output,0,0,output,0,0],intent:'display'});item.task=task;
+      try{await task.promise;if(token!==revision||ticket!==item.rasterId)return;const previous=item.paper.querySelector('canvas');if(previous)previous.replaceWith(canvas);else item.paper.prepend(canvas);item.pixels=width*height;
+        const cached=pages.filter(p=>p.pixels&&p!==item).sort((a,b)=>Math.abs(a.slot.getBoundingClientRect().top-view.getBoundingClientRect().top)-Math.abs(b.slot.getBoundingClientRect().top-view.getBoundingClientRect().top));for(const old of cached.slice(3))release(old);
+      }catch(error){if(error.name!=='RenderingCancelledException'&&token===revision)throw error;}
+    }
     function scale(){
-      const width=view.clientWidth-20;
-      if(width<=0)return;
-      for(const item of pages){const factor=width/item.viewport.width;item.slot.style.width=width+'px';item.slot.style.height=item.viewport.height*factor+'px';item.paper.style.transform=`scale(${factor})`;}
+      const width=view.clientWidth-20;if(width<=0)return;
+      for(const item of pages){const factor=width/item.viewport.width;item.slot.style.width=width+'px';item.slot.style.height=item.viewport.height*factor+'px';item.paper.style.transform=`scale(${factor})`;item.paper.dataset.displayScale=String(factor);if(item.started&&nearby(item))raster(item,revision).catch(()=>message('A page could not be displayed.'));}
     }
     new ResizeObserver(scale).observe(view);
+    let densityQuery;
+    function watchDensity(){densityQuery?.removeEventListener('change',densityChanged);densityQuery=matchMedia(`(resolution: ${global.devicePixelRatio||1}dppx)`);densityQuery.addEventListener('change',densityChanged);}
+    function densityChanged(){scale();watchDensity();}
+    watchDensity();global.addEventListener('resize',scale);
+    let lastDensity=global.devicePixelRatio||1;
+    const densityTimer=setInterval(()=>{const next=global.devicePixelRatio||1;if(next!==lastDensity){lastDensity=next;densityChanged();}},500);
     async function paint(item,token,pdfjs){
-      if(item.started||token!==revision)return;item.started=true;
+      if(token!==revision)return;if(item.started){await raster(item,token);return;}item.started=true;
       try{
         const page=await pdf.getPage(item.number);if(token!==revision)return;
-        const canvas=document.createElement('canvas');canvas.setAttribute('aria-hidden','true');
-        const output=Math.min(global.devicePixelRatio||1,2,Math.sqrt(8000000/(item.viewport.width*item.viewport.height)));
-        canvas.width=Math.ceil(item.viewport.width*output);canvas.height=Math.ceil(item.viewport.height*output);
-        canvas.style.width=item.viewport.width+'px';canvas.style.height=item.viewport.height+'px';
-        item.paper.append(canvas);
-        item.task=page.render({canvasContext:canvas.getContext('2d'),viewport:item.viewport,transform:[output,0,0,output,0,0],intent:'display'});
-        await item.task.promise;if(token!==revision)return;
+        item.page=page;await raster(item,token);if(token!==revision)return;
         const text=document.createElement('div');text.className='source-pdf-text';item.paper.append(text);
         item.text=new pdfjs.TextLayer({textContentSource:page.streamTextContent(),container:text,viewport:item.viewport});await item.text.render();
         const annotations=await page.getAnnotations({intent:'display'});if(token!==revision)return;
@@ -77,7 +91,7 @@
         view.dataset.pageCount=String(pdf.numPages);scale();
         await paint(pages[0],token,pdfjs);if(token!==revision)return;
         if(pages[0].slot.dataset.rendered!=='true')throw Error('Page rendering failed');
-        observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){const item=pages.find(item=>item.slot===entry.target);if(item)void paint(item,token,pdfjs);}},{root:view,rootMargin:'600px'});
+        observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){const item=pages.find(item=>item.slot===entry.target);if(item)void paint(item,token,pdfjs).catch(()=>message('A page could not be displayed.'));}},{root:view,rootMargin:'300px'});
         for(const item of pages)observer.observe(item.slot);
         message('');view.dataset.state='ready';view.setAttribute('aria-busy','false');
       }catch(error){
@@ -85,7 +99,7 @@
         message(error.name==='PasswordException'?'This PDF is password-protected. Choose an unlocked PDF.':'This PDF could not be previewed. Choose a readable PDF to try again.');
       }
     }
-    global.addEventListener('beforeunload',()=>{revision++;stop();},{once:true});
+    global.addEventListener('beforeunload',()=>{clearInterval(densityTimer);densityQuery?.removeEventListener('change',densityChanged);revision++;stop();},{once:true});
     return {setFile};
   }
   global.DraftedUploadedPdf={create};

@@ -1569,3 +1569,44 @@ Synthetic job-description-readonly browser test passes desktop1440/mobile390: em
 ## DEV-213 — Publish approved Dev UI to getmedrafted.com (2026-11-02)
 
 Owner requested publication after Dev commit/push. Built clean source aae1874fb737b5a3907744bd2b894d8b19811a06 with existing standalone public builder. Existing Worker/domain/secrets/DO identity/config retained;5 changed assets uploaded. Active Worker8c4a191f-cce2-47bd-89bc-fb2390c58909 replaces73ddd170-d3d6-4e81-85fc-8441dfbb4d3d, retained as rollback target. No DNS/backend workflow/credential/model/budget reset or main/stable changes. Nine gateway unit tests pass; public exact file hashes, direct home/editor, icons and invalid pre-backend API guards pass. Public browser coverage/answers/Tailor/Apply/restoration tests use synthetic intercepted APIs; no new paid model/provider call. Exact deployment receipt site/hosting/current-release.json. Earlier legacy sessions without saved acceptance evidence cannot acquire a retroactive receipt merely from publication.
+
+
+## DEV-214 — Bounded, wider and vertically centered upload group (2026-11-02)
+
+Read actual existing Chrome integration tab without reload: viewport2560x1215 CSSpx,DPR1, group1280x1151 and job field640px. Actual browser zoom not independently established from DPR alone. Root cause is desktop group min-height plus flex-growing opportunity step/textarea. Dev-only desktop CSS removes those growth requirements, increases max group width to1600px with53/47 columns, centers row items, bounds ad default140–220px/manual max260px and right preview480–720px. Section still min100svh, normal flow, desktop padding40–64px. Small/low view may grow; existing mobile CSS unchanged. No whole-interface scaling or document typography changes.
+
+Synthetic upload-large-screen browser checks use fresh Chromium context at default100%zoom,DPR1:1366x768,1920x1080,2560x1440,2560x1800, resize back1366x768,1280x600 and390x844. Group width1600 on large screens; preview686px visible inner area, ad218px on tallest; exact vertical center and >=40px outer space on desktop, low section grows632.9px with40px padding. Mobile no horizontal overflow and unchanged15px field text. Long ad scrolls, three-page PDF selected, upload/navigation succeeds; screenshots laptop/external visually inspected. Gallery /evidence/chat-review/upload-layout.html. Dev8825/integration8826 rebuilt with protected public artifacts unchanged. No AI/external calls, publication, commit or push.
+
+
+## DEV-215 — Halve large-display outer whitespace by expanding upload group (2026-11-02)
+
+Owner requested larger form/preview after DEV-214. At >=1800px wide and >=900px high, container max becomes min2080px/92vw; preview height720–1260px using75svh. Existing53/47 columns and centered group retained; form typography/gaps/textarea bounds unchanged. Exact same fresh100%2560x1440 comparison: group1600x720 ->2080x1080; left/right margins480 ->240px and top/bottom360 ->180px. On2560x1800, group1260px high with270px top/bottom. Laptop/low/mobile metrics unchanged. Preview scales original PDF with width while overflow remains internal; no document content change.
+
+Synthetic upload-large-screen resize suite passes laptop,desktop,external,tall,back-to-laptop,low and mobile including upload/navigation and long-ad scroll. After screenshot inspected. Before/after gallery /evidence/chat-review/upload-before-after.html. Dev/integration built with protected public assets unchanged; no external calls/publication/commit/push.
+
+## DEV-216 — Simple job-ad help and contextual change confirmation (2026-11-02)
+
+Setup heading now Job description; helper is exactly Paste the job description for the role you have in mind. Optional behavior unchanged. Removed permanent consequences notice from workspace-pages. Added12px spacing after opportunity step before current CV. Existing loaded CV work now requires the requested short confirmation on first actual ad edit in a focus session, before handleJobAdInput invalidates context/proposals or schedules backend extraction. Cancel restores preceding field value and skips invalidation; confirm preserves existing source/CV behavior and permits further typing until blur without repeated prompts. Initial setup without loaded CV does not prompt; navigation alone does not prompt/change context.
+
+Synthetic readonly-job browser suite updated and passes desktop/mobile with exact confirmation text, cancel restores ad and exact CV, accepted replacement, existing Close/Escape/setup navigation and legacy modal-draft rejection. Dev/integration built with public assets unchanged. No real backend/AI calls, publication, commit or push; previous local layout changes preserved.
+
+
+## DEV-217 — Double gap before current CV (2026-11-02)
+
+Owner requested doubling separation after Signals ready. Desktop gap was16px flex gap plus12px step margin =28px; new40px step margin yields56px total. Local CSS only; Dev/integration rebuilt, no publication.
+
+
+## DEV-218 — Remove artificial width limit on setup introduction (2026-11-02)
+
+Removed65ch max-width for desktop introduction so the unchanged sentence uses the available form-column width. No nowrap/overflow or font reduction; smaller viewports retain natural wrapping. Dev/integration rebuilt; no publication.
+
+
+## DEV-219 — Resolution-aware original PDF preview (2026-11-02)
+
+Cause: fixed1.5 PDF viewport canvas with output capped at DPR2 was rendered once, then CSS-enlarged on resize/modal. Measured modal canvas893px on1201CSSpx atDPR1 (0.744pixel/CSSpx),1785px atDPR2 (1.486). New raster resolution uses actual slot display scale times current DPR, capped at8million pixels/page. Existing fixed base-coordinate text/link layers and page proportions retained. Resize and resolution media query trigger nearby-page raster replacement;500ms density-only fallback handles browsers/emulation that delay resolution events. Old canvas stays until new render completes; canceled/stale tasks cannot replace current file output. At most4rendered page canvases cached; distant canvases released as new pages render. Source bytes, analysis overlays and export untouched.
+
+Isolated fresh100% browser comparisons use exact frozen old viewer fixture and current viewer, same five-page synthetic vector PDF: laptop1366x768, external2560x1440, expanded1201CSSpx view, DPR1/2, same-tab resize, scroll through pages, modal close. New ratios1px/CSSpx atDPR1 and2atDPR2 except expanded1.98at8MPcap. Live emulated density1->2->1 verifies automatic repaint. Raster screenshots before/after generated from identical CSS crops, modal pair visually inspected; gallery /evidence/chat-review/pdf-resolution.html. Scanned low-resolution original remains a source limitation; no sharpening filters or claims to recover missing detail. No actual owner file quality audit was performed. No real backend/model calls or publication. Dev/integration built with protected public outputs unchanged; preceding local layout/copy changes retained.
+
+## DEV-220 — Lift setup introduction and replay hero logo on intent (2026-11-02)
+
+Setup introduction lifts56px on roomy desktop, matching current Signals-ready/current-CV gap; normal-flow compensating margins preserve following form position and centered group. Lift reduces on short desktop viewports and remains absent on mobile. Hero brand gets accessible button semantics, focus outline and click/Enter/Space replay. Pristine initial SVG is reused; active controller is canceled before remount, including during playback. Resize/scroll do not request replay. Header logo unchanged; reduced motion remains static. Synthetic replay tests pass desktop1440/mobile390: completed replay, mid-animation keyboard restart, single restored static final state and reduced motion. Dev/integration rebuilt; no publication or backend calls.
