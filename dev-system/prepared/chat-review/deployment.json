@@ -1,0 +1,11 @@
+{
+  "paidExecutions": 0,
+  "activeVersionId": "b28bb543-5150-4d3f-b862-0266f608d6ab",
+  "previousVersion": "ae916f25-ffac-4b84-8575-d2683ca46862",
+  "workflowId": "QQGNXYv4hej0HBwc",
+  "verifiedUTC": "2026-11-02T14:16:06.7990682Z",
+  "websitePublished": false,
+  "changedNode": "Build LLM Messages",
+  "rollbackSnapshot": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\dev-system-backups\\n8n\\QQGNXYv4hej0HBwc\\20261102T151604-DEV-203.clixml",
+  "versionId": "b28bb543-5150-4d3f-b862-0266f608d6ab"
+}

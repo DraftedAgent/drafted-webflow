@@ -1261,11 +1261,11 @@ async function draftedFetchJson(url, options, kind) {
   }
 
   
-  function appendChat(role, text) {
+  function appendChat(role, text, association = null) {
   const msg = String(text || "").trim();
   if (!msg) return;
 
-  chatHistory.push({ role: role === "user" ? "user" : "assistant", content: msg });
+  chatHistory.push({ role: role === "user" ? "user" : "assistant", content: msg, ...(association?{association}: {}) });
   if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
 
   // UI
@@ -1278,6 +1278,7 @@ async function draftedFetchJson(url, options, kind) {
     "ai";
 
   wrap.className = `chat-message ${normalizedRole}`;
+  if(association)wrap.dataset.proposalAssociation=association;
 
   // IMPORTANT: left aligned readability while keeping user bubble on right via CSS
   wrap.style.textAlign = "left";
@@ -1304,115 +1305,33 @@ let isGeneratingSuggestionPreview = false;
 
   
 function appendProposalCard(meta) {
-  if (!chatMessagesEl) return;
-
-  const hasProposal = !!(pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length);
-  const hasSuggestion = !!(pendingSuggestion && pendingSuggestion.instruction);
-
-  if (!hasProposal && !hasSuggestion) return;
-
-  const changedCount = (meta?.changedBlockIds || []).length;
-  const summary = Array.isArray(meta?.summaryOfChanges) ? meta.summaryOfChanges : [];
-  const wrap = document.createElement("div");
-  wrap.className = "chat-message ai drafted-proposal-card";
-  wrap.style.textAlign = "left";
-  const title = document.createElement("div");
-  title.style.fontWeight = "600";
-  title.textContent = hasProposal
-    ? `Suggestion ready (${changedCount} block${changedCount === 1 ? "" : "s"})`
-    : "Suggestion ready";
-
-  const sub = document.createElement("div");
-  sub.style.opacity = "0.85";
-  sub.style.marginTop = "6px";
-  sub.textContent = hasProposal
-    ? "Preview it first, then Apply to make changes. Or Dismiss."
-    : "Preview will generate a draft. Then Apply or Dismiss.";
-
-  wrap.appendChild(title);
-  wrap.appendChild(sub);
-
-  if (summary.length) {
-    const ul = document.createElement("ul");
-    ul.style.margin = "10px 0 0 18px";
-    ul.style.padding = "0";
-    ul.style.opacity = "0.9";
-
-    summary.slice(0, 3).forEach(s => {
-      const li = document.createElement("li");
-      li.textContent = String(s || "").trim();
-      ul.appendChild(li);
-    });
-    wrap.appendChild(ul);
-  }
-
-  const btnRow = document.createElement("div");
-  btnRow.style.display = "flex";
-  btnRow.style.gap = "10px";
-  btnRow.style.marginTop = "12px";
-
-  
-  function makeBtn(label, { busy = false } = {}) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-
-    const spinner = document.createElement("span");
-    spinner.className = "drafted-btn-spinner";
-    spinner.hidden = !busy;
-
-    const txt = document.createElement("span");
-    txt.textContent = label;
-
-    btn.appendChild(spinner);
-    btn.appendChild(txt);
-
-    if (busy) btn.disabled = true;
-
-    return { btn, spinner, txt };
-  }
-
-  const previewLabel = isPreviewingProposal
-    ? "Exit preview"
-    : (isGeneratingSuggestionPreview ? "Generating preview…" : "Preview");
-
-  const applyLabel = isGeneratingSuggestionPreview ? "Applying…" : "Apply";
-  const { btn: btnPreview, spinner: spPreview } = makeBtn(previewLabel, { busy: isGeneratingSuggestionPreview });
-  const { btn: btnApply, spinner: spApply } = makeBtn(applyLabel, { busy: isGeneratingSuggestionPreview });
-  const btnDismiss = document.createElement("button");
-  btnDismiss.type = "button";
-  btnDismiss.textContent = "Dismiss";
-  btnDismiss.disabled = !!isGeneratingSuggestionPreview;
-
-  btnPreview.addEventListener("click", async () => {
-    await handlePreviewClick();
-  });
-
-  btnApply.addEventListener("click", async () => {
-    await handleApplyClick();
-  });
-
-  btnDismiss.addEventListener("click", () => {
-    dismissProposal();
-  });
-
-  // If we're previewing already, Preview button should not show spinner
-  if (isPreviewingProposal) {
-    spPreview.hidden = true;
-    btnPreview.disabled = false;
-  }
-
-  btnRow.appendChild(btnPreview);
-  btnRow.appendChild(btnApply);
-  btnRow.appendChild(btnDismiss);
-  wrap.appendChild(btnRow);
-  chatMessagesEl.appendChild(wrap);
-  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  if(!chatMessagesEl)return;
+  const ready=!!pendingProposal?.blocks?.length;
+  if(!ready){if(isGeneratingSuggestionPreview){const status=document.createElement('div');status.className='chat-message ai drafted-proposal-card';status.setAttribute('role','status');status.textContent='Preparing suggestion…';chatMessagesEl.append(status);}return;}
+  const candidate=deepClone(pendingProposal),stamp=meta?.baseline;
+  if(meta?.association){for(const node of chatMessagesEl.querySelectorAll('[data-proposal-association]'))if(node.dataset.proposalAssociation===meta.association)node.remove();chatHistory=chatHistory.filter(m=>m.association!==meta.association);}
+  const changed=candidate.blocks.filter(b=>documentBlocksState.find(old=>old.blockId===b.blockId)?.text!==b.text);
+  const card=document.createElement('section');card.className='chat-message ai drafted-proposal-card';card.setAttribute('aria-label','Suggestion');
+  const header=document.createElement('header'),title=document.createElement('strong'),tag=document.createElement('span');title.textContent='Suggestion';tag.className='suggestion-section';tag.textContent=[...new Set(changed.map(b=>b.label||b.type))].join(' · ');header.append(title,tag);card.append(header);
+  for(const block of changed){const text=document.createElement('div');text.className='suggestion-text';text.textContent=block.text;card.append(text);}
+  const actions=document.createElement('div');actions.className='suggestion-actions';
+  const current=()=>chatBaseline()===stamp&&pendingProposal?.blocks&&JSON.stringify(pendingProposal.blocks)===JSON.stringify(candidate.blocks);
+  const stopPreview=()=>{if(tailorCvPreview){const view=tailorCvPreview;tailorCvPreview=null;view.dispose();}};
+  const finish=status=>{card.classList.add('is-completed');actions.replaceChildren();const note=document.createElement('span');note.setAttribute('role','status');note.textContent=status;actions.append(note);};
+  for(const name of ['Preview','Decline','Accept']){const button=document.createElement('button');button.type='button';button.textContent=name;button.className=name==='Accept'?'suggestion-accept':'';button.addEventListener('click',()=>{
+    if(name==='Decline'){stopPreview();dismissProposal();finish('Declined');chatMessagesEl.append(card);return;}
+    if(!current()){stopPreview();const note=document.createElement('p');note.setAttribute('role','status');note.textContent='This suggestion is out of date. Send your request again.';actions.replaceChildren(note);return;}
+    if(name==='Accept'){stopPreview();applyProposal();finish('Accepted');chatMessagesEl.append(card);return;}
+    stopPreview();tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate,baseline:{blocks:deepClone(documentBlocksState)},proposalId:crypto.randomUUID(),render:()=>renderDocument(documentTextState),isCurrent:current,onClose:stopPreview});tailorCvPreview.navigate(changed[0]?.blockId);
+    if(matchMedia('(max-width:800px)').matches)DraftedCvLayout.ready(editorPreviewEl).then(()=>document.querySelector('.workspace-expand-preview')?.click());
+  });actions.append(button);}
+  card.append(actions);chatMessagesEl.append(card);chatMessagesEl.scrollTop=chatMessagesEl.scrollHeight;
 }
 
 
   function clearAllProposalCards() {
   if (!chatMessagesEl) return;
-  chatMessagesEl.querySelectorAll(".drafted-proposal-card").forEach(el => el.remove());
+  chatMessagesEl.querySelectorAll(".drafted-proposal-card:not(.is-completed)").forEach(el => el.remove());
 }
 
   
@@ -1455,6 +1374,7 @@ function setApplyLabel() {
   let cvVersionId = null;
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
+  let selectionSources = {};
   let lastClickedBlockId = null;       // shift anchor
   let chatHistory = [];        // { role: "user"|"assistant", content: string }
   let pendingProposal = null;      // { cvVersionId, cvTitle, blocks, summaryOfChanges? }
@@ -1491,7 +1411,8 @@ function setApplyLabel() {
     const inputRow=section.querySelector('.chat-input-row'),scopeRow=section.querySelector('.context-chip-row');
     if(inputRow){inputRow.before(composer);if(scopeRow)composer.append(scopeRow);composer.append(inputRow);}
     const inputHelp=document.createElement('p');inputHelp.className='workspace-input-help';inputHelp.id='workspace-input-help';
-    inputHelp.textContent='Send asks for advice. Apply changes your CV.';composer.append(inputHelp);
+    editorApplyBtn.hidden=true;editorApplyBtn.setAttribute('aria-hidden','true');
+    editorInput.placeholder='Ask a question or describe a change…';editorInput.dataset.placeholderDefault=editorInput.placeholder;
     editorInput?.setAttribute('aria-describedby',inputHelp.id);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
     const previewTitle=document.createElement('div');previewTitle.className='workspace-preview-title';
@@ -1827,8 +1748,11 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     return { ok: false, error: "No blocks loaded" };
   }
 
+  const baseline=pendingProposalMeta?.baseline;
+  if(!baseline||chatBaseline()!==baseline)return {ok:false,error:'This suggestion belongs to an earlier CV or job context. Please send your request again.'};
   const mode = (pendingSuggestion.mode === "full") ? "full" : "blocks";
   const instruction = String(pendingSuggestion.instruction || "").trim();
+  if(!['blocks','full'].includes(pendingSuggestion.mode))return {ok:false,error:'The suggested scope was invalid. Please try again.'};
 
   const selectedIds =
     mode === "blocks"
@@ -1837,6 +1761,7 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
           : Array.from(selectedBlockIds))
       : [];
 
+  if(mode==='blocks'&&(!selectedIds.length||selectedIds.some(id=>!documentBlocksState.some(b=>b.blockId===id))))return {ok:false,error:'The suggested sections are no longer available.'};
   const payload = {
     mode,
     instruction,
@@ -1865,11 +1790,13 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
       "cv"
     );
 
+    if(chatBaseline()!==baseline)return {ok:false,error:'Your CV or job context changed. Please send your request again.'};
     const nextBlocks = data.blocks;
     if (!nextBlocks || !nextBlocks.length) {
       return { ok: false, error: "Rewrite flow returned no blocks" };
     }
 
+    validateChatCandidate(nextBlocks,{mode,selectedBlockIds:selectedIds});
     const nextTitle = String(data.cvTitle || "").trim() || (documentTitle || "");
     const nextCvVersionId = String(data.cvVersionId || "").trim() || (cvVersionId || null);
     const changedBlockIds = computeChangedBlockIds(documentBlocksState, nextBlocks);
@@ -1886,6 +1813,8 @@ async function fetchProposalFromSuggestion({ commitImmediately = false } = {}) {
     };
 
     pendingProposalMeta = {
+      baseline,
+      association:pendingProposalMeta?.association,
       changedBlockIds,
       summaryOfChanges: summary
     };
@@ -1942,6 +1871,9 @@ function getSelectionLabel() {
 function updateContextChip() {
   const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
   const selectedCount = selectedBlockIds?.size || 0;
+  for(const id of Object.keys(selectionSources))if(!selectedBlockIds.has(id))delete selectionSources[id];
+  for(const id of selectedBlockIds)if(!selectionSources[id]){const block=documentBlocksState?.find(b=>b.blockId===id);if(block)selectionSources[id]={version:cvVersionId,text:block.text};}
+  editorChatBtn.textContent=selectedCount&&!editorInput.value.trim()?'Send selected section'+(selectedCount===1?'':'s'):'Send';
 
   // If no CV loaded yet: hide chip completely + remove full-scope UI
   if (!hasBlocks) {
@@ -1971,6 +1903,8 @@ function updateContextChip() {
       </div>
     `;
 
+    const list=contextChipEl.querySelector('.chip-label');list.replaceChildren();
+    for(const id of selectedBlockIds){const block=documentBlocksState.find(b=>b.blockId===id),label=block?.label||block?.type||'Section';const chip=document.createElement('button');chip.type='button';chip.className='shared-section-chip';chip.textContent=label+' ×';chip.setAttribute('aria-label','Remove '+label+' from message');chip.addEventListener('click',()=>{selectedBlockIds.delete(id);applySelectedBlocksUI();updateContextChip();});list.append(chip);}
     contextChipEl.classList.remove("is-hidden");
     setChipMode("blocks");
 
@@ -1993,7 +1927,7 @@ function updateContextChip() {
       <div class="chip-label">
         <span class="chip-badge">Scope</span>
         <span class="chip-title">Full CV</span>
-        <span class="chip-sub">Applies changes to the whole document</span>
+        <span class="chip-sub">Whole CV available as context</span>
       </div>
 
       <div class="chip-actions">
@@ -2237,8 +2171,21 @@ function updateContextChip() {
   if (pendingProposal || pendingSuggestion) appendProposalCard(pendingProposalMeta);
 }
 
+  function validateChatCandidate(candidate,scope){
+    if(!Array.isArray(candidate)||candidate.length!==documentBlocksState.length)throw new Error('Suggestion changed the document structure.');
+    const baseline=new Map(documentBlocksState.map(b=>[b.blockId,b])),seen=new Set();
+    for(let i=0;i<candidate.length;i++){const b=candidate[i],old=baseline.get(b?.blockId);
+      if(!old||seen.has(b.blockId)||b.blockId!==documentBlocksState[i].blockId||typeof b.text!=='string')throw new Error('Invalid suggestion sections.');
+      seen.add(b.blockId);
+      const {text:oldText,...oldMeta}=old,{text:newText,...newMeta}=b;
+      if(Object.keys(oldMeta).length!==Object.keys(newMeta).length||Object.keys(oldMeta).some(key=>JSON.stringify(oldMeta[key])!==JSON.stringify(newMeta[key])))throw new Error('Suggestion changed section identity or metadata.');
+      if(scope?.mode==='blocks'&&!scope.selectedBlockIds.includes(b.blockId)&&oldText!==newText)throw new Error('Suggestion changed a section outside the requested scope.');
+    }
+  }
+  function chatBaseline(){return JSON.stringify({version:cvVersionId,blocks:documentBlocksState,job:jobAdInputEl?.value||'',revision:workspaceContextRevision});}
   function applyProposal() {
   if (!pendingProposal?.blocks?.length) return;
+  if(!pendingProposalMeta?.baseline||chatBaseline()!==pendingProposalMeta.baseline){appendChat('assistant','This suggestion is out of date. Send your request again before applying changes.');return;}
 
   const nextBlocks = deepClone(pendingProposal.blocks);
 
@@ -2263,7 +2210,6 @@ function updateContextChip() {
   updateContextChip();
 
   clearNativeSelection();
-  editorInput.value = "";
 
   clearAllProposalCards();
   setApplyLabel();
@@ -2354,8 +2300,17 @@ async function sendChat() {
     return;
   }
 
-  const msg = (editorInput?.value || "").trim();
-  if (!msg) return;
+  if(tailorCvPreview){const view=tailorCvPreview;tailorCvPreview=null;view.dispose();}
+  if(isPreviewingProposal)exitProposalPreview();
+  const typed=(editorInput?.value||'').trim();
+  if(!typed&&!selectedBlockIds.size)return;
+  const invalid=[...selectedBlockIds].some(id=>{const b=documentBlocksState?.find(b=>b.blockId===id),source=selectionSources[id];return !b||!source||source.version!==cvVersionId||source.text!==b.text;});
+  if(invalid){appendChat('assistant','The selected sections changed or were removed. Please select the current sections again. Your draft is kept.');clearBlockSelection('chat');return;}
+  const shared=[...selectedBlockIds].map(id=>documentBlocksState.find(b=>b.blockId===id));
+  const shareText=shared.length?'Shared section'+(shared.length===1?'':'s')+': '+shared.map(b=>b.label||b.type||'Section').join(', '):'';
+  const msg=[typed,shareText].filter(Boolean).join('\n\n');
+  const baseline=chatBaseline();
+  const previousHistory=chatHistory.slice(-12);
 
   const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
   if (!hasBlocks) {
@@ -2385,7 +2340,7 @@ async function sendChat() {
     mode,
     selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
     blocks: documentBlocksState,
-    history: chatHistory.slice(-12),
+    history: previousHistory,
     message: msg
   };
 
@@ -2400,8 +2355,11 @@ async function sendChat() {
       "chat"
     );
 
+    if(chatBaseline()!==baseline){appendChat('assistant','Your CV or job context changed while this answer was being prepared. Send your request again using the current version.');return;}
+    const association=crypto.randomUUID();
     const assistantMsg = String(data.message || "").trim() || "Okay.";
-appendChat("assistant", assistantMsg);
+// Show ordinary replies immediately; actionable replies are represented by the concrete card.
+if(!data.suggestion?.instruction&&!data.proposal?.blocks?.length)appendChat("assistant", assistantMsg);
 
 // Reset preview state on any new assistant answer
 isPreviewingProposal = false;
@@ -2418,12 +2376,16 @@ const nextProposal =
     ? data.proposal
     : null;
 
+if(nextProposal?.blocks)validateChatCandidate(nextProposal.blocks,{mode,selectedBlockIds:payload.selectedBlockIds});
+if(nextSuggestion&&payload.selectedBlockIds.length&&(nextSuggestion.mode!=='blocks'||!Array.isArray(nextSuggestion.selectedBlockIds)||nextSuggestion.selectedBlockIds.some(id=>!payload.selectedBlockIds.includes(id))))throw new Error('Suggestion exceeded the shared scope.');
 pendingSuggestion = nextSuggestion;
 pendingProposal = nextProposal;
 
 // Build meta used by your existing proposal card UI.
 // Keep it compatible with fetchProposalFromSuggestion(), which uses appendProposalCard(pendingProposalMeta).
 pendingProposalMeta = {
+  baseline,
+  association,
   intent: data.intent || (nextProposal ? "proposal" : nextSuggestion ? "suggestion" : "answer"),
   changedBlockIds: Array.isArray(data.changedBlockIds) ? data.changedBlockIds : [],
   // If your card expects summaryOfChanges, keep it as empty list.
@@ -2437,7 +2399,8 @@ const hasActionableSuggestion = !!(pendingSuggestion && pendingSuggestion.instru
 const hasReadyProposal = !!(pendingProposal && pendingProposal.blocks && pendingProposal.blocks.length);
 
 if (hasReadyProposal || hasActionableSuggestion) {
-  appendProposalCard(pendingProposalMeta);
+  if(hasActionableSuggestion&&!hasReadyProposal){const result=await fetchProposalFromSuggestion();if(!result.ok){appendChat('assistant',assistantMsg,association);appendChat('assistant',result.error||'Could not prepare the suggestion. Your CV is unchanged.');}}
+  else appendProposalCard(pendingProposalMeta);
 }
 
 setApplyLabel();
@@ -2450,7 +2413,8 @@ setApplyLabel();
     } else {
       console.error(err);
     }
-    appendChat("assistant", "Something went wrong. Try again.");
+    appendChat("assistant", "Something went wrong. Your CV is unchanged. Review your draft and try again.");
+    if(!editorInput.value)editorInput.value=typed;
     pendingProposal = null;
     pendingProposalMeta = null;
     pendingSuggestion = null;
@@ -2460,6 +2424,7 @@ setApplyLabel();
     // Always release lock
     window.__DRAFTED_CHAT__.inFlight = false;
     setBusy(false);
+    updateContextChip();
     forceButtonsActiveLook();
   }
 }
@@ -2536,107 +2501,7 @@ function setCommandBarLocked(isLocked) {
   /* ===============================
    APPLY BUTTON (main Apply)
    =============================== */
-async function sendApply() {
-  // If preview/proposal exists, apply locally
-  if (pendingProposal && Array.isArray(pendingProposal.blocks) && pendingProposal.blocks.length) {
-    applyProposal();
-    return;
-  }
-
-  // If suggestion exists but no proposal yet, generate+apply via rewrite flow
-  if (pendingSuggestion && pendingSuggestion.instruction) {
-    const r = await fetchProposalFromSuggestion({ commitImmediately: true });
-    if (!r.ok) {
-      appendChat("assistant", r.error || "Could not apply suggestion.");
-    }
-    return;
-  }
-
-  // Default: use editor input as instruction and call rewrite flow
-  const instruction = editorInput.value.trim();
-  if (!instruction) {
-    alert("Enter an instruction first.");
-    return;
-  }
-
-  const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
-  if (!hasBlocks) {
-    alert("Upload a CV first.");
-    return;
-  }
-
-  const hasSelectedBlocks = selectedBlockIds.size > 0;
-  const mode = hasSelectedBlocks ? "blocks" : "full";
-
-  const payload = {
-    mode,
-    instruction,
-    targetRole: targetRoleInput?.value?.trim() || "",
-    cvVersionId: cvVersionId || null,
-    cvTitle: documentTitle || "",
-    selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
-    blocks: documentBlocksState
-  };
-
-  try {
-    setBusy(true);
-
-    const data = await draftedFetchJson(
-      N8N_EDITOR_URL,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      },
-      "cv"
-    );
-
-    const nextBlocks = data.blocks;
-    if (!nextBlocks || !nextBlocks.length) throw new Error("blocks missing in editor response");
-
-    const nextTitle = String(data.cvTitle || "").trim();
-    if (nextTitle) documentTitle = nextTitle;
-
-    const nextCvVersionId = String(data.cvVersionId || "").trim();
-    if (nextCvVersionId) cvVersionId = nextCvVersionId;
-
-    buildStateFromBlocks(nextBlocks);
-
-    const nextIds = new Set(documentBlocksState.map(b => b.blockId));
-    selectedBlockIds = new Set(Array.from(selectedBlockIds).filter(id => nextIds.has(id)));
-
-    pendingSuggestion = null;
-    pendingProposal = null;
-    pendingProposalMeta = null;
-    isPreviewingProposal = false;
-    previewSnapshot = null;
-
-    clearAllProposalCards();
-    setApplyLabel();
-
-    renderDocument(documentTextState);
-    applySelectedBlocksUI();
-    updateContextChip();
-    clearNativeSelection();
-    editorInput.value = "";
-
-  } catch (err) {
-    if (err && err.name === "DraftedContractError") {
-      console.error("DraftedContractError", err.code, err.details, err);
-    } else {
-      console.error(err);
-    }
-    alert("Apply-fel.");
-  } finally {
-    setBusy(false);
-    forceButtonsActiveLook();
-  }
-}
-
-  editorApplyBtn.addEventListener("click", e => {
-    e.preventDefault();
-    sendApply();
-  });
+  editorInput.addEventListener("input",()=>updateContextChip());
 
     if (editorChatBtn) {
     editorChatBtn.addEventListener("click", e => {
@@ -2814,8 +2679,8 @@ function bindPdfDownloadButton() {
     if(document.documentElement.dataset.workspacePage==='editor'&&document.documentElement.dataset.workspaceReady==='true'&&!document.documentElement.dataset.workspaceBooting)workspaceReading={chat:chatMessagesEl.scrollTop,document:editorPreviewEl.closest('.cv-document')?.scrollTop||0};
     const cv=documentBlocksState?.length?serialSnapshot(snapshotCurrentState()):null;
     return {cv,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,design:selectedCvDesign,chatHistory,
-      messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card)')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent})),
-      pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
+      messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card)')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent,association:el.dataset.proposalAssociation||null})),
+      selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
       jobText:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
       setupStatus:{text:document.getElementById('preparation-status').textContent,state:document.getElementById('preparation-status').dataset.state,hidden:document.getElementById('preparation-status').hidden,processing:uploadInFlight},
       draft:editorInput.value,discovery:discoveryController?.snapshot(),coverage:coverageController?.snapshot(),ledger:{groups:tailorSourceLedger.groups,history:tailorSourceLedger.history},
@@ -2841,8 +2706,8 @@ function bindPdfDownloadButton() {
     restoreSnapshot(saved.cv);documentComparison?.restore(saved.comparison);renderDocument(documentTextState);setCvLoadedUI(true);setEditorPlaceholder(false);
     isPreviewingProposal=!!saved.isPreviewingProposal;previewSnapshot=saved.previewSnapshot||null;pendingProposal=saved.pendingProposal||null;pendingProposalMeta=saved.pendingProposalMeta||null;pendingSuggestion=saved.pendingSuggestion||null;
     for(const el of [...chatMessagesEl.children])if(!el.matches('.drafted-discovery,.discovery-guidance,.workspace-earlier-answers,.workspace-coverage-panel'))el.remove();
-    chatHistory=[];for(const message of saved.messages||[])appendChat(message.role,message.text);chatHistory=Array.isArray(saved.chatHistory)?saved.chatHistory:[];
-    editorInput.value=saved.draft||'';tailorSourceLedger.groups=saved.ledger?.groups||[];tailorSourceLedger.history=saved.ledger?.history||[];
+    chatHistory=[];for(const message of saved.messages||[])appendChat(message.role,message.text,message.association);chatHistory=Array.isArray(saved.chatHistory)?saved.chatHistory:[];
+    selectionSources=saved.selectionSources||{};editorInput.value=saved.draft||'';updateContextChip();tailorSourceLedger.groups=saved.ledger?.groups||[];tailorSourceLedger.history=saved.ledger?.history||[];
     if(saved.discovery)discoveryController?.restore(saved.discovery);
     await coverageController?.restore(saved.coverage);
     tailorAppliedStamp=saved.tailorAppliedStamp||null;tailorReviewState=saved.tailorReview||null;

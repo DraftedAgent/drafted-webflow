@@ -1,0 +1,10 @@
+'use strict';
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const observed=JSON.parse(fs.readFileSync('dev-system/prepared/chat-review/observed.json','utf8').replace(/^\uFEFF/,'')),before=observed.nodes.find(n=>n.name==='Build LLM Messages').code,after=fs.readFileSync('dev-system/prepared/chat-review/build-llm-messages.js','utf8');
+const run=(code,input)=>vm.runInNewContext('(function(){'+code+'})()',{ $json:input,TextEncoder }).json;
+const input={mode:'chat',message:'Categorize my Skills.',blocks:[{blockId:'skills',type:'skills',text:'Python SQL '+ 'Workshop facilitation '.repeat(60)+'LAST SKILL'}],selectedBlockIds:[],history:[{role:'user',content:'Please organize the skills by category.'}]};
+assert.equal(run(before,input)._debug.contextBlocksCount,0);
+const actual=run(after,input);assert(actual.promptText.includes('LAST SKILL'));assert(actual.promptText.includes('Please organize the skills by category.'));assert(actual.promptText.includes('Selection is optional'));
+assert(run(after,{...input,mode:'blocks',selectedBlockIds:['skills'],message:'Shared section: Skills'}).promptText.includes('LAST SKILL'));
+assert.throws(()=>run(after,{...input,selectedBlockIds:['removed']}));assert.throws(()=>run(after,{...input,blocks:[{blockId:'x',text:'x'.repeat(60001)}]}));
+assert.deepEqual(JSON.stringify(actual.blocks),JSON.stringify(input.blocks));console.log('PASS active chat drops context; proposed node retains full text/history, optional selection, explicit limits; no model call');
