@@ -191,3 +191,28 @@
  .drafted-hero-brand[role=button] {cursor:pointer;}
  .drafted-hero-brand[role=button]:focus-visible {outline:2px solid #007f86;outline-offset:8px;}
 }
+@media screen {
+ .section-editor.discovery-enabled .chat-command-bar {grid-template-columns:minmax(0,1fr) 76px;}
+ .section-editor #editor-chat-send {width:76px;min-width:76px;max-width:76px;white-space:nowrap;}
+ .selection-send-hint {margin:0;padding:4px 12px 8px;color:#537080;font:12px/1.4 system-ui;}
+}
+@media screen {
+ .section-editor .cv-document-inner.is-scope-full #editor-preview-text .cv-page {outline:none;}
+ .section-editor .cv-document-inner.is-scope-full #editor-preview-text .cv-page-slot {position:relative;}
+ .section-editor .cv-document-inner.is-scope-full #editor-preview-text .cv-page-slot::after {content:'';position:absolute;inset:0;border:2px solid #008b91;box-sizing:border-box;pointer-events:none;}
+ .section-editor .full-context-chip {background:#dcf3f2;border-color:#008b91;color:#00666d;}
+ .section-editor .chip-label .selection-send-hint {padding:0;margin:0;font-weight:400;flex:1 1 auto;}
+ .section-editor .chip-label {display:flex;align-items:center;flex-wrap:wrap;}
+}
+@media screen {
+ .section-editor.discovery-enabled .context-chip {display:grid;grid-template-columns:minmax(0,1fr) 96px;align-items:start;}
+ .section-editor .context-chip .chip-label {min-height:40px;min-width:0;align-content:center;box-sizing:border-box;}
+ .section-editor .context-chip .chip-actions {display:flex;justify-content:flex-end;min-height:40px;align-items:center;}
+ .section-editor .context-chip #chip-full {width:96px;min-width:96px;height:32px;box-sizing:border-box;white-space:nowrap;padding:6px;}
+ .section-editor .context-chip #chip-full[aria-pressed=true] {background:#007f86;border-color:#007f86;color:#fff;}
+ .section-editor .context-chip #chip-full[aria-pressed=true]:hover {background:#006b72;}
+}
+@media screen {
+ .section-editor .workspace-composer {position:relative;}
+ #full-context-feedback {position:absolute;left:0;bottom:calc(100% + 6px);margin:0;padding:5px 8px;background:#fff;border:1px solid #c7d6de;border-radius:4px;z-index:3;pointer-events:none;}
+}

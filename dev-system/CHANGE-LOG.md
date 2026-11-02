@@ -1620,3 +1620,29 @@ Synthetic editor-initial-zoom browser suite passes desktop1440/mobile390: new100
 ## DEV-222 — Full template names in closed selector (2026-11-02)
 
 Expanded workspace template selector98->144px with equal min-width and flex:none on selector/group, retaining font size. Existing wrapping toolbar accommodates narrow panel/mobile without shrinking selector. Temporary synthetic existing zoom-suite probes pass1440 with divider End and390/320mobile: Executive measured text+padding+arrow fits, selector>=144px, no toolbar horizontal overflow. Dev/integration rebuilt; no public assets/backend changes or publication. Previous copy/zoom changes preserved.
+
+## DEV-223 — Stable Send geometry and explicit selection-request lifecycle (2026-11-02)
+
+Composer now has fixed76px Send column and invariant Send label; removable context chips stay above field. Empty text+selection no longer enables Send unless an explicit structured selectionRequest is current. Help switches between Add a message about this section and Send your selection to continue. Typed/dictated text continues with optional selected IDs. Request is bound to its originating frontend requestId/assistant turn, CV/job baseline and last assistant message, consumed by a successful send attempt and replaced by the next response; history text alone never creates state. Optional state is persisted/restored only with those guards. Existing contract validator accepts exact optional id/kind shape and rejects cross-request IDs/actionable-plus-request responses. Busy-state styling respects send eligibility.
+
+Current live backend lacks this field, so production-style integration now requires text with selection until separately approved extension. Exact two-node candidates and scope are in prepared/contextual-selection/APPROVAL.md; no active n8n changes. Existing full-CV availability and no unnecessary sharing remain mandatory. No new AI call introduced by state field.
+
+Synthetic contextual-selection-send browser tests pass1440/390: identical textarea width before/after single/multi/removal, fixed label, requestless selection disabled even with share wording in reply, explicit request allows one section-only response, unique reply request ID, reload continuity, replacement by newer message and invalidation on changed CV version. Existing compact suggestion suite and dictation desktop/mobile suite pass after fixtures explicitly model selection requests and wait for request completion rather than assuming empty Send is enabled. Dev/integration rebuilt with public assets unchanged. No real backend/AI call, publication, commit or push.
+
+## DEV-224 — Clear Full CV context chip and screen-size page outline (2026-11-02)
+
+Full scope uses removable Full CV × chip in same chip-label container as section selections. Activation emits transient2second role=status Full CV selected as context outside chat history; no send/AI/model mutation. Removing chip returns chat scope; selecting individual blocks replaces full scope through existing selection logic. Ordinary no-explicit-selection label now states that explicitly. Typed full-context messages append Context: Full CV to user history while retaining existing full mode/full blocks payload. Backend read access unchanged.
+
+Section helper moves into wrapping chip-label row immediately after removable chips. Full-page contour is2px teal border on absolute pseudo-element of unscaled page slots, inside the outer edge to avoid clipping. It never scales with paper transform and adds no layout dimensions; paper, controls/background and print are excluded from this UI treatment.
+
+Synthetic full-context browser tests pass1440/390 with multipage source, Full chip activation/removal, disabled empty Send and zero automatic requests, mode switching,50/150%zoom showing2px on every page slot, print media removes border, canonical source unchanged, sent history/payload full context and mobile overflow checks. Contextual-selection lifecycle suite also passes. Dev/integration rebuilt; no external backend/AI calls or publication. Pending structured-request backend candidate remains unapproved/unapplied.
+
+## DEV-225 — Full CV context toggle without layout shift (2026-11-02)
+
+Use full CV now stays in a fixed96x32px action cell and toggles Full CV ✓ with teal/white styling and aria-pressed. Stable accessible name identifies full-CV message context. Removed separate full chip. Context row reserves40px and fixed action column; Clear moves beside section chips so it cannot displace toggle. Brief activation status is an out-of-flow notice, avoiding composer-height/position jumps. Focus on toggle survives DOM refresh. Individual block selection turns full scope off; active toggle clears block selections; second click returns to unselected context. Existing2px page contours and explicit-send/history semantics retained.
+
+Synthetic full-context suite passes desktop1440/mobile390: exact x/y/width/height within1px before/after activation, pressed state, no separate full chip, deactivation, block/full switching, multipage50/150%outline and print exclusion, no automatic request/CV mutation, full-context history on actual Send. Dev/integration built; no backend calls/publication/commit/push.
+
+## DEV-226 — Remove idle composer scope labels (2026-11-02)
+
+Presentation-only: idle context chip-label is empty instead of Scope/Chat/No explicit selection. Existing section chips, fixed Full CV toggle, helper placement and selection/removal handlers retained. Dev/integration rebuilt; public assets unchanged. No backend or publication.

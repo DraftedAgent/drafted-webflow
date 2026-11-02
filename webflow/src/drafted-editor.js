@@ -1107,6 +1107,7 @@ function assertDraftedChatResponse(data) {
     "proposal",
     "suggestion",
     "changedBlockIds",
+    "selectionRequest",
     "contractError",
   ];
   assertNoUnexpectedFields(data, allowed, "Chat response");
@@ -1140,6 +1141,8 @@ function assertDraftedChatResponse(data) {
       );
     }
     requireString(data.message, "message");
+    if(data.selectionRequest!=null){const r=data.selectionRequest;if(!isPlainObject(r)||Object.keys(r).some(k=>!['id','kind'].includes(k))||r.kind!=='cv_selection'||typeof r.id!=='string'||!r.id.trim()||r.id.length>128)throw new DraftedContractError('CONTRACT_INVALID_TYPE','Invalid selection request');if(data.suggestion||data.proposal)throw new DraftedContractError('CONTRACT_INVALID_TYPE','A suggestion cannot also request selection');}
+
 
     return {
       ok: true,
@@ -1148,6 +1151,7 @@ function assertDraftedChatResponse(data) {
       proposal: data.proposal ?? null,
       suggestion: data.suggestion ?? null,
       changedBlockIds: data.changedBlockIds ?? [],
+      selectionRequest: data.selectionRequest ?? null,
     };
   }
 
@@ -1300,6 +1304,16 @@ async function draftedFetchJson(url, options, kind) {
 }
 
 
+function activateFullContext(){
+  clearBlockSelection('full');
+  let status=document.getElementById('full-context-feedback');if(!status){status=document.createElement('p');status.id='full-context-feedback';status.className='selection-send-hint';status.setAttribute('role','status');document.querySelector('.workspace-composer').append(status);}
+  status.textContent='Full CV selected as context.';status.hidden=false;clearTimeout(activateFullContext.timer);activateFullContext.timer=setTimeout(()=>{status.hidden=true;},2000);
+}
+function positionContextHint(){
+  let hint=document.getElementById('selection-send-hint');if(!hint){hint=document.createElement('p');hint.id='selection-send-hint';hint.className='selection-send-hint';hint.setAttribute('role','status');}
+  contextChipEl.querySelector('.chip-label')?.append(hint);updateChatSendState();
+}
+
 function applyFullScopeUI(isFull) {
   if (!editorPaper) return;
   editorPaper.classList.toggle("is-scope-full", !!isFull);
@@ -1398,6 +1412,7 @@ function setApplyLabel() {
   let selectedBlockId = null;          // last clicked block (compat)
   let selectedBlockIds = new Set();  
   let selectionSources = {};
+  let activeSelectionRequest = null;
   let lastClickedBlockId = null;       // shift anchor
   let chatHistory = [];        // { role: "user"|"assistant", content: string }
   let appliedChatReceipts = [];
@@ -1436,6 +1451,7 @@ function setApplyLabel() {
     if(inputRow){inputRow.before(composer);if(scopeRow)composer.append(scopeRow);composer.append(inputRow);}
     const inputHelp=document.createElement('p');inputHelp.className='workspace-input-help';inputHelp.id='workspace-input-help';
     editorApplyBtn.hidden=true;editorApplyBtn.setAttribute('aria-hidden','true');
+    const selectionHint=document.createElement('p');selectionHint.id='selection-send-hint';selectionHint.className='selection-send-hint';selectionHint.setAttribute('role','status');selectionHint.hidden=true;inputRow.before(selectionHint);
     editorInput.placeholder='Ask a question or describe a change…';editorInput.dataset.placeholderDefault=editorInput.placeholder;
     editorInput?.setAttribute('aria-describedby',inputHelp.id);
     const heading=section.querySelector('.chat-title');if(heading)heading.textContent='Editor';
@@ -1892,12 +1908,24 @@ function getSelectionLabel() {
   return (type ? type : "Block") + more;
 }
 
+function selectionRequestCurrent(){
+  const last=chatHistory.at(-1);return !!activeSelectionRequest&&activeSelectionRequest.baseline===chatBaseline()&&last?.role==='assistant'&&last.association===activeSelectionRequest.turnId;
+}
+function updateChatSendState(){
+  const active=selectionRequestCurrent(),typed=!!editorInput.value.trim(),chosen=selectedBlockIds.size>0;
+  editorChatBtn.textContent='Send';editorChatBtn.dataset.canSend=String(typed||chosen&&active);
+  editorChatBtn.disabled=!!editorInput.disabled||!!window.__DRAFTED_CHAT__?.inFlight||!(typed||chosen&&active);
+  editorChatBtn.setAttribute('aria-disabled',String(editorChatBtn.disabled));
+  const hint=document.getElementById('selection-send-hint');if(hint){hint.textContent=active?'Send your selection to continue.':chosen&&!typed?'Add a message about this section.':'';hint.hidden=!hint.textContent;}
+}
+
 function updateContextChip() {
+  const focusedFull=document.activeElement?.id==='chip-full';
   const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
   const selectedCount = selectedBlockIds?.size || 0;
   for(const id of Object.keys(selectionSources))if(!selectedBlockIds.has(id))delete selectionSources[id];
   for(const id of selectedBlockIds)if(!selectionSources[id]){const block=documentBlocksState?.find(b=>b.blockId===id);if(block)selectionSources[id]={version:cvVersionId,text:block.text};}
-  editorChatBtn.textContent=selectedCount&&!editorInput.value.trim()?'Send selected section'+(selectedCount===1?'':'s'):'Send';
+  updateChatSendState();
 
   // If no CV loaded yet: hide chip completely + remove full-scope UI
   if (!hasBlocks) {
@@ -1923,21 +1951,21 @@ function updateContextChip() {
 
       <div class="chip-actions">
         <button type="button" class="chip-btn chip-btn--ghost" id="chip-clear">Clear</button>
-        <button type="button" class="chip-btn chip-btn--primary" id="chip-full">Use full CV</button>
+        <button type="button" class="chip-btn chip-btn--primary" id="chip-full" aria-pressed="false" aria-label="Use full CV as message context">Use full CV</button>
       </div>
     `;
 
-    const list=contextChipEl.querySelector('.chip-label');list.replaceChildren();
+    const list=contextChipEl.querySelector('.chip-label');list.replaceChildren();const clear=contextChipEl.querySelector('#chip-clear');if(clear)list.append(clear);
     for(const id of selectedBlockIds){const block=documentBlocksState.find(b=>b.blockId===id),label=block?.label||block?.type||'Section';const chip=document.createElement('button');chip.type='button';chip.className='shared-section-chip';chip.textContent=label+' ×';chip.setAttribute('aria-label','Remove '+label+' from message');chip.addEventListener('click',()=>{selectedBlockIds.delete(id);applySelectedBlocksUI();updateContextChip();});list.append(chip);}
     contextChipEl.classList.remove("is-hidden");
-    setChipMode("blocks");
+    setChipMode("blocks");positionContextHint();if(focusedFull)contextChipEl.querySelector('#chip-full')?.focus({preventScroll:true});
 
     contextChipEl.querySelector("#chip-clear")?.addEventListener("click", () => {
       clearBlockSelection("chat");
     });
 
     contextChipEl.querySelector("#chip-full")?.addEventListener("click", () => {
-      clearBlockSelection("full");
+      activateFullContext();
     });
 
     return;
@@ -1948,21 +1976,13 @@ function updateContextChip() {
     applyFullScopeUI(true);
 
     contextChipEl.innerHTML = `
-      <div class="chip-label">
-        <span class="chip-badge">Scope</span>
-        <span class="chip-title">Full CV</span>
-        <span class="chip-sub">Whole CV available as context</span>
-      </div>
-
-      <div class="chip-actions">
-        <button type="button" class="chip-btn chip-btn--ghost" id="chip-chat">Chat only</button>
-      </div>
+      <div class="chip-label"></div><div class="chip-actions"><button type="button" class="chip-btn chip-btn--primary" id="chip-full" aria-pressed="true" aria-label="Use full CV as message context">Full CV ✓</button></div>
     `;
 
     contextChipEl.classList.remove("is-hidden");
-    setChipMode("full");
+    setChipMode("full");positionContextHint();if(focusedFull)contextChipEl.querySelector('#chip-full')?.focus({preventScroll:true});
 
-    contextChipEl.querySelector("#chip-chat")?.addEventListener("click", () => {
+    contextChipEl.querySelector("#chip-full")?.addEventListener("click", () => {
       activeContext = "chat";
       updateContextChip();
     });
@@ -1974,23 +1994,18 @@ function updateContextChip() {
   applyFullScopeUI(false);
 
   contextChipEl.innerHTML = `
-    <div class="chip-label">
-      <span class="chip-badge">Scope</span>
-      <span class="chip-title">Chat</span>
-      <span class="chip-sub">No CV changes</span>
-    </div>
+    <div class="chip-label"></div>
 
     <div class="chip-actions">
-      <button type="button" class="chip-btn chip-btn--primary" id="chip-full">Use full CV</button>
+      <button type="button" class="chip-btn chip-btn--primary" id="chip-full" aria-pressed="false" aria-label="Use full CV as message context">Use full CV</button>
     </div>
   `;
 
   contextChipEl.classList.remove("is-hidden");
-  setChipMode("chat");
+  setChipMode("chat");positionContextHint();if(focusedFull)contextChipEl.querySelector('#chip-full')?.focus({preventScroll:true});
 
   contextChipEl.querySelector("#chip-full")?.addEventListener("click", () => {
-    activeContext = "full";
-    updateContextChip();
+    activateFullContext();
   });
 }
 
@@ -2329,14 +2344,16 @@ async function sendChat() {
   if(tailorCvPreview){const view=tailorCvPreview;tailorCvPreview=null;view.dispose();}
   if(isPreviewingProposal)exitProposalPreview();
   const typed=(editorInput?.value||'').trim();
-  if(!typed&&!selectedBlockIds.size)return;
+  if(!typed&&(!selectedBlockIds.size||!selectionRequestCurrent())){updateChatSendState();return;}
   const invalid=[...selectedBlockIds].some(id=>{const b=documentBlocksState?.find(b=>b.blockId===id),source=selectionSources[id];return !b||!source||source.version!==cvVersionId||source.text!==b.text;});
   if(invalid){appendChat('assistant','The selected sections changed or were removed. Please select the current sections again. Your draft is kept.');clearBlockSelection('chat');return;}
   const shared=[...selectedBlockIds].map(id=>documentBlocksState.find(b=>b.blockId===id));
   const shareText=shared.length?'Shared section'+(shared.length===1?'':'s')+': '+shared.map(b=>b.label||b.type||'Section').join(', '):'';
-  const msg=[typed,shareText].filter(Boolean).join('\n\n');
+  const msg=[typed,shareText,activeContext==='full'?'Context: Full CV':''].filter(Boolean).join('\n\n');
   const baseline=chatBaseline();
   const previousHistory=chatHistory.slice(-12);
+  const respondingTo=selectionRequestCurrent()?activeSelectionRequest.id:null;
+  activeSelectionRequest=null;
 
   const hasBlocks = !!(documentBlocksState && documentBlocksState.length);
   if (!hasBlocks) {
@@ -2359,6 +2376,7 @@ async function sendChat() {
     "chat";
 
   const payload = {
+    requestId:crypto.randomUUID(),
     cvVersionId: cvVersionId || null,
     cvTitle: documentTitle || "",
     targetRole: targetRoleInput?.value?.trim() || "",
@@ -2367,6 +2385,7 @@ async function sendChat() {
     selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
     blocks: documentBlocksState,
     history: previousHistory,
+    ...(respondingTo?{selectionRequestId:respondingTo}:{}),
     message: msg
   };
 
@@ -2382,10 +2401,12 @@ async function sendChat() {
     );
 
     if(chatBaseline()!==baseline){appendChat('assistant','Your CV or job context changed while this answer was being prepared. Send your request again using the current version.');return;}
+    if(data.selectionRequest&&data.selectionRequest.id!==payload.requestId)throw new Error('Selection request belongs to a different conversation step.');
     const association=crypto.randomUUID();
     const assistantMsg = String(data.message || "").trim() || "Okay.";
 // Show ordinary replies immediately; actionable replies are represented by the concrete card.
-if(!data.suggestion?.instruction&&!data.proposal?.blocks?.length)appendChat("assistant", assistantMsg);
+if(!data.suggestion?.instruction&&!data.proposal?.blocks?.length)appendChat("assistant", assistantMsg,association);
+activeSelectionRequest=data.selectionRequest?{id:data.selectionRequest.id,turnId:association,baseline}:null;
 
 // Reset preview state on any new assistant answer
 isPreviewingProposal = false;
@@ -2513,8 +2534,8 @@ function setCommandBarLocked(isLocked) {
   // Buttons
   [chatBtn, applyBtn].forEach((btn) => {
     if (!btn) return;
-    btn.disabled = locked;
-    btn.setAttribute("aria-disabled", locked ? "true" : "false");
+    btn.disabled = locked || btn===chatBtn&&btn.dataset.canSend!=="true";
+    btn.setAttribute("aria-disabled", String(btn.disabled));
     btn.classList.toggle("is-locked", locked);
   });
 
@@ -2706,7 +2727,7 @@ function bindPdfDownloadButton() {
     const cv=documentBlocksState?.length?serialSnapshot(snapshotCurrentState()):null;
     return {cv,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,design:selectedCvDesign,chatHistory,
       messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card), :scope > .suggestion-receipt')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent,receiptId:el.dataset.receiptId||null,association:el.dataset.proposalAssociation||null})),
-      appliedChatReceipts,selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
+      activeSelectionRequest,appliedChatReceipts,selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
       jobText:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
       setupStatus:{text:document.getElementById('preparation-status').textContent,state:document.getElementById('preparation-status').dataset.state,hidden:document.getElementById('preparation-status').hidden,processing:uploadInFlight},
       draft:editorInput.value,discovery:discoveryController?.snapshot(),coverage:coverageController?.snapshot(),ledger:{groups:tailorSourceLedger.groups,history:tailorSourceLedger.history},
@@ -2734,6 +2755,7 @@ function bindPdfDownloadButton() {
     for(const el of [...chatMessagesEl.children])if(!el.matches('.drafted-discovery,.discovery-guidance,.workspace-earlier-answers,.workspace-coverage-panel'))el.remove();
     appliedChatReceipts=Array.isArray(saved.appliedChatReceipts)?saved.appliedChatReceipts:[];
     chatHistory=[];for(const message of saved.messages||[]){const receipt=appliedChatReceipts.find(r=>r.id===message.receiptId);if(receipt)appendAppliedReceipt(receipt);else appendChat(message.role,message.text,message.association);}chatHistory=Array.isArray(saved.chatHistory)?saved.chatHistory:[];
+    activeSelectionRequest=saved.activeSelectionRequest||null;
     selectionSources=saved.selectionSources||{};editorInput.value=saved.draft||'';updateContextChip();tailorSourceLedger.groups=saved.ledger?.groups||[];tailorSourceLedger.history=saved.ledger?.history||[];
     if(saved.discovery)discoveryController?.restore(saved.discovery);
     await coverageController?.restore(saved.coverage);
