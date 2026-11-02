@@ -4,7 +4,7 @@ const root=path.resolve(__dirname,'..'),dist=path.join(root,'site/dist');
 process.env.DRAFTED_PREVIEW_SCENARIO ||= 'structured-context';
 const {server:fixture}=require('./serve-editor-preview.cjs');
 const coverage=require('../backend/cv-coverage.cjs').createHandler({model:require('../backend/cv-coverage-fixture.cjs').model,modelName:'synthetic-fixture-only'});
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.ttf':'font/ttf','.wasm':'application/wasm','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4'};
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.ttf':'font/ttf','.wasm':'application/wasm','.png':'image/png','.ico':'image/vnd.microsoft.icon','.jpg':'image/jpeg','.mp4':'video/mp4'};
 const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,'http://localhost'),p=url.pathname;
  res.setHeader('Content-Security-Policy',"default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'");

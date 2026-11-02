@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),zlib=require('node:zlib');
 const R=require('../site/integration/runtime.cjs'),dist=path.resolve(__dirname,'../site/integration-dist');
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.ttf':'font/ttf','.wasm':'application/wasm'};
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.ico':'image/vnd.microsoft.icon','.ttf':'font/ttf','.wasm':'application/wasm'};
 function createServer({enabled=false}={}){
  if(typeof enabled!=='boolean')throw Error('Explicit boolean required');
  const dictation=require('../backend/dictation-local-gateway.cjs').create({enabled});

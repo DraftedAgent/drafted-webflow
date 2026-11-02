@@ -57,6 +57,8 @@
   .section-editor .workspace-editor-toolbar button:hover {background:transparent;color:var(--editor-teal-hover);}
   .section-editor .discovery-count {background:#e1f0f1;color:#234a54;border-radius:20px;padding:2px 7px;margin-left:6px;}
   .section-editor.discovery-enabled .chat-messages {padding:4px 0!important;gap:18px;}
+  /* Leave room for the 2px focus outline plus its 3px offset inside the scrollport. */
+  .section-editor.discovery-enabled .chat-card.discovery-mode .chat-messages {padding-inline:6px!important;}
   .section-editor .discovery-guidance {padding:16px 18px;border-color:var(--editor-line);border-radius:var(--editor-radius);background:#f4f9f9;color:var(--editor-ink);margin:0 0 8px;}
   .section-editor .discovery-guidance h2 {font:650 16px/1.4 system-ui;margin-bottom:6px;}
   .section-editor .discovery-guidance p {color:#425b6b;}
