@@ -77,8 +77,8 @@
   .section-editor .workspace-aligned-panels .workspace-coverage-toggle {margin-left:auto;max-width:100%;white-space:normal;}
   .section-editor .workspace-aligned-panels .workspace-preview-display {display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-width:0;margin-left:auto;}
   .section-editor .workspace-aligned-panels .workspace-page-count {margin:0;white-space:nowrap;font-size:11px;}
-  .section-editor .workspace-aligned-panels .workspace-design-controls {margin:0;}
-  .section-editor .workspace-aligned-panels .workspace-design-controls select {width:98px;min-height:30px;height:30px;font-size:12px;padding-block:3px;}
+  .section-editor .workspace-aligned-panels .workspace-design-controls {margin:0;flex:none;}
+  .section-editor .workspace-aligned-panels .workspace-design-controls select {width:144px;min-width:144px;flex:none;min-height:30px;height:30px;font-size:12px;padding-block:3px;}
   .section-editor .workspace-aligned-panels .workspace-icon-button {width:30px;min-height:30px;height:30px;}
   .section-editor .workspace-aligned-panels .document-comparison {display:flex;flex-wrap:wrap;flex:0 1 auto;gap:3px;padding:0;min-width:0;}
   .section-editor .workspace-aligned-panels .document-comparison button {font-size:11px;white-space:nowrap;padding:5px 6px;min-height:30px;}

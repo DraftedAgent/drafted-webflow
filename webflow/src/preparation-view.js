@@ -29,7 +29,7 @@
     jobStatus.setAttribute('role','status');jobStatus.setAttribute('aria-live','polite');
     const jobFeedback=el('div','preparation-job-feedback');jobFeedback.append(jobHint,jobStatus);
     opportunity.group.append(job,jobFeedback);
-    const starting=step('02','Your current CV','Upload the CV you have today. It doesn’t need to be tailored to this role.','preparation-starting');
+    const starting=step('02','Your current CV','Upload your current CV. We’ll use it as the starting point.','preparation-starting');
     const icon=el('span','preparation-file-icon');icon.setAttribute('aria-hidden','true');
     icon.innerHTML='<svg width="25" height="28" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2h9l5 5v18H5zM14 2v6h5M8 13h8M8 17h8M8 21h5"/></svg>';
     const fileText=el('div','preparation-file-details'),type=el('span','preparation-file-type','PDF document');fileText.append(name,type);

@@ -2078,6 +2078,7 @@ function updateContextChip() {
     // A response for a file replaced during upload must not restore its CV/questions.
     if (getFileInput()?.files?.[0] !== file) return;
     discoveryCvFile = file;
+    DraftedCvLayout.setZoom(editorPreviewEl,1);
     workspaceContextRevision++;
     tailorSourceLedger.reset();
     tailorReviewState=null;tailorAppliedStamp=null;discoveryController?.reset();
@@ -2740,7 +2741,7 @@ function bindPdfDownloadButton() {
     if(tailorReviewState){const review=tailorReviewState;showTailorSuggestion(review.data,review.stamp,review.request,new Set(review.omittedContext));const draft=chatMessagesEl.querySelector('.tailor-suggestion textarea');if(draft)draft.value=saved.tailorDraft||'';}
     if(pendingProposal||pendingSuggestion)appendProposalCard(pendingProposalMeta);setApplyLabel();syncWorkspaceJobContext();refreshTailorPresentation();
     if(saved.interrupted){appendChat('system','An unfinished request was interrupted by reload. Your work is kept. Retry the request when you are ready.');if(!editorInput.value)editorInput.value=[...(saved.chatHistory||[])].reverse().find(m=>m.role==='user')?.content||'';}
-    await DraftedCvLayout.ready(editorPreviewEl);DraftedCvLayout.setZoom(editorPreviewEl,saved.zoom||'fit');
+    await DraftedCvLayout.ready(editorPreviewEl);DraftedCvLayout.setZoom(editorPreviewEl,saved.zoom||1);
     requestAnimationFrame(()=>{chatMessagesEl.scrollTop=saved.scroll?.chat||0;const pane=editorPreviewEl.closest('.cv-document');if(pane)pane.scrollTop=saved.scroll?.document||0;});
   }
   onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,sourceFile:()=>discoveryCvFile,adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;if(!coverageController?.model.restoreBlocked)coverageController?.sync();}});});

@@ -1610,3 +1610,13 @@ Isolated fresh100% browser comparisons use exact frozen old viewer fixture and c
 ## DEV-220 — Lift setup introduction and replay hero logo on intent (2026-11-02)
 
 Setup introduction lifts56px on roomy desktop, matching current Signals-ready/current-CV gap; normal-flow compensating margins preserve following form position and centered group. Lift reduces on short desktop viewports and remains absent on mobile. Hero brand gets accessible button semantics, focus outline and click/Enter/Space replay. Pristine initial SVG is reused; active controller is canceled before remount, including during playback. Resize/scroll do not request replay. Header logo unchanged; reduced motion remains static. Synthetic replay tests pass desktop1440/mobile390: completed replay, mid-animation keyboard restart, single restored static final state and reduced motion. Dev/integration rebuilt; no publication or backend calls.
+
+## DEV-221 — New editor workspaces start at natural100% (2026-11-02)
+
+Changed viewer initial zoom from fit to numeric1 and reset zoom to1 only after successful new upload. Restored workspace honors saved numeric/Fit choice; missing legacy zoom falls back1. Existing rescale/template/render paths retain viewer zoom and existing scaled scroll slots/auto centering. No physical page/font/pagination changes. Uploaded-original PDF viewer unaffected.
+
+Synthetic editor-initial-zoom browser suite passes desktop1440/mobile390: new100%/Fit unselected,120% survives template switch, desktop divider resize and reload, explicit Fit survives reload/setup return, no global horizontal overflow. Dev/integration built; no external calls or publication. Earlier local copy-only change preserved.
+
+## DEV-222 — Full template names in closed selector (2026-11-02)
+
+Expanded workspace template selector98->144px with equal min-width and flex:none on selector/group, retaining font size. Existing wrapping toolbar accommodates narrow panel/mobile without shrinking selector. Temporary synthetic existing zoom-suite probes pass1440 with divider End and390/320mobile: Executive measured text+padding+arrow fits, selector>=144px, no toolbar horizontal overflow. Dev/integration rebuilt; no public assets/backend changes or publication. Previous copy/zoom changes preserved.

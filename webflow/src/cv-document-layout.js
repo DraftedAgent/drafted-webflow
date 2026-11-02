@@ -273,7 +273,7 @@
         }
         host.dispatchEvent(new CustomEvent('cv-view-scale', {detail:{factor, mode:viewer.zoom === 'fit' ? 'fit' : 'manual'}}));
       };
-      viewer = {scale, zoom:'fit', generation:0}; viewers.set(host, viewer);
+      viewer = {scale, zoom:1, generation:0}; viewers.set(host, viewer);
       new ResizeObserver(() => scale()).observe(host);
     }
     viewer.model = model;
