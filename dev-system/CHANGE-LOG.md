@@ -1669,3 +1669,6 @@ Owner requested publication. Clean source2505152a3b232dd4f898c61e9722a3ad4aee1af
 
 Shared toolbar tracks now use flex-start cross-axis content alignment instead of flex-end. Chat/experience tabs retain a fixed position beneath Editor while wrapped controls expand downwards; shared workspace surfaces still start at the same height. No document or interaction changes. Synthetic browser checks pass desktop1440 at both divider limits and mobile390, with invariant tab top, top-aligned comparison controls, aligned workspace surfaces and no horizontal page overflow. Desktop screenshot visually inspected. Dev/integration rebuilt; protected public assets unchanged. No backend calls or publication.
 
+## DEV-231 — Publish top-aligned toolbars (2026-11-03)
+
+Owner-approved source69a4fa3 deployed to Workerbee2d6b5-9781-4274-9718-c54c379d67a1 at getmedrafted.com. Rollback68d780f0-4cb9-4c3a-ab84-90d5d990f58e retained. Exact served hashes/routes and public-origin mocked desktop/mobile toolbar tests pass. Backend, secrets, domain and persistent budget unchanged. No paid model calls or stable promotion.
