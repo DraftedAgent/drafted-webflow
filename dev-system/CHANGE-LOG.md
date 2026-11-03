@@ -1712,3 +1712,7 @@ Desktop guidance retained min-block-size380px even when its short content fit sm
 ## DEV-240 — Prefer full toolbar labels whenever actual contents fit (2026-11-03)
 
 Replaced fixed650/1000/600px thresholds with measured toolbar overflow: try full labels and controls first, then compact zoom and comparison only as needed. Observe actual left/right panels so divider movement updates correctly, plus left label changes. Fixed old display:none pseudo-element rule that suppressed compact Questions/Answers and left only count visible. Existing full labels/counts/accessibility retained. Desktop/mobile synthetic checks pass divider extremes, no overflow, full left labels when space exists, zoom/Escape. Dev/integration rebuilt; no backend calls or publication.
+
+## DEV-241 — Publish intro scroll and actual toolbar fitting fixes (2026-11-03)
+
+Owner approved commit and publish. Clean sourced482b82 deployed to Worker ea2c39c4-ca21-44b9-b16b-ff5d8c79bcd9 at getmedrafted.com. Rollback9a856a1d-1849-4f19-99b0-8b5ebe321ec3 retained. Local intro-scroll and public-origin mocked toolbar tests pass desktop/mobile. Exact served hashes and routes verified. No backend/domain/secrets/quota change, paid calls, main merge or stable promotion.
