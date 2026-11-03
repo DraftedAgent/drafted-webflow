@@ -72,7 +72,7 @@
 @media screen {
   .section-editor.discovery-enabled .workspace-aligned-panels :is(.chat-card,.cv-card) {padding:0!important;gap:0;border:0;border-radius:0;background:var(--editor-surface,#edf3f6);}
   .section-editor.discovery-enabled .workspace-aligned-panels .workspace-panel-heading {margin:0;padding:12px 16px 8px;min-height:0;box-sizing:border-box;font:700 15px/1.4 system-ui;color:var(--editor-ink);align-self:stretch;}
-  .section-editor .workspace-aligned-panels :is(.workspace-editor-toolbar,.workspace-preview-title) {display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;align-content:flex-end;gap:6px 10px;min-width:0;width:auto;max-width:100%;margin:0 16px;padding:0 0 10px;border-bottom:1px solid var(--editor-line);box-sizing:border-box;}
+  .section-editor .workspace-aligned-panels :is(.workspace-editor-toolbar,.workspace-preview-title) {display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;align-content:flex-start;gap:6px 10px;min-width:0;width:auto;max-width:100%;margin:0 16px;padding:0 0 10px;border-bottom:1px solid var(--editor-line);box-sizing:border-box;}
   .section-editor .workspace-aligned-panels .workspace-editor-toolbar>button {min-height:32px;font-size:12px;padding:5px 2px;}
   .section-editor .workspace-aligned-panels .workspace-coverage-toggle {margin-left:auto;max-width:100%;white-space:normal;}
   .section-editor .workspace-aligned-panels .workspace-preview-display {display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-width:0;margin-left:auto;}

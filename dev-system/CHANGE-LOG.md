@@ -1664,3 +1664,8 @@ Synthetic job-description-draft browser test passes desktop/mobile with actual C
 ## DEV-229 — Publish Continue-only job-ad confirmation (2026-11-03)
 
 Owner requested publication. Clean source2505152a3b232dd4f898c61e9722a3ad4aee1af4 deployed to existing getmedrafted.com Worker68d780f0-4cb9-4c3a-ab84-90d5d990f58e. Rollback target584dc2c4-ce9f-4ac3-942c-c6135ede1f2f retained. Existing domain, bindings, shared persistent budget, live mode and secrets unchanged; no n8n mutation or provider call. Nine isolated gateway tests pass. Public served hashes/home/editor pass. New public-origin job-draft mocked harness passes actual keyboard select/delete/paste/edit/blur, Cancel, draft reload, confirm once, subsequent unchanged Continue, and retained CV/source answers on desktop/mobile; all API POSTs intercepted or blocked. Release receipt site/hosting/current-release.json; no main merge/stable promotion. Pending selection-request backend remains unactivated.
+
+## DEV-230 — Keep editor toolbars aligned at the top (2026-11-03)
+
+Shared toolbar tracks now use flex-start cross-axis content alignment instead of flex-end. Chat/experience tabs retain a fixed position beneath Editor while wrapped controls expand downwards; shared workspace surfaces still start at the same height. No document or interaction changes. Synthetic browser checks pass desktop1440 at both divider limits and mobile390, with invariant tab top, top-aligned comparison controls, aligned workspace surfaces and no horizontal page overflow. Desktop screenshot visually inspected. Dev/integration rebuilt; protected public assets unchanged. No backend calls or publication.
+
