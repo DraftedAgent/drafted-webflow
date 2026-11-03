@@ -19,14 +19,14 @@ async function checkControls(){
  for(const m of metrics){assert(!m.overflow,'Toolbar does not overflow');assert(Math.max(...m.tops)-Math.min(...m.tops)<16,'Single control row');}
  const trigger=page.getByRole('button',{name:'Preview zoom controls',exact:true});if(await trigger.isVisible()){await trigger.click();await page.locator('.workspace-zoom-slider').fill('110');await page.locator('.workspace-zoom-slider').dispatchEvent('input');assert.match(await trigger.textContent(),/110/);await page.keyboard.press('Escape');await page.waitForFunction(()=>document.querySelector('.workspace-zoom-trigger[aria-label="Preview zoom controls"]').getAttribute('aria-expanded')==='false');}
 }
-const baseline=await sample();await checkControls();
+await page.waitForTimeout(150);const baseline=await sample();await checkControls();
 if(width>800){
  for(const key of ['Home','End','Home']){
   await page.locator('.workspace-divider').press(key);await page.waitForTimeout(150);
   const state=await sample();assert.ok(Math.abs(state.tabs.top-baseline.tabs.top)<1,'Tabs remain at fixed top');
   assert.ok(Math.abs(state.comparison.top-state.right.top)<2,'Preview controls start at toolbar top');
   assert.ok(Math.abs(state.leftBody.top-state.paper.top)<2,'Workspace surfaces remain aligned');assert.equal(state.overflow,false);await checkControls();
-  await page.screenshot({path:path.join(out,'toolbar-'+width+'-'+key+'.png')});
+  if(key==='End')assert.equal(await page.locator('.editor-left').evaluate(n=>n.classList.contains('workspace-compact')),false,'Full left labels when room exists');await page.screenshot({path:path.join(out,'toolbar-'+width+'-'+key+'.png')});
  }
 }else{assert.equal(baseline.overflow,false);await checkControls();await page.screenshot({path:path.join(out,'toolbar-mobile.png')});}
 assert.deepEqual(errors,[]);console.log('PASS',width,'toolbar top alignment, divider bounds and no overflow');await page.close();}

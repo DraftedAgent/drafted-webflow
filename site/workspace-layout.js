@@ -38,16 +38,24 @@
       zoomButton.textContent=(zoom?.querySelector('.workspace-zoom-value')?.textContent||'100%')+' ▾';
     }
     function adaptPanels(){
-      left.classList.toggle('workspace-compact',left.clientWidth<650);
-      const compact=right.clientWidth<1000;right.classList.toggle('workspace-compact',compact);zoomButton.hidden=!compact;
-      const count=section.querySelector('.workspace-page-count');if(count)(compact?label:display).append(count);
-      if(zoom&&zoom.parentElement!==(compact?zoomMenu:toolbar)){zoomMenu.hidePopover();(compact?zoomMenu:toolbar).append(zoom);}
-      const narrow=right.clientWidth<600;comparisonButton.hidden=!narrow;
-      if(comparison&&comparison.parentElement!==(narrow?comparisonMenu:toolbar)){comparisonMenu.hidePopover();if(narrow)comparisonMenu.append(comparison);else toolbar.prepend(comparison);}
-      compactLabels();if(zoomMenu.matches(':popover-open'))positionZoom();
+      compactLabels();
+      const leftToolbar=chat.querySelector('.workspace-editor-toolbar');
+      left.classList.remove('workspace-compact');
+      left.classList.toggle('workspace-compact',leftToolbar.scrollWidth>leftToolbar.clientWidth+1);
+      // Try the full controls first, then collapse only what cannot fit.
+      zoomMenu.hidePopover();comparisonMenu.hidePopover();
+      right.classList.remove('workspace-compact');zoomButton.hidden=true;comparisonButton.hidden=true;
+      if(comparison.parentElement!==toolbar)toolbar.prepend(comparison);
+      if(zoom.parentElement!==toolbar)toolbar.append(zoom);
+      const count=section.querySelector('.workspace-page-count');if(count&&count.parentElement!==display)display.prepend(count);
+      const compact=toolbar.scrollWidth>toolbar.clientWidth+1;
+      right.classList.toggle('workspace-compact',compact);zoomButton.hidden=!compact;
+      if(compact){zoomMenu.append(zoom);if(count)label.append(count);}
+      const narrow=toolbar.scrollWidth>toolbar.clientWidth+1;comparisonButton.hidden=!narrow;
+      if(narrow)comparisonMenu.append(comparison);
     }
-    new ResizeObserver(adaptPanels).observe(layout);
-    new MutationObserver(compactLabels).observe(chat.querySelector('.workspace-editor-toolbar'),{childList:true,subtree:true,characterData:true});
+    const panelSizes=new ResizeObserver(adaptPanels);panelSizes.observe(left);panelSizes.observe(right);
+    new MutationObserver(adaptPanels).observe(chat.querySelector('.workspace-editor-toolbar'),{childList:true,subtree:true,characterData:true});
     if(zoom)new MutationObserver(compactLabels).observe(zoom,{childList:true,subtree:true,characterData:true});
     if(comparison)new MutationObserver(compactLabels).observe(comparison,{attributes:true,subtree:true,attributeFilter:['aria-pressed']});
     adaptPanels();

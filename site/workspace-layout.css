@@ -267,3 +267,14 @@
  .workspace-comparison-menu .document-comparison {display:flex;gap:4px;flex-wrap:wrap;}
  .workspace-comparison-menu button {font:12px system-ui;padding:6px;}
 }
+
+/* Intro content sizes naturally; flexible spacers center it only when space exists. */
+@media screen {
+ .section-editor.discovery-enabled .workspace-aligned-panels #drafted-discovery-guidance {min-block-size:0;}
+}
+
+@media screen {
+ .section-editor .workspace-aligned-panels .workspace-preview-title>*,
+ .section-editor .workspace-aligned-panels .workspace-editor-toolbar>button {flex-shrink:0;}
+ .section-editor .workspace-compact .workspace-editor-toolbar .discovery-launcher::before {display:inline;width:auto;height:auto;margin:0;border-radius:0;background:none;vertical-align:baseline;}
+}

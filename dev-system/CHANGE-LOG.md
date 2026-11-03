@@ -1703,3 +1703,12 @@ Actual panel ResizeObserver selects compact Questions/Answers and Coverage N/N l
 ## DEV-238 — Publish approved setup/scanner/compact toolbar refinements (2026-11-03)
 
 Owner approved commit and publication. Clean source0cc5a48 deployed to getmedrafted.com Worker9a856a1d-1849-4f19-99b0-8b5ebe321ec3. Rollbackbee2d6b5-9781-4274-9718-c54c379d67a1 preserved. Local responsive setup/toolbar tests and9gateway tests pass. Public served file hashes/routes and mocked desktop/mobile toolbar interaction checks pass. Backend/domain/secrets/persistent quota unchanged. No real AI calls, main merge or stable promotion.
+
+## DEV-239 — Remove artificial intro scroll height (2026-11-03)
+
+Desktop guidance retained min-block-size380px even when its short content fit smaller panels; prior0 override covered mobile only. Workspace guidance now uses natural minimum on all screen widths. Existing spacers center when space exists, overflow:auto retained for real long content. Synthetic actual-editor intro checks pass desktop1440 at900/700height and mobile390 at900height without excess scroll, long content scrolls; mobile700 genuinely needs scroll due129px chat space and remains accessible. Dev/integration rebuilt; no backend calls or publication.
+
+
+## DEV-240 — Prefer full toolbar labels whenever actual contents fit (2026-11-03)
+
+Replaced fixed650/1000/600px thresholds with measured toolbar overflow: try full labels and controls first, then compact zoom and comparison only as needed. Observe actual left/right panels so divider movement updates correctly, plus left label changes. Fixed old display:none pseudo-element rule that suppressed compact Questions/Answers and left only count visible. Existing full labels/counts/accessibility retained. Desktop/mobile synthetic checks pass divider extremes, no overflow, full left labels when space exists, zoom/Escape. Dev/integration rebuilt; no backend calls or publication.
