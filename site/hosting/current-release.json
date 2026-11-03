@@ -1,9 +1,9 @@
 {
   "url": "https://getmedrafted.com",
-  "publishedSourceCommit": "758eafabb80051a61c3ee2b55d165c0c89e9efbd",
-  "workerVersion": "584dc2c4-ce9f-4ac3-942c-c6135ede1f2f",
-  "previousWorkerVersion": "8c4a191f-cce2-47bd-89bc-fb2390c58909",
-  "publishedUTC": "2026-11-02T21:29:52.621904+00:00",
+  "publishedSourceCommit": "2505152a3b232dd4f898c61e9722a3ad4aee1af4",
+  "workerVersion": "68d780f0-4cb9-4c3a-ab84-90d5d990f58e",
+  "previousWorkerVersion": "584dc2c4-ce9f-4ac3-942c-c6135ede1f2f",
+  "publishedUTC": "2026-11-03T09:33:17.522392+00:00",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
@@ -14,8 +14,8 @@
     "usedState": "preserved; not reset or inspected"
   },
   "workflowExecutionOrModelCalls": 0,
-  "verification": "Served hashes, / and /editor, favicon and pre-backend rejection gates verified. Public-origin browser tests use intercepted synthetic APIs, not provider execution. Gateway unit tests pass.",
-  "rollback": "wrangler rollback 8c4a191f-cce2-47bd-89bc-fb2390c58909 --config site/hosting/wrangler.jsonc",
+  "verification": "Exact served file hashes/home/editor verified. Public-origin keyboard job-draft tests pass desktop/mobile using intercepted synthetic API responses, cancel/reload/confirm once and retained CV/source answers. No model/provider executions.",
+  "rollback": "wrangler rollback 584dc2c4-ce9f-4ac3-942c-c6135ede1f2f --config site/hosting/wrangler.jsonc",
   "changesExcluded": [
     "DNS",
     "n8n workflows",
