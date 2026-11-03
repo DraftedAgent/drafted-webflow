@@ -41,7 +41,7 @@
     }
     function scale(){
       const width=view.clientWidth-20;if(width<=0)return;
-      for(const item of pages){const factor=width/item.viewport.width;item.slot.style.width=width+'px';item.slot.style.height=item.viewport.height*factor+'px';item.paper.style.transform=`scale(${factor})`;item.paper.dataset.displayScale=String(factor);if(item.started&&nearby(item))raster(item,revision).catch(()=>message('A page could not be displayed.'));}
+      for(const item of pages){const availableHeight=view.clientHeight-20;const fitPage=!!view.closest('#section-input')&&!view.closest('dialog');const factor=fitPage&&availableHeight>0?Math.min(width/item.viewport.width,availableHeight/item.viewport.height):width/item.viewport.width;item.slot.style.width=item.viewport.width*factor+'px';item.slot.style.height=item.viewport.height*factor+'px';item.paper.style.transform=`scale(${factor})`;item.paper.dataset.displayScale=String(factor);if(item.started&&nearby(item))raster(item,revision).catch(()=>message('A page could not be displayed.'));}
     }
     new ResizeObserver(scale).observe(view);
     let densityQuery;

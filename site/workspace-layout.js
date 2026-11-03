@@ -22,6 +22,35 @@
     divider.setAttribute('role','separator');divider.setAttribute('aria-label','Resize conversation and CV preview');
     divider.setAttribute('aria-orientation','vertical');divider.setAttribute('aria-controls',left.id+' '+right.id);
     divider.title='Drag to resize. Arrow keys adjust; double-click resets.';left.after(divider);
+    // Adapt to actual panel widths, including divider changes.
+    const zoomMenu=document.createElement('div');zoomMenu.className='workspace-zoom-menu';zoomMenu.id='workspace-zoom-menu';zoomMenu.setAttribute('popover','auto');
+    const zoomButton=document.createElement('button');zoomButton.type='button';zoomButton.className='workspace-zoom-trigger';zoomButton.setAttribute('popovertarget',zoomMenu.id);zoomButton.setAttribute('aria-label','Preview zoom controls');zoomButton.setAttribute('aria-expanded','false');
+    toolbar.append(zoomButton);section.append(zoomMenu);
+    function positionZoom(){const r=zoomButton.getBoundingClientRect();zoomMenu.style.left=Math.max(8,Math.min(r.right-310,innerWidth-326))+'px';zoomMenu.style.top=(r.bottom+6)+'px';}
+    zoomMenu.addEventListener('toggle',()=>{zoomButton.setAttribute('aria-expanded',String(zoomMenu.matches(':popover-open')));if(zoomMenu.matches(':popover-open'))positionZoom();});
+    const comparisonMenu=document.createElement('div');comparisonMenu.className='workspace-comparison-menu';comparisonMenu.id='workspace-comparison-menu';comparisonMenu.setAttribute('popover','auto');
+    const comparisonButton=document.createElement('button');comparisonButton.type='button';comparisonButton.className='workspace-zoom-trigger';comparisonButton.setAttribute('popovertarget',comparisonMenu.id);comparisonButton.setAttribute('aria-label','CV comparison views');toolbar.prepend(comparisonButton);section.append(comparisonMenu);
+    comparisonMenu.addEventListener('toggle',()=>{const open=comparisonMenu.matches(':popover-open');comparisonButton.setAttribute('aria-expanded',String(open));if(open){const r=comparisonButton.getBoundingClientRect();comparisonMenu.style.left=Math.max(8,Math.min(r.left,innerWidth-246))+'px';comparisonMenu.style.top=(r.bottom+6)+'px';}});
+    function compactLabels(){
+      const launcher=chat.querySelector('.discovery-launcher');if(launcher){const review=launcher.textContent.includes('Review your answers');launcher.dataset.compactLabel=review?'Answers':'Questions';}
+      const coverage=chat.querySelector('.workspace-coverage-toggle');if(coverage){const full=coverage.textContent,match=full.match(/(\d+) of (\d+)/);coverage.dataset.compactLabel=match?'Coverage '+match[1]+'/'+match[2]:'Coverage';coverage.setAttribute('aria-label',full);coverage.title=full;}
+      const selected=comparison?.querySelector('button[aria-pressed=true]');comparisonButton.textContent=(selected?.textContent||'Edited')+' ▾';
+      zoomButton.textContent=(zoom?.querySelector('.workspace-zoom-value')?.textContent||'100%')+' ▾';
+    }
+    function adaptPanels(){
+      left.classList.toggle('workspace-compact',left.clientWidth<650);
+      const compact=right.clientWidth<1000;right.classList.toggle('workspace-compact',compact);zoomButton.hidden=!compact;
+      const count=section.querySelector('.workspace-page-count');if(count)(compact?label:display).append(count);
+      if(zoom&&zoom.parentElement!==(compact?zoomMenu:toolbar)){zoomMenu.hidePopover();(compact?zoomMenu:toolbar).append(zoom);}
+      const narrow=right.clientWidth<600;comparisonButton.hidden=!narrow;
+      if(comparison&&comparison.parentElement!==(narrow?comparisonMenu:toolbar)){comparisonMenu.hidePopover();if(narrow)comparisonMenu.append(comparison);else toolbar.prepend(comparison);}
+      compactLabels();if(zoomMenu.matches(':popover-open'))positionZoom();
+    }
+    new ResizeObserver(adaptPanels).observe(layout);
+    new MutationObserver(compactLabels).observe(chat.querySelector('.workspace-editor-toolbar'),{childList:true,subtree:true,characterData:true});
+    if(zoom)new MutationObserver(compactLabels).observe(zoom,{childList:true,subtree:true,characterData:true});
+    if(comparison)new MutationObserver(compactLabels).observe(comparison,{attributes:true,subtree:true,attributeFilter:['aria-pressed']});
+    adaptPanels();
     const desktop=matchMedia('(min-width:801px)'),key='drafted.workspace.panel-ratio.v1';
     let ratio=.38,dragging=false;
     try{const saved=Number(localStorage.getItem(key));if(saved>=.25&&saved<=.6)ratio=saved;}catch{}

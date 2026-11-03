@@ -15,7 +15,7 @@
     section.classList.add('preparation-section');section.setAttribute('aria-labelledby','preparation-title');
     const intro=el('header','preparation-intro');
     const title=el('h1','preparation-title','A starting point. A direction.');title.id='preparation-title';
-    intro.append(title,el('p','preparation-introduction','Bring your current CV and the opportunity you have in mind. We’ll work from there.'));
+    intro.append(title);
     function step(number,title,help,id){
       const group=el('section','preparation-step'),heading=el('div','preparation-step-heading'),badge=el('span','preparation-number',number);badge.setAttribute('aria-hidden','true');
       const text=el('div','preparation-step-text'),label=el('h2','preparation-step-title',title);label.id=id;
@@ -46,9 +46,18 @@
     action.addEventListener('keydown',event=>{if(event.key===' '){event.preventDefault();action.click();}});
     const status=el('p','preparation-status');status.id='preparation-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.hidden=true;
     action.removeAttribute('aria-describedby');actions.append(action,status);
-    left.replaceChildren(intro,opportunity.group,starting.group,actions);
+    left.replaceChildren(opportunity.group,starting.group,actions);
     right.replaceChildren(preview);right.setAttribute('role','figure');right.setAttribute('aria-label','Your uploaded CV preview');
-    const layout=el('div','preparation-layout');layout.append(left,right);section.replaceChildren(layout);
+    const layout=el('div','preparation-layout');layout.append(intro,left,right);section.replaceChildren(layout);
+    // Keep both columns aligned, including the reserved status space.
+    const desktop=matchMedia('(min-width:801px)');
+    function alignPreview(){
+      if(!desktop.matches){right.style.removeProperty('height');right.style.removeProperty('max-height');right.style.removeProperty('align-self');return;}
+      const height=left.getBoundingClientRect().height;
+      if(height>0){right.style.height=height+'px';right.style.maxHeight='none';right.style.alignSelf='start';}
+    }
+    const formSize=new ResizeObserver(alignPreview);formSize.observe(left);formSize.observe(action);
+    desktop.addEventListener('change',alignPreview);global.addEventListener('resize',alignPreview);alignPreview();
     function show(state,text){status.dataset.state=state;status.textContent=text;status.hidden=!text;}
     function selected(){
       const selected=file.files?.[0];picker.dataset.hasFile=String(!!selected);name.textContent=selected?selected.name:'Choose your CV';name.title=selected?.name||'';

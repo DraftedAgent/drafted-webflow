@@ -31,7 +31,7 @@
  }
  function create({host,paperSelector='.source-pdf-slot[data-rendered=true] .source-pdf-paper',regionSelector='.source-pdf-text span:not(.markedContent)',reducedMotion=false}){
   const preference=matchMedia('(prefers-reduced-motion: reduce)'),surfaces=new Map();
-  let active=false,paused=false,speed=1,manualReduced=reducedMotion,elapsed=0,last=null,frame=0,queued=false;
+  let active=false,paused=false,speed=3,manualReduced=reducedMotion,elapsed=0,last=null,frame=0,queued=false;
   const reduced=()=>preference.matches||manualReduced;
   const render=()=>surfaces.forEach(s=>s.render(elapsed,reduced()));
   function tick(now){frame=0;if(!active||paused||reduced()||document.hidden){last=null;return;}if(last!==null)elapsed+=(now-last)*speed;last=now;render();frame=requestAnimationFrame(tick);}

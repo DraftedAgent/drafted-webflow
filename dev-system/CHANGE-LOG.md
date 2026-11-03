@@ -1672,3 +1672,30 @@ Shared toolbar tracks now use flex-start cross-axis content alignment instead of
 ## DEV-231 — Publish top-aligned toolbars (2026-11-03)
 
 Owner-approved source69a4fa3 deployed to Workerbee2d6b5-9781-4274-9718-c54c379d67a1 at getmedrafted.com. Rollback68d780f0-4cb9-4c3a-ab84-90d5d990f58e retained. Exact served hashes/routes and public-origin mocked desktop/mobile toolbar tests pass. Backend, secrets, domain and persistent budget unchanged. No paid model calls or stable promotion.
+
+## DEV-232 — Double upload scan speed (2026-11-03)
+
+CV analysis scanner default playback multiplier is2 instead of1, preserving all relative timings. Full cycle now2.8seconds instead of5.6; scan traversal2.4instead of4.8. Actual analysis duration/state, reduced motion and document rendering unchanged. Dev/integration rebuilt, protected public assets unchanged. No publication or real AI calls.
+
+Synthetic upload-scan browser suite passes seven scenarios: desktop/mobile, long wait, reduced motion, missing text, file replacement, reload and invalid PDF, plus failure/retry/success. No real backend requests.
+
+## DEV-233 — Increase upload scan speed another50% (2026-11-03)
+
+Owner requested an additional50% speed increase: playback multiplier2->3, three times original speed. Cycle approximately1.87seconds; traversal1.6seconds. Relative motion, analysis lifecycle and reduced motion unchanged. Dev/integration rebuilt; no publication or real backend calls.
+
+## DEV-234 — Align upload preview with Continue and fit whole pages (2026-11-03)
+
+Desktop preparation preview surround height follows form top through primary action bottom via ResizeObserver, excluding status below button. Mobile retains natural stacked layout. Original PDF viewer in setup uses minimum of available width/height scale for each page; expanded dialog retains width-fit reading. Raster resolution still follows displayed scale/DPR. Canonical document/export unchanged. Synthetic three-page checks pass1366x768,1920x1080,2560x1440/1800,1280x600 and390x844, including resize, bottom alignment within2px, whole page fits and upload navigation. Screenshot inspected. Dev/integration rebuilt; no real AI calls or publication.
+
+## DEV-235 — Remove setup intro copy and give space to ad field (2026-11-03)
+
+Removed the introduction sentence from delivered preparation markup. Desktop job field gains34px, preserving typography and internal scroll. Removed old56px negative introduction lift that could extend outside centered layout. Laptop-height desktop uses24px section padding,12px form gaps and24px inter-step margin to retain room for status beneath Continue. Whole-page fit and preview bottom alignment retained. Synthetic laptop/desktop/external/resize/mobile suite passes including explicit ready status; desktop heights>=700 fit viewport, very low/mobile layouts can grow naturally. Dev/integration rebuilt; no real backend calls or publication.
+
+
+## DEV-236 — Shared setup heading and aligned columns (2026-11-03)
+
+Preparation heading now spans both columns above the form/preview. Preview tracks entire left-column height including reserved status space; hidden status retains36px without announcing empty text. Removed oversized inter-step gap, consistent16/20px spacing, and allocated flexible bounded height to job textarea. Synthetic fit-page suite passes laptop/desktop/external/low/mobile and resize: matching column top/bottom, whole page fits, no horizontal overflow, navigation works. Laptop screenshot visually inspected. Dev/integration built; no publication or real AI calls.
+
+## DEV-237 — Compact editor toolbars based on panel width (2026-11-03)
+
+Actual panel ResizeObserver selects compact Questions/Answers and Coverage N/N labels with original accessible names. Right panel below1000px puts existing live zoom controls in a native keyboard/Escape popover; below600px existing comparison controls use a second native popover. Page count moves to heading; renderer reuses that counter instead of creating duplicates. Template selector stays144px. Single-line toolbar layout retains aligned content surfaces. Synthetic desktop1440 divider bounds and mobile390 checks pass with long coverage label, visible questions tab, no overflow, single row, zoom interaction and Escape. Screenshots inspected. Existing canonical CV, backend and PDF unchanged. Dev/integration rebuilt; no paid calls or publication.

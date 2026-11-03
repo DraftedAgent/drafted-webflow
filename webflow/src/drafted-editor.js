@@ -1720,7 +1720,7 @@ function setApplyLabel() {
       onLayout(count) {
         const heading = document.querySelector('.workspace-preview-title');
         if (heading) {
-          let counter = heading.querySelector('.workspace-page-count');
+          let counter = heading.closest('.cv-card')?.querySelector('.workspace-page-count');
           if (!counter) {
             counter = document.createElement('span');
             counter.className = 'workspace-page-count';

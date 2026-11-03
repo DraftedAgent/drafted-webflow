@@ -12,17 +12,23 @@ if(p==='/preview-api/rewrite'){rewrites++;const data=r.postDataJSON();return rou
 await page.goto(base);await page.locator('#cv-file').setInputFiles({name:'Synthetic.pdf',mimeType:'application/pdf',buffer:Buffer.from(require('./fixtures/source-pdf.js').create({pages:1}))});await page.locator('#upload-btn').click();await page.waitForURL('**/editor');await page.waitForFunction(()=>!document.querySelector('.workspace-transfer'));
 const input=page.locator('#editor-input'),send=page.locator('#editor-chat-send');assert.equal(await page.locator('#editor-send').isVisible(),false);
 await page.waitForFunction(()=>document.querySelector('#editor-preview-text').dataset.layoutState==='ready');
-const sample=()=>page.evaluate(()=>{const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height};};return {heading:rect('.chat-title'),tabs:rect('.workspace-editor-toolbar>button'),right:rect('.workspace-preview-title'),comparison:rect('.document-comparison'),leftBody:rect('.workspace-conversation-body'),paper:rect('.cv-document'),overflow:document.documentElement.scrollWidth>innerWidth};});
-const baseline=await sample();
+await page.evaluate(()=>{const q=document.querySelector('.discovery-launcher');if(q){q.hidden=false;q.style.setProperty('display','inline-flex','important');q.firstChild.textContent='Experience questions';}const c=document.querySelector('.workspace-coverage-toggle');c.textContent='8 of 18 signals clearly represented';});
+const sample=()=>page.evaluate(()=>{const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height};};return {heading:rect('.chat-title'),tabs:rect('.workspace-editor-toolbar>button'),right:rect('.workspace-preview-title'),comparison:rect('.workspace-preview-title'),leftBody:rect('.workspace-conversation-body'),paper:rect('.cv-document'),overflow:document.documentElement.scrollWidth>innerWidth};});
+async function checkControls(){
+ const metrics=await page.evaluate(()=>['.workspace-editor-toolbar','.workspace-preview-title'].map(s=>{const e=document.querySelector(s),r=e.getBoundingClientRect(),children=[...e.children].filter(n=>!n.hidden&&n.getBoundingClientRect().width);return {overflow:e.scrollWidth>e.clientWidth+1,tops:children.map(n=>Math.round(n.getBoundingClientRect().top-r.top))};}));
+ for(const m of metrics){assert(!m.overflow,'Toolbar does not overflow');assert(Math.max(...m.tops)-Math.min(...m.tops)<16,'Single control row');}
+ const trigger=page.getByRole('button',{name:'Preview zoom controls',exact:true});if(await trigger.isVisible()){await trigger.click();await page.locator('.workspace-zoom-slider').fill('110');await page.locator('.workspace-zoom-slider').dispatchEvent('input');assert.match(await trigger.textContent(),/110/);await page.keyboard.press('Escape');await page.waitForFunction(()=>document.querySelector('.workspace-zoom-trigger[aria-label="Preview zoom controls"]').getAttribute('aria-expanded')==='false');}
+}
+const baseline=await sample();await checkControls();
 if(width>800){
  for(const key of ['Home','End','Home']){
   await page.locator('.workspace-divider').press(key);await page.waitForTimeout(150);
   const state=await sample();assert.ok(Math.abs(state.tabs.top-baseline.tabs.top)<1,'Tabs remain at fixed top');
   assert.ok(Math.abs(state.comparison.top-state.right.top)<2,'Preview controls start at toolbar top');
-  assert.ok(Math.abs(state.leftBody.top-state.paper.top)<2,'Workspace surfaces remain aligned');assert.equal(state.overflow,false);
+  assert.ok(Math.abs(state.leftBody.top-state.paper.top)<2,'Workspace surfaces remain aligned');assert.equal(state.overflow,false);await checkControls();
   await page.screenshot({path:path.join(out,'toolbar-'+width+'-'+key+'.png')});
  }
-}else{assert.equal(baseline.overflow,false);await page.screenshot({path:path.join(out,'toolbar-mobile.png')});}
+}else{assert.equal(baseline.overflow,false);await checkControls();await page.screenshot({path:path.join(out,'toolbar-mobile.png')});}
 assert.deepEqual(errors,[]);console.log('PASS',width,'toolbar top alignment, divider bounds and no overflow');await page.close();}
 
 }finally{await browser?.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1});
