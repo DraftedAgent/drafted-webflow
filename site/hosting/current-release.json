@@ -1,9 +1,9 @@
 {
   "url": "https://getmedrafted.com",
-  "publishedSourceCommit": "69a4fa3d93e57e1f27ef475d4c327f4bae0c16b8",
-  "workerVersion": "bee2d6b5-9781-4274-9718-c54c379d67a1",
-  "previousWorkerVersion": "68d780f0-4cb9-4c3a-ab84-90d5d990f58e",
-  "publishedUTC": "2026-11-03T19:12:31.858047+00:00",
+  "publishedSourceCommit": "0cc5a482e6dc01f424cbd750f483e2da4364c9e5",
+  "workerVersion": "9a856a1d-1849-4f19-99b0-8b5ebe321ec3",
+  "previousWorkerVersion": "bee2d6b5-9781-4274-9718-c54c379d67a1",
+  "publishedUTC": "2026-11-03T19:49:13.618539+00:00",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
@@ -14,8 +14,8 @@
     "usedState": "preserved; not reset or inspected"
   },
   "workflowExecutionOrModelCalls": 0,
-  "verification": "Exact served hashes and home/editor verified. Public-origin synthetic desktop/mobile toolbar checks pass at both divider limits: stable tab position, top alignment, aligned workspace surfaces, no horizontal page overflow. All API calls mocked; no paid model calls.",
-  "rollback": "wrangler rollback 68d780f0-4cb9-4c3a-ab84-90d5d990f58e --config site/hosting/wrangler.jsonc",
+  "verification": "Exact served hashes/home/editor verified. Public-origin mocked toolbar tests pass desktop/mobile including divider bounds, compact controls, zoom and Escape. Local setup fit-page and9 gateway tests pass. No real workflow/model calls.",
+  "rollback": "wrangler rollback bee2d6b5-9781-4274-9718-c54c379d67a1 --config site/hosting/wrangler.jsonc",
   "changesExcluded": [
     "DNS",
     "n8n workflows",

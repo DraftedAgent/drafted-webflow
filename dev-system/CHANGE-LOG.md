@@ -1699,3 +1699,7 @@ Preparation heading now spans both columns above the form/preview. Preview track
 ## DEV-237 — Compact editor toolbars based on panel width (2026-11-03)
 
 Actual panel ResizeObserver selects compact Questions/Answers and Coverage N/N labels with original accessible names. Right panel below1000px puts existing live zoom controls in a native keyboard/Escape popover; below600px existing comparison controls use a second native popover. Page count moves to heading; renderer reuses that counter instead of creating duplicates. Template selector stays144px. Single-line toolbar layout retains aligned content surfaces. Synthetic desktop1440 divider bounds and mobile390 checks pass with long coverage label, visible questions tab, no overflow, single row, zoom interaction and Escape. Screenshots inspected. Existing canonical CV, backend and PDF unchanged. Dev/integration rebuilt; no paid calls or publication.
+
+## DEV-238 — Publish approved setup/scanner/compact toolbar refinements (2026-11-03)
+
+Owner approved commit and publication. Clean source0cc5a48 deployed to getmedrafted.com Worker9a856a1d-1849-4f19-99b0-8b5ebe321ec3. Rollbackbee2d6b5-9781-4274-9718-c54c379d67a1 preserved. Local responsive setup/toolbar tests and9gateway tests pass. Public served file hashes/routes and mocked desktop/mobile toolbar interaction checks pass. Backend/domain/secrets/persistent quota unchanged. No real AI calls, main merge or stable promotion.
