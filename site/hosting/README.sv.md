@@ -1,7 +1,7 @@
 # Öppen testversion på getmedrafted.com
 
-Senast verifierad publicering: **DEV-196, 2026-11-02**, källcommit `bb82cb3`,
-Worker-version `73ddd170-d3d6-4e81-85fc-8441dfbb4d3d`. Se `current-release.json`
+Senast verifierad publicering: **DEV-251, 2026-11-04**, källcommit `8b69e48`,
+Worker-version `420889ed-7578-4124-bab4-c0fdc14b3051`. Se `current-release.json`
 för aktuellt kvitto. Äldre domän-/publiceringskvitton nedan är historiska.
 
 Aktuell adress från DEV-175: https://getmedrafted.com är öppen utan lösenord,
@@ -105,3 +105,9 @@ webbläsaren. `node tools/release/verify-public-mocked.cjs` kör fulla UI-flöde
 publicerade frontendfiler men utför inga riktiga modell-/workflowanrop. Tidigare
 avgränsade riktiga prov upprepas inte av denna publicering. Svensk semantisk
 kvalitet och fysisk mobil är inte fullständigt verifierade.
+
+## Tailor1.4 — DEV-251
+
+Automatiskt CV-språk, frivilligt Change-val, helöversättning och källbunden integrering använder de två separat godkända Tailor-noderna. Aktiv backendversion och exakta Code-hashar finns i `tailor-release.json`; webbbyggaren skickar1.4 först med detta verifierade kvitto. Modell/max4000tokens och alla övriga workflows är oförändrade. Äldre profiler behåller sina grenar. Preview ändrar inget; Accept validerar om och applicerar.
+
+Åtta syntetiska språkfall kördes mot publicerade filer på desktop/mobil; alla API-skrivningar ersattes lokalt. Inga betalda testanrop. Riktig modellkvalitet och stora dokument är inte nyverifierade; ogiltig/ofullständig kandidat avvisas. Denna uppdatering skriver inte om tidigare accepterat CV-innehåll automatiskt. Återställningsunderlag/scope finns i `dev-system/prepared/tailor-quality/RELEASE-20261104.md`.

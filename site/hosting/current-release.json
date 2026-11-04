@@ -1,9 +1,9 @@
 {
   "url": "https://getmedrafted.com",
-  "publishedSourceCommit": "b08984656cf0762871c5c172adcc0b27a3518fd0",
-  "workerVersion": "71d44916-4453-4243-9a86-1e5e4768afd9",
-  "previousWorkerVersion": "ea2c39c4-ca21-44b9-b16b-ff5d8c79bcd9",
-  "publishedUTC": "2026-11-04T12:32:16.487061+00:00",
+  "publishedSourceCommit": "8b69e48640fc256cf5811bdd4163acf4d19ea8b9",
+  "workerVersion": "420889ed-7578-4124-bab4-c0fdc14b3051",
+  "previousWorkerVersion": "71d44916-4453-4243-9a86-1e5e4768afd9",
+  "publishedUTC": "2026-11-04T15:35:00.727Z",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
@@ -14,15 +14,37 @@
     "usedState": "preserved; not reset or inspected"
   },
   "workflowExecutionOrModelCalls": 0,
-  "verification": "Exact public served hashes/home/editor verified; public-origin mocked toolbar desktop/mobile interactions pass. Local synthetic workbench surfaces including real suggestion card/Questions and dictation lifecycle tests pass desktop/mobile, plus9 gateway tests. No real workflow/model calls.",
-  "rollback": "wrangler rollback ea2c39c4-ca21-44b9-b16b-ff5d8c79bcd9 --config site/hosting/wrangler.jsonc",
+  "verification": "Exact served hashes, root/editor and favicons pass. Public-origin mocked editor passes eight automatic-language scenarios, full translated candidate, Preview immutability, Accept and reload; toolbar/divider desktop1440/mobile390 pass. 87 local synthetic contract/compiler/gateway tests pass. Existing DO namespace and both secret bindings verified retained. No real workflow/model execution.",
+  "rollback": "wrangler rollback 71d44916-4453-4243-9a86-1e5e4768afd9 --config site/hosting/wrangler.jsonc",
   "changesExcluded": [
     "DNS",
-    "n8n workflows",
+    "all other n8n workflows/nodes",
     "model/credentials",
     "budget reset",
     "main merge",
     "stable promotion"
   ],
-  "pendingBackend": "Structured selection request candidates are not deployed. Empty selection-only sends remain disabled against current real backend; typed/dictated messages with optional selection remain supported."
+  "pendingBackend": "Structured selection request candidates are not deployed. Empty selection-only sends remain disabled against current real backend; typed/dictated messages with optional selection remain supported.",
+  "tailor": {
+    "sourcesSchemaVersion": "1.4",
+    "workflowId": "H8oAioy58R1v3PvRe3YUa",
+    "previousActiveVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+    "activeVersion": "f5a51070-ef46-4fcc-9225-f652bb379ca1",
+    "changedCodeNodes": [
+      {
+        "id": "b770f40e-b1a0-49fe-94e6-e003c3f42b41",
+        "name": "Validate + Normalize",
+        "SHA256": "788e22a2af0601b43efbfa8d65b5d75c8093970decc7e80fc05ea12d6c63b932"
+      },
+      {
+        "id": "tailor-sources-compose-v1",
+        "name": "Compose source suggestion",
+        "SHA256": "5d3e3a18ee49bd3e7c35fa5d061f4495d2f38297027dd3b7ee021c9ca9b09766"
+      }
+    ],
+    "modelUnchanged": true,
+    "maxOutputTokensUnchanged": 4000
+  },
+  "realModelQuality": "Not newly tested: paid test calls were excluded. Existing 4000-token output limit may reject large candidates safely.",
+  "backendRollback": "Separate approval required; refresh/check snapshots and restore only the two Code fields. Restore compatible web version before backend downgrade; never overwrite CV/source data. See dev-system/prepared/tailor-quality/RELEASE-20261104.md."
 }
