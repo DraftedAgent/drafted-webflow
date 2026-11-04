@@ -1,0 +1,3 @@
+# Prepared n8n Code files are approved and verified byte-for-byte against their manifests.
+dev-system/prepared/tailor-quality/*.js -text whitespace=cr-at-eol
+dev-system/prepared/tailor-quality/**/*.js -text whitespace=cr-at-eol

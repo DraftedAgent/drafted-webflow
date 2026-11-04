@@ -1,0 +1,30 @@
+{
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "savedVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+  "activeVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+  "changedNodes": [
+    {
+      "id": "b770f40e-b1a0-49fe-94e6-e003c3f42b41",
+      "name": "Validate + Normalize",
+      "field": "parameters.jsCode",
+      "beforeSHA256": "1945a3576cd02e533f5b6197fa910e285503a8078f62e7c847814ba294b78734",
+      "candidateSHA256": "788e22a2af0601b43efbfa8d65b5d75c8093970decc7e80fc05ea12d6c63b932",
+      "legacySuffixUnchanged": true
+    },
+    {
+      "id": "tailor-sources-compose-v1",
+      "name": "Compose source suggestion",
+      "field": "parameters.jsCode",
+      "beforeSHA256": "bde42f08659731cf2b5390c53bb1a9dbd24e595c623310b583ee2f885666c664",
+      "candidateSHA256": "5d3e3a18ee49bd3e7c35fa5d061f4495d2f38297027dd3b7ee021c9ca9b09766",
+      "legacySuffixUnchanged": true
+    }
+  ],
+  "profile": "1.4 (with pending 1.3 integration)",
+  "modelUnchanged": true,
+  "model": "gpt-6-luna",
+  "maxOutputTokensUnchanged": 4000,
+  "activation": false,
+  "externalChanges": false,
+  "restore": "Existing fresh encrypted full saved/active snapshot recorded in ../integration-v13/manifest.json; refresh before any later mutation."
+}

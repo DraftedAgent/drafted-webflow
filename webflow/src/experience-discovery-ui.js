@@ -19,12 +19,12 @@
       <p class="tailor-moment-reassurance">Review the suggestions before applying any changes.</p>
     </div>`;
     area.querySelector('.tailor-moment-description').textContent=hasAnswers?'Turn your CV and the experience you’ve shared into tailored suggestions for this role.':'Use your CV and the job context to explore tailored suggestions for this role.';
-    const primary=area.querySelector('button');primary.addEventListener('click',()=>{if(primary.disabled)return;primary.disabled=true;primary.setAttribute('aria-busy','true');primary.replaceChildren(document.createTextNode('Preparing your suggestions…'));onTailor();});
+    const primary=area.querySelector('button');const language=root.DraftedTailorLanguageControl?.create();if(language)primary.before(language);primary.addEventListener('click',async()=>{if(primary.disabled)return;primary.disabled=true;primary.setAttribute('aria-busy','true');primary.replaceChildren(document.createTextNode('Preparing your suggestions…'));try{await onTailor();}finally{if(primary.isConnected){primary.disabled=false;primary.removeAttribute('aria-busy');const arrow=document.createElement('span');arrow.textContent='→';arrow.setAttribute('aria-hidden','true');primary.replaceChildren(document.createTextNode('Tailor my CV '),arrow);}}});
     if(pending){const status=document.createElement('p');status.className='discovery-note tailor-moment-pending';status.setAttribute('role','status');status.textContent=`${pending===1?'One answer is':pending+' answers are'} still being checked.`;area.querySelector('.tailor-moment-description').after(status);}
     if(moreCount){const optional=document.createElement('div');optional.className='tailor-moment-optional';const more=document.createElement('button');more.type='button';more.textContent=`Explore more questions (${moreCount})`;more.addEventListener('click',onMore);const note=document.createElement('p');note.textContent='Optional — you can tailor your CV now.';optional.append(more,note);area.append(optional);}
     return area;
   }
-  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready',onEditExperienceContext=null,initialDrafts=[]}={}){
+  function mount(container,session,{onContinue=()=>{},onAnswer=text=>session.submit(text),onRetry=null,onStateChange=()=>{},onFinishAndTailor=null,sourceTailoring=false,getTailorState=()=> 'ready',onEditExperienceContext=null,getQuestionSources=null,onViewJobSource=null,initialDrafts=[]}={}){
     const drafts=new Map(initialDrafts),mountedRound=session.round().id;
     let error='',busy=false,disposed=false,renderedQuestion=null,renderedPhase=null,momentShown=false;
     const el=(tag,value,cls)=>{const n=document.createElement(tag);if(value)n.textContent=value;if(cls)n.className=cls;return n;};
@@ -57,10 +57,30 @@
     }
     function requirements(q){const c=session.snapshot().context;return q.signalRefs.map(ref=>{const value=c.jobContext[ref.field][ref.index];return typeof value==='string'?value:value.signal;});}
     function requirementList(q,host){const list=el('ul');for(const text of requirements(q))list.append(el('li',text));host.append(list);}
+    function questionSources(q){
+      const area=el('details',null,'question-sources'),summary=el('summary');
+      const names=(q.signalRefs||[]).map(ref=>{const v=session.snapshot().context?.jobContext?.[ref.field]?.[ref.index];return typeof v==='string'?v:v?.signal;}).filter(Boolean);
+      summary.append(el('span',names.length?'Based on: '+names.join(' · '):'Source reference unavailable'),el('span','Why this question?','question-source-action'));area.append(summary);
+      const content=el('div',null,'question-source-content');area.append(content);let loaded=false;
+      area.addEventListener('toggle',async()=>{if(!area.open||loaded)return;loaded=true;content.textContent='Loading source information…';
+        try{const result=getQuestionSources?await getQuestionSources(q,session.snapshot().context):null;if(!area.isConnected)return;content.replaceChildren();
+          if(!result?.length){content.append(el('p','This saved question has no verified link to the current job description. Its source cannot be shown reliably.'));return;}
+          for(const source of result){const item=el('section');item.append(el('h3',source.name||'Linked signal'));
+            if(source.legacy)item.append(el('p','This older question does not record the job description version. Its original source cannot be verified.'));
+            if(source.stale){item.append(el('p','This reference belongs to an earlier job description. Return to setup to review the active context.'));content.append(item);continue;}
+            if(source.quotes?.length){item.append(el('p','Exact wording in the job description','question-source-label'));for(const span of source.quotes){item.append(el('blockquote',span.quote));if(onViewJobSource){const link=el('button','View in job description');link.type='button';link.addEventListener('click',()=>onViewJobSource(span,source.jobText,link));item.append(link);}}}else item.append(el('p','An exact source quote is not available for this saved signal.'));
+            item.append(el('p','AI interpretation','question-source-label'));
+            if(source.explanation){item.append(el('p',source.explanation));item.append(el('p',source.relation==='indirect'?'Indirect connection — this question explores a possible aspect of the broader responsibility. The question is not an explicit requirement in the ad.':source.relation==='direct'?'Recorded as a direct connection by the question-generation model. The quote above is the source; the explanation is AI interpretation.':'The type of connection was not recorded.'));}
+            else item.append(el('p','The question-generation model linked this question to this signal, but did not save its reasoning or whether the connection is direct or indirect. Do not read the question as an explicit requirement in the ad.'));
+            content.append(item);
+          }
+        }catch{content.textContent='Source information could not be verified. Your answer draft is unchanged.';loaded=false;}
+      });container.append(area);
+    }
     function outcome(){
       const state=getTailorState();
-      if(state==='ready'&&onFinishAndTailor){container.append(tailorMoment({animate:!momentShown,hasAnswers:session.accountsForRound().length>0,pending:session.results().pending,moreCount:session.moreCount(),onMore:()=>{session.continueQuestions();render();},onTailor:()=>{const result=onFinishAndTailor();continueToEditor();return result;}}));momentShown=true;return;}
-      container.append(el('h2','Review your answers'));
+      if(state==='ready'&&onFinishAndTailor){container.append(tailorMoment({animate:!momentShown,hasAnswers:session.accountsForRound().length>0,pending:session.results().pending,moreCount:session.moreCount(),onMore:()=>{session.continueQuestions();render();},onTailor:()=>onFinishAndTailor()}));momentShown=true;return;}
+      container.append(el('h2','Review your answers'));const language=root.DraftedTailorLanguageControl?.create();if(language)container.append(language);
       if(state==='preparing'){const status=el('p','Preparing your suggestions…');status.setAttribute('role','status');container.append(status);}
       const pending=session.results().pending;
       if(pending){const status=el('p',`${pending===1?'One answer is':pending+' answers are'} still being checked.`,'discovery-note');status.setAttribute('role','status');container.append(status);}
@@ -92,6 +112,7 @@
           originalContext=el('details',null,'discovery-original-context');originalContext.open=!!originalContextOpen;
           originalContext.append(el('summary','View job context'));requirementList(q,originalContext);
         }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
+        questionSources(q);
         let answerSurface=null;const actions=el('div');actions.className='discovery-question-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Answer actions');
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{

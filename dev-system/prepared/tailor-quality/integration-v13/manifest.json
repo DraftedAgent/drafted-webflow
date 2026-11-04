@@ -1,0 +1,45 @@
+{
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "baseline": {
+    "source": "fresh read-only saved/active snapshot, 2026-11-04",
+    "savedVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+    "activeVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+    "freshSnapshotRequiredBeforeMutation": true
+  },
+  "changedNodes": [
+    {
+      "id": "b770f40e-b1a0-49fe-94e6-e003c3f42b41",
+      "name": "Validate + Normalize",
+      "field": "parameters.jsCode",
+      "beforeSHA256": "1945a3576cd02e533f5b6197fa910e285503a8078f62e7c847814ba294b78734",
+      "candidateSHA256": "8e3d3b83c3677a020e51e6fccc05b0cff2eff20636d40c404fd3a235794b6c43",
+      "legacySuffixUnchanged": true
+    },
+    {
+      "id": "tailor-sources-compose-v1",
+      "name": "Compose source suggestion",
+      "field": "parameters.jsCode",
+      "beforeSHA256": "bde42f08659731cf2b5390c53bb1a9dbd24e595c623310b583ee2f885666c664",
+      "candidateSHA256": "8b784caf69b58a5b1df076027ac1f7cf51b4e85a15abf8bfa9b6feb5ed80f582",
+      "legacySuffixUnchanged": true
+    }
+  ],
+  "activation": false,
+  "externalChanges": false,
+  "model": "gpt-6-luna",
+  "automaticRetries": false,
+  "connectionsSHA256": "1b21a7f29f3b26164b901c980649ae276bfb93ee7fdf4019cb2e1f750d367434",
+  "rollback": {
+    "nodeCount": 17,
+    "sha256": "b2d31ff055c229670f4038fba0e228f7e7089f68539817c29043c4e9ee1acbf9",
+    "savedVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+    "activeEmbeddedNodes": 17,
+    "operation": "GET only",
+    "timestamp": "2026-11-04T13:56:13.2982556Z",
+    "encryptedFile": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\tailoring-quality-audit\\integration-v13\\H8oAioy58R1v3PvRe3YUa.saved-active.clixml",
+    "workflowId": "H8oAioy58R1v3PvRe3YUa",
+    "verifiedRoundtrip": true,
+    "activeVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
+    "active": true
+  }
+}

@@ -8,7 +8,7 @@
   const label=document.createElement('strong');label.className='tailor-active-block';const status=document.createElement('span');status.className='tailor-preview-status';status.setAttribute('role','status');
   const actions=document.createElement('div');actions.className='tailor-block-actions';group.append(label,status,actions);stage.prepend(group);
   let mode='current',activeId=null,anchor=null,navigatePending=false,showChanges=false,disposed=false,frame,settleFrame,epoch=0;
-  const changedIds=new Set(model.blocks.filter(b=>before.blocks.find(old=>old.blockId===b.blockId)?.text!==b.text).map(b=>b.blockId));
+  const changedIds=new Set(model.blocks.filter(b=>model.sourcesSchemaVersion==='1.4'?JSON.stringify(before.blocks.find(old=>old.blockId===b.blockId))!==JSON.stringify(b):before.blocks.find(old=>old.blockId===b.blockId)?.text!==b.text).map(b=>b.blockId));
   const buttons={},names={before:'drafted-tailor-before',after:'drafted-tailor-after'};
   for(const title of ['Current','Suggested']){const button=document.createElement('button');button.type='button';button.textContent=title;button.setAttribute('aria-pressed',String(title==='Current'));button.addEventListener('click',()=>show(title.toLowerCase()));buttons[title.toLowerCase()]=button;actions.append(button);}
   const marks=document.createElement('button');marks.type='button';marks.textContent='Show changes';marks.setAttribute('aria-pressed','false');marks.disabled=!global.CSS?.highlights||!global.Highlight;marks.addEventListener('click',()=>{if(!isCurrent())return;showChanges=!showChanges;marks.setAttribute('aria-pressed',String(showChanges));paint();});actions.append(marks);

@@ -8,6 +8,17 @@
  class Session{
   constructor({client,enabled=true,changed=()=>{}}){this.client=client;this.enabled=enabled;this.changed=changed;this.status='idle';this.catalog=null;this.resultCatalog=null;this.result=null;this.signature='';this.input=null;this.generation=0;this.controller=null;this.restoreBlocked=false;}
   fresh(){return this.status==='ready'&&!!this.result&&this.signature===C.canonical(this.input);}
+  async waitForCatalog({timeoutMs=91000}={}){
+   // Observe already scheduled/in-flight anchoring only. Never retry or start an API request.
+   const signature=this.signature,input=copy(this.input),until=Date.now()+timeoutMs;
+   if(!this.enabled||!input?.jobText||!input?.jobContext)throw Error('SIGNAL_CATALOG_UNAVAILABLE');
+   while(signature===this.signature){
+    if(this.catalog){try{await C.validateCatalog(input.jobText,input.jobContext,this.catalog);if(signature!==this.signature)break;return copy(this.catalog);}catch{}}
+    if(this.restoreBlocked||['error','unavailable'].includes(this.status)||Date.now()>=until)throw Error('SIGNAL_CATALOG_UNAVAILABLE');
+    await new Promise(resolve=>setTimeout(resolve,50));
+   }
+   throw Error('STALE_SIGNAL_CONTEXT');
+  }
   emit(){this.changed();}
   invalidate(input){const signature=C.canonical(input);if(signature===this.signature)return false;this.generation++;this.controller?.abort();this.controller=null;this.input=copy(input);this.signature=signature;this.restoreBlocked=false;this.status=this.result?'stale':'idle';this.emit();return true;}
   async run(input=this.input){
@@ -25,7 +36,7 @@
    if(!saved){this.signature='';this.emit();return;}if(saved.schemaVersion!==C.VERSION){this.status=this.enabled?'error':'unavailable';this.emit();return;}try{
     if(!input?.jobContext||!input?.cvVersionId||!input.blocks?.length)throw Error('NO_INPUT');const catalog=saved.resultCatalog||saved.catalog;await C.validateCatalog(input.jobText,input.jobContext,catalog);this.catalog=catalog;this.resultCatalog=catalog;
     const request={operation:'assessCoverage',inputRef:await C.inputRef(input.cvVersionId,input.blocks,this.catalog),catalog:this.catalog,blocks:input.blocks};await C.validateResult(request,saved.result);this.result=copy(saved.result);this.status=saved.status==='ready'?'ready':'error';this.restoreBlocked=this.status!=='ready';
-   }catch{this.catalog=null;this.resultCatalog=null;this.result=null;this.status=this.enabled?'error':'unavailable';}this.emit();
+   }catch{this.resultCatalog=null;this.result=null;this.status=this.enabled?'error':'unavailable';}this.emit();
   }
  }
  return {Client,Session};

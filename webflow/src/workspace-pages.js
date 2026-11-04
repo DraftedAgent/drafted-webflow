@@ -13,6 +13,7 @@
     const jobButton=document.createElement('button');jobButton.type='button';jobButton.className='workspace-edit-job';jobButton.textContent='Job description';section.querySelector('.workspace-main-actions').prepend(jobButton);
     const dialog=document.createElement('dialog');dialog.className='workspace-job-dialog';dialog.setAttribute('aria-labelledby','workspace-job-title');dialog.innerHTML='<h2 id="workspace-job-title">Job description</h2><div class="workspace-job-reading" tabindex="0" role="region" aria-label="Saved job description"></div><a class="workspace-change-job" href="/#section-input">Change job description in setup</a><div><button type="button" data-close>Close</button></div>';section.append(dialog);
     const jobReading=dialog.querySelector('.workspace-job-reading');
+    let jobSourceOpener=null;
     function showJobState(){jobReading.textContent=(adapter.capture().jobText||'').trim()||'No job description has been added.';}
     function notify(message){error=message||'';status.textContent=error;status.hidden=!error;}
     function viewport(){const vv=global.visualViewport,height=vv?.height||innerHeight;root.style.setProperty('--workspace-viewport-height',height+'px');root.style.setProperty('--workspace-viewport-top',(vv?.offsetTop||0)+'px');root.dataset.workspaceKeyboard=String(document.activeElement===document.getElementById('editor-input')&&(height<innerHeight*.72||innerWidth<=700&&height<500));}
@@ -39,7 +40,7 @@
     global.addEventListener('pageshow',event=>{if(event.persisted){restoring=true;root.dataset.workspaceBooting='true';location.reload();}});
     jobButton.addEventListener('click',()=>{showJobState();dialog.showModal();dialog.querySelector('[data-close]').focus({preventScroll:true});});
     dialog.querySelector('[data-close]').addEventListener('click',()=>dialog.close());
-    dialog.addEventListener('close',()=>{if(isEditor())jobButton.focus({preventScroll:true});});
+    dialog.addEventListener('close',()=>{if(isEditor())(jobSourceOpener?.isConnected?jobSourceOpener:jobButton).focus({preventScroll:true});jobSourceOpener=null;});
     dialog.querySelector('.workspace-change-job').addEventListener('click',event=>{if(event.button||event.metaKey||event.ctrlKey||event.shiftKey)return;event.preventDefault();dialog.close();navigate('/#section-input');});
     async function confirmJobChange(){
       const modal=document.createElement('dialog');modal.className='workspace-replace-dialog';modal.setAttribute('aria-labelledby','workspace-job-change-title');modal.innerHTML='<h2 id="workspace-job-change-title">Use this job description?</h2><p>Your CV and saved answers will be kept. Existing suggestions will need to be updated.</p><button type="button" data-cancel>Cancel</button><button type="button" data-use>Use job description</button>';document.body.append(modal);
@@ -59,7 +60,10 @@
     // overwrite an interrupted request with an ordinary failed/finished state.
     function checkpointExit(){if(leaving)return;save().catch(()=>{});leaving=true;}
     global.addEventListener('beforeunload',checkpointExit);global.addEventListener('pagehide',checkpointExit);
-    return {ready,save,schedule,restoring:()=>restoring,
+    return {ready,save,schedule,openJobSource(span,expected,opener){
+      const raw=adapter.capture().jobText||'';if(raw!==expected||!Number.isInteger(span.start)||!Number.isInteger(span.end)||span.start<0||span.end<=span.start||raw.slice(span.start,span.end)!==span.quote)return;
+      jobSourceOpener=opener;jobReading.replaceChildren();const mark=document.createElement('mark');mark.textContent=span.quote;jobReading.append(document.createTextNode(raw.slice(0,span.start)),mark,document.createTextNode(raw.slice(span.end)));dialog.showModal();dialog.querySelector('[data-close]').focus({preventScroll:true});requestAnimationFrame(()=>{jobReading.scrollTop=mark.offsetTop-jobReading.offsetTop-32;});
+    },restoring:()=>restoring,
       async beforeContinue(file){await ready;if(!store||!storageReady)throw Error('Workspace storage is unavailable. Enable browser storage before continuing.');const hash=await store.fingerprint(file);if(input.files?.[0]!==file)return false;if(global.DraftedWorkspaceStore.valid(adapter.capture())){if(hash===sourceHash){if((adapter.capture().jobText||'')!==document.getElementById('job-ad-input').value){if(!await confirmJobChange())return false;await adapter.commitJobDraft();}if(!adapter.sourceFile())adapter.adoptSource(file);await navigate(editorPath);return 'resume';}if(!await confirmReplacement())return false;await adapter.commitJobDraft();}return 'upload';},
       async complete(file){sourceHash=await store.fingerprint(file);await navigate(editorPath,{transition:true});},
       showSetup:()=>navigate('/#section-input'),notify};

@@ -42,7 +42,9 @@ const tailorSourcesEnabled=(!window.__DRAFTED_PREVIEW_ENDPOINTS__&&N8N_TAILOR_UR
 const tailorSourceLedger=new DraftedTailorSources.Ledger();
 // Flip only in a separately approved release after the endpoint supports 1.2.
 const productionStructuredContext=true;
-const structuredContextEnabled=tailorSourcesEnabled&&(window.__DRAFTED_PREVIEW_ENDPOINTS__?draftedEndpoints.tailorSourcesVersion==='1.2':productionStructuredContext);
+// Public capability is emitted only by a release whose backend activation was verified.
+const tailorSourcesVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):(window.__DRAFTED_TAILOR_SOURCES_VERSION__==='1.4'?'1.4':productionStructuredContext?'1.2':'1.1');
+const structuredContextEnabled=tailorSourcesEnabled&&['1.2','1.3','1.4'].includes(tailorSourcesVersion);
 
 // The editor is a workspace; remove the legacy Webflow section introduction.
 onReady(() => {
@@ -538,9 +540,9 @@ maybeShowTailor();
      =============================== */
 
      function tailorContextStamp(sources=discoveryController?.sourceContentRevision()) {
-       return JSON.stringify({revision:workspaceContextRevision,blocks:documentBlocksState,title:documentTitle,version:cvVersionId,language:documentLanguage,
+       return JSON.stringify({revision:workspaceContextRevision,blocks:documentBlocksState,title:documentTitle,version:cvVersionId,language:cvLanguageDecision().language,explicitLanguage:cvLanguageConfirmed?documentLanguage:null,
          job:activeJobText,role:targetRoleInput?.value,context:window.__DRAFTED_JOBCONTEXT__,
-         sources});
+         sources,ledger:tailorSourceLedger.groups,integrationApplications:tailorSourceLedger.integrations,integrationHistory:tailorSourceLedger.integrationHistory,languageApplications:tailorSourceLedger.languageApplications,languageHistory:tailorSourceLedger.languageHistory});
      }
 
      function tailorPresentationState() {
@@ -559,9 +561,10 @@ maybeShowTailor();
        if(state==='preparing'){
          if(!chatMessagesEl.querySelector('.tailor-progress')){const progress=document.createElement('section');progress.className='tailor-progress';progress.setAttribute('role','status');progress.setAttribute('aria-live','polite');progress.setAttribute('aria-atomic','true');const card=document.createElement('div');card.className='tailor-progress-card';const activity=document.createElement('span');activity.className='tailor-activity';activity.setAttribute('aria-hidden','true');const heading=document.createElement('h2');heading.textContent='Preparing your suggestions';const note=document.createElement('p');note.textContent='We’re using your CV and available answers to prepare a suggestion for your review.';card.append(activity,heading,note);progress.append(card);chatMessagesEl.prepend(progress);chatMessagesEl.scrollTop=0;}
        }
-       if(state!=='applied')chatMessagesEl?.querySelector('.tailor-applied-message')?.remove();
+       if(state!=='applied'){chatMessagesEl?.querySelector('.tailor-applied-message')?.remove();chatMessagesEl?.querySelector('.tailor-applied-language')?.remove();}else if(!chatMessagesEl?.querySelector('.tailor-applied-language')){const language=document.createElement('div');language.className='tailor-applied-language';language.append(createCvLanguageControl());chatMessagesEl.prepend(language);}
        if(state==='ready'&&window.__DRAFTED_JOBCONTEXT__&&documentBlocksState?.length)setTailorReady();else setTailorHidden();
        discoveryController?.refreshTailorState();
+       document.querySelectorAll('.tailor-language-control').forEach(node=>node.replaceWith(createCvLanguageControl()));
      }
 
      function showTailorSuggestion(data, stamp, request, omittedContext=new Set()) {
@@ -604,19 +607,23 @@ maybeShowTailor();
          omit.addEventListener('click',()=>{if(!current()){card.remove();showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}showTailorSuggestion(data,stamp,request,new Set([...omittedContext,contextQuestion.answerId]));refreshTailorPresentation();});
          document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;return;
        }
-       const changed=computeChangedBlockIds(request.blocks,data.blocks);
+       const changed=data.sourcesSchemaVersion==='1.4'?data.blocks.filter(b=>JSON.stringify(b)!==JSON.stringify(request.blocks.find(x=>x.blockId===b.blockId))).map(b=>b.blockId):computeChangedBlockIds(request.blocks,data.blocks);
        if(!changed.length){
+         tailorReviewState=null;
          showTailorFeedback('No changes suggested');
-         if(data.sourcesSchemaVersion==='1.2'&&data.contextQuestions?.some(q=>q.reason==='new_block_required')){const note=document.createElement('p');note.textContent='Your new context is saved with your answer. It has no selected CV entry; no new CV entry was created.';chatMessagesEl.querySelector('.tailor-feedback').append(note);}
+         for(const note of data.recipe?.reviewNotes||[]){const p=document.createElement('p');p.textContent=note.reason;chatMessagesEl.querySelector('.tailor-feedback').append(p);}
+         if(data.sourceReview?.length){const p=document.createElement('p');p.textContent='Earlier integrated wording needs review and was left unchanged.';chatMessagesEl.querySelector('.tailor-feedback').append(p);}
+         if(['1.2','1.3'].includes(data.sourcesSchemaVersion)&&data.contextQuestions?.some(q=>q.reason==='new_block_required')){const note=document.createElement('p');note.textContent='Your new context is saved with your answer. It has no selected CV entry; no new CV entry was created.';chatMessagesEl.querySelector('.tailor-feedback').append(note);}
          return;
        }
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
+       for(const note of data.recipe?.reviewNotes||[]){const section=add('section','',fullDetails);add('h3','Review note — not CV text',section);add('p',note.reason,section);}
        card.classList.add('tailor-review');
        card.dataset.proposalId=crypto.randomUUID();
        const header=add('header','');header.className='tailor-review-header';
        add('h2',`${changed.length} changed ${changed.length===1?'block':'blocks'}`,header);
        const status=add('span','Not applied',header);status.className='tailor-review-status';
-       add('p','Review the exact changes below.',header);
+       add('p','Review the exact changes below.',header);header.append(createCvLanguageControl());
        const body=add('div','');body.className='tailor-review-body';body.tabIndex=0;body.setAttribute('role','group');body.setAttribute('aria-label','Proposed changes');
        const runs=(host,items,side,standalone=false)=>{
          host.className='tailor-diff-text';
@@ -635,15 +642,17 @@ maybeShowTailor();
        const navigate=block=>{
          if(!checkCurrent())return;
          documentComparison?.edited();
+         if(innerWidth<=700&&!previewDialog?.open)document.querySelector('.workspace-expand-preview')?.click();
          if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:data,baseline:request,proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
          tailorCvPreview.navigate(block.blockId);
        };
        // Actual text changes drive the review; source receipts stay optional.
-       const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);
+       const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);for(const item of data.languageChanges||[])if(!proposed.some(c=>c.blockId===item.blockId))proposed.push({blockId:item.blockId,edits:[]});
        for(const change of proposed){
          const block=data.blocks.find(b=>b.blockId===change.blockId),section=add('section','',body);section.className='tailor-block-change';section.dataset.reviewBlockId=change.blockId;
          const title=add('div','',section);title.className='tailor-block-title';add('h3',sectionName(block),title);
-         if([...editorPreviewEl.querySelectorAll('.cv-block[data-block-id]')].some(node=>node.dataset.blockId===block.blockId)){const review=add('button','Review in CV',title);review.type='button';review.className='tailor-review-link';review.setAttribute('aria-label',`Review ${sectionName(block)} in CV`);review.addEventListener('click',()=>navigate(block));}
+         {const review=add('button','Review in CV',title);review.type='button';review.className='tailor-review-link';review.setAttribute('aria-label',`Review ${sectionName(block)} in CV`);review.addEventListener('click',()=>navigate(block));}
+         const languageChange=data.languageChanges?.find(x=>x.blockId===change.blockId);if(languageChange)for(const [key,after]of Object.entries(languageChange.afterFields)){const before=languageChange.beforeFields[key];if(before===after)continue;const row=add('div','',section);row.className='tailor-diff-row';add('span',key,row).className='tailor-diff-label';add('p',before+' → '+after,row);}
          for(const edit of change.edits){
            const item=add('div','',section);item.className='tailor-edit';item.dataset.changeKind=edit.kind;
            add('span',edit.kind,item).className='tailor-edit-kind tailor-kind-'+edit.kind.toLowerCase();
@@ -671,12 +680,13 @@ maybeShowTailor();
          for(const [index,answer] of request.sourceContext.answers.entries()){const section=add('section','',fullDetails),q=request.sourceContext.questions.find(q=>q.id===answer.questionId);add('h3',`Original answer ${index+1} · revision ${answer.revision}`,section);if(q)add('p',q.question,section);add('blockquote',answer.text,section);}
        }
        for(const review of data.sourceReview||[]){const box=add('section','',fullDetails);box.className='tailor-review-warning';const block=documentBlocksState.find(b=>b.blockId===review.blockId);add('h3','Earlier wording needs review',box);add('p',`${sectionName(block)}: left unchanged because the earlier wording or source could not be matched safely.`,box);for(const g of request.sourceContext.applications.filter(g=>g.blockId===review.blockId))for(const a of g.additions)add('blockquote',a.text,fullDetails);}
+       for(const g of data.integrations||[]){const box=add('section','',fullDetails);add('h3','Integrated sources for '+sectionName(data.blocks.find(b=>b.blockId===g.blockId)),box);for(const seg of g.segments){add('p',seg.text,box);for(const v of seg.cvEvidence)add('blockquote',v.quote,box);for(const a of seg.answerSources){add('p','Original answer · revision '+a.answerRevision,box);add('blockquote',a.sourceQuote,box);}}}
        for(const edit of data.cvEdits||[]){const box=add('section','',fullDetails);add('h3',`Existing CV support for ${sectionName(data.blocks.find(b=>b.blockId===edit.blockId))}`,box);for(const source of edit.cvEvidence){add('p',sectionName(request.blocks.find(b=>b.blockId===source.blockId)),box);add('blockquote',source.quote,box);}}
        for(const usage of data.sourceUsage||[]){const box=add('section','',fullDetails);add('h3',`Source for ${sectionName(documentBlocksState.find(b=>b.blockId===usage.blockId))}`,box);add('p',`User answer · revision ${usage.answerRevision}`,box);add('blockquote',usage.sourceQuote,box);if(usage.contextQuote&&usage.contextQuote!==usage.sourceQuote){add('p','Context from your answer',box);add('blockquote',usage.contextQuote,box);}add('p','Proposed wording',box);add('blockquote',usage.proposedQuote,box);}
        if(fullDetails.childElementCount>1)body.append(fullDetails);
        const footer=add('footer','');footer.className='tailor-review-footer';
        const actions=add('div','',footer);actions.className='tailor-actions';
-       const apply=add('button','Apply all changes',actions);apply.type='button';apply.className='tailor-primary';
+       const apply=add('button',['1.3','1.4'].includes(data.sourcesSchemaVersion)?'Accept':'Apply all changes',actions);apply.type='button';apply.className='tailor-primary';
        const dismiss=add('button','Dismiss',actions);dismiss.type='button';
        const navigationNotice=add('p','Your current CV stays unchanged until you apply.',footer);navigationNotice.className='tailor-current-notice';navigationNotice.setAttribute('role','status');
        let stale=false,settled=false,removalObserver;
@@ -693,11 +703,13 @@ maybeShowTailor();
        tailorReviewCheck=()=>{if(!card.isConnected){dispose();return;}checkCurrent();};
        removalObserver=new MutationObserver(()=>{if(!card.isConnected)dispose();});removalObserver.observe(chatMessagesEl,{childList:true});
        jobAdInputEl?.addEventListener('input',checkCurrent);targetRoleInput?.addEventListener('input',checkCurrent);
-       apply.addEventListener('click',()=>{
+       apply.addEventListener('click',async()=>{
          if(apply.disabled||!checkCurrent())return;
+         apply.disabled=true;dismiss.disabled=true;
+         let nextLedger;try{if(data.sourcesSchemaVersion){nextLedger=new DraftedTailorSources.Ledger();Object.assign(nextLedger,deepClone({groups:tailorSourceLedger.groups,history:tailorSourceLedger.history,integrations:tailorSourceLedger.integrations,integrationHistory:tailorSourceLedger.integrationHistory,languageApplications:tailorSourceLedger.languageApplications,languageHistory:tailorSourceLedger.languageHistory}));await nextLedger.commit(request,data);if(!checkCurrent()){dismiss.disabled=false;return;}}}catch{status.textContent='This candidate could not be validated. Your CV is unchanged.';apply.disabled=true;dismiss.disabled=false;return;}
          apply.disabled=true;dismiss.disabled=true;tailorReviewState=null;dispose();
          pendingProposal=null;pendingProposalMeta=null;pendingSuggestion=null;clearAllProposalCards();setApplyLabel();
-         if(data.sourcesSchemaVersion)tailorSourceLedger.commit(request,data);
+         if(nextLedger)Object.assign(tailorSourceLedger,nextLedger);
          documentTitle=data.cvTitle;cvVersionId=data.cvVersionId;
          buildStateFromBlocks(deepClone(data.blocks),{preserveCanonical:true});discoveryController?.adoptRepresentation(documentBlocksState,cvVersionId);renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
          card.remove();document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
@@ -722,11 +734,28 @@ maybeShowTailor();
        assertDraftedCvResponse(DraftedTailorSources.withoutReceipt(data));return data;
      }
 
+     function cvLanguageDecision(){return DraftedCvLanguage.resolve({explicitLanguage:cvLanguageConfirmed?documentLanguage:null,jobText:activeJobText,blocks:documentBlocksState||[]});}
+     function needsWholeCvLanguage(decision){return !!decision.language&&(decision.cvLanguage!==decision.language||(documentBlocksState||[]).some(b=>{const language=DraftedCvLanguage.detect(DraftedCvLanguage.cvText([b])).language;return language&&language!==decision.language;}));}
+     function createCvLanguageControl(){
+       const decision=cvLanguageDecision(),area=document.createElement('div');area.className='tailor-language-control';const row=document.createElement('div');row.className='tailor-language-row';const label=document.createElement('span');label.textContent='CV language: '+(DraftedCvLanguage.names[decision.language]||'Needs clarification')+' · ';const change=document.createElement('button');change.type='button';change.className='tailor-language-change';change.textContent='Change';change.setAttribute('aria-label','Change CV language');change.onclick=()=>chooseCvLanguage(false,change);row.append(label,change);area.append(row);
+       const note=document.createElement('p');note.className='tailor-language-note';if(needsWholeCvLanguage(decision)){note.textContent=decision.cvLanguage?'This suggestion will also translate your CV into '+DraftedCvLanguage.names[decision.language]+'.':'The entire suggestion will use '+DraftedCvLanguage.names[decision.language]+'.';area.append(note);}else if(!decision.language){note.textContent=decision.reason;area.append(note);}area.dataset.language=decision.language||'unclear';area.dataset.source=decision.source;return area;
+     }
+     async function chooseCvLanguage(required=false,opener=null){
+       if(languagePromptPending)return false;languagePromptPending=true;const decision=cvLanguageDecision(),automatic=DraftedCvLanguage.resolve({jobText:activeJobText,blocks:documentBlocksState||[]});
+       const dialog=document.createElement('dialog');dialog.className='workspace-job-dialog';dialog.setAttribute('aria-label','CV language');
+       dialog.innerHTML='<h2>CV language</h2><p></p><label>Language <select aria-label="CV language"><option value="">Automatic</option><option value="sv">Svenska</option><option value="en">English</option></select></label><p class="tailor-language-dialog-note" role="status"></p><div><button type="button" data-cancel>Cancel</button><button type="button" data-save>Save language</button></div>';
+       dialog.querySelector('p').textContent=required?(decision.reason+' Choose the language for your CV.'):'Choose a language, or follow the current job description automatically. Your experience answers do not control the CV language.';
+       document.body.append(dialog);const select=dialog.querySelector('select'),go=dialog.querySelector('[data-save]');select.value=cvLanguageConfirmed?documentLanguage:'';if(required)go.textContent='Continue tailoring';const update=()=>{go.disabled=!select.value&&!automatic.language;const target=select.value||automatic.language,note=dialog.querySelector('.tailor-language-dialog-note');note.textContent=target&&decision.cvLanguage!==target?(decision.cvLanguage?'This suggestion will also translate your CV into '+DraftedCvLanguage.names[target]+'.':'The entire suggestion will use '+DraftedCvLanguage.names[target]+'.'):'';};update();select.onchange=update;let accepted=false;dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();go.onclick=()=>{if(!select.value&&!automatic.language)return;const before=JSON.stringify([cvLanguageConfirmed,documentLanguage,decision.language]);cvLanguageConfirmed=DraftedCvLanguage.supported(select.value);documentLanguage=cvLanguageConfirmed?select.value:automatic.language;accepted=true;if(before!==JSON.stringify([cvLanguageConfirmed,documentLanguage,cvLanguageDecision().language]))workspaceContextRevision++;refreshTailorPresentation();dialog.close();};
+       const result=new Promise(resolve=>dialog.addEventListener('close',()=>{dialog.remove();languagePromptPending=false;refreshTailorPresentation();workspacePages?.schedule();const target=opener?.isConnected?opener:[...document.querySelectorAll('.tailor-language-change')].find(n=>n.getClientRects().length);target?.focus({preventScroll:true});resolve(accepted);},{once:true}));dialog.showModal();select.focus();return result;
+     }
      async function runTailor() {
        const btn=document.getElementById('tailor-btn');
        if(!btn||tailorInFlight||isPreviewingProposal||tailorPresentationState()==='review'||tailorPresentationState()==='applied')return;
        const jobContext=window.__DRAFTED_JOBCONTEXT__;
        if(!jobContext||!documentBlocksState?.length)return;
+       if(!cvLanguageDecision().language&&!await chooseCvLanguage(true))return;
+       const languageDecision=cvLanguageDecision();if(!languageDecision.language)return;
+       if(tailorSourcesVersion!=='1.4'&&needsWholeCvLanguage(languageDecision)){showTailorFeedback('Whole-document translation is available in simulated Dev. The real backend needs the prepared language-contract update before this request can run.',false);return;}
        // Lock is shared by the toolbar, guidance and finish actions.
        document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
        tailorInFlight=true;btn.disabled=true;
@@ -738,24 +767,25 @@ maybeShowTailor();
          // Wait for existing requests; do not launch Tailor from a partial source set.
          const representationStamp=tailorContextStamp(null);
          await discoveryController?.waitForSources();
+         const signalCatalog=['1.3','1.4'].includes(tailorSourcesVersion)?await coverageController?.model.waitForCatalog():null;
          if(representationStamp!==tailorContextStamp(null)||isPreviewingProposal){showTailorFeedback('Your CV or job ad changed. Prepare a new suggestion.',true);return;}
          const stamp=tailorContextStamp();
          const payload={cvVersionId:cvVersionId||null,cvTitle:documentTitle||'',targetRole:targetRoleInput?.value?.trim()||'',
-           language:documentLanguage||'en',blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
+           language:languageDecision.language,blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
          const sourceContext=tailorSourcesEnabled?currentTailorSourceContext():null;
          sourceRequest=!!sourceContext;
-         if(sourceContext){payload.sourcesSchemaVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):(structuredContextEnabled?'1.2':'1.1');payload.sourceContext=sourceContext;}
+         if(sourceContext){payload.sourcesSchemaVersion=tailorSourcesVersion;if(!['1.3','1.4'].includes(payload.sourcesSchemaVersion)&&tailorSourceLedger.integrations?.length)throw Error('This workspace requires integration profile 1.3.');payload.sourceContext=sourceContext;if(['1.3','1.4'].includes(payload.sourcesSchemaVersion)){payload.jobText=activeJobText;payload.signalCatalog=deepClone(signalCatalog);payload.integrationApplications=deepClone(tailorSourceLedger.integrations||[]);if(!payload.signalCatalog)throw Error('A verified signal catalog is required before integrating sources.');if(payload.sourcesSchemaVersion==='1.4'){payload.languagePlan={policyVersion:'1.0',explicitLanguage:cvLanguageConfirmed?documentLanguage:null,source:languageDecision.source,cvLanguage:languageDecision.cvLanguage};payload.languageApplications=deepClone(tailorSourceLedger.languageApplications||[]);}payload.inputRef=await DraftedTailorSources.inputRef(payload);}}
          const data=sourceContext?await fetchTailorSources(payload):await draftedFetchJson(N8N_TAILOR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)},'cv');
          if(stamp!==tailorContextStamp()||isPreviewingProposal){showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}
          // Existing Tailor permits text changes only. Fail closed on structural drift.
          const metadata=b=>JSON.stringify(Object.fromEntries(Object.entries(b).filter(([key])=>key!=='text').sort(([a],[b])=>a.localeCompare(b))));
-         if(data.blocks.length!==payload.blocks.length||data.blocks.some(b=>{const old=payload.blocks.find(o=>o.blockId===b.blockId);return !old||metadata(old)!==metadata(b);}))throw Error('Tailor changed block structure');
+         if(data.sourcesSchemaVersion!=='1.4'&&(data.blocks.length!==payload.blocks.length||data.blocks.some(b=>{const old=payload.blocks.find(o=>o.blockId===b.blockId);return !old||metadata(old)!==metadata(b);})))throw Error('Tailor changed block structure');
          showTailorSuggestion(data,stamp,payload);
        }catch(err){
          // Log transport metadata only: no CV, answer text, arbitrary server message or response body.
          const endpoint=new URL(N8N_TAILOR_URL,location.href);
          console.error('Tailoring failed',{endpoint:endpoint.origin+endpoint.pathname,code:err instanceof DraftedTailorSourceClient.Failure?err.code:'TAILOR_FAILED',status:err instanceof DraftedTailorSourceClient.Failure?err.status:null,backendCode:err instanceof DraftedTailorSourceClient.Failure?err.backendCode:null});
-         showTailorFeedback(sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true);
+         showTailorFeedback(err?.message==='SIGNAL_CATALOG_UNAVAILABLE'?'Job signals are not ready. Open Job signals to review or retry their preparation; your CV and answers are kept.':err?.message==='STALE_SIGNAL_CONTEXT'?'Your job context changed. Prepare a new suggestion.':sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true);
        }
        finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();}
      }
@@ -1496,13 +1526,21 @@ function setApplyLabel() {
       getTailorState:tailorPresentationState,
       onSourceStateChange:refreshTailorPresentation,
       sourceTailoring: tailorSourcesEnabled,
+      getQuestionSources:async(q,context)=>{
+        const current=currentCoverageInput(),C=window.DraftedCoverageContract;
+        if(context?.jobText!==undefined&&context.jobText!==current.jobText||JSON.stringify(context?.jobContext)!==JSON.stringify(current.jobContext))return [{name:'Saved job signal',stale:true}];
+        const catalog=coverageController?.model?.catalog;
+        let valid=false;if(catalog&&context?.jobText!==undefined)try{await C.validateCatalog(current.jobText,current.jobContext,catalog);valid=true;}catch{}
+        return (q.signalRefs||[]).map(ref=>{const raw=context?.jobContext?.[ref.field]?.[ref.index],signal=valid?catalog.signals.find(s=>s.ref.field===ref.field&&s.ref.index===ref.index):null;return {name:typeof raw==='string'?raw:raw?.signal||'Source reference unavailable',quotes:signal?.anchorState==='verified'?signal.adEvidence:[],jobText:current.jobText,legacy:context?.jobText===undefined};});
+      },
+      onViewJobSource:(span,text,opener)=>workspacePages?.openJobSource(span,text,opener),
       onEditExperienceContext:structuredContextEnabled?(id,revision)=>{
         const sourceContext=discoveryController.sourceContext(tailorSourceLedger.snapshot());
         discoveryController.showChat();showTailorSuggestion({contextQuestions:[{answerId:id,answerRevision:revision,reason:'context_unclear'}]},tailorContextStamp(),{cvVersionId,blocks:deepClone(documentBlocksState),sourceContext});refreshTailorPresentation();
       }:null,
-      getSourceNotice:()=>{const c=discoveryController?.sourceContext(tailorSourceLedger.snapshot());if(!c)return '';return c.applications.some(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text!==g.checkpointText||g.additions.some(x=>{const a=c.answers.find(a=>a.id===x.source.answerId);return !a||a.revision!==x.source.answerRevision||c.questions.find(q=>q.id===a.questionId)?.status!=='recorded';}))?'Earlier wording may use changed or unavailable answers. It remains unchanged until you review and apply an update.':'';},
+      getSourceNotice:()=>{const c=discoveryController?.sourceContext(tailorSourceLedger.snapshot());if(!c)return '';const integrationReview=(tailorSourceLedger.integrations||[]).some(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text!==g.after||g.segments.some(s=>s.answerSources.some(x=>{const a=c.answers.find(a=>a.id===x.answerId);return !a||a.revision!==x.answerRevision||a.text!==x.sourceQuote||c.questions.find(q=>q.id===a.questionId)?.status!=='recorded';})));return integrationReview||c.applications.some(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text!==g.checkpointText||g.additions.some(x=>{const a=c.answers.find(a=>a.id===x.source.answerId);return !a||a.revision!==x.source.answerRevision||c.questions.find(q=>q.id===a.questionId)?.status!=='recorded';}))?'Earlier wording may use changed or unavailable answers. It remains unchanged until you review and apply an update.':'';},
       getContext: () => !isPreviewingProposal && documentBlocksState?.length && window.__DRAFTED_JOBCONTEXT__
-        ? { cvVersionId, blocks: deepClone(documentBlocksState), jobContext: deepClone(window.__DRAFTED_JOBCONTEXT__) }
+        ? { cvVersionId, blocks: deepClone(documentBlocksState), jobContext: deepClone(window.__DRAFTED_JOBCONTEXT__),jobText:activeJobText }
         : null
     });
   }
@@ -1518,6 +1556,7 @@ function setApplyLabel() {
   if(window.DraftedCoverageView&&chatMessagesEl){
     coverageController=DraftedCoverageView.create({host:chatMessagesEl,getInput:currentCoverageInput,
       config:window.__DRAFTED_COVERAGE__||{enabled:false},onStateChange:()=>{if(!coverageController?.model.fresh())coverageNavigation?.clear();workspacePages?.schedule();},onOpen:()=>discoveryController?.showChat(),
+      getAppliedSources:()=>[...(tailorSourceLedger.integrations||[]).filter(g=>documentBlocksState.find(b=>b.blockId===g.blockId)?.text===g.after).flatMap(g=>g.segments.flatMap(s=>s.answerSources)),...tailorSourceLedger.groups.flatMap(g=>{const b=documentBlocksState.find(b=>b.blockId===g.blockId);if(b?.text!==g.checkpointText)return [];return g.additions.filter(a=>b.text.slice(a.start,a.end)==='\n\n'+a.text).map(a=>a.source);})],
       getSources:ref=>discoveryController?.sourcesForSignal(ref)||[],onSignal:(signal,current)=>discoveryController.openSignal(signal,current),
       onFind:evidence=>coverageNavigation.show(evidence),
       onAd:span=>{const raw=activeJobText;if(raw.slice(span.start,span.end)!==span.quote)return;let dialog=document.getElementById('coverage-job-source');if(!dialog){dialog=document.createElement('dialog');dialog.id='coverage-job-source';dialog.className='workspace-job-dialog workspace-coverage-source-dialog';dialog.setAttribute('aria-label','Source in full job description');document.querySelector('.section-editor').append(dialog);}dialog.replaceChildren();const title=document.createElement('h2');title.textContent='Job description';const close=document.createElement('button');close.type='button';close.textContent='Close';close.onclick=()=>dialog.close();const content=document.createElement('div');content.className='coverage-original-job';const mark=document.createElement('mark');mark.textContent=span.quote;content.append(document.createTextNode(raw.slice(0,span.start)),mark,document.createTextNode(raw.slice(span.end)));dialog.append(title,close,content);dialog.showModal();requestAnimationFrame(()=>{dialog.scrollTop+=mark.getBoundingClientRect().top-dialog.getBoundingClientRect().top-80;});}
@@ -1564,6 +1603,7 @@ function setApplyLabel() {
   }
 
   let activeContext = "chat"; // "chat" | "blocks" | "full"
+  let cvLanguageConfirmed=false,languagePromptPending=false;
   let documentLanguage = "en"; // "sv" | "en"
 
 
@@ -2087,6 +2127,7 @@ function updateContextChip() {
     // A response for a file replaced during upload must not restore its CV/questions.
     if (getFileInput()?.files?.[0] !== file) return;
     discoveryCvFile = file;
+    cvLanguageConfirmed=false;
     DraftedCvLayout.setZoom(editorPreviewEl,1);
     workspaceContextRevision++;
     tailorSourceLedger.reset();
@@ -2374,7 +2415,7 @@ async function sendChat() {
     cvVersionId: cvVersionId || null,
     cvTitle: documentTitle || "",
     targetRole: targetRoleInput?.value?.trim() || "",
-    language: "en",
+    language: documentLanguage,
     mode,
     selectedBlockIds: mode === "blocks" ? Array.from(selectedBlockIds) : [],
     blocks: documentBlocksState,
@@ -2712,19 +2753,19 @@ function bindPdfDownloadButton() {
     // Applications from an earlier job round remain in saved history. They are
     // not presented as current answers to a different job's question set.
     const current=new Set(context.answers.map(answer=>answer.id+':'+answer.revision));
-    context.applications=tailorSourceLedger.snapshot().filter(group=>group.additions.every(item=>current.has(item.source.answerId+':'+item.source.answerRevision)));
+    context.applications=['1.3','1.4'].includes(tailorSourcesVersion)?tailorSourceLedger.snapshot():tailorSourceLedger.snapshot().filter(group=>group.additions.every(item=>current.has(item.source.answerId+':'+item.source.answerRevision)));
     return context;
   }
   function serialSnapshot(snapshot){return snapshot?{...snapshot,selectedBlockIds:[...snapshot.selectedBlockIds]}:null;}
   function captureWorkspace(){
     if(document.documentElement.dataset.workspacePage==='editor'&&document.documentElement.dataset.workspaceReady==='true'&&!document.documentElement.dataset.workspaceBooting)workspaceReading={chat:chatMessagesEl.scrollTop,document:editorPreviewEl.closest('.cv-document')?.scrollTop||0};
     const cv=documentBlocksState?.length?serialSnapshot(snapshotCurrentState()):null;
-    return {cv,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,design:selectedCvDesign,chatHistory,
+    return {cv,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,cvLanguageConfirmed,design:selectedCvDesign,chatHistory,
       messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card), :scope > .suggestion-receipt')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent,receiptId:el.dataset.receiptId||null,association:el.dataset.proposalAssociation||null})),
       activeSelectionRequest,appliedChatReceipts,selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
       jobText:activeJobText,jobDraft:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
       setupStatus:{text:document.getElementById('preparation-status').textContent,state:document.getElementById('preparation-status').dataset.state,hidden:document.getElementById('preparation-status').hidden,processing:uploadInFlight},
-      draft:editorInput.value,discovery:discoveryController?.snapshot(),coverage:coverageController?.snapshot(),ledger:{groups:tailorSourceLedger.groups,history:tailorSourceLedger.history},
+      draft:editorInput.value,discovery:discoveryController?.snapshot(),coverage:coverageController?.snapshot(),ledger:{groups:tailorSourceLedger.groups,history:tailorSourceLedger.history,integrations:tailorSourceLedger.integrations,integrationHistory:tailorSourceLedger.integrationHistory,languageApplications:tailorSourceLedger.languageApplications,languageHistory:tailorSourceLedger.languageHistory},
       jobEditor:{open:false},
       tailorReview:tailorReviewState,tailorAppliedStamp,tailorDraft:chatMessagesEl.querySelector('.tailor-suggestion textarea')?.value||'',
       interrupted:!!window.__DRAFTED_CHAT__?.inFlight||tailorInFlight||isGeneratingSuggestionPreview,
@@ -2743,21 +2784,22 @@ function bindPdfDownloadButton() {
     if(['loading','pending'].includes(saved.jobStatus))setJobContextStatus('error','!','Signal extraction was interrupted. Save the job description again to retry.');
     else setJobContextStatus(saved.jobContext?'ready':'idle',saved.jobContext?'✓':'',saved.jobContext?'Signals ready':'');
     if(!DraftedWorkspaceStore.valid(saved))return;
-    documentLanguage=saved.language||'en';selectedCvDesign=DraftedCvDesigns.some(d=>d.id===saved.design)?saved.design:'classic_v1';document.getElementById('cv-design').value=selectedCvDesign;
+    cvLanguageConfirmed=saved.cvLanguageConfirmed===true&&['sv','en'].includes(saved.language);documentLanguage=['sv','en'].includes(saved.language)?saved.language:'en';selectedCvDesign=DraftedCvDesigns.some(d=>d.id===saved.design)?saved.design:'classic_v1';document.getElementById('cv-design').value=selectedCvDesign;
     restoreSnapshot(saved.cv);documentComparison?.restore(saved.comparison);renderDocument(documentTextState);setCvLoadedUI(true);setEditorPlaceholder(false);
     isPreviewingProposal=!!saved.isPreviewingProposal;previewSnapshot=saved.previewSnapshot||null;pendingProposal=saved.pendingProposal||null;pendingProposalMeta=saved.pendingProposalMeta||null;pendingSuggestion=saved.pendingSuggestion||null;
     for(const el of [...chatMessagesEl.children])if(!el.matches('.drafted-discovery,.discovery-guidance,.workspace-earlier-answers,.workspace-coverage-panel'))el.remove();
     appliedChatReceipts=Array.isArray(saved.appliedChatReceipts)?saved.appliedChatReceipts:[];
     chatHistory=[];for(const message of saved.messages||[]){const receipt=appliedChatReceipts.find(r=>r.id===message.receiptId);if(receipt)appendAppliedReceipt(receipt);else appendChat(message.role,message.text,message.association);}chatHistory=Array.isArray(saved.chatHistory)?saved.chatHistory:[];
     activeSelectionRequest=saved.activeSelectionRequest||null;
-    selectionSources=saved.selectionSources||{};editorInput.value=saved.draft||'';updateContextChip();tailorSourceLedger.groups=saved.ledger?.groups||[];tailorSourceLedger.history=saved.ledger?.history||[];
+    selectionSources=saved.selectionSources||{};editorInput.value=saved.draft||'';updateContextChip();tailorSourceLedger.groups=saved.ledger?.groups||[];tailorSourceLedger.history=saved.ledger?.history||[];tailorSourceLedger.integrations=saved.ledger?.integrations||[];tailorSourceLedger.integrationHistory=saved.ledger?.integrationHistory||[];tailorSourceLedger.languageApplications=saved.ledger?.languageApplications||[];tailorSourceLedger.languageHistory=saved.ledger?.languageHistory||[];
     if(saved.discovery)discoveryController?.restore(saved.discovery);
     await coverageController?.restore(saved.coverage);
     tailorAppliedStamp=saved.tailorAppliedStamp||null;tailorReviewState=saved.tailorReview||null;
-    if(tailorReviewState){const review=tailorReviewState;showTailorSuggestion(review.data,review.stamp,review.request,new Set(review.omittedContext));const draft=chatMessagesEl.querySelector('.tailor-suggestion textarea');if(draft)draft.value=saved.tailorDraft||'';}
+    if(tailorReviewState){const review=tailorReviewState;try{if(review.stamp!==tailorContextStamp()||!cvLanguageDecision().language)throw Error('STALE_CONTEXT');if(review.data.sourcesSchemaVersion)await DraftedTailorSources.validateCandidate(review.request,review.data);showTailorSuggestion(review.data,review.stamp,review.request,new Set(review.omittedContext));const draft=chatMessagesEl.querySelector('.tailor-suggestion textarea');if(draft)draft.value=saved.tailorDraft||'';}catch{tailorReviewState=null;appendChat('system','The saved tailoring suggestion needs an update. Your CV and answers are unchanged.');}}
     if(pendingProposal||pendingSuggestion)appendProposalCard(pendingProposalMeta);setApplyLabel();syncWorkspaceJobContext();refreshTailorPresentation();
     if(saved.interrupted){appendChat('system','An unfinished request was interrupted by reload. Your work is kept. Retry the request when you are ready.');if(!editorInput.value)editorInput.value=[...(saved.chatHistory||[])].reverse().find(m=>m.role==='user')?.content||'';}
     await DraftedCvLayout.ready(editorPreviewEl);DraftedCvLayout.setZoom(editorPreviewEl,saved.zoom||1);
     requestAnimationFrame(()=>{chatMessagesEl.scrollTop=saved.scroll?.chat||0;const pane=editorPreviewEl.closest('.cv-document');if(pane)pane.scrollTop=saved.scroll?.document||0;});
   }
+  window.DraftedTailorLanguageControl={create:createCvLanguageControl};
   onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,commitJobDraft:async()=>{const next=jobAdInputEl.value;if(next===activeJobText)return;activeJobText=next;handleJobAdInput();clearJobContextDebounce();if(next.trim().length>=200)await runJobContextExtract();},sourceFile:()=>discoveryCvFile,adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;if(!coverageController?.model.restoreBlocked)coverageController?.sync();}});});
