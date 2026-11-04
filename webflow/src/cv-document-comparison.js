@@ -25,8 +25,9 @@
  }
  function create({host,controls,getEdited,render}){
   const pane=host.closest('.cv-document'),group=document.createElement('section');group.className='document-comparison';group.setAttribute('aria-label','Document comparison');
+  const versions=document.createElement('div');versions.className='document-version-choice';versions.setAttribute('role','group');versions.setAttribute('aria-label','CV version');group.append(versions);
   const buttons={};let original=null,mode='edited',marks=false,suspended=false,stamp=null,anchor=null,restorePending=false;
-  for(const name of ['Original','Edited','Show changes']){const b=document.createElement('button');b.type='button';b.textContent=name;b.setAttribute('aria-pressed',String(name==='Edited'));buttons[name]=b;group.append(b);}
+  for(const name of ['Original','Edited','Show changes']){const b=document.createElement('button');b.type='button';b.textContent=name;b.setAttribute('aria-pressed',String(name==='Edited'));buttons[name]=b;(name==='Show changes'?group:versions).append(b);}
   const status=document.createElement('span');status.className='document-comparison-status';status.setAttribute('role','status');group.append(status);controls.append(group);
   const capture=()=>{const bounds=pane.getBoundingClientRect(),all=[...host.querySelectorAll('.cv-block[data-block-id]')],n=all.find(n=>n.getBoundingClientRect().bottom>bounds.top+16);return n?{id:n.dataset.blockId,fragment:all.filter(b=>b.dataset.blockId===n.dataset.blockId).indexOf(n),offset:n.getBoundingClientRect().top-bounds.top,ratio:pane.scrollTop/Math.max(1,pane.scrollHeight-pane.clientHeight)}:null;};
   function update(){group.hidden=suspended||!(getEdited().blocks||[]).length;buttons.Original.disabled=!original;buttons['Show changes'].disabled=!original||!global.CSS?.highlights||!global.Highlight;buttons.Original.setAttribute('aria-pressed',String(mode==='original'));buttons.Edited.setAttribute('aria-pressed',String(mode==='edited'));buttons['Show changes'].setAttribute('aria-pressed',String(marks));status.textContent=original?'':'Original unavailable for this editing session.';}

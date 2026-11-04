@@ -36,10 +36,10 @@ questions.forEach((g,i)=>{const progress=smooth((t-2760-i*250)/650);g.setAttribu
     const el=(tag,text)=>{const e=document.createElement(tag);if(text)e.textContent=text;return e;};
     const button=(label,fn)=>{const b=el('button',label);b.type='button';b.addEventListener('click',fn);return b;};
     const panel=el('section');panel.className='drafted-discovery';panel.id='drafted-experience-questions';panel.setAttribute('aria-label','Questions about your experience');panel.hidden=true;
-    const back=button('Back to editor',()=>close(true)),body=el('div');back.className='discovery-back';back.setAttribute('aria-label','Back to editor');panel.append(back,body);host.append(panel);
+    const back=button('Back to editor',()=>close(true)),body=el('div');back.className='discovery-back';back.setAttribute('aria-label','Back to editor');panel.append(body);host.append(panel);
     const toolbar=el('div');toolbar.className='workspace-editor-toolbar';toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Editor tools');
     const chatMode=button('Chat',()=>close(true));chatMode.className='workspace-chat-mode';chatMode.setAttribute('aria-pressed','true');toolbar.append(chatMode);
-    const launcher=button('Experience questions',open);launcher.className='discovery-launcher';launcher.hidden=true;launcher.setAttribute('aria-controls',panel.id);launcher.setAttribute('aria-expanded','false');launcher.title='Explore relevant experience that is not clear in your CV';launcher.setAttribute('aria-pressed','false');toolbar.append(launcher);card.querySelector('.chat-title').after(toolbar);
+    const launcher=button('Questions',open);launcher.className='discovery-launcher';launcher.hidden=true;launcher.setAttribute('aria-controls',panel.id);launcher.setAttribute('aria-expanded','false');launcher.title='Explore relevant experience that is not clear in your CV';launcher.setAttribute('aria-pressed','false');toolbar.append(launcher);card.querySelector('.chat-title').after(toolbar);
     const tailor=card.querySelector('#tailor-card');if(tailor){(card.closest('.section-editor').querySelector('.workspace-main-actions')||toolbar).prepend(tailor);const action=tailor.querySelector('#tailor-btn');if(action)action.textContent='Tailor to job';}
     const guidance=el('section');guidance.className='discovery-guidance';guidance.id='drafted-discovery-guidance';guidance.setAttribute('aria-label','Experience questions status');guidance.setAttribute('role','status');guidance.setAttribute('aria-live','polite');guidance.setAttribute('aria-atomic','true');guidance.hidden=true;host.prepend(guidance);
     let fingerprint='',generation=0,opened=false,prepared=false,pending=false,savedScroll=0,planState='idle',planController=null;
@@ -80,7 +80,7 @@ questions.forEach((g,i)=>{const progress=smooth((t-2760-i*250)/650);g.setAttribu
       }
       let sourceNotice='';if(sourceTailoring){try{sourceNotice=getSourceNotice();}catch{sourceNotice='Answer details could not be checked. Your CV has not changed.';}}if(sourceNotice){const status=el('p',sourceNotice);status.className='tailor-review-warning';status.setAttribute('role','status');guidance.append(status);}
     }
-    function setLabel(label){launcher.replaceChildren(document.createTextNode(label),count);launcher.setAttribute('aria-label',label);}
+    function setLabel(label){launcher.replaceChildren(document.createTextNode('Questions'),count);launcher.setAttribute('aria-label',label);}
     function updatePlanIndicator(){
       launcher.dataset.planState=planState;launcher.setAttribute('aria-busy',String(pending));launcher.disabled=planState==='loading';launcher.setAttribute('aria-description',planState==='loading'?'Preparing your experience questions. This may take a moment.':'');updateGuidance();
       const remaining=planState==='ready'?remainingQuestions():0;

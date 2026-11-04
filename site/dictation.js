@@ -66,7 +66,7 @@
   else if(!target.message&&config().mode==='simulated')target.message='Simulated dictation test — audio is not recognised.';
   refresh();
  }
- function mount(){const input=document.getElementById('editor-input');if(input)attach(input,{key:'chat',label:'chat message',maxLength:input.maxLength>0?input.maxLength:5000});if(!dock){dock=node('div',null,'dictation-dock');dock.hidden=true;dock.label=node('span');dock.label.setAttribute('role','status');dock.time=node('span',null,'dictation-time');dock.stop=node('button','Stop recording');dock.stop.type='button';dock.stop.onclick=stop;const abort=node('button','Cancel');abort.type='button';abort.onclick=()=>cancel();dock.append(dock.label,dock.time,dock.stop,abort);document.body.append(dock);}}
+ function mount(){const input=document.getElementById('editor-input');if(input)attach(input,{key:'chat',label:'chat message',variant:'answer',maxLength:input.maxLength>0?input.maxLength:5000});if(!dock){dock=node('div',null,'dictation-dock');dock.hidden=true;dock.label=node('span');dock.label.setAttribute('role','status');dock.time=node('span',null,'dictation-time');dock.stop=node('button','Stop recording');dock.stop.type='button';dock.stop.onclick=stop;const abort=node('button','Cancel');abort.type='button';abort.onclick=()=>cancel();dock.append(dock.label,dock.time,dock.stop,abort);document.body.append(dock);}}
  root.DraftedDictation={attach,cancel,merge,isActiveFor(prefix){return !!active?.key.startsWith(prefix);},cancelFor(prefix){if(active?.key.startsWith(prefix))cancel();}};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,0),{once:true});else setTimeout(mount,0);
  addEventListener('pagehide',()=>cancel());

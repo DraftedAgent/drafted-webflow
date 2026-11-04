@@ -11,7 +11,7 @@
   function render(){
    for(const d of panel.querySelectorAll('details'))if(d.open)openSignals.add(d.dataset.signal);else openSignals.delete(d.dataset.signal);
    const fresh=model.fresh(),counts=model.result?C.counts(model.result):null,total=model.result?.rows.length||0;
-   toggle.textContent=fresh&&total?`${counts.clear} of ${total} signals clearly represented`:'CV coverage'+(model.result?' · out of date':'');toggle.dataset.state=model.status;
+   toggle.textContent=fresh&&total?`Job signals · ${counts.clear}/${total}`:'Job signals'+(model.result?' · out of date':'');toggle.dataset.fullLabel=fresh&&total?`${counts.clear} of ${total} signals clearly represented`:toggle.textContent;toggle.dataset.state=model.status;
    panel.replaceChildren(button('← Back to editor',close,'coverage-back'));
    const status=el('div',undefined,'coverage-status');status.setAttribute('role','status');
    if(model.status==='loading')status.textContent='Reviewing the current CV against the job signals…';

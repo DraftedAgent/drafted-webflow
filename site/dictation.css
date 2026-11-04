@@ -12,3 +12,17 @@
 .section-editor .drafted-discovery .dictation-cancel{background:transparent;border-color:transparent;color:var(--editor-muted,#617b89)}
 .drafted-discovery .drafted-dictation[data-state=transcribing] .dictation-time{display:inline}
 @media(max-width:700px){.drafted-discovery .drafted-dictation[data-variant=answer]{grid-template-columns:minmax(0,1fr);gap:8px}.drafted-discovery .drafted-dictation button{min-height:44px}.drafted-discovery .drafted-dictation .dictation-mic{width:44px;min-width:44px}.drafted-discovery .dictation-info{min-height:44px}.drafted-discovery .dictation-controls{justify-self:end}}
+
+:is(.drafted-discovery,.workspace-composer) .drafted-dictation[data-variant=answer]{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;width:100%;margin:12px 0 0;align-items:start}
+:is(.drafted-discovery,.workspace-composer) .dictation-info{display:flex;gap:9px;align-items:center;min-width:0;min-height:40px}
+:is(.drafted-discovery,.workspace-composer) .dictation-info .dictation-status{min-width:0;overflow-wrap:anywhere;font-size:12px;line-height:1.45}
+:is(.drafted-discovery,.workspace-composer) .dictation-time{flex:0 0 auto;font-size:11px;white-space:nowrap}
+:is(.drafted-discovery,.workspace-composer) .dictation-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
+:is(.drafted-discovery,.workspace-composer) .drafted-dictation button{margin:0;min-height:40px;font-size:12px;padding:8px 11px;box-sizing:border-box;white-space:nowrap}
+:is(.drafted-discovery,.workspace-composer) .drafted-dictation .dictation-mic{width:40px;min-width:40px;padding:0;flex:0 0 auto}
+.section-editor :is(.drafted-discovery,.workspace-composer) .dictation-stop{background:var(--editor-teal,#00858a);border-color:var(--editor-teal,#00858a);color:white;font-weight:650}
+.section-editor :is(.drafted-discovery,.workspace-composer) .dictation-cancel{background:transparent;border-color:transparent;color:var(--editor-muted,#617b89)}
+:is(.drafted-discovery,.workspace-composer) .drafted-dictation[data-state=transcribing] .dictation-time{display:inline}
+@media(max-width:700px){:is(.drafted-discovery,.workspace-composer) .drafted-dictation[data-variant=answer]{grid-template-columns:minmax(0,1fr);gap:8px}:is(.drafted-discovery,.workspace-composer) .drafted-dictation button{min-height:44px}:is(.drafted-discovery,.workspace-composer) .drafted-dictation .dictation-mic{width:44px;min-width:44px}:is(.drafted-discovery,.workspace-composer) .dictation-info{min-height:44px}:is(.drafted-discovery,.workspace-composer) .dictation-controls{justify-self:end}}
+
+.workspace-composer .dictation-status {min-width:0;}

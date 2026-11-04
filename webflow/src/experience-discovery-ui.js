@@ -79,7 +79,7 @@
       else if(r.phase==='complete')outcome();
       else{
         const batchStart=r.index<r.batchStart?0:r.batchStart||0;
-        const q=session.current(),followup=r.phase==='followup',progress=el('p',r.focus?'Focused experience':followup?`Follow-up · Question ${r.index-batchStart+1} of ${r.total-batchStart}`:`${r.index-batchStart+1}/${r.total-batchStart}`,'discovery-progress');progress.setAttribute('aria-label',r.focus?'Focused experience question':`Question ${r.index-batchStart+1} of ${r.total-batchStart}`);container.append(progress);
+        const q=session.current(),followup=r.phase==='followup',progress=el('p',r.focus?'Focused experience':followup?`Follow-up · Question ${r.index-batchStart+1} of ${r.total-batchStart}`:`Question ${r.index-batchStart+1} of ${r.total-batchStart}`,'discovery-progress');progress.setAttribute('aria-label',r.focus?'Focused experience question':`Question ${r.index-batchStart+1} of ${r.total-batchStart}`);container.append(progress);
         let originalContext=null;
         if(followup){
           let source;try{source=session.followupContext();}catch{}
@@ -92,14 +92,14 @@
           originalContext=el('details',null,'discovery-original-context');originalContext.open=!!originalContextOpen;
           originalContext.append(el('summary','View job context'));requirementList(q,originalContext);
         }else{container.append(el('h2',q.question));if(r.notice)container.append(el('p',r.notice));}
-        const actions=el('div');actions.className='discovery-question-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Answer actions');
+        let answerSurface=null;const actions=el('div');actions.className='discovery-question-actions';actions.setAttribute('role','group');actions.setAttribute('aria-label','Answer actions');
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
           if(r.phase==='correct'&&!drafts.has(q.id)){const answer=session.snapshot().answers.find(a=>a.id===q.answerId);if(answer)drafts.set(q.id,answer.revisions.at(-1).text);}
           const label=el('label',followup?'Your clarification':'A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
           const saved=session.snapshot().answers.find(a=>a.id===q.answerId)?.revisions.at(-1)?.experienceContext;
           if(saved)container.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(saved),'discovery-saved-context'));
-          container.append(label);
+          answerSurface=el('div',null,'experience-answer-surface');answerSurface.append(label);container.append(answerSurface);
           root.DraftedDictation?.attach(input,{key:'question:'+mountedRound+':'+q.id+':'+(followup?'followup':'answer'),label:'experience answer',maxLength:50000,variant:'answer',
             read:()=>drafts.get(q.id)||'',write:value=>{drafts.set(q.id,value);if(input.isConnected){input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));}onStateChange();},
             alive:()=>!disposed&&session.round().id===mountedRound});
@@ -109,7 +109,7 @@
           secondary.append(button('No',()=>{session.submit('No');drafts.delete(q.id);}),button('I don’t know',()=>{session.submit("I don't know");drafts.delete(q.id);}),button('Skip',()=>{session.skip();if(!root.DraftedDictation?.isActiveFor('question:'+mountedRound+':'+q.id+':'))drafts.delete(q.id);}));actions.append(secondary,send);
         }
         const pending=session.results().pending;if(pending)container.append(el('p',`${pending===1?'An earlier answer is':pending+' earlier answers are'} being checked. You can keep going.`,'discovery-note'));
-        const finish=button('Finish the questions',()=>session.finish());finish.className='discovery-finish-link';const finishRow=el('div',null,'discovery-question-finish');finishRow.append(finish);container.append(actions,finishRow);if(originalContext)container.append(originalContext);
+        const finish=button('Finish the questions',()=>session.finish());finish.className='discovery-finish-link';const finishRow=el('div',null,'discovery-question-finish');finishRow.append(finish);(answerSurface||container).append(actions);container.append(finishRow);if(originalContext)container.append(originalContext);
       }
       history();if(historyOpen&&container.querySelector('.discovery-history'))container.querySelector('.discovery-history').open=true;
       if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}

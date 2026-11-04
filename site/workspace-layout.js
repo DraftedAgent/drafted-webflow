@@ -33,7 +33,7 @@
     comparisonMenu.addEventListener('toggle',()=>{const open=comparisonMenu.matches(':popover-open');comparisonButton.setAttribute('aria-expanded',String(open));if(open){const r=comparisonButton.getBoundingClientRect();comparisonMenu.style.left=Math.max(8,Math.min(r.left,innerWidth-246))+'px';comparisonMenu.style.top=(r.bottom+6)+'px';}});
     function compactLabels(){
       const launcher=chat.querySelector('.discovery-launcher');if(launcher){const review=launcher.textContent.includes('Review your answers');launcher.dataset.compactLabel=review?'Answers':'Questions';}
-      const coverage=chat.querySelector('.workspace-coverage-toggle');if(coverage){const full=coverage.textContent,match=full.match(/(\d+) of (\d+)/);coverage.dataset.compactLabel=match?'Coverage '+match[1]+'/'+match[2]:'Coverage';coverage.setAttribute('aria-label',full);coverage.title=full;}
+      const coverage=chat.querySelector('.workspace-coverage-toggle');if(coverage){const full=coverage.dataset.fullLabel||coverage.textContent,match=full.match(/(\d+) of (\d+)/);coverage.dataset.compactLabel=match?'Job signals · '+match[1]+'/'+match[2]:'Job signals';coverage.setAttribute('aria-label',full);coverage.title=full;}
       const selected=comparison?.querySelector('button[aria-pressed=true]');comparisonButton.textContent=(selected?.textContent||'Edited')+' ▾';
       zoomButton.textContent=(zoom?.querySelector('.workspace-zoom-value')?.textContent||'100%')+' ▾';
     }
