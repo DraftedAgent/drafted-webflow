@@ -1,0 +1,22 @@
+{
+  "verifiedUTC": "2026-11-07T22:44:54.2768024Z",
+  "model": "unchanged; encrypted snapshot retains exact settings",
+  "maxOutputTokens": "unchanged",
+  "activeVersion": "e939384b-16b8-4c8a-bee8-257dfa4cd09b",
+  "workflowId": "zeIzzxPwD2Y91OyD",
+  "beforeSnapshot": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\discovery-policy-release-20261107\\before-Deploy-20261107T224444030Z.clixml",
+  "modelCalls": 0,
+  "changedNodes": [
+    {
+      "id": "177814a2-3420-4f98-aa39-7d600bcae81e",
+      "name": "Build discovery prompt",
+      "key": "prompt",
+      "beforeSHA256": "94301245e765d271bb2b22ca942c602b031967b2851c3086d645287097ab39f3",
+      "candidateSHA256": "3d216c4bacf76192f140f14764fa3827f021e7dbaf1fa9f9f372474fe4ecba71"
+    }
+  ],
+  "afterSnapshot": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\discovery-policy-release-20261107\\verified-active-20261107T224449492Z.clixml",
+  "policyStage": 1,
+  "workflowExecutions": 0,
+  "previousVersion": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5"
+}

@@ -1,7 +1,7 @@
 # Öppen testversion på getmedrafted.com
 
-Senast verifierad publicering: **DEV-267, 2026-11-07**, källcommit `aca2aaf`,
-Worker-version `73d25d9b-a5b8-4d0f-9eb2-25bb82ff5641`. Se `current-release.json`.
+Senast verifierad publicering: **DEV-300, 2026-11-07**, webbcommit `8b7ae15`,
+Worker-version `3ef83749-1166-45cd-a62d-5644abb4d863`. Se `current-release.json`.
 Tailor-profil1.5 har flerval av anställningar, gemensam bekräftelse och relevansstyrd
 placering utan automatisk kopiering till alla val. CV:t ändras först vid Accept.
 Editor och preview har oberoende innehållszoom med Ctrl+mushjul/zoomgest.
@@ -119,3 +119,12 @@ Automatiskt CV-språk, frivilligt Change-val, helöversättning och källbunden 
 ## Tailor1.5 — DEV-267
 
 Den separat godkända backenduppdateringen lägger endast till en1.5-gren i två befintliga Code-noder. Tidigare1.4/1.3/legacy-kod är oförändrad. Aktiv version8cd7bef1-e60a-4b48-aee5-3c1598ead795; hashes i tailor-release.json. Modellen,4000-token-gränsen och budgetidentiteten behålls. Ingen ny riktig modellkörning gjordes vid publiceringen. Backendåtergång kräver webåtergång först och kontrollerad återställning av de två Code-fälten från verifierad krypterad snapshot.
+
+
+## Samlad CV-policy och granskningsversion — DEV-300
+
+Aktuell webbversion innehåller källbevarande urval/återställning, automatiskt urval inom tailoring, Edit per förslag, direkt synkroniserat Accept/Decline, hoverramar och kompaktering av borttagna kort. Frågestart och svarskontroller är uppdaterade; Use full CV visas först efter slutförd tailoring. Summeringen följer faktiska beslut; förklarat oförändrat resultat skiljs från anropsfel. Preview godkänner inget och export använder fortfarande godkänt innehåll.
+
+Tailor-källintegrering, automatisk keep/shorten/omit och sektionsrevision delar befintliga budgeterade `/api/webhook/tailor-cv`, med befintliga diskriminerade requestprofiler. Två befintliga Code-fält uppdaterades; sparad/aktiv version finns i `tailor-release.json`. Discoverys godkända kontext-/senioritetspolicy lades till i en befintlig promptnod utan att ändra nuvarande bound-plan-format, modell, schema eller validerare; se `discovery-policy-release.json`. Alla andra workflows och budgetidentiteten behålls.
+
+Krypterade före/efter-snapshots är verifierade. Lokala tester och exakt serverade publika filer kontrollerades med alla API-skrivningar ersatta av privata fixtures. Inga nya riktiga modellkörningar genomfördes vid publiceringen; semantisk livekvalitet är inte därmed verifierad. Återgång: först föregående Worker-version73d25d9b-a5b8-4d0f-9eb2-25bb82ff5641, därefter vid behov endast de tre ändrade n8n-Code-fälten från respektive verifierad backup efter kontroll av mellanliggande ändringar.
