@@ -22,7 +22,7 @@
     return el;
   };
 
-  function unitsFromBlocks(blocks, title, templateId) {
+  function unitsFromBlocks(blocks, title, templateId, structure) {
     const designed=['studio_v1','executive_v1'].includes(templateId);
     const units = [], seen = new Set();
     const add = (tag, cls, text, id = '', keep = false, source = false) => {
@@ -31,8 +31,8 @@
     const sorted=[...blocks].sort((a,c)=>a.order-c.order||(String(a.blockId)<String(c.blockId)?-1:String(a.blockId)>String(c.blockId)?1:0));
     // Explicit semantic labels only. Never infer a person's name from cvTitle,
     // a summary, employment history, email address or the uploaded filename.
-    const labels={name:['name','full name','namn'],headline:['professional headline','headline','yrkestitel','profilrad'],contact:['contact details','contact','kontaktuppgifter','kontakt']};
-    const role=b=>['otherSections','block'].includes(b.type)?Object.keys(labels).find(key=>labels[key].includes(String(b.label||'').trim().toLowerCase())):undefined;
+    const presentation=structure||global.DraftedCvStructure.create(blocks);
+    const role=b=>global.DraftedCvStructure.entry(presentation,b).role;
     const header=sorted.filter(b=>role(b)&&String(b.text||'').trim());
     for(const kind of (templateId==='studio_v1'?['contact','name','headline']:['name','headline','contact'])){
       for(const b of header.filter(b=>role(b)===kind))add(kind==='name'?'h1':'p',kind==='name'?'cv-title cv-person-name':kind==='headline'?'cv-headline':'cv-header-contact',String(b.text),String(b.blockId),true,true);
@@ -42,9 +42,10 @@
       const id = String(b.blockId), type = String(b.type);
       const metadata = type === 'experience' ? [b.title,b.employer,b.startDate,b.endDate] : type === 'education' ? [b.degree,b.program,b.institution,b.startDate,b.endDate] : [];
       if (![b.text,...metadata].some(value => String(value || '').trim())) continue;
-      if (type !== 'summary' && !seen.has(type)) {
+      const sectionKey=global.DraftedCvStructure.entry(presentation,b).sectionKey;
+      if (type !== 'summary' && !seen.has(sectionKey)) {
         add('h2', 'cv-section-heading', String(b.label || type), '', true);
-        seen.add(type);
+        seen.add(sectionKey);
       }
       if (type === 'experience' || type === 'education') {
         const heading = type === 'experience' ? b.title : [b.degree, b.program].filter(Boolean).join(', ');
@@ -283,7 +284,7 @@
     host.dataset.layoutState = 'loading'; host.setAttribute('aria-busy', 'true'); model.onState?.('loading');
     viewer.pending = (model.blocks.length ? fontsReady() : Promise.resolve()).then(() => {
       if (generation !== viewer.generation) return;
-      const pages = model.blocks.length ? paginate(unitsFromBlocks(model.blocks, model.title, templateId), templateId) : [];
+      const pages = model.blocks.length ? paginate(unitsFromBlocks(model.blocks, model.title, templateId, model.structure), templateId) : [];
       host.dataset.cvDesign = templateId;
       host.replaceChildren(...pages.map(page => { const slot = node('div', 'cv-page-slot'); slot.append(page); return slot; }));
       viewer.scale(); host.dataset.pageCount = String(pages.length); host.dataset.layoutState = 'ready';

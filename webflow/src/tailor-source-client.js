@@ -18,12 +18,13 @@
         data=await response.json();
       }catch{throw new Failure(response.ok?'SOURCE_RESPONSE_INVALID':'SOURCE_HTTP_FAILED',response.status);}
       if(!response.ok||data?.ok!==true)throw new Failure('SOURCE_HTTP_FAILED',response.status,data?.contractError?.code);
-      try{await sources.validateCandidate(payload,data);}catch{throw new Failure('SOURCE_RESPONSE_INVALID',response.status);}
+      try{await sources.validateCandidate(payload,data);}catch(error){throw new Failure(['UNREQUESTED_DOCUMENT_STRUCTURE_CHANGE','DUPLICATE_LIST_MARKER'].includes(error.message)?'SOURCE_STRUCTURE_INVALID':'SOURCE_RESPONSE_INVALID',response.status);}
       return data;
     })();
     try{return await Promise.race([request,timeout]);}finally{clearTimeout(timer);}
   }
   function message(error){
+    if(error?.code==='SOURCE_STRUCTURE_INVALID')return 'The suggestion changed protected headings, header wording or list structure. Your CV and answers are unchanged. Prepare a new suggestion.';
     if(error?.code==='SOURCE_TIMEOUT')return 'Tailoring took too long. Your CV and answers have been kept. Try again.';
     if(error?.code==='SOURCE_NETWORK_FAILED')return 'Could not reach Tailor. Your CV and answers have been kept. Check your connection and try again.';
     return 'We could not prepare a suggestion that could be checked against your answers. Your CV and answers have been kept. Try again.';

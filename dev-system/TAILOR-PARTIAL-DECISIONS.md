@@ -18,3 +18,11 @@ Nuvarande Apply validerar och applicerar ett helt förslag och uppdaterar dess k
 4. Synkronisera beslut i kort och preview. Testa minst två oberoende ändringar, två evidensberoende ändringar, flera hunkar i samma block, källrättelse över flera block, stale/dubbelklick och stängning efter accepterad del. Behåll tydliga globala handlingar för alla återstående giltiga ändringar.
 
 I den aktuella kandidaten finns därför Current, Suggested, Show changes och stängning vid det aktiva blocket. Apply all changes och Dismiss i chattkortet behåller sin globala betydelse. Inga lokala Accept change/Dismiss change-knappar visas utan korrekt kontraktsstöd.
+
+## Implementerat lokalt — 2026-11-07, DEV-257
+
+Ägaren har uttryckligen godkänt Accept/Decline per sektion i den aktuella lokala editorn. Beslutsenheten är ett helt befintligt block (en enskild anställning är ett block), inklusive dess föreslagna text och metadata. Samma transaktion används av kort och preview; inga andra block godkänns implicit. Accept/Decline för alla återstående har egna uttryckliga etiketter.
+
+Lokala profiler1.3/1.4 använder en oföränderlig ursprungsförfrågan, hela den validerade kandidaten, ursprungligt källregister och en beslutskarta. Varje transaktion rekonstruerar/validerar hela ursprungskandidaten med befintlig compiler och Ledger.commit, jämför faktiskt Current och register med exakt förväntad accepterad delmängd och projicerar endast valda blocks kompletta register/checkpoints/historik. Inga recept eller evidensintervall baseras om på blandad text.1.3/1.4-kompilatorn kräver blocklokal CV-evidens; delade svar behåller sina ursprungliga revisioner och blockspecifika kvitton. En käll-/annons-/språkändring invalidierar återstående review via befintlig stämpel. Äldre profiler utan denna validering får inte delappliceras.
+
+Återstående preview visar accepterat innehåll utan förslagsmarkering, avvisat original och ännu obeslutade förslag. Beslut och fruset underlag sparas i befintlig workspace-review; återställning validerar både kandidat och exakt delmängd/register. En senare ändring i Current avvisar transaktionen, den byter inte bara basstämpel. Ingen ny backendförfrågan följer av ett sektionsbeslut. Delvis godkänd översättning kan med avsikt lämna olika språk i olika block; det är de uttryckliga sektionsvalen, inte ett påstående om färdig helöversättning.

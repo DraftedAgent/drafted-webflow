@@ -400,3 +400,19 @@
  .tailor-language-note {font-size:12px!important;line-height:1.5!important;color:#506a79!important;margin:4px 0 0!important;max-width:52ch;}
  .tailor-language-change:focus-visible {outline:2px solid #00868e;outline-offset:3px;}
 }
+
+/* Compact section decisions: only the two actions, no full-width review bar. */
+.tailor-preview-switch.tailor-block-tools.is-compact {
+ padding:0;border:0;background:transparent;box-shadow:none;gap:0;
+}
+.tailor-block-tools.is-compact .tailor-block-actions {gap:3px;padding:0;flex-wrap:nowrap;}
+.tailor-block-tools.is-compact .tailor-block-actions button {
+ min-height:18px;padding:1px 5px;font-size:10px;line-height:1.4;border-radius:4px;
+}
+
+/* Keep the action row and the outlined section one continuous hit area. */
+.tailor-block-tools.is-compact::after {content:"";position:absolute;left:0;right:0;top:100%;height:8px;pointer-events:auto;}
+.tailor-block-tools.is-compact[data-placement="below"]::after {top:auto;bottom:100%;}
+.tailor-block-tools.is-compact .tailor-block-actions button {transition:transform 100ms ease;transform-origin:bottom center;}
+.tailor-block-tools.is-compact .tailor-block-actions button:hover {transform:scale(1.1);}
+@media(prefers-reduced-motion:reduce){.tailor-block-tools.is-compact .tailor-block-actions button {transition:none;}}

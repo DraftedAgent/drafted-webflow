@@ -100,3 +100,9 @@
  ::highlight(drafted-document-before) {background:#fce8ed;color:#87223d;text-decoration:line-through;}
 }
 @media print {.document-comparison,[data-cv-preview-mode=original] {display:none!important;}}
+
+.tailor-original-hover .tailor-mark-removed {background:#fce8ed;color:#87223d;text-decoration:line-through;}
+
+.tailor-section-actions {display:flex;gap:8px;margin:10px 0;}
+.tailor-section-actions button {padding:7px 14px;border:1px solid #bfd5dc;border-radius:6px;background:white;color:#006c72;cursor:pointer;}
+.tailor-section-actions button:first-child {background:#007f86;color:white;border-color:#007f86;}
