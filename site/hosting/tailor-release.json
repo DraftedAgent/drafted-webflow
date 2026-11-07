@@ -1,27 +1,30 @@
 {
-  "activeVersion": "8cd7bef1-e60a-4b48-aee5-3c1598ead795",
-  "previousVersion": "f5a51070-ef46-4fcc-9225-f652bb379ca1",
+  "afterSnapshot": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\editor-stage-release-20261107\\verified-active-20261107T224009273Z.clixml",
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "previousVersion": "d8ce1a5c-5059-4347-93ee-78509db81d6d",
+  "model": "gpt-6-luna",
+  "workflowExecutions": 0,
+  "sourcesSchemaVersion": "1.5",
   "modelCalls": 0,
   "changedNodes": [
     {
       "id": "b770f40e-b1a0-49fe-94e6-e003c3f42b41",
       "name": "Validate + Normalize",
       "key": "validate",
-      "beforeSHA256": "788e22a2af0601b43efbfa8d65b5d75c8093970decc7e80fc05ea12d6c63b932",
-      "candidateSHA256": "655f4dc598f80c39c9356853fbd2247c1e393eb689fe28bc4c5040acaf79fea1"
+      "beforeSHA256": "655f4dc598f80c39c9356853fbd2247c1e393eb689fe28bc4c5040acaf79fea1",
+      "candidateSHA256": "27219950086ca82d6be7eae59d0ef6a2bb206e9b0a06b3c6accb034dfed4fc6e"
     },
     {
       "id": "tailor-sources-compose-v1",
       "name": "Compose source suggestion",
       "key": "compose",
-      "beforeSHA256": "5d3e3a18ee49bd3e7c35fa5d061f4495d2f38297027dd3b7ee021c9ca9b09766",
-      "candidateSHA256": "f214f88991bb177b51bec5939a18b154c38d0808d5b99f7afab9c366e07858eb"
+      "beforeSHA256": "f214f88991bb177b51bec5939a18b154c38d0808d5b99f7afab9c366e07858eb",
+      "candidateSHA256": "30b7a476e103c1889b693e0fd61ed20fbbe2a425e3317461f92f215bde18dfd1"
     }
   ],
-  "sourcesSchemaVersion": "1.5",
-  "verifiedUTC": "2026-11-07T15:50:30.4475901Z",
-  "workflowExecutions": 0,
-  "workflowId": "H8oAioy58R1v3PvRe3YUa",
-  "model": "gpt-6-luna",
-  "maxOutputTokens": 4000
+  "verifiedUTC": "2026-11-07T22:40:42.8597476Z",
+  "activeVersion": "e63b8eca-ee2e-44ba-a051-6c6e25cec30b",
+  "maxOutputTokens": 4000,
+  "beforeSnapshot": "C:\\Users\\wallg\\AppData\\Local\\Drafted\\editor-stage-release-20261107\\before-Deploy-20261107T223659103Z.clixml",
+  "editorStage": 2
 }

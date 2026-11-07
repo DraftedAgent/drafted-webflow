@@ -1,4 +1,4 @@
-param([ValidateSet('Capture','Deploy')][string]$Action='Capture')
+param([ValidateSet('Capture','Deploy','Verify')][string]$Action='Capture')
 $ErrorActionPreference='Stop'
 $base='https://drafted.app.n8n.cloud/api/v1/workflows/H8oAioy58R1v3PvRe3YUa'
 $headers=@{'X-N8N-API-KEY'=(Import-Clixml "$env:USERPROFILE/.codex/secrets/drafted-n8n.credential.xml").GetNetworkCredential().Password}
@@ -14,6 +14,7 @@ try{
  $raw=(Invoke-WebRequest $base -Headers $headers).Content;$before=$raw|ConvertFrom-Json
  $snapshot=Snapshot $raw ('before-'+$Action)
  if($Action -eq 'Capture'){$raw|node tools/release/editor-stage-plan.cjs;if($LASTEXITCODE -ne 0){throw 'Preparation failed'};Write-Output 'Complete saved/active snapshot encrypted and verified';exit 0}
+ if($Action -eq 'Verify'){$currentRaw=$raw;$original=Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Drafted/editor-stage-release-20261107') -Filter 'before-Deploy-*.clixml'|Sort-Object LastWriteTime -Descending|Select-Object -First 1;$snapshot=$original.FullName;$raw=(@(Import-Clixml $snapshot)|ForEach-Object {[PSCredential]::new('snapshot',$_).GetNetworkCredential().Password}) -join '';$before=$raw|ConvertFrom-Json}
  $m=Get-Content output/editor-stage-release/manifest.json -Raw|ConvertFrom-Json
  if($before.versionId -ne $m.version -or $before.activeVersionId -ne $m.version -or $before.updatedAt -ne $m.updatedAt){throw 'Concurrent backend change'}
  $desired=$raw|ConvertFrom-Json
@@ -25,10 +26,12 @@ try{
   $node[0].parameters.jsCode=$code
  }
  $payload=@{name=$desired.name;nodes=$desired.nodes;connections=$desired.connections;settings=$desired.settings}
+ if($Action -eq 'Deploy'){
  $null=Invoke-RestMethod $base -Method Put -Headers $headers -ContentType 'application/json' -Body ([Text.Encoding]::UTF8.GetBytes(($payload|ConvertTo-Json -Depth 100 -Compress)))
  $saved=Invoke-RestMethod $base -Headers $headers
  if($saved.activeVersionId -ne $saved.versionId){$null=Invoke-RestMethod ($base+'/activate') -Method Post -Headers $headers -ContentType 'application/json' -Body '{}'}
- $afterRaw=(Invoke-WebRequest $base -Headers $headers).Content;$after=$afterRaw|ConvertFrom-Json
+ }
+ $afterRaw=if($Action -eq 'Verify'){$currentRaw}else{(Invoke-WebRequest $base -Headers $headers).Content};$after=$afterRaw|ConvertFrom-Json
  if(!$after.active -or $after.versionId -ne $after.activeVersionId){throw 'Activation not verified'}
  @{expected=$payload;actual=@{name=$after.name;nodes=$after.nodes;connections=$after.connections;settings=$after.settings}}|ConvertTo-Json -Depth 100 -Compress|node tools/coverage/check-projection.cjs;if($LASTEXITCODE -ne 0){throw 'Saved projection mismatch'}
  @{expected=$payload;actual=@{name=$after.name;nodes=$after.activeVersion.nodes;connections=$after.activeVersion.connections;settings=$after.settings}}|ConvertTo-Json -Depth 100 -Compress|node tools/coverage/check-projection.cjs;if($LASTEXITCODE -ne 0){throw 'Active projection mismatch'}
