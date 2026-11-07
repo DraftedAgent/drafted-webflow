@@ -1,0 +1,9 @@
+const test=require('node:test'),assert=require('node:assert/strict'),P=require('../webflow/src/tailor-sources-v15.js'),X=require('../webflow/src/experience-context.js'),F=require('./fixtures/tailor-language.cjs'),provider=require('../backend/tailor-language-fixture.cjs');
+test('multiple entries expand allowed placement without automatic duplication; single selection remains valid',async()=>{
+ const r=await F.request({cv:'en',ad:'en',answers:true});r.blocks.push({...structuredClone(r.blocks.find(b=>b.blockId==='experience-1')),blockId:'experience-2',title:'Delivery Coordinator',order:25});r.sourcesSchemaVersion='1.5';const entries=r.blocks.filter(b=>b.type==='experience').map(b=>X.reference(r.cvVersionId,b));r.sourceContext.answers[0].experienceContext=X.selection(entries);r.inputRef=await P.inputRef(r);await P.validateRequest(r);
+ const c=P.makeCatalog(r,'multi');assert.equal(c.sources[0].allowedTargets.length,2);const raw=provider.model(c),d=await P.candidate(r,raw,{scope:'multi'});await P.validateCandidate(r,d);assert.equal(d.integrations.length,1);assert.equal(d.blocks.find(b=>b.blockId==='experience-2').text,r.blocks.find(b=>b.blockId==='experience-2').text);assert.equal(r.sourceContext.answers[0].experienceContext.entries.length,2);
+ const duplicate=structuredClone(raw);duplicate.integrations.push({...structuredClone(raw.integrations[0]),targetKey:c.sources[0].allowedTargets[1]});await assert.rejects(P.candidate(r,duplicate,{scope:'multi'}),/DUPLICATE_MULTI_PLACEMENT/);
+ const stale=structuredClone(r);stale.blocks.find(b=>b.blockId==='experience-2').title='Changed';assert.equal(X.resolve(stale.sourceContext.answers[0].experienceContext,stale.cvVersionId,stale.blocks).status,'unresolved');
+ assert.throws(()=>X.validate({kind:'cv_entries',entries:[entries[0],entries[0]]}));assert.equal(X.selection([entries[0]]).kind,'cv_entry');
+ const ledger=new P.Ledger();await ledger.commit(r,d);assert.equal(ledger.integrations.length,1);
+});

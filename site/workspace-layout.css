@@ -416,3 +416,7 @@
 .tailor-block-tools.is-compact .tailor-block-actions button {transition:transform 100ms ease;transform-origin:bottom center;}
 .tailor-block-tools.is-compact .tailor-block-actions button:hover {transform:scale(1.1);}
 @media(prefers-reduced-motion:reduce){.tailor-block-tools.is-compact .tailor-block-actions button {transition:none;}}
+
+/* Zoom only editor contents; retain the panel, scroll viewport and toolbars. */
+.workspace-conversation-body .chat-messages > *,
+.workspace-conversation-body .workspace-composer > * {zoom:var(--editor-content-zoom,1);}

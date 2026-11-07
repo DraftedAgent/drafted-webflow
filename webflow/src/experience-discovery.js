@@ -134,7 +134,7 @@
     assignExperienceContext(answerId,revision,value){
       const C=contexts();C.validate(value);const a=this.state.answers.find(a=>a.id===answerId&&a.roundId===this.round().id);
       if(!a||a.currentRevision!==revision||a.status!=='recorded')throw Error('STALE_ANSWER');
-      if(value.kind==='cv_entry'&&C.resolve(value,this.state.context.cvVersionId,this.state.context.blocks).status!=='resolved')throw Error('STALE_CONTEXT_REFERENCE');
+      if(['cv_entry','cv_entries'].includes(value.kind)&&C.resolve(value,this.state.context.cvVersionId,this.state.context.blocks).status!=='resolved')throw Error('STALE_CONTEXT_REFERENCE');
       const latest=a.revisions.at(-1),text=latest.sourceTextBeforeContext??latest.text,context=copy(value);
       // Validate everything before touching revision, status or source history.
       this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,experienceContext:context});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();

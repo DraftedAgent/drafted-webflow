@@ -44,7 +44,7 @@ const tailorSourceLedger=new DraftedTailorSources.Ledger();
 const productionStructuredContext=true;
 // Public capability is emitted only by a release whose backend activation was verified.
 const tailorSourcesVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):(window.__DRAFTED_TAILOR_SOURCES_VERSION__==='1.4'?'1.4':productionStructuredContext?'1.2':'1.1');
-const structuredContextEnabled=tailorSourcesEnabled&&['1.2','1.3','1.4'].includes(tailorSourcesVersion);
+const structuredContextEnabled=tailorSourcesEnabled&&['1.2','1.3','1.4','1.5'].includes(tailorSourcesVersion);
 
 // The editor is a workspace; remove the legacy Webflow section introduction.
 onReady(() => {
@@ -587,7 +587,7 @@ maybeShowTailor();
          card.classList.add('tailor-context-mode');card.setAttribute('aria-label','Tailoring context');
          const existing=answer.text.includes('\n\nContext: ')?answer.text.split('\n\nContext: ').at(-1):'';
          const named=[...new Set(request.blocks.map(b=>b.employer||b.institution||(['project','projects'].includes(b.type)||b.type==='otherSections'&&/project|projekt/i.test(b.label||'')?b.label:'')).filter(name=>name&&answer.text.toLocaleLowerCase().includes(name.toLocaleLowerCase())))];
-         const question=structuredContextEnabled?'Which role or project does this example relate to?':existing?'What additional role or project detail would help place this example?':named.length===1?('For the example mentioning '+named[0]+', what was your role?'):'Which role or project does this example relate to?';
+         const question=structuredContextEnabled?'Which roles or projects does this example relate to? Select all that apply.':existing?'What additional role or project detail would help place this example?':named.length===1?('For the example mentioning '+named[0]+', what was your role?'):'Which roles or projects does this example relate to? Select all that apply.';
          add('h2',question);add('blockquote',excerpt(answer.text.split('\n\nContext: ')[0]));
          if(structuredContextEnabled){
            DraftedExperienceContextUI.mount(card,{blocks:request.blocks,cvVersionId:request.cvVersionId,selected:answer.experienceContext||null,
@@ -776,7 +776,7 @@ maybeShowTailor();
        if(!jobContext||!documentBlocksState?.length)return;
        if(!cvLanguageDecision().language&&!await chooseCvLanguage(true))return;
        const languageDecision=cvLanguageDecision();if(!languageDecision.language)return;
-       if(tailorSourcesVersion!=='1.4'&&needsWholeCvLanguage(languageDecision)){showTailorFeedback('Whole-document translation is available in simulated Dev. The real backend needs the prepared language-contract update before this request can run.',false);return;}
+       if(!['1.4','1.5'].includes(tailorSourcesVersion)&&needsWholeCvLanguage(languageDecision)){showTailorFeedback('Whole-document translation is available in simulated Dev. The real backend needs the prepared language-contract update before this request can run.',false);return;}
        // Lock is shared by the toolbar, guidance and finish actions.
        document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
        tailorInFlight=true;btn.disabled=true;
@@ -788,19 +788,20 @@ maybeShowTailor();
          // Wait for existing requests; do not launch Tailor from a partial source set.
          const representationStamp=tailorContextStamp(null);
          await discoveryController?.waitForSources();
-         const signalCatalog=['1.3','1.4'].includes(tailorSourcesVersion)?await coverageController?.model.waitForCatalog():null;
+         const signalCatalog=['1.3','1.4','1.5'].includes(tailorSourcesVersion)?await coverageController?.model.waitForCatalog():null;
          if(representationStamp!==tailorContextStamp(null)||isPreviewingProposal){showTailorFeedback('Your CV or job ad changed. Prepare a new suggestion.',true);return;}
          const stamp=tailorContextStamp();
          const payload={cvVersionId:cvVersionId||null,cvTitle:documentTitle||'',targetRole:targetRoleInput?.value?.trim()||'',
            language:languageDecision.language,blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
          const sourceContext=tailorSourcesEnabled?currentTailorSourceContext():null;
          sourceRequest=!!sourceContext;
-         if(sourceContext){payload.sourcesSchemaVersion=tailorSourcesVersion;if(!['1.3','1.4'].includes(payload.sourcesSchemaVersion)&&tailorSourceLedger.integrations?.length)throw Error('This workspace requires integration profile 1.3.');payload.sourceContext=sourceContext;if(['1.3','1.4'].includes(payload.sourcesSchemaVersion)){payload.jobText=activeJobText;payload.signalCatalog=deepClone(signalCatalog);payload.integrationApplications=deepClone(tailorSourceLedger.integrations||[]);if(!payload.signalCatalog)throw Error('A verified signal catalog is required before integrating sources.');if(payload.sourcesSchemaVersion==='1.4'){payload.languagePlan={policyVersion:'1.0',explicitLanguage:cvLanguageConfirmed?documentLanguage:null,source:languageDecision.source,cvLanguage:languageDecision.cvLanguage};payload.languageApplications=deepClone(tailorSourceLedger.languageApplications||[]);}payload.inputRef=await DraftedTailorSources.inputRef(payload);}}
+         if(sourceContext?.answers.some(a=>a.experienceContext?.kind==='cv_entries')&&tailorSourcesVersion!=='1.5')throw Error('Multiple employment selections require Tailor profile 1.5. Use simulated Dev until the backend update is published.');
+         if(sourceContext){payload.sourcesSchemaVersion=tailorSourcesVersion;if(!['1.3','1.4','1.5'].includes(payload.sourcesSchemaVersion)&&tailorSourceLedger.integrations?.length)throw Error('This workspace requires integration profile 1.3.');payload.sourceContext=sourceContext;if(['1.3','1.4','1.5'].includes(payload.sourcesSchemaVersion)){payload.jobText=activeJobText;payload.signalCatalog=deepClone(signalCatalog);payload.integrationApplications=deepClone(tailorSourceLedger.integrations||[]);if(!payload.signalCatalog)throw Error('A verified signal catalog is required before integrating sources.');if(['1.4','1.5'].includes(payload.sourcesSchemaVersion)){payload.languagePlan={policyVersion:'1.0',explicitLanguage:cvLanguageConfirmed?documentLanguage:null,source:languageDecision.source,cvLanguage:languageDecision.cvLanguage};payload.languageApplications=deepClone(tailorSourceLedger.languageApplications||[]);}payload.inputRef=await DraftedTailorSources.inputRef(payload);}}
          const data=sourceContext?await fetchTailorSources(payload):await draftedFetchJson(N8N_TAILOR_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)},'cv');
          if(stamp!==tailorContextStamp()||isPreviewingProposal){showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}
          // Existing Tailor permits text changes only. Fail closed on structural drift.
          const metadata=b=>JSON.stringify(Object.fromEntries(Object.entries(b).filter(([key])=>key!=='text').sort(([a],[b])=>a.localeCompare(b))));
-         if(data.sourcesSchemaVersion!=='1.4'&&(data.blocks.length!==payload.blocks.length||data.blocks.some(b=>{const old=payload.blocks.find(o=>o.blockId===b.blockId);return !old||metadata(old)!==metadata(b);})))throw Error('Tailor changed block structure');
+         if(!['1.4','1.5'].includes(data.sourcesSchemaVersion)&&(data.blocks.length!==payload.blocks.length||data.blocks.some(b=>{const old=payload.blocks.find(o=>o.blockId===b.blockId);return !old||metadata(old)!==metadata(b);})))throw Error('Tailor changed block structure');
          showTailorSuggestion(data,stamp,payload);
        }catch(err){
          // Log transport metadata only: no CV, answer text, arbitrary server message or response body.
@@ -2775,7 +2776,7 @@ function bindPdfDownloadButton() {
     // Applications from an earlier job round remain in saved history. They are
     // not presented as current answers to a different job's question set.
     const current=new Set(context.answers.map(answer=>answer.id+':'+answer.revision));
-    context.applications=['1.3','1.4'].includes(tailorSourcesVersion)?tailorSourceLedger.snapshot():tailorSourceLedger.snapshot().filter(group=>group.additions.every(item=>current.has(item.source.answerId+':'+item.source.answerRevision)));
+    context.applications=['1.3','1.4','1.5'].includes(tailorSourcesVersion)?tailorSourceLedger.snapshot():tailorSourceLedger.snapshot().filter(group=>group.additions.every(item=>current.has(item.source.answerId+':'+item.source.answerRevision)));
     return context;
   }
   function serialSnapshot(snapshot){return snapshot?{...snapshot,selectedBlockIds:[...snapshot.selectedBlockIds]}:null;}

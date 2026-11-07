@@ -16,6 +16,18 @@
     const body=document.createElement('div');body.className='workspace-conversation-body';
     for(const node of [...chat.children])if(!node.matches('.chat-title,.workspace-editor-toolbar'))body.append(node);
     chat.append(body);layout.classList.add('workspace-aligned-panels');
+    let editorZoom=100,editorGestureStart=100;
+    const setEditorZoom=value=>{editorZoom=Math.max(50,Math.min(200,Math.round(value)));body.style.setProperty('--editor-content-zoom',editorZoom/100);body.dataset.editorZoom=String(editorZoom);};
+    setEditorZoom(100);
+    body.addEventListener('wheel',event=>{
+      if(!event.ctrlKey)return;event.preventDefault();
+      const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?body.clientHeight:1);
+      setEditorZoom(editorZoom*Math.exp(-Math.max(-100,Math.min(100,delta))*0.002));
+    },{passive:false});
+    body.addEventListener('gesturestart',event=>{event.preventDefault();editorGestureStart=editorZoom;},{passive:false});
+    body.addEventListener('gesturechange',event=>{event.preventDefault();if(Number.isFinite(event.scale))setEditorZoom(editorGestureStart*event.scale);},{passive:false});
+    body.addEventListener('gestureend',event=>event.preventDefault(),{passive:false});
+
     const left=layout.querySelector('.editor-left'),right=layout.querySelector('.editor-right');
     left.id='workspace-conversation-panel';right.id='workspace-document-panel';
     const divider=document.createElement('div');divider.className='workspace-divider';divider.tabIndex=0;

@@ -10,7 +10,7 @@
  function changed(request,data){return data.blocks.filter(b=>!equal(b,request.blocks.find(o=>o.blockId===b.blockId))).map(b=>b.blockId);}
  function blocks(request,data,decisions,preview=false){return request.blocks.map(b=>copy(decisions[b.blockId]==='accept'||preview&&!decisions[b.blockId]?data.blocks.find(n=>n.blockId===b.blockId):b));}
  async function project(request,data,session){
-  assert(['1.3','1.4'].includes(data.sourcesSchemaVersion),'SECTION_REVIEW_REQUIRES_VALIDATED_SOURCES');
+  assert(['1.3','1.4','1.5'].includes(data.sourcesSchemaVersion),'SECTION_REVIEW_REQUIRES_VALIDATED_SOURCES');
   const ids=changed(request,data);
   assert(Object.entries(session.decisions).every(([id,value])=>ids.includes(id)&&['accept','decline'].includes(value)),'INVALID_SECTION_DECISION');
   const full=new root.DraftedTailorSources.Ledger();Object.assign(full,copy(session.ledger));await full.commit(request,data);

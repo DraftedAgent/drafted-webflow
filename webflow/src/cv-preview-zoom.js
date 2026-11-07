@@ -27,6 +27,17 @@
     minus.addEventListener('click',()=>change(percent-10));plus.addEventListener('click',()=>change(percent+10));
     slider.addEventListener('input',()=>change(Number(slider.value)));
     fit.addEventListener('click',()=>global.DraftedCvLayout.setZoom(host,'fit'));
+    const surface=host.closest('.cv-document');let gestureStart=100;
+    surface.addEventListener('wheel',event=>{
+      if(!event.ctrlKey)return;
+      event.preventDefault();if(!ready)return;
+      const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?surface.clientHeight:1);
+      change(Math.round(percent*Math.exp(-Math.max(-100,Math.min(100,delta))*0.002)));
+    },{passive:false});
+    surface.addEventListener('gesturestart',event=>{event.preventDefault();gestureStart=percent;},{passive:false});
+    surface.addEventListener('gesturechange',event=>{event.preventDefault();if(ready&&Number.isFinite(event.scale))change(Math.round(gestureStart*event.scale));},{passive:false});
+    surface.addEventListener('gestureend',event=>event.preventDefault(),{passive:false});
+
     refresh();
     return {setState(state){ready=state==='ready'&&Number(host.dataset.pageCount)>0;refresh();}};
   }
