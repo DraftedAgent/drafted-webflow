@@ -1,29 +1,27 @@
 {
-  "sourcesSchemaVersion": "1.4",
-  "workflowId": "H8oAioy58R1v3PvRe3YUa",
-  "activeVersion": "f5a51070-ef46-4fcc-9225-f652bb379ca1",
-  "previousVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
-  "verifiedUTC": "2026-11-04T15:27:45.1532353Z",
+  "activeVersion": "8cd7bef1-e60a-4b48-aee5-3c1598ead795",
+  "previousVersion": "f5a51070-ef46-4fcc-9225-f652bb379ca1",
+  "modelCalls": 0,
   "changedNodes": [
     {
       "id": "b770f40e-b1a0-49fe-94e6-e003c3f42b41",
       "name": "Validate + Normalize",
-      "field": "parameters.jsCode",
-      "beforeSHA256": "1945a3576cd02e533f5b6197fa910e285503a8078f62e7c847814ba294b78734",
-      "candidateSHA256": "788e22a2af0601b43efbfa8d65b5d75c8093970decc7e80fc05ea12d6c63b932",
-      "legacySuffixUnchanged": true
+      "key": "validate",
+      "beforeSHA256": "788e22a2af0601b43efbfa8d65b5d75c8093970decc7e80fc05ea12d6c63b932",
+      "candidateSHA256": "655f4dc598f80c39c9356853fbd2247c1e393eb689fe28bc4c5040acaf79fea1"
     },
     {
       "id": "tailor-sources-compose-v1",
       "name": "Compose source suggestion",
-      "field": "parameters.jsCode",
-      "beforeSHA256": "bde42f08659731cf2b5390c53bb1a9dbd24e595c623310b583ee2f885666c664",
-      "candidateSHA256": "5d3e3a18ee49bd3e7c35fa5d061f4495d2f38297027dd3b7ee021c9ca9b09766",
-      "legacySuffixUnchanged": true
+      "key": "compose",
+      "beforeSHA256": "5d3e3a18ee49bd3e7c35fa5d061f4495d2f38297027dd3b7ee021c9ca9b09766",
+      "candidateSHA256": "f214f88991bb177b51bec5939a18b154c38d0808d5b99f7afab9c366e07858eb"
     }
   ],
-  "model": "gpt-6-luna",
-  "maxOutputTokens": 4000,
+  "sourcesSchemaVersion": "1.5",
+  "verifiedUTC": "2026-11-07T15:50:30.4475901Z",
   "workflowExecutions": 0,
-  "modelCalls": 0
+  "workflowId": "H8oAioy58R1v3PvRe3YUa",
+  "model": "gpt-6-luna",
+  "maxOutputTokens": 4000
 }

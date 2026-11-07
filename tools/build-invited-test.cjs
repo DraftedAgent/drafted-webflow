@@ -3,14 +3,14 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..');
 const tailorRelease=JSON.parse(fs.readFileSync(path.join(root,'site/hosting/tailor-release.json'),'utf8'));
-if(tailorRelease.sourcesSchemaVersion!=='1.4'||!tailorRelease.activeVersion||tailorRelease.workflowId!=='H8oAioy58R1v3PvRe3YUa')throw Error('A verified active Tailor 1.4 receipt is required');
+if(!['1.4','1.5'].includes(tailorRelease.sourcesSchemaVersion)||!tailorRelease.activeVersion||tailorRelease.workflowId!=='H8oAioy58R1v3PvRe3YUa')throw Error('A verified active Tailor 1.4 receipt is required');
 const source=require('./build-standalone.cjs').build({integrationPreparation:true});
 const out=path.resolve(root,'site/hosting-dist/invited');
 if(!out.startsWith(path.resolve(root,'site/hosting-dist')+path.sep))throw Error('Unsafe output path');
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out,{recursive:true});
 for(const file of ['assets','editor','index.html','drafted-editor.css','drafted-editor.js','local-config.js','environment.js','build.json'])fs.cpSync(path.join(source,file),path.join(out,file),{recursive:true});
 const config=`(function(){'use strict';
- window.__DRAFTED_TAILOR_SOURCES_VERSION__='1.4';
+ window.__DRAFTED_TAILOR_SOURCES_VERSION__='${tailorRelease.sourcesSchemaVersion}';
  window.__DRAFTED_COVERAGE__=Object.freeze({enabled:true,endpoint:'/api/coverage',mode:'public-live'});
  window.__DRAFTED_DICTATION__=Object.freeze({mode:'live',endpoint:'/api/dictation'});
  const nativeFetch=window.fetch.bind(window),backend='https://drafted.app.n8n.cloud';

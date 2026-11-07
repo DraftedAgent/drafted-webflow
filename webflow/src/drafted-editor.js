@@ -43,7 +43,7 @@ const tailorSourceLedger=new DraftedTailorSources.Ledger();
 // Flip only in a separately approved release after the endpoint supports 1.2.
 const productionStructuredContext=true;
 // Public capability is emitted only by a release whose backend activation was verified.
-const tailorSourcesVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):(window.__DRAFTED_TAILOR_SOURCES_VERSION__==='1.4'?'1.4':productionStructuredContext?'1.2':'1.1');
+const tailorSourcesVersion=window.__DRAFTED_PREVIEW_ENDPOINTS__?(draftedEndpoints.tailorSourcesVersion||'1.0'):(['1.4','1.5'].includes(window.__DRAFTED_TAILOR_SOURCES_VERSION__)?window.__DRAFTED_TAILOR_SOURCES_VERSION__:productionStructuredContext?'1.2':'1.1');
 const structuredContextEnabled=tailorSourcesEnabled&&['1.2','1.3','1.4','1.5'].includes(tailorSourcesVersion);
 
 // The editor is a workspace; remove the legacy Webflow section introduction.
