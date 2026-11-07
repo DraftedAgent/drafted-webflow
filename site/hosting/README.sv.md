@@ -1,8 +1,9 @@
 # Öppen testversion på getmedrafted.com
 
-Senast verifierad publicering: **DEV-251, 2026-11-04**, källcommit `8b69e48`,
-Worker-version `420889ed-7578-4124-bab4-c0fdc14b3051`. Se `current-release.json`
-för aktuellt kvitto. Äldre domän-/publiceringskvitton nedan är historiska.
+Senast verifierad publicering: **DEV-263, 2026-11-07**, källcommit `65d3eb6`,
+Worker-version `88fd1f67-cd1b-4850-96ad-aed1077d286f`. Se `current-release.json`.
+Sektionsvisa Accept/Decline synkas mellan editor och preview; obeslutade förslag
+är markerade oberoende av globala Show changes. Original/Current finns i verktygsraden.
 
 Aktuell adress från DEV-175: https://getmedrafted.com är öppen utan lösenord,
 inbjudan eller konto. Tidigare inbjudningsuppgifter behövs inte.

@@ -1,9 +1,9 @@
 {
   "url": "https://getmedrafted.com",
-  "publishedSourceCommit": "8b69e48640fc256cf5811bdd4163acf4d19ea8b9",
-  "workerVersion": "420889ed-7578-4124-bab4-c0fdc14b3051",
-  "previousWorkerVersion": "71d44916-4453-4243-9a86-1e5e4768afd9",
-  "publishedUTC": "2026-11-04T15:35:00.727Z",
+  "publishedSourceCommit": "65d3eb695188b1195c3bf577eb40f783ac1c8b43",
+  "workerVersion": "88fd1f67-cd1b-4850-96ad-aed1077d286f",
+  "previousWorkerVersion": "420889ed-7578-4124-bab4-c0fdc14b3051",
+  "publishedUTC": "2026-11-07T11:14:11.073932+00:00",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
@@ -14,11 +14,11 @@
     "usedState": "preserved; not reset or inspected"
   },
   "workflowExecutionOrModelCalls": 0,
-  "verification": "Exact served hashes, root/editor and favicons pass. Public-origin mocked editor passes eight automatic-language scenarios, full translated candidate, Preview immutability, Accept and reload; toolbar/divider desktop1440/mobile390 pass. 87 local synthetic contract/compiler/gateway tests pass. Existing DO namespace and both secret bindings verified retained. No real workflow/model execution.",
-  "rollback": "wrangler rollback 71d44916-4453-4243-9a86-1e5e4768afd9 --config site/hosting/wrangler.jsonc",
+  "verification": "Exact public root/editor/assets hashes match source commit. Public-origin browser language UI scenarios use intercepted responses; local actual-endpoint section regression covers partial Accept/Decline, persistence, pointer travel and independent pending highlights. No real workflow/model calls.",
+  "rollback": "wrangler rollback 420889ed-7578-4124-bab4-c0fdc14b3051 --config site/hosting/wrangler.jsonc",
   "changesExcluded": [
     "DNS",
-    "all other n8n workflows/nodes",
+    "all n8n writes/activation",
     "model/credentials",
     "budget reset",
     "main merge",
