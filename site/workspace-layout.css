@@ -376,6 +376,15 @@
  .section-editor .experience-answer-surface label {margin:0;}
  .section-editor .experience-answer-surface textarea {background:#fff;border-color:#c9d8e0;}
  .section-editor .experience-answer-surface .discovery-question-actions {margin-top:12px;}
+ .section-editor .experience-answer-surface .discovery-answer-header {display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+ .section-editor .experience-answer-surface .discovery-answer-header label {flex:1;min-width:0;}
+ .section-editor .experience-answer-surface .discovery-answer-skip {flex:0 0 auto;margin:0;min-height:36px;padding:7px 11px;font-size:12px;border-radius:6px;}
+ .section-editor .experience-answer-surface .discovery-question-actions {flex-direction:row;flex-wrap:nowrap;align-items:flex-start;justify-content:flex-end;}
+ .section-editor .experience-answer-surface .discovery-question-actions .drafted-dictation[data-variant=answer] {flex:1;min-width:0;width:auto;margin:0;}
+ .section-editor .experience-answer-surface .discovery-question-actions .dictation-info {min-height:36px;align-items:flex-start;}
+ .section-editor .experience-answer-surface .discovery-question-actions .dictation-mic {height:36px;min-height:36px;width:36px;min-width:36px;padding:0;}
+ .section-editor .experience-answer-surface .discovery-question-actions .dictation-status {align-self:center;}
+ .section-editor .experience-answer-surface .discovery-answer-primary {flex:0 0 auto;width:auto;margin-left:auto;}
  .section-editor .discovery-question-finish {border:0;padding-top:4px;}
  .section-editor.discovery-enabled .drafted-proposal-card {border:1px solid #b6cdd4;box-shadow:0 2px 6px #18394b08,0 5px 13px #18394b08;background:#fff;}
  .section-editor.discovery-enabled .chat-message:is(.ai,.user) {box-shadow:none;}
@@ -455,4 +464,15 @@
 @media screen {
  .section-editor #editor-preview-text[data-review-hover-active=true] .cv-block:not(.is-review-hovered) {outline:none;box-shadow:none;background:transparent;}
  .section-editor #editor-preview-text[data-review-hover-active=true] .cv-block.is-review-hovered {outline:1px solid #007f86;outline-offset:5px;border-radius:4px;box-shadow:none;}
+}
+
+/* Center the empty editor introduction as one intrinsic-sized group. */
+@media screen {
+ .section-editor.discovery-enabled .workspace-aligned-panels .chat-messages.is-discovery-start {display:flex;flex-direction:column;align-items:center;gap:0;scrollbar-gutter:stable both-edges;}
+ .section-editor.discovery-enabled .workspace-aligned-panels .chat-messages.is-discovery-start::before,
+ .section-editor.discovery-enabled .workspace-aligned-panels .chat-messages.is-discovery-start::after {content:'';flex:1 0 0;}
+ .section-editor.discovery-enabled .workspace-aligned-panels .chat-messages.is-discovery-start > #drafted-discovery-guidance {flex:0 0 auto;min-block-size:0;align-self:center;box-sizing:border-box;width:min(100%,420px);margin:0;padding:20px 24px;text-align:center;}
+ .section-editor.discovery-enabled .workspace-aligned-panels .chat-messages.is-discovery-start > #drafted-discovery-guidance h2 {margin:0 auto 10px;text-align:center;}
+ .section-editor.discovery-enabled .workspace-aligned-panels .chat-messages.is-discovery-start > #drafted-discovery-guidance p {margin:0 auto 18px;text-align:center;}
+ .section-editor.discovery-enabled .workspace-aligned-panels .chat-messages.is-discovery-start > #drafted-discovery-guidance .discovery-start-primary {margin:0 auto;align-self:center;justify-content:center;text-align:center;}
 }

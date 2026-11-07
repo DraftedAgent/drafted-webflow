@@ -2054,3 +2054,60 @@ Targeted local browser verifies editor→preview, preview→editor, exactly one 
 ## DEV-288 — Light, offset preview hover frame (2026-11-07, local only)
 
 Preview hover frame changed from3px inset stroke to1px turquoise outline with5px offset and4px rounded corners, screen-only. No padding/border-width/position/layout changes; editor card style and stable-ID hover logic unchanged. Existing action-row positioning already measures actual outline offset/width. Mocked browser regression verifies preview block and text rectangles plus page count identical before/after frame application, expected outline/radius, and continued bidirectional hover/reordering/clear behavior. Standalone rebuilt; protected reference unchanged. No model calls or publication.
+
+
+## DEV-289 — Scoped Edit language instructions and original-equal revisions (2026-11-07, local only)
+
+Actual local POST /preview-api/tailor-revise carried schema1.0, bound source request/candidate, selected block ID and exact instruction I want it in english. Root cause: local revision fixture accepted shorter/kortare only and rejected English instructions; whole-document language candidate validation also rejected original-equal text marked translated. Added explicit selected-section language intent to revision prompt and bounded optional recipe.document.revisionLanguage(en/sv), validated on both server/client without changing document-wide language or other blocks. Optional revised display fields use existing metadata validators. Structure guard permits language edits only for that scoped override. Source/evidence/receipt gates and explicit Accept remain.
+
+Local synthetic bilingual fixture supports known English/Swedish examples; it is not a general translation provider. Actual browser requests now return200 for exact instruction. Browser scenario with Swedish canonical CV confirms English card/preview, no canonical mutation before Accept and only selected block committed after Accept. Original-English/Swedish-proposal scenario returns to original, removes redundant card and shows no-change notice rather than error. No extra final-stage trigger on a retracted last suggestion. Unit and existing language-profile tests pass. No real model calls, workflow mutation or publication. Latest local server restarted to load handler changes.
+
+
+## DEV-290 — Collapse removed review cards and eliminate scroll filler (2026-11-07, local only)
+
+Root cause: review scroll synchronizer inserted viewport-height reserves before/after both pane contents on every review reconstruction. Removed reserve creation and compensating scroll subtraction; alignment now uses real content and natural scroll limits only. Legacy direct reserve children are cleaned up. Accept/Decline and Edit returning original retain the next remaining stable block ID (previous if last removed), reveal that card in the compacted list, then align preview without synthetic blank space. Completed review removes its card container/footer. Automatic selection review scrolls to next remaining suggestion; after all decisions, omitted-entry restore buttons live in a separate plain action row rather than an empty suggestion container.
+
+Targeted local mocked browser checks middle-card Accept and Decline, removed-node count, next-card visibility, zero reserves throughout, disappearance of common footer and all suggestion containers after completion, and original-equal Edit with no filler. Both browser flows pass; standalone rebuilt. No real model calls, workflow changes or publication.
+
+
+## DEV-291 — Complete tailoring before final summary, preserving rejections (2026-11-07, local only)
+
+Removed completed-language panel creation, and removed language controls recreated in earlier guidance from review/preparing/completed views. Empty source-review list no longer sets applied status. Explicit completion phases distinguish pending automatic tailoring, selection review, failure/interruption and completed result. Automatic tailoring has its own in-flight indicator; final summary requires successful completed state, no in-flight request and no remaining proposals. Failed/interrupted requests cannot be inferred complete from an empty list or reload. Source decisions are retained in completion context.
+
+User-declined source blocks are sent as protectedBlocks to automatic tailoring; provider instruction forbids reinstatement and deterministic output projection retains their current canonical text even if the model proposes to change/omit them. No implicit acceptance of new selection proposals. Focused provider test plus delayed-response browser regression verify no summary while request is unresolved, no old language/cross-language copy after completion, a rejected block remains unchanged, and final state completed only after actual response. Existing completion/omission/restore browser flow passes. No actual model calls or production changes.
+
+
+## DEV-292 — Center introductory question group (2026-11-07, local only)
+
+Centered the empty editor's whole-story heading, explanation and Review questions CTA as one intrinsic-sized group. Equal flexible space above/below replaces biased positioning; removed inherited minimum block height, centered heading/paragraph/button within the group and balanced scrollbar gutters horizontally. Scoped to is-discovery-start so active questions and suggestion layouts are unchanged. Actual local browser geometry passes at1536x1000,1100x800 and600x900; Review questions still enters the question flow. Standalone rebuilt; no model calls or publication.
+
+
+## DEV-293 — Full-CV context only after completed tailoring (2026-11-07, local only)
+
+Use full CV is absent before tailoring, during suggestion review and while automatic tailoring is pending. Availability requires completed tailoring for the current context, not simply an empty suggestion list. Scoped block chips and Clear remain available; invalidating completion clears an active full-CV scope. Presentation refresh updates the context controls immediately, including after saved-workspace restoration. Existing synthetic browser transition verifies absence before/during review and delayed tailoring, then visible and selectable full-CV context after completion. Standalone rebuilt with protected outputs unchanged. Technical visibility change; no research-relevant assumptions, external model calls or production publication.
+
+
+## DEV-294 — Answer guidance and Skip above input (2026-11-07, local only)
+
+Moved Skip from the bottom action row to a shared header beside the requested concrete-example guidance. Header and textarea share available width; Skip aligns to the textarea right edge. Label remains programmatically linked to its textarea, with no interactive button nested inside the label. Send answer stays in the bottom-right row at desktop and narrow sizes; retry remains available on errors. Existing local synthetic browser check verifies exact guidance, header/button/input geometry at1536px and600px, and Skip advances the question. Standalone rebuilt with protected outputs unchanged. No model calls or publication.
+
+
+## DEV-295 — Dictate and Send answer share action row (2026-11-07, local only)
+
+Moved the question dictation widget into the existing bottom answer-action row, left of Send answer. Buttons align at the same top edge and36px height; status and recording controls remain in the dictation widget with its existing handlers. Footer stays horizontal on narrow layouts. Existing synthetic browser geometry verifies both buttons at matching height/position at1536px and600px alongside header/input alignment and working Skip. Standalone rebuilt; no external model call or publication.
+
+
+## DEV-296 — Trace linked answers through Tailor; fail honestly and summarize actual decisions (2026-11-07, local only)
+
+Traced full answer → employment confirmation → Tailor1.5 → detached preview → Accept → automatic selection. All selected entry snapshots and answer revisions already reached both requests correctly. Root cause of the reported empty result: local source-integration fixture recognises exactly one documented answer and previously returned a successful empty recipe plus a review note for every other answer; completion discarded that note and displayed generic retained-content copy. Selection-only real-provider configuration did not enable source integration.
+
+Unsupported simulated answers/CVs now fail503 with allowlisted LOCAL_SIMULATION_UNSUPPORTED, a clear saved-input/no-AI-processing message and explicit retry. No selection call, completed phase or completion controls follow this failure. Added separately gated real Tailor routing via existing Responses adapter and1.5 catalog/receipt validation; independent approval/key/call budget, no silent fixture fallback or retries. Real adapter path tested only through mocked transport, never externally. A no-change response with supplied answers must include a review-note explanation or fail validation. New attempts clear stale completion state. Final message derives emphasis from accepted answer-linked job signals, approved selection operations and rejection choices; true no-change results display actual reasons rather than generic success.
+
+Four actual local browser flows pass: two selected employments → one proposed placement in preview → Accept → decision-aware summary and reload; unsupported own-answer simulation preserves both links and returns failure; explained unchanged result;503 provider failure without success/selection.18 focused provider/source/client tests pass, including real adapter mocked-wire preservation of both links, single placement and rejection of unexplained no-op. Standalone rebuilt; verified local8825 process restarted in explicit simulation. No external model call or model-quality claim, production change or publication. Own-answer semantic processing still requires separately authorized real-provider activation; simulation is not a language model.
+
+
+## DEV-297 — Owner-authorized editor-stage publication candidate (2026-11-07)
+
+Owner explicitly requests commit, push and publish current version. Release inspection found the public build lacked local Edit and automatic selection routes. Added a shared source/selection/revision runtime and an exact two-Code-node prefix for existing Tailor workflow H8oAioy58R1v3PvRe3YUa; legacy suffixes, connections, model, credentials, limits and other workflows remain unchanged. Same budgeted public Tailor route carries discriminated existing request profiles; production frontend feature endpoints are enabled only with a verified editorStage2 backend receipt. No new endpoint, hosting provider or credential transfer. Current saved/active backend baseline d8ce1a5c-5059-4347-93ee-78509db81d6d was captured and encrypted/roundtrip verified outside Git. Cloudflare baseline remains73d25d9b-a5b8-4d0f-9eb2-25bb82ff5641.
+
+33 focused tests and5 browser suites pass. Exact compiled n8n source/selection/Edit snippets rehearsed locally with synthetic model output, not n8n engine execution or model-quality verification. No external model call. Build preserves protected root/stable files. Source publication candidate prepared; deployment outcome and served-byte verification follow separately. Unrelated language-structure experiments and local output are excluded from commit/publication.

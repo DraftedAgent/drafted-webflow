@@ -1,6 +1,6 @@
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory(require('./tailor-sources-v15.js'));else root.DraftedTailorSourceClient=factory(root.DraftedTailorSources);})(globalThis,function(sources){
   'use strict';
-  const backendCodes=new Set(['INVALID_SOURCE_OUTPUT','INVALID_SOURCE_REQUEST','MODEL_UNAVAILABLE','INPUT_TOO_LARGE']);
+  const backendCodes=new Set(['INVALID_SOURCE_OUTPUT','INVALID_SOURCE_REQUEST','MODEL_UNAVAILABLE','INPUT_TOO_LARGE','LOCAL_SIMULATION_UNSUPPORTED']);
   class Failure extends Error {
     constructor(code,status=null,backendCode=null){super(code);this.name='TailorSourceError';this.code=code;this.status=status;this.backendCode=backendCodes.has(backendCode)?backendCode:null;}
   }
@@ -24,6 +24,7 @@
     try{return await Promise.race([request,timeout]);}finally{clearTimeout(timer);}
   }
   function message(error){
+    if(error?.backendCode==='LOCAL_SIMULATION_UNSUPPORTED')return 'Your answer and employment selections are saved, but local simulation cannot tailor this answer. No AI processing was completed. A real tailoring provider must be enabled to continue with your own answers.';
     if(error?.code==='SOURCE_STRUCTURE_INVALID')return 'The suggestion changed protected headings, header wording or list structure. Your CV and answers are unchanged. Prepare a new suggestion.';
     if(error?.code==='SOURCE_TIMEOUT')return 'Tailoring took too long. Your CV and answers have been kept. Try again.';
     if(error?.code==='SOURCE_NETWORK_FAILED')return 'Could not reach Tailor. Your CV and answers have been kept. Check your connection and try again.';

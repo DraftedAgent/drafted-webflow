@@ -7,7 +7,8 @@
   const plan=structure(r),translated=isTranslation(r),fail=()=>{throw Error('UNREQUESTED_DOCUMENT_STRUCTURE_CHANGE');};
   if(d.blocks.length!==r.blocks.length)fail();
   for(const original of r.blocks){const b=d.blocks.find(x=>x.blockId===original.blockId);if(!b||b.type!==original.type||b.order!==original.order)fail();
-   if(!translated){for(const key of fields)if(b[key]!==original[key])fail();if(S.entry(plan,original).role&&b.text!==original.text)fail();}
+   const index=r.blocks.findIndex(x=>x.blockId===original.blockId),override=d.recipe?.document?.find(x=>x.documentKey==='d'+index+'_'+d.scope)?.revisionLanguage;
+   if(!translated&&!['sv','en'].includes(override)){for(const key of fields)if(b[key]!==original[key])fail();if(S.entry(plan,original).role&&b.text!==original.text)fail();}
    // Keep existing source characters. Only reject newly introduced stacked markers.
    const existing=original.text.split('\n'),used=new Map();
    for(const line of b.text.split('\n'))if(/^\s*(?:(?:[-*•▪‣]|\d+[.)])\s+){2,}/.test(line)){const n=(used.get(line)||0)+1;used.set(line,n);if(existing.filter(x=>x===line).length<n)throw Error('DUPLICATE_LIST_MARKER');}

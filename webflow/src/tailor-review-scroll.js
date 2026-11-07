@@ -1,8 +1,9 @@
 /* Screen-only content correspondence, active only during a suggestion review. */
 (function(root){'use strict';function create({editor,preview,host,isActive}){
- let owner=null,frame=0,disposed=false;const removers=[],reserves=[];
+ let owner=null,frame=0,disposed=false;const removers=[];
  const bind=(node,event,fn,options)=>{node.addEventListener(event,fn,options);removers.push(()=>node.removeEventListener(event,fn,options));};
- for(const pane of [editor,preview]){const height=pane.clientHeight,top=document.createElement('div'),bottom=document.createElement('div');for(const n of [top,bottom]){n.className='review-sync-reserve';n.style.cssText='height:'+height+'px;min-height:'+height+'px;flex:none;pointer-events:none';n.setAttribute('aria-hidden','true');}pane.prepend(top);pane.append(bottom);pane.scrollTop+=height;reserves.push({pane,top,bottom,height});}
+ // Match real content only; never add height to either scroll pane.
+ for(const pane of [editor,preview])pane.querySelectorAll(':scope > .review-sync-reserve').forEach(n=>n.remove());
  const list=side=>side===editor?[...editor.querySelectorAll('[data-review-block-id]')]:[...host.querySelectorAll('.cv-block[data-block-id]')].filter(n=>editor.querySelector('[data-review-block-id="'+CSS.escape(n.dataset.blockId)+'"]'));
  function align(id,from=owner,source){if(disposed||!isActive()||!from||innerWidth<=700||document.querySelector('#cv-preview-dialog[open]'))return;
   const to=from===editor?preview:editor,sourceNode=source||list(from).find(n=>(n.dataset.reviewBlockId||n.dataset.blockId)===id),targets=list(to).filter(n=>(n.dataset.reviewBlockId||n.dataset.blockId)===id);if(!sourceNode||!targets.length)return;
@@ -14,7 +15,7 @@
   const claim=event=>{if(event.type==='wheel'&&event.ctrlKey)return;owner=pane;};
   bind(pane,'wheel',claim,{passive:true});bind(pane,'touchstart',claim,{passive:true});bind(pane,'pointerdown',claim);bind(pane,'keydown',event=>{if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(event.key))claim(event);});bind(pane,'scroll',()=>follow(pane),{passive:true});
  }
- return {align(id,side='editor'){owner=side==='editor'?editor:preview;align(id,owner);},dispose(){disposed=true;cancelAnimationFrame(frame);removers.forEach(fn=>fn());reserves.forEach(({pane,top,bottom,height})=>{top.remove();bottom.remove();pane.scrollTop=Math.max(0,pane.scrollTop-height);});editor.querySelectorAll('.is-scroll-active').forEach(n=>n.classList.remove('is-scroll-active'));host.querySelectorAll('.is-scroll-active').forEach(n=>n.classList.remove('is-scroll-active'));}};
+ return {align(id,side='editor'){owner=side==='editor'?editor:preview;align(id,owner);},dispose(){disposed=true;cancelAnimationFrame(frame);removers.forEach(fn=>fn());editor.querySelectorAll('.is-scroll-active').forEach(n=>n.classList.remove('is-scroll-active'));host.querySelectorAll('.is-scroll-active').forEach(n=>n.classList.remove('is-scroll-active'));}};
 }root.DraftedReviewScroll={create};})(globalThis);
 
 /* Hover state is independent of scroll ownership, selection and keyboard focus. */

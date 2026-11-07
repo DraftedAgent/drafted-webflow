@@ -117,17 +117,20 @@
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
           if(r.phase==='correct'&&!drafts.has(q.id)){const answer=session.snapshot().answers.find(a=>a.id===q.answerId);if(answer)drafts.set(q.id,answer.revisions.at(-1).text);}
-          const label=el('label',followup?'Your clarification':'A short answer or a longer story — both work.'),input=el('textarea');input.rows=4;input.value=drafts.get(q.id)||'';input.setAttribute('aria-label',label.textContent);input.addEventListener('input',()=>drafts.set(q.id,input.value));label.append(input);
+          const label=el('label','Share a concrete example: what you did and what changed. Include numbers or results if you have them.'),input=el('textarea');input.id='discovery-answer-'+mountedRound+'-'+q.id;label.htmlFor=input.id;input.rows=4;input.value=drafts.get(q.id)||'';input.addEventListener('input',()=>drafts.set(q.id,input.value));
           const saved=session.snapshot().answers.find(a=>a.id===q.answerId)?.revisions.at(-1)?.experienceContext;
           if(saved)container.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(saved),'discovery-saved-context'));
-          answerSurface=el('div',null,'experience-answer-surface');answerSurface.append(label);container.append(answerSurface);
+          const answerHeader=el('div',null,'discovery-answer-header');
+          const skip=button('Skip',()=>{session.skip();if(!root.DraftedDictation?.isActiveFor('question:'+mountedRound+':'+q.id+':'))drafts.delete(q.id);});skip.className='discovery-answer-skip';answerHeader.append(label,skip);
+          answerSurface=el('div',null,'experience-answer-surface');answerSurface.append(answerHeader,input);container.append(answerSurface);
           root.DraftedDictation?.attach(input,{key:'question:'+mountedRound+':'+q.id+':'+(followup?'followup':'answer'),label:'experience answer',maxLength:50000,variant:'answer',
             read:()=>drafts.get(q.id)||'',write:value=>{drafts.set(q.id,value);if(input.isConnected){input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));}onStateChange();},
             alive:()=>!disposed&&session.round().id===mountedRound});
 
           const send=button(r.phase==='correct'?'Save correction':'Send answer',()=>{root.DraftedDictation?.cancelFor('question:'+mountedRound+':'+q.id+':');const result=onAnswer(drafts.get(q.id)||'');if(result&&session.round().phase==='interpreting')return result.then(value=>{drafts.delete(q.id);return value;});drafts.delete(q.id);return result;});send.className='discovery-answer-primary';
           const secondary=el('div',null,'discovery-answer-secondary');if(r.phase==='error'&&onRetry)secondary.append(button('Try again',()=>onRetry()));
-          secondary.append(button('Skip',()=>{session.skip();if(!root.DraftedDictation?.isActiveFor('question:'+mountedRound+':'+q.id+':'))drafts.delete(q.id);}));actions.append(secondary,send);
+          const dictation=answerSurface.querySelector('.drafted-dictation');if(dictation)actions.append(dictation);
+          if(secondary.childElementCount)actions.append(secondary);actions.append(send);
         }
         const pending=session.results().pending;if(pending)container.append(el('p',`${pending===1?'An earlier answer is':pending+' earlier answers are'} being checked. You can keep going.`,'discovery-note'));
         const finish=button('Finish the questions',()=>session.finish());finish.className='discovery-finish-link';const finishRow=el('div',null,'discovery-question-finish');finishRow.append(finish);(answerSurface||container).append(actions);container.append(finishRow);if(originalContext)container.append(originalContext);

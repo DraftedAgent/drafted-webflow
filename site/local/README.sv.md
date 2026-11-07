@@ -117,3 +117,8 @@ syntetisk lokalt förankrad signalkatalog. Verklig ankargenerering efter
 rättningen och komplett före/efter-jämförelse är inte verifierade. Inga fler
 agentdrivna riktiga verifieringsanrop får göras på detta godkännande.
 Detaljer och krypterade snapshotmanifest: `dev-system/prepared/cv-coverage/delivery.json`.
+
+
+### Separat lokal Tailor-provider (DEV-296)
+
+Standard är fortfarande simulering. Källintegrationen känner då bara sitt uttryckliga syntetiska exempelsvar; andra svar ger nu ett synligt fel och sparat underlag, inte ett färdigt oförändrat resultat. `DRAFTED_SELECTION_PROVIDER=openai` aktiverar inte källintegrationen. För ett nytt uttryckligen godkänt lokalt modelltest kan källintegrationen konfigureras separat med `DRAFTED_TAILOR_PROVIDER=openai`, `DRAFTED_TAILOR_MODEL_APPROVAL=tailoring-local-approved` och befintlig säker `OPENAI_API_KEY` i processmiljön. Detta är konfiguration, inte tillstånd att köra: tidigare förbrukade anropsbudgetar återanvänds inte. Adaptern har maximalt sex källanrop per process och inga automatiska återförsök; faktisk godkänd testbudget kan vara lägre. Urvalssteget har fortsatt sin separata provider och budget. Ingen ny modellkörning eller publicering genomfördes i DEV-296.

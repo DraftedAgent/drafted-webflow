@@ -10,9 +10,23 @@ if(!['simulated','openai'].includes(selectionMode))throw Error('UNKNOWN_SELECTIO
 if(selectionMode==='openai'&&process.env.DRAFTED_EXTERNAL_MODEL_APPROVAL!=='cv-selection-local-approved')throw Error('EXTERNAL_MODEL_APPROVAL_REQUIRED');
 if(selectionMode==='openai'&&!process.env.OPENAI_API_KEY)throw Error('OPENAI_API_KEY_REQUIRED');
 const selectionModel=selectionMode==='openai'?require('../backend/openai-cv-provider.cjs').createProvider({apiKey:process.env.OPENAI_API_KEY,approved:true,maxCalls:6}):selectionProvider.fixture;
+// Source-answer integration is a separate, explicitly enabled provider. Never
+// silently route user answers to the fixture or spend a selection-only budget.
+const tailorMode=process.env.DRAFTED_TAILOR_PROVIDER||'simulated';
+if(!['simulated','openai'].includes(tailorMode))throw Error('UNKNOWN_TAILOR_PROVIDER');
+if(tailorMode==='openai'&&process.env.DRAFTED_TAILOR_MODEL_APPROVAL!=='tailoring-local-approved')throw Error('TAILOR_MODEL_APPROVAL_REQUIRED');
+if(tailorMode==='openai'&&!process.env.OPENAI_API_KEY)throw Error('OPENAI_API_KEY_REQUIRED');
+const tailorModel=tailorMode==='openai'?require('../backend/openai-cv-provider.cjs').createProvider({apiKey:process.env.OPENAI_API_KEY,approved:true,maxCalls:6}):null;
+const realTailor=tailorModel&&require('../backend/tailor-integration.cjs').createHandler({model:(input,prompt)=>tailorModel({input,prompt})});
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.ttf':'font/ttf','.wasm':'application/wasm','.png':'image/png','.ico':'image/vnd.microsoft.icon','.jpg':'image/jpeg','.mp4':'video/mp4'};
 const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,'http://localhost'),p=url.pathname;
+ if(req.method==='POST'&&p==='/preview-api/tailor'&&realTailor){
+  req.setEncoding('utf8');let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>1000000){res.writeHead(413);return res.end();}}
+  let input;try{input=JSON.parse(body);}catch{res.writeHead(400);return res.end();}
+  const result=await realTailor(input);
+  res.writeHead(result.status,{'Content-Type':'application/json','Cache-Control':'no-store'});return res.end(JSON.stringify(result.body));
+ }
  if(req.method==='POST'&&p==='/preview-api/cv-selection'){
   let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>1000000){res.writeHead(413);return res.end();}}
   let input;try{input=JSON.parse(body);}catch{res.writeHead(400);return res.end();}
