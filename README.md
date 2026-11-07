@@ -1,6 +1,6 @@
 # Drafted
 
-Start with [AGENTS.md](AGENTS.md) and the [development control README](dev-system/README.md).
+Start with [AGENTS.md](AGENTS.md) and the [development control README](dev-system/README.md). All project chats also follow the shared [DEVELOPMENT RESEARCH RULE](dev-system/DEVELOPMENT-RESEARCH-RULE.md), which provides the permanent Research index and access boundaries.
 
 The repository contains the frontend, product contracts, verified system observations, delivery gates, development log and planned product flows. Read these documents before continuing work from a new Codex/ChatGPT account; chat history is not canonical state.
 

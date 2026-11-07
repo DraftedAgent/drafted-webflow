@@ -132,6 +132,8 @@
         const pending=session.results().pending;if(pending)container.append(el('p',`${pending===1?'An earlier answer is':pending+' earlier answers are'} being checked. You can keep going.`,'discovery-note'));
         const finish=button('Finish the questions',()=>session.finish());finish.className='discovery-finish-link';const finishRow=el('div',null,'discovery-question-finish');finishRow.append(finish);(answerSurface||container).append(actions);container.append(finishRow);if(originalContext)container.append(originalContext);
       }
+      const linked=session.snapshot().answers.filter(a=>a.roundId===r.id&&a.status==='recorded'&&a.revisions.at(-1)?.experienceContext);
+      if(linked.length){const area=el('section',null,'discovery-context-summary');area.setAttribute('aria-label','Linked employments');for(const a of linked){const item=el('div');item.append(el('p','Answer '+(r.queue.findIndex(q=>q.id===a.questionId)+1)+' linked to: '+root.DraftedExperienceContext.describe(a.revisions.at(-1).experienceContext)));if(onEditExperienceContext)item.append(button('Change linked employment',()=>onEditExperienceContext(a.id,a.currentRevision)));area.append(item);}container.append(area);}
       history();if(historyOpen&&container.querySelector('.discovery-history'))container.querySelector('.discovery-history').open=true;
       if(error){const alert=el('p',error);alert.setAttribute('role','alert');container.append(alert);}
       onStateChange();

@@ -4,9 +4,28 @@ const root=path.resolve(__dirname,'..'),dist=path.join(root,'site/dist');
 process.env.DRAFTED_PREVIEW_SCENARIO ||= 'structured-context';
 const {server:fixture}=require('./serve-editor-preview.cjs');
 const coverage=require('../backend/cv-coverage.cjs').createHandler({model:require('../backend/cv-coverage-fixture.cjs').model,modelName:'synthetic-fixture-only'});
+const selectionProvider=require('../backend/cv-selection.cjs');
+const selectionMode=process.env.DRAFTED_SELECTION_PROVIDER||'simulated';
+if(!['simulated','openai'].includes(selectionMode))throw Error('UNKNOWN_SELECTION_PROVIDER');
+if(selectionMode==='openai'&&process.env.DRAFTED_EXTERNAL_MODEL_APPROVAL!=='cv-selection-local-approved')throw Error('EXTERNAL_MODEL_APPROVAL_REQUIRED');
+if(selectionMode==='openai'&&!process.env.OPENAI_API_KEY)throw Error('OPENAI_API_KEY_REQUIRED');
+const selectionModel=selectionMode==='openai'?require('../backend/openai-cv-provider.cjs').createProvider({apiKey:process.env.OPENAI_API_KEY,approved:true,maxCalls:6}):selectionProvider.fixture;
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.ttf':'font/ttf','.wasm':'application/wasm','.png':'image/png','.ico':'image/vnd.microsoft.icon','.jpg':'image/jpeg','.mp4':'video/mp4'};
 const server=http.createServer(async(req,res)=>{
  const url=new URL(req.url,'http://localhost'),p=url.pathname;
+ if(req.method==='POST'&&p==='/preview-api/cv-selection'){
+  let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>1000000){res.writeHead(413);return res.end();}}
+  let input;try{input=JSON.parse(body);}catch{res.writeHead(400);return res.end();}
+  const result=await selectionProvider.createHandler({model:selectionModel})(input);
+  res.writeHead(result.status,{'Content-Type':'application/json','Cache-Control':'no-store'});return res.end(JSON.stringify({...result.body,providerMode:selectionMode}));
+ }
+ if(req.method==='POST'&&p==='/preview-api/tailor-revise'){
+  req.setEncoding('utf8');let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>2000000){res.writeHead(413);return res.end();}}
+  let input;try{input=JSON.parse(body);}catch{res.writeHead(400);return res.end();}
+  const revision=require('../backend/tailor-section-revision.cjs'),result=await revision.createHandler({model:revision.fixture})(input);
+  res.writeHead(result.status,{'Content-Type':'application/json','Cache-Control':'no-store'});return res.end(JSON.stringify(result.body));
+ }
+
  res.setHeader('Content-Security-Policy',"default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'");
  res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
  if(req.method==='POST'&&p==='/preview-api/coverage'){req.setEncoding('utf8');let text='',size=0;for await(const c of req){size+=Buffer.byteLength(c);if(size>1000000){res.writeHead(413);return res.end();}text+=c.toString();}let input;try{input=JSON.parse(text);}catch{res.writeHead(400);return res.end();}const result=await coverage(input);res.writeHead(result.status,{'Content-Type':'application/json'});return res.end(JSON.stringify(result.body));}

@@ -108,7 +108,7 @@ Missing connection: a securely configured authenticated read-only management rou
 
 ## Research boundary
 
-Drafted-IRP-Research was not accessed and must not be attached to this development control plane automatically.
+The original inspection did not access Drafted-IRP-Research. Current access and use follow the shared [DEVELOPMENT RESEARCH RULE](DEVELOPMENT-RESEARCH-RULE.md), including the permanent index, published-export reading and prohibition on Research writes or automatic product-rule adoption.
 
 ## DEV-004 Webflow capability verification
 

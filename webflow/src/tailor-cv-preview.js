@@ -10,7 +10,7 @@
   let mode='current',activeId=null,anchor=null,navigatePending=false,showChanges=false,disposed=false,frame,settleFrame,epoch=0;
   const changedIds=new Set(model.blocks.filter(b=>model.sourcesSchemaVersion==='1.4'?JSON.stringify(before.blocks.find(old=>old.blockId===b.blockId))!==JSON.stringify(b):before.blocks.find(old=>old.blockId===b.blockId)?.text!==b.text).map(b=>b.blockId));
   const buttons={},names={before:'drafted-tailor-before',after:'drafted-tailor-after'},marks={disabled:false};
-  for(const [text,value] of [['Accept','accept'],['Decline','decline']]){const button=document.createElement('button');button.type='button';button.textContent=text;button.addEventListener('click',async()=>{if(!onDecision||!activeId||!isCurrent())return;actions.querySelectorAll('button').forEach(b=>b.disabled=true);try{await onDecision(activeId,value);}finally{if(!disposed)actions.querySelectorAll('button').forEach(b=>b.disabled=false);}});actions.append(button);}
+  for(const [text,value] of [['Accept','accept'],['Decline','decline'],['Edit','edit']]){const button=document.createElement('button');button.type='button';button.textContent=text;button.addEventListener('click',async()=>{if(!onDecision||!activeId||!isCurrent())return;actions.querySelectorAll('button').forEach(b=>b.disabled=true);try{await onDecision(activeId,value);}finally{if(!disposed)actions.querySelectorAll('button').forEach(b=>b.disabled=false);}});actions.append(button);}
   const nodes=()=>[...host.querySelectorAll('.cv-block[data-block-id]')].filter(n=>n.dataset.blockId===activeId);
   let hoverTarget=null,hovered=[],leaveTimer,presentationActive=true,presentationMarks=true;
   const paragraphDiffs=new WeakMap();
@@ -81,7 +81,7 @@
    pane.scrollTop+=r.top-bounds.top-offset;anchor=capture();status.textContent='Not applied';
   }
   function paint(){
-   clear();if(!presentationActive||!presentationMarks)return;const matches=nodes();matches.forEach(n=>n.classList.add('is-tailor-reviewed'));if(mode==='suggested'){global.DraftedCvDocumentComparison.paint(host,before,model,'after','drafted-tailor');return;}if(!showChanges||marks.disabled)return;
+   clear();if(!presentationActive||!presentationMarks)return;const matches=nodes();if(mode==='suggested'){global.DraftedCvDocumentComparison.paint(host,before,model,'after','drafted-tailor');return;}if(!showChanges||marks.disabled)return;
    global.DraftedCvDocumentComparison.paint(host,before,model,mode==='current'?'before':'after','drafted-tailor',activeId);
   }
   function show(next,id){

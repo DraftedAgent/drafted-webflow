@@ -35,4 +35,4 @@ Stop only work dependent on unresolved contract decisions; never invent their re
 
 Credentials and encrypted backups stay outside Git. Paths/access observations in logs refer to the original environment; verify access in a new account/machine. Historical approvals authorize only their recorded concrete actions, not repeated deployment. Missing integrations block dependent external steps, not independent local work.
 
-Do not access or apply Drafted-IRP-Research automatically. No production action, new profile/RAG system or contract change is authorized merely by reading these instructions.
+Follow the shared [DEVELOPMENT RESEARCH RULE](dev-system/DEVELOPMENT-RESEARCH-RULE.md), including its permanent Research index link, relevance/freshness checks and read-only boundary. It applies to new project chats and side conversations; their implementation restrictions remain. No production action, new profile/RAG system or contract change is authorized merely by reading these instructions.

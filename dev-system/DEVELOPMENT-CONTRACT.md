@@ -31,7 +31,7 @@ For the user-requested local reassessment (DEV-002), use CONFIRMED_IMPLEMENTATIO
 
 Say "Possible design decision detected." when a significant product/architecture choice emerges, explain alternatives and implications, and ask whether it should become a DD record. Do not create formal DD records automatically. Routine implementation details need no DD.
 
-Append material work to CHANGE-LOG.md; do not log trivial commands. Protect credentials and personal CV content: document names and safe references, never secret values. Drafted-IRP-Research is outside this control plane: do not access or mutate it automatically. Research enters only when the user explicitly supplies or approves a finding for product work.
+Append material work to CHANGE-LOG.md; do not log trivial commands. Protect credentials and personal CV content: document names and safe references, never secret values. Research access and use follow the shared [DEVELOPMENT RESEARCH RULE](DEVELOPMENT-RESEARCH-RULE.md): published exports and relevant sources may be read, but Research must not be changed or findings automatically converted into product rules.
 
 ## Safe execution layer (DEV-004)
 

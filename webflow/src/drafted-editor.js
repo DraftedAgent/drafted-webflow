@@ -31,6 +31,8 @@ let coverageNavigation = null;
 let discoveryCvFile = null;
 let tailorInFlight = false;
 let tailorAppliedStamp = null;
+let tailorOverviewStamp = null;
+let cvSelectionState=null,cvSelectionUI=null,tailorCompletionContext=null,automaticSelectionPending=false;
 let workspacePages = null;
 let tailorReviewState = null;
 let workspaceContextRevision = 0;
@@ -556,6 +558,7 @@ maybeShowTailor();
        coverageController?.refreshSources();
        tailorReviewCheck?.();
        const state=tailorPresentationState();
+       if(tailorOverviewStamp&&tailorOverviewStamp!==tailorContextStamp()){chatMessagesEl?.querySelector('.tailor-feedback')?.remove();tailorOverviewStamp=null;}
        chatMessagesEl?.classList.toggle('is-tailor-preparing',state==='preparing');
        if(state!=='preparing')document.querySelectorAll('.tailor-progress').forEach(node=>node.remove());
        if(state==='preparing'){
@@ -564,6 +567,7 @@ maybeShowTailor();
        if(state!=='applied'){chatMessagesEl?.querySelector('.tailor-applied-message')?.remove();chatMessagesEl?.querySelector('.tailor-applied-language')?.remove();}else if(!chatMessagesEl?.querySelector('.tailor-applied-language')){const language=document.createElement('div');language.className='tailor-applied-language';language.append(createCvLanguageControl());chatMessagesEl.prepend(language);}
        if(state==='ready'&&window.__DRAFTED_JOBCONTEXT__&&documentBlocksState?.length)setTailorReady();else setTailorHidden();
        discoveryController?.refreshTailorState();
+       cvSelectionUI?.draw();
        document.querySelectorAll('.tailor-language-control').forEach(node=>node.replaceWith(createCvLanguageControl()));
      }
 
@@ -573,7 +577,7 @@ maybeShowTailor();
        sectionSession=deepClone(sectionSession||{decisions:{},ledger:DraftedSectionReview.ledger(tailorSourceLedger)});
        tailorReviewState={data:deepClone(data),stamp,request:deepClone(request),omittedContext:[...omittedContext],sectionSession};
        tailorReviewDispose?.();
-       document.querySelectorAll('.tailor-suggestion').forEach(card=>card.remove());
+       document.querySelectorAll('.tailor-suggestion, .tailor-feedback').forEach(card=>card.remove());
        const card=document.createElement('section');card.className='tailor-suggestion discovery-guidance';card.setAttribute('aria-label','Tailoring suggestion');
        const add=(tag,text,host=card)=>{const node=document.createElement(tag);node.textContent=text;host.append(node);return node;};
        const sectionName=block=>[block?.type==='experience'?block.title:block?.type==='education'?[block.degree,block.program].filter(Boolean).join(', '):block?.label||({summary:'Summary',skills:'Skills',languages:'Languages',certifications:'Certifications'}[block?.type])||'CV block',block?.employer||block?.institution,['experience','education'].includes(block?.type)?[block.startDate,block.endDate].filter(Boolean).join('–'):''].filter((value,index,all)=>value&&all.indexOf(value)===index).join(' · ');
@@ -587,10 +591,11 @@ maybeShowTailor();
          card.classList.add('tailor-context-mode');card.setAttribute('aria-label','Tailoring context');
          const existing=answer.text.includes('\n\nContext: ')?answer.text.split('\n\nContext: ').at(-1):'';
          const named=[...new Set(request.blocks.map(b=>b.employer||b.institution||(['project','projects'].includes(b.type)||b.type==='otherSections'&&/project|projekt/i.test(b.label||'')?b.label:'')).filter(name=>name&&answer.text.toLocaleLowerCase().includes(name.toLocaleLowerCase())))];
-         const question=structuredContextEnabled?'Which roles or projects does this example relate to? Select all that apply.':existing?'What additional role or project detail would help place this example?':named.length===1?('For the example mentioning '+named[0]+', what was your role?'):'Which roles or projects does this example relate to? Select all that apply.';
+         const inferred=DraftedExperienceContext.infer(answer.text,request.cvVersionId,request.blocks);
+         const question=structuredContextEnabled?inferred.question||'Which roles or projects does this example relate to? Select all that apply.':existing?'What additional role or project detail would help place this example?':named.length===1?('For the example mentioning '+named[0]+', what was your role?'):'Which roles or projects does this example relate to? Select all that apply.';
          add('h2',question);add('blockquote',excerpt(answer.text.split('\n\nContext: ')[0]));
          if(structuredContextEnabled){
-           DraftedExperienceContextUI.mount(card,{blocks:request.blocks,cvVersionId:request.cvVersionId,selected:answer.experienceContext||null,
+           DraftedExperienceContextUI.mount(card,{blocks:request.blocks,cvVersionId:request.cvVersionId,selected:answer.experienceContext||(inferred.certainIds?.length?DraftedExperienceContext.selection(inferred.certainIds.map(id=>DraftedExperienceContext.reference(request.cvVersionId,request.blocks.find(b=>b.blockId===id)))):null),
              onContinue:value=>{if(stamp!==tailorContextStamp()||isPreviewingProposal)throw Error('STALE_CONTEXT');discoveryController.assignExperienceContext(contextQuestion.answerId,contextQuestion.answerRevision,value);card.remove();refreshTailorPresentation();runTailor();},
              onLeaveOut:()=>{if(stamp!==tailorContextStamp()||isPreviewingProposal){card.remove();showTailorFeedback('Your CV, job ad or answers changed. Prepare a new suggestion.',true);return;}if(!Array.isArray(data.blocks)){card.remove();refreshTailorPresentation();return;}showTailorSuggestion(data,stamp,request,new Set([...omittedContext,contextQuestion.answerId]));refreshTailorPresentation();}});
            chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;return;
@@ -613,20 +618,17 @@ maybeShowTailor();
        const previewBaseline={blocks:deepClone(documentBlocksState)};
        if(!changed.length){
          tailorReviewState=null;
-         showTailorFeedback('No changes suggested');
-         for(const note of data.recipe?.reviewNotes||[]){const p=document.createElement('p');p.textContent=note.reason;chatMessagesEl.querySelector('.tailor-feedback').append(p);}
-         if(data.sourceReview?.length){const p=document.createElement('p');p.textContent='Earlier integrated wording needs review and was left unchanged.';chatMessagesEl.querySelector('.tailor-feedback').append(p);}
-         if(['1.2','1.3'].includes(data.sourcesSchemaVersion)&&data.contextQuestions?.some(q=>q.reason==='new_block_required')){const note=document.createElement('p');note.textContent='Your new context is saved with your answer. It has no selected CV entry; no new CV entry was created.';chatMessagesEl.querySelector('.tailor-feedback').append(note);}
+         automaticSelectionPending=true;
+         tailorCompletionContext={request:deepClone(request),data:deepClone(data),decisions:{}};
+         for(const note of data.recipe?.reviewNotes||[]){const p=document.createElement('p');p.textContent=note.reason;chatMessagesEl.querySelector('.tailor-feedback')?.append(p);}
+         if(data.sourceReview?.length){const p=document.createElement('p');p.textContent='Earlier integrated wording needs review and was left unchanged.';chatMessagesEl.querySelector('.tailor-feedback')?.append(p);}
+         if(['1.2','1.3'].includes(data.sourcesSchemaVersion)&&data.contextQuestions?.some(q=>q.reason==='new_block_required')){const note=document.createElement('p');note.textContent='Your new context is saved with your answer. It has no selected CV entry; no new CV entry was created.';chatMessagesEl.querySelector('.tailor-feedback')?.append(note);}
          return;
        }
        const fullDetails=document.createElement('details');fullDetails.className='tailor-change-details';add('summary','View details',fullDetails);
        for(const note of data.recipe?.reviewNotes||[]){const section=add('section','',fullDetails);add('h3','Review note — not CV text',section);add('p',note.reason,section);}
        card.classList.add('tailor-review');
        card.dataset.proposalId=crypto.randomUUID();
-       const header=add('header','');header.className='tailor-review-header';
-       add('h2',`${changed.length} changed ${changed.length===1?'block':'blocks'}`,header);
-       const status=add('span','Not applied',header);status.className='tailor-review-status';
-       add('p','Review the exact changes below.',header);header.append(createCvLanguageControl());
        const body=add('div','');body.className='tailor-review-body';body.tabIndex=0;body.setAttribute('role','group');body.setAttribute('aria-label','Proposed changes');
        const runs=(host,items,side,standalone=false)=>{
          host.className='tailor-diff-text';
@@ -646,18 +648,29 @@ maybeShowTailor();
          if(!checkCurrent())return;
          documentComparison?.edited();
          if(innerWidth<=700&&!previewDialog?.open)document.querySelector('.workspace-expand-preview')?.click();
-         if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:previewData,baseline:previewBaseline,onDecision:(id,value)=>decideSections([id],value),proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
+         if(!tailorCvPreview)tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:previewData,baseline:previewBaseline,onDecision:(id,value)=>value==='edit'?openSectionEdit(id):decideSections([id],value),proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
          tailorCvPreview.navigate(block.blockId);
        };
        // Actual text changes drive the review; source receipts stay optional.
        const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);for(const item of data.languageChanges||[])if(!proposed.some(c=>c.blockId===item.blockId))proposed.push({blockId:item.blockId,edits:[]});
        for(const change of proposed.filter(change=>changed.includes(change.blockId))){
          const block=data.blocks.find(b=>b.blockId===change.blockId),section=add('section','',body);section.className='tailor-block-change';section.dataset.reviewBlockId=change.blockId;
-         const title=add('div','',section);title.className='tailor-block-title';add('h3',sectionName(block),title);
-         {const review=add('button','Review in CV',title);review.type='button';review.className='tailor-review-link';review.setAttribute('aria-label',`Review ${sectionName(block)} in CV`);review.addEventListener('click',()=>navigate(block));}
+         const title=add('div','',section);title.className='tailor-block-title';
+         const heading=add('h3','',title),originalBlock=request.blocks.find(b=>b.blockId===change.blockId);
+         const oldTitle=originalBlock?.title||'',newTitle=block.title||'';
+         const translating=data.languagePlan&&data.languagePlan.cvLanguage!==request.language;
+         const meaningfulTitle=oldTitle!==newTitle&&!(translating&&DraftedCvLanguage.equivalentTitle(oldTitle,newTitle));
+         if(meaningfulTitle){
+           heading.classList.add('tailor-title-diff');
+           for(const run of DraftedTailorChangePreview.wordDiff(oldTitle,newTitle)){
+             if(run.type==='equal')heading.append(document.createTextNode(run.text));
+             else{const mark=add(run.type==='remove'?'del':'mark',run.text,heading);mark.className=run.type==='remove'?'tailor-mark-removed':'tailor-mark-added';}
+           }
+           const context=[block.employer,[block.startDate,block.endDate].filter(Boolean).join('–')].filter(Boolean).join(' · ');if(context)heading.append(document.createTextNode(' · '+context));
+         }else heading.textContent=sectionName(block);
          const decisions=add('div','',section);decisions.className='tailor-section-actions';
-         for(const [text,value]of [['Accept','accept'],['Decline','decline']]){const button=add('button',text,decisions);button.type='button';button.addEventListener('click',()=>decideSections([change.blockId],value));}
-         const languageChange=data.languageChanges?.find(x=>x.blockId===change.blockId);if(languageChange)for(const [key,after]of Object.entries(languageChange.afterFields)){const before=languageChange.beforeFields[key];if(before===after)continue;const row=add('div','',section);row.className='tailor-diff-row';add('span',key,row).className='tailor-diff-label';add('p',before+' → '+after,row);}
+         for(const [text,value]of [['Accept','accept'],['Decline','decline'],['Edit','edit']]){const button=add('button',text,decisions);button.type='button';button.addEventListener('click',()=>value==='edit'?openSectionEdit(change.blockId):decideSections([change.blockId],value));}
+         const languageChange=data.languageChanges?.find(x=>x.blockId===change.blockId);if(languageChange)for(const [key,after]of Object.entries(languageChange.afterFields)){const before=languageChange.beforeFields[key];if(before===after||key==='label'||key==='title')continue;const row=add('div','',section);row.className='tailor-diff-row';add('span',key,row).className='tailor-diff-label';add('p',before+' → '+after,row);}
          for(const edit of change.edits){
            const item=add('div','',section);item.className='tailor-edit';item.dataset.changeKind=edit.kind;
            add('span',edit.kind,item).className='tailor-edit-kind tailor-kind-'+edit.kind.toLowerCase();
@@ -694,23 +707,53 @@ maybeShowTailor();
        const apply=add('button','Accept all remaining',actions);apply.type='button';apply.className='tailor-primary';
        const dismiss=add('button','Decline all remaining',actions);dismiss.type='button';
        const navigationNotice=add('p','Accept or decline each section here or in the CV preview.',footer);navigationNotice.className='tailor-current-notice';navigationNotice.setAttribute('role','status');
-       let stale=false,settled=false,removalObserver;
+       let stale=false,settled=false,removalObserver,reviewScroll=null;
        const checkCurrent=()=>{
          if(settled)return false;
          if(stale||stamp!==tailorContextStamp()||isPreviewingProposal){
-           stale=true;apply.disabled=true;status.textContent='Needs update';card.classList.add('is-stale');endPreview();
+           stale=true;apply.disabled=true;card.classList.add('is-stale');endPreview();
            navigationNotice.textContent='Your CV, job ad or answers changed. Dismiss this suggestion and tailor again.';
            return false;
          }return true;
        };
-       const dispose=()=>{settled=true;removalObserver?.disconnect();tailorReviewCheck=null;tailorReviewDispose=null;endPreview();previewDialog?.removeEventListener('close',endPreview);jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
+       const dispose=()=>{reviewScroll?.dispose();revisionAbort?.abort();settled=true;removalObserver?.disconnect();tailorReviewCheck=null;tailorReviewDispose=null;endPreview();previewDialog?.removeEventListener('close',endPreview);jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
        tailorReviewDispose=dispose;
        tailorReviewCheck=()=>{if(!card.isConnected){dispose();return;}checkCurrent();};
        removalObserver=new MutationObserver(()=>{if(!card.isConnected)dispose();});removalObserver.observe(chatMessagesEl,{childList:true});
        jobAdInputEl?.addEventListener('input',checkCurrent);targetRoleInput?.addEventListener('input',checkCurrent);
-       let deciding=false;
+       let deciding=false,revising=false,revisionAbort=null;
+       function openSectionEdit(id){
+         if(deciding||revising||!checkCurrent())return;
+         const section=body.querySelector('[data-review-block-id="'+CSS.escape(id)+'"]');if(!section)return;
+         section.querySelector('.tailor-section-edit')?.remove();
+         const form=add('form','',section);form.className='tailor-section-edit';
+         const label=add('label','What should change in this suggestion?',form),input=add('textarea','',label);input.maxLength=4000;input.rows=3;
+         input.value=sectionSession.editDrafts?.[id]||'';input.addEventListener('input',()=>{(sectionSession.editDrafts??={})[id]=input.value;});
+         const notice=add('p','Describe the change. Your CV stays unchanged until you accept.',form);notice.setAttribute('role','status');
+         const update=add('button','Update suggestion',form);update.type='submit';const cancel=add('button','Cancel',form);cancel.type='button';
+         cancel.addEventListener('click',()=>{revisionAbort?.abort();revising=false;form.remove();});
+         form.addEventListener('submit',async event=>{
+           event.preventDefault();if(revising||!checkCurrent()||!input.value.trim())return;
+           const endpoint=window.__DRAFTED_PREVIEW_ENDPOINTS__?.tailorRevision;
+           if(!endpoint){notice.textContent='Suggestion editing is available in local Dev; the live revision backend has not been published yet.';return;}
+           revising=true;revisionAbort=new AbortController();const controller=revisionAbort;update.disabled=true;notice.textContent='Revising this suggestion…';
+           try{
+             const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({schema:'1.0',request,candidate:data,blockId:id,instruction:input.value.trim()}),signal:controller.signal});
+             const revised=await response.json();if(!response.ok||!revised.ok)throw Error('REVISION_FAILED');
+             if(controller.signal.aborted||!form.isConnected||!checkCurrent())return;
+             await DraftedTailorSources.validateCandidate(request,revised);
+             for(const b of revised.blocks)if(b.blockId!==id&&DraftedCoverageContract.canonical(b)!==DraftedCoverageContract.canonical(data.blocks.find(old=>old.blockId===b.blockId)))throw Error('OUT_OF_SCOPE');
+             const expected=await DraftedSectionReview.project(request,revised,sectionSession);
+             if(!checkCurrent()||DraftedCoverageContract.canonical(expected.blocks)!==DraftedCoverageContract.canonical(documentBlocksState)||DraftedCoverageContract.canonical(expected.ledger)!==DraftedCoverageContract.canonical(DraftedSectionReview.ledger(tailorSourceLedger)))throw Error('STALE_REVISION');
+             dispose();showTailorSuggestion(revised,stamp,request,omittedContext,sectionSession);
+           }catch(error){if(!controller.signal.aborted)notice.textContent='Could not revise this suggestion. Your instruction and previous suggestion are kept. Try again.';}
+           finally{if(revisionAbort===controller){revising=false;revisionAbort=null;}update.disabled=false;}
+         });
+         section.scrollIntoView({block:'nearest',behavior:'instant'});input.focus();
+       }
+
        async function decideSections(ids,decision){
-         if(deciding||!checkCurrent())return;deciding=true;
+         if(deciding||revising||!checkCurrent())return;deciding=true;
          card.querySelectorAll('button').forEach(b=>b.disabled=true);
          try{
            const result=await DraftedSectionReview.decide({request,data,session:sectionSession,currentBlocks:deepClone(documentBlocksState),currentLedger:tailorSourceLedger,ids,decision});
@@ -727,7 +770,8 @@ maybeShowTailor();
              renderDocument(documentTextState);applySelectedBlocksUI();updateContextChip();
              tailorAppliedStamp=tailorContextStamp(discoveryController?.sourceContentRevision());
              discoveryController?.showChat(true);refreshTailorPresentation();
-             showTailorFeedback('All sections reviewed. Your accepted changes are in your CV.');
+             tailorCompletionContext={request:deepClone(request),data:deepClone(data),decisions:deepClone(result.session.decisions)};
+             if(window.__DRAFTED_PREVIEW_ENDPOINTS__?.cvSelection)cvSelectionUI?.prepare();else finishTailoringMessage();
            }
          }catch(error){
            navigationNotice.textContent='This section could not be applied safely. Your CV is unchanged.';
@@ -738,11 +782,27 @@ maybeShowTailor();
        dismiss.addEventListener('click',()=>{if(!checkCurrent()){dispose();card.remove();tailorReviewState=null;refreshTailorPresentation();return;}decideSections(changed,'decline');});
        chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;
        documentComparison?.edited();
-       tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:previewData,baseline:previewBaseline,onDecision:(id,value)=>decideSections([id],value),proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
+       tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:previewData,baseline:previewBaseline,onDecision:(id,value)=>value==='edit'?openSectionEdit(id):decideSections([id],value),proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
        tailorCvPreview.start();
+       reviewScroll=DraftedReviewScroll.create({editor:body,preview:editorPreviewEl.closest('.cv-document'),host:editorPreviewEl,isActive:()=>!settled&&documentComparison?.mode()!=='original'});
+     }
+
+     function finishTailoringMessage(selection=cvSelectionState){
+       if(cvSelectionUI?.hasPending()||tailorReviewState)return;
+       const context=tailorCompletionContext,accepted=Object.values(context?.decisions||{}).some(v=>v==='accept');
+       const ops=selection?.proposal?.operations||[],decisions=selection?.proposal?.decisions||{};
+       const approved=ops.filter(o=>decisions[o.blockId]==='accept'),omitted=approved.some(o=>o.action==='omit'),shortened=approved.some(o=>o.action==='shorten');
+       const role=context?.request?.jobContext?.roleTitle||context?.request?.targetRole||'';
+       let text=accepted||approved.length?('The CV now emphasizes '+(role?'experience relevant to '+role:'relevant experience')+', with clearer wording and focus.'):'Your existing CV content has been retained.';
+       if(shortened)text+=' Repeated or lengthy wording has been shortened to make the relevant contributions easier to assess.';
+       if(omitted)text+=' Less relevant experience has been left out of this version to give the stronger contributions more room.';
+       if(ops.some(o=>o.action==='omit'&&decisions[o.blockId]==='decline'))text+=' Experience proposed for omission has been retained according to your choices.';
+       if(approved.some(o=>o.action==='restore'))text+=' Previously omitted experience has been restored.';
+       showTailorFeedback(text);tailorOverviewStamp=tailorContextStamp();
      }
 
      function showTailorFeedback(text,retry=false) {
+       tailorOverviewStamp=null;
        document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
        const feedback=document.createElement('div');feedback.className='tailor-feedback discovery-guidance';feedback.setAttribute('role','status');
        const message=document.createElement('p');message.textContent=text;feedback.append(message);
@@ -790,6 +850,7 @@ maybeShowTailor();
          await discoveryController?.waitForSources();
          const signalCatalog=['1.3','1.4','1.5'].includes(tailorSourcesVersion)?await coverageController?.model.waitForCatalog():null;
          if(representationStamp!==tailorContextStamp(null)||isPreviewingProposal){showTailorFeedback('Your CV or job ad changed. Prepare a new suggestion.',true);return;}
+         for(const answer of currentTailorSourceContext()?.answers||[]){if(answer.experienceContext)continue;const inferred=DraftedExperienceContext.infer(answer.text,cvVersionId,documentBlocksState);if(inferred.status==='resolved')discoveryController.assignExperienceContext(answer.id,answer.revision,inferred.context,{origin:'answer'});}
          const stamp=tailorContextStamp();
          const payload={cvVersionId:cvVersionId||null,cvTitle:documentTitle||'',targetRole:targetRoleInput?.value?.trim()||'',
            language:languageDecision.language,blocksSchemaVersion:'1.0',blocks:deepClone(documentBlocksState),jobContextSchemaVersion:'1.0',jobContext:deepClone(jobContext)};
@@ -809,7 +870,7 @@ maybeShowTailor();
          console.error('Tailoring failed',{endpoint:endpoint.origin+endpoint.pathname,code:err instanceof DraftedTailorSourceClient.Failure?err.code:'TAILOR_FAILED',status:err instanceof DraftedTailorSourceClient.Failure?err.status:null,backendCode:err instanceof DraftedTailorSourceClient.Failure?err.backendCode:null});
          showTailorFeedback(err?.message==='SIGNAL_CATALOG_UNAVAILABLE'?'Job signals are not ready. Open Job signals to review or retry their preparation; your CV and answers are kept.':err?.message==='STALE_SIGNAL_CONTEXT'?'Your job context changed. Prepare a new suggestion.':sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true);
        }
-       finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();}
+       finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();if(automaticSelectionPending){automaticSelectionPending=false;if(window.__DRAFTED_PREVIEW_ENDPOINTS__?.cvSelection)cvSelectionUI?.prepare();else finishTailoringMessage();}}
      }
 
      function setTailorHidden() {
@@ -1451,7 +1512,7 @@ function setApplyLabel() {
   let tailorCvPreview = null;
   let documentComparison = null;
   document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='p'){
-    if(tailorCvPreview?.suggested())event.preventDefault();
+    if(tailorCvPreview?.suggested()||cvSelectionUI?.hasPending())event.preventDefault();
     else if(documentComparison?.model()){event.preventDefault();document.querySelector('.workspace-print-button')?.click();}
   }},true);
   let cvVersionId = null;
@@ -1763,9 +1824,10 @@ function setApplyLabel() {
     tailorCvPreview?.beforeRender();
     documentComparison?.sync(isPreviewingProposal);
     documentComparison?.beforeRender();
-    const suggestion=tailorCvPreview?.model(),original=documentComparison?.model(),presentation=original||suggestion;
+    const selection=cvSelectionUI?.model();
+    const suggestion=tailorCvPreview?.model(),original=documentComparison?.model(),presentation=original||selection||suggestion;
     tailorCvPreview?.setPresentation({active:!original,marks:true});
-    editorPreviewEl.dataset.cvPreviewMode=suggestion?'suggested':original?'original':'current';
+    editorPreviewEl.dataset.cvPreviewMode=original?'original':selection&&cvSelectionUI.hasPending()||suggestion?'suggested':'current';
     const workspaceTitle = document.querySelector('.workspace-document-title');
     if (workspaceTitle) {
       workspaceTitle.textContent = documentTitle || 'Untitled CV';
@@ -2072,7 +2134,7 @@ function updateContextChip() {
      BLOCK CLICK SELECTION (MULTI)
      =============================== */
   editorPreviewEl.addEventListener("click", (e) => {
-    if(tailorCvPreview?.suggested()||documentComparison?.model())return;
+    if(tailorCvPreview?.suggested()||cvSelectionUI?.hasPending()||documentComparison?.model())return;
     if (!documentBlocksState || !documentBlocksState.length) return;
 
     if (e.target.closest("a.cv-document-link")) return;
@@ -2154,7 +2216,7 @@ function updateContextChip() {
     DraftedCvLayout.setZoom(editorPreviewEl,1);
     workspaceContextRevision++;
     tailorSourceLedger.reset();
-    tailorReviewState=null;tailorAppliedStamp=null;discoveryController?.reset();
+    tailorReviewState=null;tailorAppliedStamp=null;cvSelectionState=null;discoveryController?.reset();
 
     const blocks = data.blocks;
 
@@ -2637,7 +2699,7 @@ function setCommandBarLocked(isLocked) {
 
 // 2) Bygg payload ENBART från blocks som source of truth
 function buildPdfExportPayload() {
-  if(tailorCvPreview?.suggested())return {ok:false,reason:'SUGGESTED_PREVIEW'};
+  if(tailorCvPreview?.suggested()||cvSelectionUI?.hasPending())return {ok:false,reason:'SUGGESTED_PREVIEW'};
   // documentBlocksState och cvVersionId och documentTitle ligger i closure-scope (STATE)
   if (!documentBlocksState || !Array.isArray(documentBlocksState) || documentBlocksState.length === 0) {
     return { ok: false, reason: "NO_BLOCKS" };
@@ -2767,7 +2829,7 @@ function bindPdfDownloadButton() {
     tailorReviewDispose?.();
     if(isPreviewingProposal)exitProposalPreview();
     const had=pendingProposal||pendingSuggestion||tailorReviewState;
-    pendingProposal=null;pendingProposalMeta=null;pendingSuggestion=null;tailorReviewState=null;tailorAppliedStamp=null;
+    pendingProposal=null;pendingProposalMeta=null;pendingSuggestion=null;tailorReviewState=null;tailorAppliedStamp=null;cvSelectionState=null;
     document.querySelectorAll('.tailor-suggestion').forEach(el=>el.remove());clearAllProposalCards();setApplyLabel();
     if(had)appendChat('system','The job description changed. Prepare a new suggestion before applying changes.');
   }
@@ -2783,7 +2845,7 @@ function bindPdfDownloadButton() {
   function captureWorkspace(){
     if(document.documentElement.dataset.workspacePage==='editor'&&document.documentElement.dataset.workspaceReady==='true'&&!document.documentElement.dataset.workspaceBooting)workspaceReading={chat:chatMessagesEl.scrollTop,document:editorPreviewEl.closest('.cv-document')?.scrollTop||0};
     const cv=documentBlocksState?.length?serialSnapshot(snapshotCurrentState()):null;
-    return {cv,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,cvLanguageConfirmed,design:selectedCvDesign,chatHistory,
+    return {cv,tailorCompletionContext,cvSelection:cvSelectionState,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,cvLanguageConfirmed,design:selectedCvDesign,chatHistory,
       messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card), :scope > .suggestion-receipt')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent,receiptId:el.dataset.receiptId||null,association:el.dataset.proposalAssociation||null})),
       activeSelectionRequest,appliedChatReceipts,selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
       jobText:activeJobText,jobDraft:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
@@ -2808,6 +2870,7 @@ function bindPdfDownloadButton() {
     else setJobContextStatus(saved.jobContext?'ready':'idle',saved.jobContext?'✓':'',saved.jobContext?'Signals ready':'');
     if(!DraftedWorkspaceStore.valid(saved))return;
     cvLanguageConfirmed=saved.cvLanguageConfirmed===true&&['sv','en'].includes(saved.language);documentLanguage=['sv','en'].includes(saved.language)?saved.language:'en';selectedCvDesign=DraftedCvDesigns.some(d=>d.id===saved.design)?saved.design:'classic_v1';document.getElementById('cv-design').value=selectedCvDesign;
+    cvSelectionState=saved.cvSelection||null;tailorCompletionContext=saved.tailorCompletionContext||null;
     restoreSnapshot(saved.cv);documentComparison?.restore(saved.comparison);renderDocument(documentTextState);setCvLoadedUI(true);setEditorPlaceholder(false);
     isPreviewingProposal=!!saved.isPreviewingProposal;previewSnapshot=saved.previewSnapshot||null;pendingProposal=saved.pendingProposal||null;pendingProposalMeta=saved.pendingProposalMeta||null;pendingSuggestion=saved.pendingSuggestion||null;
     for(const el of [...chatMessagesEl.children])if(!el.matches('.drafted-discovery,.discovery-guidance,.workspace-earlier-answers,.workspace-coverage-panel'))el.remove();
@@ -2819,10 +2882,28 @@ function bindPdfDownloadButton() {
     await coverageController?.restore(saved.coverage);
     tailorAppliedStamp=saved.tailorAppliedStamp||null;tailorReviewState=saved.tailorReview||null;
     if(tailorReviewState){const review=tailorReviewState;try{if(review.stamp!==tailorContextStamp()||!cvLanguageDecision().language)throw Error('STALE_CONTEXT');if(review.data.sourcesSchemaVersion)await DraftedTailorSources.validateCandidate(review.request,review.data);if(review.sectionSession){const expected=await DraftedSectionReview.project(review.request,review.data,review.sectionSession);if(DraftedCoverageContract.canonical(expected.blocks)!==DraftedCoverageContract.canonical(documentBlocksState)||DraftedCoverageContract.canonical(expected.ledger)!==DraftedCoverageContract.canonical(DraftedSectionReview.ledger(tailorSourceLedger)))throw Error('STALE_SECTION_REVIEW');}showTailorSuggestion(review.data,review.stamp,review.request,new Set(review.omittedContext),review.sectionSession);const draft=chatMessagesEl.querySelector('.tailor-suggestion textarea');if(draft)draft.value=saved.tailorDraft||'';}catch{tailorReviewState=null;appendChat('system','The saved tailoring suggestion needs an update. Your CV and answers are unchanged.');}}
+    cvSelectionUI?.sync();cvSelectionUI?.draw();
     if(pendingProposal||pendingSuggestion)appendProposalCard(pendingProposalMeta);setApplyLabel();syncWorkspaceJobContext();refreshTailorPresentation();
+    if(tailorCompletionContext&&!tailorReviewState&&!cvSelectionUI?.hasPending()&&tailorAppliedStamp===tailorContextStamp(discoveryController?.sourceContentRevision()))finishTailoringMessage();
     if(saved.interrupted){appendChat('system','An unfinished request was interrupted by reload. Your work is kept. Retry the request when you are ready.');if(!editorInput.value)editorInput.value=[...(saved.chatHistory||[])].reverse().find(m=>m.role==='user')?.content||'';}
     await DraftedCvLayout.ready(editorPreviewEl);DraftedCvLayout.setZoom(editorPreviewEl,saved.zoom||1);
     requestAnimationFrame(()=>{chatMessagesEl.scrollTop=saved.scroll?.chat||0;const pane=editorPreviewEl.closest('.cv-document');if(pane)pane.scrollTop=saved.scroll?.document||0;});
   }
   window.DraftedTailorLanguageControl={create:createCvLanguageControl};
+  DraftedReviewHover.create({editor:chatMessagesEl,host:editorPreviewEl});
+  cvSelectionUI=DraftedCvSelectionUI.create({host:chatMessagesEl,previewHost:editorPreviewEl,onComplete:finishTailoringMessage,getState:()=>cvSelectionState,setState:value=>{cvSelectionState=value;},getCurrent:()=>deepClone(documentBlocksState||[]),getAnswers:()=>deepClone(discoveryController?.snapshot()?.session?.answers||[]),getVersion:()=>cvVersionId,getJob:()=>({text:activeJobText,context:window.__DRAFTED_JOBCONTEXT__}),getPages:()=>Number(editorPreviewEl.dataset.pageCount)||null,canReview:()=>!tailorInFlight&&!tailorReviewState&&!isPreviewingProposal&&!pendingProposal,
+   render:()=>renderDocument(documentTextState),
+   commit:(blocks,{operation,state})=>{
+    if(!blocks.length)throw Error('At least one CV block must remain.');
+    const keys=['groups','history','integrations','integrationHistory','languageApplications','languageHistory'];
+    if(operation.action==='omit'){const saved=state.omitted.find(o=>o.block.blockId===operation.blockId);saved.ledger=Object.fromEntries(keys.map(k=>[k,deepClone(tailorSourceLedger[k].filter(g=>g.blockId===operation.blockId))]));for(const k of keys)tailorSourceLedger[k]=tailorSourceLedger[k].filter(g=>g.blockId!==operation.blockId);}
+    if(operation.action==='restore'){const saved=cvSelectionState.omitted.find(o=>o.block.blockId===operation.blockId);
+     const currentAnswers=discoveryController?.snapshot()?.session?.answers||[];
+     const checkReferences=value=>{if(!value||typeof value!=='object')return;if(typeof value.answerId==='string'&&Number.isInteger(value.answerRevision)){const answer=currentAnswers.find(a=>a.id===value.answerId),revision=answer?.currentRevision??answer?.revisions?.at(-1)?.revision;if(revision!=null&&revision!==value.answerRevision)throw Error('This source answer changed. Revise the restoration against the current answer before accepting.');}for(const child of Object.values(value))checkReferences(child);};checkReferences(saved?.ledger);
+
+     for(const k of keys)tailorSourceLedger[k].push(...deepClone(saved?.ledger?.[k]||[]));}
+
+    buildStateFromBlocks(blocks,{preserveCanonical:true});discoveryController?.adoptRepresentation(documentBlocksState,cvVersionId);
+   }});
+
   onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,commitJobDraft:async()=>{const next=jobAdInputEl.value;if(next===activeJobText)return;activeJobText=next;handleJobAdInput();clearJobContextDebounce();if(next.trim().length>=200)await runJobContextExtract();},sourceFile:()=>discoveryCvFile,adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;if(!coverageController?.model.restoreBlocked)coverageController?.sync();}});});

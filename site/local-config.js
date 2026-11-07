@@ -12,5 +12,5 @@
   if(target.origin!==base)return Promise.reject(new Error('External requests are disabled in this local build.'));
   return nativeFetch(input,options);
  };
- window.__DRAFTED_PREVIEW_ENDPOINTS__={upload:'/preview-api/upload',rewrite:'/preview-api/rewrite',chat:'/preview-api/chat',export:'/preview-api/export',jobcontext:'/preview-api/jobcontext',tailor:'/preview-api/tailor',discovery:'/webflow-experience-discovery',tailorSources:true,tailorSourcesVersion:'1.5'};
+ window.__DRAFTED_PREVIEW_ENDPOINTS__={upload:'/preview-api/upload',rewrite:'/preview-api/rewrite',chat:'/preview-api/chat',export:'/preview-api/export',jobcontext:'/preview-api/jobcontext',tailor:'/preview-api/tailor',cvSelection:'/preview-api/cv-selection',tailorRevision:'/preview-api/tailor-revise',discovery:'/webflow-experience-discovery',tailorSources:true,tailorSourcesVersion:'1.5'};
 })();

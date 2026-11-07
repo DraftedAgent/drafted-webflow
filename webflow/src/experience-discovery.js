@@ -78,9 +78,9 @@
       const isFollowup=r.phase==='followup',reply=text,previous=a.revisions.at(-1)?.text;
       if(isFollowup&&previous&&!negative&&!/^\s*(i don.?t know|jag vet inte|vet inte)[.!]?\s*$/i.test(text))text=previous+'\n\n'+text;
       if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
-      const experienceContext=a.revisions.at(-1)?.experienceContext;
+      const experienceContext=a.revisions.at(-1)?.experienceContext,experienceContextOrigin=a.revisions.at(-1)?.experienceContextOrigin;
       const followupOf=isFollowup?copy(q.followup):null;
-      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(experienceContext?{experienceContext:copy(experienceContext)}:{}),...(isFollowup?{followupReply:reply,followupOf}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,...(experienceContext?{experienceContext:copy(experienceContext),...(experienceContextOrigin?{experienceContextOrigin}: {})}:{}),...(isFollowup?{followupReply:reply,followupOf}: {})});a.drafts=[];a.status='pending';q.status='answered';r.notice='';this.state.revision++;
       if(negative){a.status=q.status='no';this.advance();return;}
       if(/^\s*(jag vet inte|vet inte|i don.?t know)[.!]?\s*$/i.test(text)){a.status=q.status='unknown';this.advance();return;}
       if(/^\s*(ja|yes|ja,? lite|yes,? a little|kanske|maybe|jag var med|det gick bra)[.!]?\s*$/i.test(reply)){this.askFollowup();return;}
@@ -94,7 +94,7 @@
       const r=this.round(),a=background?this.answerForToken(token):this.state.answers.find(a=>a.id===this.current()?.answerId),q=r.queue.find(q=>q.id===a?.questionId);if(!a||!background&&(!['ready','interpreting'].includes(r.phase)||JSON.stringify(this.token())!==JSON.stringify(token)))throw Error('STALE_ANSWER');if(!Array.isArray(drafts))throw Error('INVALID_DRAFTS');
       for(const d of drafts){requireText(d.proposedText);requireText(d.sourceQuote);if(!a.revisions.at(-1).text.includes(d.sourceQuote))throw Error('INVALID_SOURCE_QUOTE');if(!Array.isArray(d.coveredQuestionIds)||d.coveredQuestionIds.some(id=>!this.allQuestions().some(q=>q.id===id)))throw Error('UNKNOWN_QUESTION');}
       if(!drafts.length){if(!background){this.askFollowup();return;}a.status=q.status='needs_detail';this.settleBackground();this.notify();return;}
-      a.drafts=copy(drafts);for(const later of r.reserve||[])if(later.status==='unanswered'&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';a.status=q.status='recorded';this.state.revision++;if(background){for(const later of this.allQuestions()){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
+      a.drafts=copy(drafts);for(const later of r.reserve||[])if(later.status==='unanswered'&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';a.status=q.status='recorded';const latest=a.revisions.at(-1);if(!latest.experienceContext||latest.experienceContextOrigin==='answer'){const inferred=contexts().infer(latest.text,this.state.context.cvVersionId,this.state.context.blocks);if(inferred.status==='resolved'){latest.experienceContext=copy(inferred.context);latest.experienceContextOrigin='answer';}else{delete latest.experienceContext;delete latest.experienceContextOrigin;}}this.state.revision++;if(background){for(const later of this.allQuestions()){if(later.status==='unanswered'&&later.id!==this.current()?.id&&drafts.some(d=>d.coveredQuestionIds.includes(later.id)))later.status='covered';}this.settleBackground();this.notify();}else this.advance();
     }
     settleBackground(){const r=this.round();if(r.phase!=='complete'||r.finishedEarly)return;const index=r.queue.findIndex(q=>(!r.focus||q.id===r.focus.questionId)&&q.status==='needs_detail'&&!q.followupUsed);if(index>=0){r.index=index;this.askFollowup();}}
     askFollowup(){const r=this.round(),q=this.current(),a=this.state.answers.find(a=>a.id===q.answerId);if(a)a.status='needs_detail';q.status='needs_detail';if(!q.followupUsed){const revision=a?.revisions.find(v=>v.revision===a.currentRevision);if(!revision)throw Error('FOLLOWUP_SOURCE_UNAVAILABLE');q.followup={roundId:r.id,questionId:q.id,answerId:a.id,answerRevision:revision.revision,question:followupQuestion(revision.text,r.language)};q.followupUsed=true;r.phase='followup';r.notice='Can you give one specific example in response to the original question?';}else this.advance();}
@@ -131,13 +131,13 @@
       const latest=a.revisions.at(-1),sourceTextBeforeContext=latest.contextReply!==undefined?latest.sourceTextBeforeContext:latest.text;const text=sourceTextBeforeContext+'\n\nContext: '+reply;if(text.length>MAX_ANSWER_LENGTH)throw Error('ANSWER_TOO_LONG');
       this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,contextReply:reply,sourceTextBeforeContext});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();
     }
-    assignExperienceContext(answerId,revision,value){
+    assignExperienceContext(answerId,revision,value,{origin='user'}={}){
       const C=contexts();C.validate(value);const a=this.state.answers.find(a=>a.id===answerId&&a.roundId===this.round().id);
       if(!a||a.currentRevision!==revision||a.status!=='recorded')throw Error('STALE_ANSWER');
       if(['cv_entry','cv_entries'].includes(value.kind)&&C.resolve(value,this.state.context.cvVersionId,this.state.context.blocks).status!=='resolved')throw Error('STALE_CONTEXT_REFERENCE');
       const latest=a.revisions.at(-1),text=latest.sourceTextBeforeContext??latest.text,context=copy(value);
       // Validate everything before touching revision, status or source history.
-      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,experienceContext:context});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();
+      this.invalidate(a.id);a.currentRevision++;a.revisions.push({revision:a.currentRevision,text,experienceContext:context,...(origin==='answer'?{experienceContextOrigin:'answer'}:{})});a.drafts=[];a.status='recorded';this.round().queue.find(q=>q.id===a.questionId).status='recorded';this.state.revision++;this.notify();
     }
     adoptRepresentation(blocks,cvVersionId){
       const r=this.round(),revision=this.id();for(const a of this.state.answers.filter(a=>a.roundId===r.id&&a.status==='processing')){a.status='error';r.queue.find(q=>q.id===a.questionId).status='error';}this.state.context={...this.state.context,revision,blocks:copy(blocks),cvVersionId};r.contextRevision=revision;this.state.revision++;

@@ -16,5 +16,12 @@
  const unique=[...new Set(matches.map(m=>m.language))];return {language:unique.length===1?unique[0]:null,conflict:unique.length>1,evidence:unique.length===1?matches.find(m=>m.language===unique[0]):null};}
  function cvText(blocks){return (blocks||[]).map(b=>[b.label,b.title,b.degree,b.program,b.text].filter(Boolean).join('\n')).join('\n');}
  function resolve({explicitLanguage=null,jobText='',blocks=[]}={}){const cv=detect(cvText(blocks)),job=String(jobText||'').trim();if(supported(explicitLanguage))return {language:explicitLanguage,source:'user',cvLanguage:cv.language,evidence:null,reason:null};if(job){const instruction=requested(job);if(instruction.conflict)return {language:null,source:'unclear',cvLanguage:cv.language,evidence:null,reason:'The job description gives conflicting application languages.'};if(instruction.language&&!supported(instruction.language))return {language:null,source:'unclear',cvLanguage:cv.language,evidence:instruction.evidence,reason:'The ad requests '+instruction.language+'. This version supports Svenska and English; choose a supported language explicitly.'};if(instruction.language)return {language:instruction.language,source:'ad_request',cvLanguage:cv.language,evidence:instruction.evidence,reason:null};const main=detect(job);return {language:main.language,source:main.language?'ad_main':'unclear',cvLanguage:cv.language,evidence:null,reason:main.language?null:'The main language of the job description is unclear.'};}return {language:cv.language,source:cv.language?'cv':'unclear',cvLanguage:cv.language,evidence:null,reason:cv.language?null:'The CV language is unclear.'};}
- return {names,supported,detect,requested,resolve,cvText};
+ // Conservative display equivalence: unknown title changes remain visible as diffs.
+ function equivalentTitle(before,after){
+  const normalize=value=>String(value||'').normalize('NFKC').toLocaleLowerCase().trim().replace(/\s+/g,' ');
+  const pairs=[['product specialist','produktspecialist'],['delivery coordinator','leveranskoordinator'],['project manager','projektledare'],['software developer','mjukvaruutvecklare'],['system developer','systemutvecklare']];
+  const canonical=value=>{const text=normalize(value),prefix=text.match(/^(senior|junior)\s+/)?.[1]||'',role=prefix?text.slice(prefix.length).trim():text;const pair=pairs.find(p=>p.includes(role));return pair?prefix+'|'+pair[0]:null;};
+  return normalize(before)===normalize(after)||!!canonical(before)&&canonical(before)===canonical(after);
+ }
+ return {names,supported,detect,requested,resolve,cvText,equivalentTitle};
 });

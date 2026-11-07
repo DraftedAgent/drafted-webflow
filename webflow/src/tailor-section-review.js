@@ -26,5 +26,17 @@
   const next=copy(session);for(const id of ids)next.decisions[id]=decision;
   return {...await project(request,data,next),session:next};
  }
- root.DraftedSectionReview={ledger,changed,blocks,project,decide};
+ // Derived display only: never passed to candidate, ledger or export.
+ function summary(request,data,decisions={}){
+  const ids=changed(request,data),accepted=ids.filter(id=>decisions[id]==='accept'),pending=ids.filter(id=>!decisions[id]),declined=ids.filter(id=>decisions[id]==='decline');
+  const shown=blocks(request,data,decisions,true),active=shown.filter(b=>ids.includes(b.blockId)&&decisions[b.blockId]!=='decline');
+  const clean=value=>String(value||'').replace(/\s+/g,' ').trim();
+  const clip=value=>{const text=clean(value);return text.length>140?text.slice(0,137).replace(/\s+\S*$/,'')+'…':text;};
+  const label=b=>clean(b.title||b.label||b.type);
+  const focus=active.slice(0,3).map(b=>label(b)+': “'+clip(b.text)+'”').join('; ');
+  const shortened=active.filter(b=>clean(b.text).length<clean(request.blocks.find(x=>x.blockId===b.blockId).text).length).map(label);
+  const overview=active.length?(pending.length?'The proposed version presents ':'Your reviewed CV presents ')+focus+(active.length>3?'; with changes in '+(active.length-3)+' other sections.':'.')+(shortened.length?' Wording is more concise in '+shortened.join(', ')+'.':''):'Your existing wording is retained; no changes from this review were accepted.';
+  return {overview,status:'Accepted: '+accepted.length+' · Pending: '+pending.length+' · Declined: '+declined.length,accepted,pending,declined};
+ }
+ root.DraftedSectionReview={ledger,changed,blocks,project,decide,summary};
 })(globalThis);

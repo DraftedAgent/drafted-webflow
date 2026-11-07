@@ -420,3 +420,39 @@
 /* Zoom only editor contents; retain the panel, scroll viewport and toolbars. */
 .workspace-conversation-body .chat-messages > *,
 .workspace-conversation-body .workspace-composer > * {zoom:var(--editor-content-zoom,1);}
+
+.tailor-section-edit {margin:12px 0;padding:12px;background:#f0f7f7;border-radius:6px;}
+.tailor-section-edit label {display:grid;gap:8px;font-size:13px;}
+.tailor-section-edit textarea {width:100%;box-sizing:border-box;font:14px/1.5 system-ui;min-height:80px;}
+.tailor-section-edit button {margin:8px 8px 0 0;}
+
+@media print {.review-sync-reserve,.tailor-section-edit {display:none!important;}}
+
+.discovery-context-summary {margin:12px 0;padding:10px 12px;background:#edf7f6;border-left:2px solid #00868e;font:12px/1.5 system-ui;}
+.discovery-context-summary p {margin:4px 0;}
+
+/* Header-free suggestion review uses the available pane height. */
+@media screen {
+ .section-editor.discovery-enabled .workspace-aligned-panels .workspace-conversation-body .chat-messages:has(>.tailor-suggestion.tailor-review) {padding-top:0!important;}
+ .section-editor .tailor-suggestion.tailor-review {flex:1 1 0;margin:0;}
+ .section-editor .tailor-suggestion.tailor-review .tailor-review-body {padding-top:3px;scroll-padding-block:3px;}
+ .section-editor .tailor-review-body>.tailor-block-change:first-child {margin-top:0;}
+}
+
+@media screen {
+ .section-editor .tailor-block-change {border-color:#829eab;box-sizing:border-box;}
+ .section-editor .tailor-block-change.is-review-hovered {border-color:#007f86;box-shadow:inset 0 0 0 1px #007f86;outline:none;}
+ .section-editor .tailor-section-actions {gap:5.6px;margin:7px 0;}
+ .section-editor .tailor-section-actions button {box-sizing:border-box;min-height:0;height:auto;min-width:0;margin:0;padding:4.9px 9.8px;font:500 9.1px/1.4 system-ui;border-radius:4.2px;}
+}
+
+@media screen {
+ .section-editor #editor-preview-text .cv-block.is-review-hovered {outline:1px solid #007f86;outline-offset:5px;border-radius:4px;box-shadow:none;}
+ .section-editor .tailor-block-change.is-review-hovered {border-color:#007f86;box-shadow:inset 0 0 0 2px #007f86;outline:none;}
+}
+@media print {.is-review-hovered {box-shadow:none!important;}}
+
+@media screen {
+ .section-editor #editor-preview-text[data-review-hover-active=true] .cv-block:not(.is-review-hovered) {outline:none;box-shadow:none;background:transparent;}
+ .section-editor #editor-preview-text[data-review-hover-active=true] .cv-block.is-review-hovered {outline:1px solid #007f86;outline-offset:5px;border-radius:4px;box-shadow:none;}
+}

@@ -1,3 +1,9 @@
+CV-innehåll etapp 2 är lokalt inkopplad och funktionsverifierad med simulerad modellprovider samt faktiska PDF-kontroller: [kontrakt, leverans och verifieringsgränser](CV-CONTENT-STAGE-2.md). Ingen produktionspublicering.
+
+Etapp 1 av CV-innehållspolicy v0.3 är ägargodkänd och lokalt implementerad: [leverans, verifiering och nästa etapps beslutsförslag](CV-CONTENT-STAGE-1.md). Ingen produktionspublicering ingår.
+
+Startup för alla projektchattar och sidokonversationer: läs den gemensamma [DEVELOPMENT RESEARCH RULE](DEVELOPMENT-RESEARCH-RULE.md) med permanent Research-index och åtkomstgränser. Regeln ändrar inte sidokonversationernas begränsningar för implementation.
+
 > DEV-163: owner-approved upload origin addition is active and verified. Local
 > integration on8826 is enabled for manual testing; one bounded batch of8 real
 > workflow requests passed. No other backend change or website publication.
@@ -68,7 +74,7 @@ Senaste planeringsuppdatering DEV-013: erfarenhetsfrågeflödet visar faktiskt a
 
 Repositoryt är den gemensamma källan för kod, kontrakt, systemkarta, planerade flöden och utvecklingslogg. Chatthistorik behövs inte som canonical state. Root README och AGENTS.md ska hänvisa hit. Senaste genomförda produktleverans: DEV-010, PR #1, main merge e2793a5a9871fda288fa29ca7afca6212d0b75b2, publicerad demoändring. Senaste planerade produktarbete: DEV-011 erfarenhetsfrågor före Tailor; dokumenterat men inte implementerat. Läs nyare DEV-poster innan arbete, eftersom denna sammanfattning är en daterad utgångspunkt.
 
-På nytt konto: anslut GitHub med åtkomst till DraftedAgent/drafted-webflow, öppna/klona repositoryt och säkerställ att den branch som innehåller dokumentationen används (dokumentations-PR först, main efter godkänd merge). Be Codex läsa AGENTS.md och dev-system/README.md, därefter alla nio startupdokument: README, DEVELOPMENT-CONTRACT, SYSTEM-MAP, INTEGRATION-MAP, EXECUTION-PLAYBOOK, CONTRACT-DECISIONS, TEST-STRATEGY, CHANGE-LOG och DECISION-LOG. Läs relevanta produktkontrakt och EXPERIENCE-DISCOVERY-FLOW inför frågeflödet. Börja med read-only kontroll av Git-status, aktuell branch och integrationsåtkomst; ingen automatisk deployment eller arbetsfortsättning från historiska godkännanden.
+På nytt konto: anslut GitHub med åtkomst till DraftedAgent/drafted-webflow, öppna/klona repositoryt och säkerställ att den branch som innehåller dokumentationen används (dokumentations-PR först, main efter godkänd merge). Be Codex läsa AGENTS.md och dev-system/README.md, därefter alla nio startupdokument: README, DEVELOPMENT-CONTRACT, SYSTEM-MAP, INTEGRATION-MAP, EXECUTION-PLAYBOOK, CONTRACT-DECISIONS, TEST-STRATEGY, CHANGE-LOG och DECISION-LOG. Läs även [DEVELOPMENT RESEARCH RULE](DEVELOPMENT-RESEARCH-RULE.md), relevanta produktkontrakt och EXPERIENCE-DISCOVERY-FLOW inför frågeflödet. Börja med read-only kontroll av Git-status, aktuell branch och integrationsåtkomst; ingen automatisk deployment eller arbetsfortsättning från historiska godkännanden.
 
 GitHub-anslutning gör kod/dokumentation tillgänglig men är inte samma sak som ett fungerande lokalt checkout eller Git-writeautentisering. Läsrättigheter och leveransrättigheter verifieras separat. Loggar innehåller historiska observationer och godkännanden av specifika genomförda åtgärder; de ger inte en ny session blanket approval att repetera dem.
 
@@ -117,3 +123,8 @@ Canonical local checkout and documentation integration are complete. DEV-003 ver
 One entrypoint should: understand explicit user intent; inspect Git status and relevant repo/Webflow/n8n evidence; classify UI, product behavior, backend, contract, architecture, and operational scope; identify systems and approvals; implement requested local work; validate; append DEV record; flag possible DD; prepare a concrete deployment diff and rollback plan; obtain required production approval; verify deployed versions and behavior.
 
 Use existing verified integrations rather than inventing connectors. Separate inspect, local implementation, validation, approval, deployment, and verification phases. A blocked connection stops dependent work. GitHub Pages asset publication is production-affecting even when Webflow is untouched. No orchestrator skill, agent, automation, hook, or integration has been created in this run.
+
+
+## Förslag till innehållspolicy för granskning
+
+[CV och tailoring i Drafted](CV-CONTENT-POLICY-PROPOSAL.md) och tillhörande [källregister](CV-CONTENT-SOURCES.md), version0.1,2026-11-07, är **förslag och inte godkända styrdokument**. De beskriver CV-urval, formulering, följdfrågor, användarbeslut och framtida kvalitetskontroller. Ingen produktimplementation eller kontraktsändring följer av utkastet.

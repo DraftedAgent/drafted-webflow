@@ -78,6 +78,8 @@ questions.forEach((g,i)=>{const progress=smooth((t-2760-i*250)/650);g.setAttribu
       }else{
         guidance.append(root.DraftedExperienceDiscoveryUI.tailorMoment({hasAnswers:session.accountsForRound().length>0,pending:session.results().pending,moreCount:r.phase==='complete'?session.moreCount():0,onMore:()=>{if(session.continueQuestions()){prepared=false;open();updatePlanIndicator();}},onTailor:()=>onTailor()}));
       }
+      const linked=session.snapshot().answers.filter(a=>a.roundId===r.id&&a.status==='recorded'&&a.revisions.at(-1)?.experienceContext);
+      if(linked.length){const area=el('section');area.className='discovery-context-summary';area.setAttribute('aria-label','Linked employments');for(const a of linked){const item=el('div');item.append(el('p','Answer '+(r.queue.findIndex(q=>q.id===a.questionId)+1)+' linked to: '+root.DraftedExperienceContext.describe(a.revisions.at(-1).experienceContext)));if(onEditExperienceContext)item.append(button('Change linked employment',()=>onEditExperienceContext(a.id,a.currentRevision)));area.append(item);}guidance.append(area);}
       let sourceNotice='';if(sourceTailoring){try{sourceNotice=getSourceNotice();}catch{sourceNotice='Answer details could not be checked. Your CV has not changed.';}}if(sourceNotice){const status=el('p',sourceNotice);status.className='tailor-review-warning';status.setAttribute('role','status');guidance.append(status);}
     }
     function setLabel(label){launcher.replaceChildren(document.createTextNode('Questions'),count);launcher.setAttribute('aria-label',label);}
@@ -121,7 +123,7 @@ questions.forEach((g,i)=>{const progress=smooth((t-2760-i*250)/650);g.setAttribu
       showChat:(processed=false)=>{if(processed){prepared=false;setLabel('Review your answers');}close(true);},
       sourceContext:applications=>planState==='ready'?session.sourceContext(applications):null,
       appendContext:(id,revision,text)=>{session.appendContext(id,revision,text);prepared=false;updateGuidance();},
-      assignExperienceContext:(id,revision,value)=>{session.assignExperienceContext(id,revision,value);prepared=false;updateGuidance();},
+      assignExperienceContext:(id,revision,value,options)=>{session.assignExperienceContext(id,revision,value,options);prepared=false;updateGuidance();},
       adoptRepresentation:(blocks,version)=>{if(planState!=='ready')return;session.adoptRepresentation(blocks,version);fingerprint=JSON.stringify(getContext());updateGuidance();},
       sourceContentRevision:()=>{const s=session.snapshot();return JSON.stringify(s.answers.filter(a=>a.roundId===s.round?.id).map(a=>({id:a.id,revision:a.currentRevision,text:a.revisions.at(-1)?.text,status:a.status})));},
       sourceRevision:()=>JSON.stringify({context:session.snapshot().context?.revision,answers:session.snapshot().answers,phase:session.snapshot().round?.phase,index:session.snapshot().round?.index})};

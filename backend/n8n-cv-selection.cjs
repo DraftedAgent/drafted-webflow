@@ -1,0 +1,12 @@
+ 'use strict';
+const fs=require('node:fs'),path=require('node:path'),provider=require('./cv-selection.cjs');
+function library(){return "const S=(()=>{const module=undefined,globalThis={};\n"+fs.readFileSync(path.join(__dirname,'../webflow/src/cv-version-selection.js'),'utf8')+"\nreturn globalThis.DraftedCvSelection;})();\nconst prompt="+JSON.stringify(provider.prompt)+";\nconst sourceCatalog="+provider.sourceCatalog.toString()+";\nconst validateRoleScope="+provider.validateRoleScope.toString()+";\nconst createHandler="+provider.createHandler.toString()+";\n";}
+function snippets(){const lib=library();return {
+ validate:`{const request=$input.first().json.body??$input.first().json;if(request?.schema==='selection-1'){${lib}
+try{if(!Array.isArray(request.blocks)||!request.blocks.length||Buffer.byteLength(JSON.stringify(request))>24000)throw Error();S.create({versionId:request.versionId,blocks:request.blocks,answers:request.answers||[]});return [{json:{_tailorSources:true,status:200,sourceRequest:request,sourceScope:String($execution.id),llmMessages:[{role:'system',content:prompt+' Return JSON only.'},{role:'user',content:JSON.stringify({...request,sourceCatalog:sourceCatalog(request.blocks).map(({sourceText,...entry})=>({...entry,projectReferences:sourceText.match(/Projekt\\s+\\d+\\.\\d+/gi)||[]}))})}]}}];}catch{return [{json:{_tailorSources:true,status:400,body:{ok:false,error:'Invalid selection request.'}}}];}}}
+`,
+ compose:`{const request=$node['Validate + Normalize'].json.sourceRequest;if(request?.schema==='selection-1'){${lib}
+try{const raw=$input.first().json;if(raw.status!=='completed'||raw.incomplete_details)throw Error();const messages=raw.output.filter(x=>x.type==='message');if(messages.length!==1||messages[0].content.length!==1||messages[0].content[0].type!=='output_text')throw Error();const parsed=JSON.parse(messages[0].content[0].text);const result=await createHandler({model:async()=>parsed})(request);return [{json:result}];}catch{return [{json:{status:422,body:{ok:false,error:'Invalid selection model output.'}}}];}}}
+`};}
+function prepare(workflow){const next=structuredClone(workflow),s=snippets();for(const [name,key]of [['Validate + Normalize','validate'],['Compose source suggestion','compose']]){const node=next.nodes.find(n=>n.name===name);if(!node||node.type!=='n8n-nodes-base.code'||node.parameters.jsCode.includes("request?.schema==='selection-1'"))throw Error('UNEXPECTED_SELECTION_BASELINE');node.parameters.jsCode=s[key]+node.parameters.jsCode;}return next;}
+module.exports={snippets,prepare};

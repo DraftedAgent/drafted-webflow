@@ -46,7 +46,7 @@ Inspect -> resolve affected CDQ gates -> local codex/* implementation and synthe
 
 ## Default execution flow and approval points
 
-1. Read the user request, DEVELOPMENT-CONTRACT, applicable local/site instructions, current Git state, affected contracts and current remote versions. Use inspection credentials by default. Preserve unrelated work and the Drafted-IRP-Research boundary.
+1. Read the user request, DEVELOPMENT-CONTRACT, applicable local/site instructions, current Git state, affected contracts and current remote versions. Use inspection credentials by default. Preserve unrelated work and follow the shared [DEVELOPMENT RESEARCH RULE](DEVELOPMENT-RESEARCH-RULE.md) for research relevance, access and use.
 2. Classify concern (UI, behavior, backend, contract, architecture, operational configuration) and change type (bug fix, implementation, contract, research-informed experiment). Identify affected files/workflow/page IDs, uncertainty and TEST-STRATEGY scenarios. Make a compact plan.
 3. Proceed autonomously with requested local implementation, feature-branch setup, reversible local preparation, mocks, fixtures, local validation and documentation. Routine implementation details require no extra question. If ambiguity affects product intent or a contract, stop only dependent work; continue independent work. CONTRACT-DECISIONS is a pending queue, not approved intent.
 4. Prepare isolated validation/preview. Local network must be denied or intercepted: current frontend constants point at production. Verify the test target and intercept all six routes before loading fixtures. A visual preview alone does not prove backend isolation. Mock model/renderer outputs first. No production execution as a diagnostic shortcut.

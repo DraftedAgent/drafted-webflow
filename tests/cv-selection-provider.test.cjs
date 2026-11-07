@@ -1,0 +1,13 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),P=require('../backend/cv-selection.cjs');
+const input={schema:'selection-1',versionId:'v',blocks:[{blockId:'a',type:'summary',label:'Profile',text:'One fact. One fact.',order:1},{blockId:'b',type:'experience',label:'Role',text:'Other fact.',order:2}],answers:[{revisions:[{revision:1,text:'Full original answer'}]}]};
+test('source-bound provider rejects missing, duplicated and cross-block grouping instructions',async()=>{
+ const good={operations:input.blocks.map(b=>({blockId:b.blockId,action:'keep',text:b.text,reason:'Unique source contribution.'})),exceptionReason:''};let received;
+ const handler=P.createHandler({model:async data=>{received=data;return good;}});assert.equal((await handler(input)).status,200);assert.deepEqual(received.input.answers,input.answers);assert.match(received.prompt,/No grouping across employments/);
+ for(const mutate of [d=>d.operations.pop(),d=>d.operations[1].blockId='a',d=>d.operations[0].dependsOn=['b']]){const bad=structuredClone(good);mutate(bad);assert.equal((await P.createHandler({model:()=>bad})(input)).status,422);}
+});
+test('identity cannot be omitted and shortening cannot invent a larger block',async()=>{
+ const r=structuredClone(input);r.blocks[0].label='Name';const output={operations:r.blocks.map(b=>({blockId:b.blockId,action:b.blockId==='a'?'omit':'keep',text:b.text,reason:'Synthetic reason.'})),exceptionReason:''};assert.equal((await P.createHandler({model:()=>output})(r)).status,422);
+ output.operations[0]={blockId:'a',action:'shorten',text:'A much longer fabricated replacement than the existing source.',reason:'Test'};assert.equal((await P.createHandler({model:()=>output})(input)).status,422);
+});
+
+test('role scope rejects copied paragraphs, foreign project references and dropped responsibility limits',()=>{const P=require('../backend/cv-selection.cjs'),blocks=[{blockId:'a',type:'experience',text:'Projekt 0.1: skrev tester. Jag ansvarade inte för releaser.'},{blockId:'b',type:'experience',text:'Projekt 1.1: granskade API:er.'}];assert.throws(()=>P.validateRoleScope(blocks,[{blockId:'a',action:'shorten',text:'Skrev tester.'}]),/QUALIFIER/);assert.throws(()=>P.validateRoleScope(blocks,[{blockId:'b',action:'keep',text:'Projekt 0.1: skrev tester.'}]),/FOREIGN/);const plain=blocks.map((b,i)=>({...b,text:'Original uppgift '+i}));assert.throws(()=>P.validateRoleScope(plain,plain.map(b=>({...b,text:'Dokumenterade API:er.',action:'keep'}))),/DUPLICATED/);});
