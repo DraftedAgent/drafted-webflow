@@ -1,9 +1,9 @@
 {
   "url": "https://getmedrafted.com",
-  "publishedSourceCommit": "65d3eb695188b1195c3bf577eb40f783ac1c8b43",
-  "workerVersion": "88fd1f67-cd1b-4850-96ad-aed1077d286f",
-  "previousWorkerVersion": "420889ed-7578-4124-bab4-c0fdc14b3051",
-  "publishedUTC": "2026-11-07T11:14:11.073932+00:00",
+  "publishedSourceCommit": "aca2aafdb2c83bbb05f341836603807f4724cabb",
+  "workerVersion": "73d25d9b-a5b8-4d0f-9eb2-25bb82ff5641",
+  "previousWorkerVersion": "88fd1f67-cd1b-4850-96ad-aed1077d286f",
+  "publishedUTC": "2026-11-07T15:52:25.236405+00:00",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
@@ -14,11 +14,11 @@
     "usedState": "preserved; not reset or inspected"
   },
   "workflowExecutionOrModelCalls": 0,
-  "verification": "Exact public root/editor/assets hashes match source commit. Public-origin browser language UI scenarios use intercepted responses; local actual-endpoint section regression covers partial Accept/Decline, persistence, pointer travel and independent pending highlights. No real workflow/model calls.",
-  "rollback": "wrangler rollback 420889ed-7578-4124-bab4-c0fdc14b3051 --config site/hosting/wrangler.jsonc",
+  "verification": "Exact public root/editor/assets hashes verified. Public-origin multi-employment selection/confirmation/single placement/Accept/reload and independent editor/preview wheel/pinch zoom pass with ALL API writes redirected to private local fixtures. Eight automatic-language scenarios verified separately. No real workflow/model executions.",
+  "rollback": "wrangler rollback 88fd1f67-cd1b-4850-96ad-aed1077d286f --config site/hosting/wrangler.jsonc",
   "changesExcluded": [
     "DNS",
-    "all n8n writes/activation",
+    "other n8n workflows/nodes",
     "model/credentials",
     "budget reset",
     "main merge",
@@ -26,25 +26,32 @@
   ],
   "pendingBackend": "Structured selection request candidates are not deployed. Empty selection-only sends remain disabled against current real backend; typed/dictated messages with optional selection remain supported.",
   "tailor": {
-    "sourcesSchemaVersion": "1.4",
-    "workflowId": "H8oAioy58R1v3PvRe3YUa",
-    "previousActiveVersion": "34815fa3-85d7-4102-a8c5-b839e0b158b1",
-    "activeVersion": "f5a51070-ef46-4fcc-9225-f652bb379ca1",
-    "changedCodeNodes": [
+    "activeVersion": "8cd7bef1-e60a-4b48-aee5-3c1598ead795",
+    "previousVersion": "f5a51070-ef46-4fcc-9225-f652bb379ca1",
+    "modelCalls": 0,
+    "changedNodes": [
       {
         "id": "b770f40e-b1a0-49fe-94e6-e003c3f42b41",
         "name": "Validate + Normalize",
-        "SHA256": "788e22a2af0601b43efbfa8d65b5d75c8093970decc7e80fc05ea12d6c63b932"
+        "key": "validate",
+        "beforeSHA256": "788e22a2af0601b43efbfa8d65b5d75c8093970decc7e80fc05ea12d6c63b932",
+        "candidateSHA256": "655f4dc598f80c39c9356853fbd2247c1e393eb689fe28bc4c5040acaf79fea1"
       },
       {
         "id": "tailor-sources-compose-v1",
         "name": "Compose source suggestion",
-        "SHA256": "5d3e3a18ee49bd3e7c35fa5d061f4495d2f38297027dd3b7ee021c9ca9b09766"
+        "key": "compose",
+        "beforeSHA256": "5d3e3a18ee49bd3e7c35fa5d061f4495d2f38297027dd3b7ee021c9ca9b09766",
+        "candidateSHA256": "f214f88991bb177b51bec5939a18b154c38d0808d5b99f7afab9c366e07858eb"
       }
     ],
-    "modelUnchanged": true,
-    "maxOutputTokensUnchanged": 4000
+    "sourcesSchemaVersion": "1.5",
+    "verifiedUTC": "2026-11-07T15:50:30.4475901Z",
+    "workflowExecutions": 0,
+    "workflowId": "H8oAioy58R1v3PvRe3YUa",
+    "model": "gpt-6-luna",
+    "maxOutputTokens": 4000
   },
   "realModelQuality": "Not newly tested: paid test calls were excluded. Existing 4000-token output limit may reject large candidates safely.",
-  "backendRollback": "Separate approval required; refresh/check snapshots and restore only the two Code fields. Restore compatible web version before backend downgrade; never overwrite CV/source data. See dev-system/prepared/tailor-quality/RELEASE-20261104.md."
+  "backendRollback": "Restore prior web version first; inspect intervening changes, decrypt verified before-Deploy snapshot from %LOCALAPPDATA%/Drafted/tailor-multi-release-20261107, restore only the two approved Code fields to prior f5a51070 content and verify active state. Preserve budget and all user data."
 }

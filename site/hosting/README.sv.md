@@ -1,9 +1,11 @@
 # Öppen testversion på getmedrafted.com
 
-Senast verifierad publicering: **DEV-263, 2026-11-07**, källcommit `65d3eb6`,
-Worker-version `88fd1f67-cd1b-4850-96ad-aed1077d286f`. Se `current-release.json`.
-Sektionsvisa Accept/Decline synkas mellan editor och preview; obeslutade förslag
-är markerade oberoende av globala Show changes. Original/Current finns i verktygsraden.
+Senast verifierad publicering: **DEV-267, 2026-11-07**, källcommit `aca2aaf`,
+Worker-version `73d25d9b-a5b8-4d0f-9eb2-25bb82ff5641`. Se `current-release.json`.
+Tailor-profil1.5 har flerval av anställningar, gemensam bekräftelse och relevansstyrd
+placering utan automatisk kopiering till alla val. CV:t ändras först vid Accept.
+Editor och preview har oberoende innehållszoom med Ctrl+mushjul/zoomgest.
+Snabbsvaren No och I don’t know är borttagna.
 
 Aktuell adress från DEV-175: https://getmedrafted.com är öppen utan lösenord,
 inbjudan eller konto. Tidigare inbjudningsuppgifter behövs inte.
@@ -112,3 +114,8 @@ kvalitet och fysisk mobil är inte fullständigt verifierade.
 Automatiskt CV-språk, frivilligt Change-val, helöversättning och källbunden integrering använder de två separat godkända Tailor-noderna. Aktiv backendversion och exakta Code-hashar finns i `tailor-release.json`; webbbyggaren skickar1.4 först med detta verifierade kvitto. Modell/max4000tokens och alla övriga workflows är oförändrade. Äldre profiler behåller sina grenar. Preview ändrar inget; Accept validerar om och applicerar.
 
 Åtta syntetiska språkfall kördes mot publicerade filer på desktop/mobil; alla API-skrivningar ersattes lokalt. Inga betalda testanrop. Riktig modellkvalitet och stora dokument är inte nyverifierade; ogiltig/ofullständig kandidat avvisas. Denna uppdatering skriver inte om tidigare accepterat CV-innehåll automatiskt. Återställningsunderlag/scope finns i `dev-system/prepared/tailor-quality/RELEASE-20261104.md`.
+
+
+## Tailor1.5 — DEV-267
+
+Den separat godkända backenduppdateringen lägger endast till en1.5-gren i två befintliga Code-noder. Tidigare1.4/1.3/legacy-kod är oförändrad. Aktiv version8cd7bef1-e60a-4b48-aee5-3c1598ead795; hashes i tailor-release.json. Modellen,4000-token-gränsen och budgetidentiteten behålls. Ingen ny riktig modellkörning gjordes vid publiceringen. Backendåtergång kräver webåtergång först och kontrollerad återställning av de två Code-fälten från verifierad krypterad snapshot.
