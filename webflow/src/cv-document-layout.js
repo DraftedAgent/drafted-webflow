@@ -34,9 +34,9 @@
     const presentation=structure||global.DraftedCvStructure.create(blocks);
     const role=b=>global.DraftedCvStructure.entry(presentation,b).role;
     const header=sorted.filter(b=>role(b)&&String(b.text||'').trim());
-    for(const kind of (templateId==='studio_v1'?['contact','name','headline']:['name','headline','contact'])){
-      for(const b of header.filter(b=>role(b)===kind))add(kind==='name'?'h1':'p',kind==='name'?'cv-title cv-person-name':kind==='headline'?'cv-headline':'cv-header-contact',String(b.text),String(b.blockId),true,true);
-      if(kind==='headline'&&!header.length)add('p','cv-headline cv-document-label',title,'',true);
+    for(const kind of ['name','headline','contact']){
+      for(const b of header.filter(b=>role(b)===kind)){add(kind==='name'?'h1':'p',kind==='name'?'cv-title cv-person-name':kind==='headline'?'cv-headline':'cv-header-contact',String(b.text),String(b.blockId),true,true);units.at(-1).header=true;}
+      if(kind==='headline'&&!header.length&&title){add('p','cv-headline cv-document-label',title,'',true);units.at(-1).header=true;}
     }
     for (const b of sorted.filter(b=>!header.includes(b))) {
       const id = String(b.blockId), type = String(b.type);
@@ -82,7 +82,8 @@
       }
       flush();
     }
-    return units.map(u=>({...u,kind:sorted.find(b=>String(b.blockId)===u.id)?.type||''}));
+    const firstBody=sorted.find(b=>!header.includes(b)),profileId=firstBody?.type==='summary'?String(firstBody.blockId):null;
+    return units.map(u=>({...u,profile:u.id===profileId,kind:sorted.find(b=>String(b.blockId)===u.id)?.type||''}));
   }
 
   function linkify(pages) {
@@ -117,7 +118,7 @@
     }
   }
 
-  function paginate(units, templateId) {
+  function paginate(units, templateId, portrait) {
     if (!units.length) return [];
     const measure = node('div', 'cv-layout cv-layout-measure');
     measure.dataset.cvDesign = templateId;
@@ -129,13 +130,33 @@
       const page = node('article', 'cv-page');
       content = node('div', 'cv-page-content');
       page.append(content); measure.append(page); pages.push(page);
+      if(portrait&&pages.length===1){
+        const header=headerContent().parentElement;
+        const photo=global.DraftedCvPortrait.frame(portrait,templateId);
+        header.classList.add('has-cv-portrait');
+        header.style.setProperty('--portrait-width',photo.style.getPropertyValue('--portrait-width'));
+        header.append(photo);
+      }
     }
+    function headerContent(){
+      let header=content.querySelector(':scope > .cv-header');
+      if(!header){
+        header=node('header','cv-header');
+        header.append(node('div','cv-header-content'));
+        content.prepend(header);
+      }
+      return header.firstElementChild;
+    }
+    function hasText(){return !!content.querySelector('.cv-block,.cv-document-heading');}
     function append(unit, text = unit.text) {
-      let block = content.lastElementChild;
+      const target=unit.header||unit.profile?headerContent():content;
+      let block = target.lastElementChild;
       if (!block || block.dataset.blockId !== unit.id || !unit.id) {
         block = node('section', unit.id ? 'cv-block' : 'cv-document-heading');
         if (unit.id) {block.dataset.blockId = unit.id;block.dataset.kind=unit.kind;}
-        content.append(block);
+        if(unit.header)block.classList.add('cv-header-block');
+        if(unit.profile)block.classList.add('cv-header-profile');
+        target.append(block);
       }
       const el = node(unit.tag, unit.cls, text);
       if (unit.source) el.dataset.cvSource = unit.id;
@@ -147,6 +168,7 @@
       container.append(el);
       return el;
     }
+
     function remove(el) {
       const parent = el.parentElement;
       el.remove();
@@ -184,7 +206,7 @@
       for (let i = 0; i < units.length; i++) {
         const original = units[i];
         // Keep heading chains with at least two measured lines of their body.
-        if (original.keep && content.childElementCount) {
+        if (original.keep && hasText()) {
           const probes = []; let j = i;
           while (j < units.length && units[j].keep) probes.push(append(units[j++]));
           let keepFits = fits();
@@ -198,7 +220,7 @@
         }
         let unit = original;
         while (unit.text) {
-          const hadContent = content.childElementCount > 0;
+          const hadContent = hasText();
           const el = append(unit);
           if (fits()) break;
           remove(el);
@@ -282,9 +304,9 @@
     host.classList.add('cv-layout');
     delete host.dataset.pageCount;
     host.dataset.layoutState = 'loading'; host.setAttribute('aria-busy', 'true'); model.onState?.('loading');
-    viewer.pending = (model.blocks.length ? fontsReady() : Promise.resolve()).then(() => {
+    viewer.pending = Promise.all([model.blocks.length ? fontsReady() : Promise.resolve(),model.portrait?global.DraftedCvPortrait.decode(model.portrait.src):Promise.resolve()]).then(() => {
       if (generation !== viewer.generation) return;
-      const pages = model.blocks.length ? paginate(unitsFromBlocks(model.blocks, model.title, templateId, model.structure), templateId) : [];
+      const pages = model.blocks.length ? paginate(unitsFromBlocks(model.blocks, model.title, templateId, model.structure), templateId, model.portrait) : [];
       host.dataset.cvDesign = templateId;
       host.replaceChildren(...pages.map(page => { const slot = node('div', 'cv-page-slot'); slot.append(page); return slot; }));
       viewer.scale(); host.dataset.pageCount = String(pages.length); host.dataset.layoutState = 'ready';

@@ -1,0 +1,26 @@
+{
+  "purpose": "Unmodified local Hunspell dictionaries; browser-only spelling, no user text sent externally.",
+  "sources": [
+    {
+      "code": "en",
+      "package": "dictionary-en",
+      "version": "4.0.0",
+      "license": "(MIT AND BSD)",
+      "repository": "https://github.com/wooorm/dictionaries/tree/main/dictionaries/en"
+    },
+    {
+      "code": "en-gb",
+      "package": "dictionary-en-gb",
+      "version": "3.0.0",
+      "license": "(MIT AND BSD)",
+      "repository": "https://github.com/wooorm/dictionaries/tree/main/dictionaries/en-GB"
+    },
+    {
+      "code": "sv",
+      "package": "dictionary-sv",
+      "version": "4.0.0",
+      "license": "LGPL-3.0",
+      "repository": "https://github.com/wooorm/dictionaries/tree/main/dictionaries/sv"
+    }
+  ]
+}

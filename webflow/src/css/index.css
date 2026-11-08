@@ -32,6 +32,7 @@
 
 
 @import url("./components/cv-document-layout.css");
+@import url("./components/cv-portrait.css");
 @import url("./components/editor-theme.css");
 @import url("./components/tailor-review.css");
 @import url("./components/experience-context.css");

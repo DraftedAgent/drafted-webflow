@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "dictionary-en": "4.0.0",
+    "dictionary-en-gb": "3.0.0",
+    "dictionary-sv": "4.0.0",
+    "nspell": "2.1.5"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "private": true,
+  "scripts": {
+    "build": "node build.cjs"
+  }
+}

@@ -8,6 +8,7 @@
     const pages=[...host.querySelectorAll('.cv-page')];
     if(!pages.length||!stylesheet)throw Error('The document is not ready to print.');
     const copy=host.cloneNode(true);copy.style.cssText='width:210mm;position:static;visibility:visible';copy.removeAttribute('aria-hidden');
+    copy.querySelectorAll('[data-cv-editor-only]').forEach(el=>el.remove());
     copy.querySelectorAll('.is-selected,.is-tailor-reviewed').forEach(el=>el.classList.remove('is-selected','is-tailor-reviewed'));
     copy.querySelectorAll('.cv-page').forEach(el=>el.style.transform='none');
     copy.querySelectorAll('.cv-page-slot').forEach(el=>{el.style.width='210mm';el.style.height='297mm';});
@@ -26,6 +27,7 @@
         const fonts=await Promise.all([doc.fonts.load('14px "Drafted Sans"'),doc.fonts.load('700 14px "Drafted Sans"')]);
         if(fonts.some(list=>!list.length))throw Error('Document fonts are unavailable.');
         await doc.fonts.ready;
+        await Promise.all([...doc.images].map(image=>image.decode()));
         await new Promise(resolve=>frame.contentWindow.requestAnimationFrame(()=>frame.contentWindow.requestAnimationFrame(resolve)));
       })(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Print preparation timed out. Please try again.')),15000);})]);}finally{clearTimeout(timer);}
       await global.DraftedCvLayout.ready(host);
@@ -36,7 +38,7 @@
       return frame;
     }catch(error){frame.remove();throw error;}
   }
-  function create({host,controls,getTitle,getEdited}){
+  function create({host,controls,getTitle,getEdited,getError}){
     const stylesheet=document.querySelector('link[href*="drafted-editor.css"]')?.href;
     const button=global.DraftedWorkspaceView.iconButton('Export PDF','workspace-print-button','<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>');button.disabled=true;
     const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
@@ -47,6 +49,7 @@
       if(button.disabled||host.dataset.cvPreviewMode==='suggested')return;
       busy=true;refresh();status.hidden=true;status.textContent='';let frame,temporary;
       try{
+        const validation=getError?.();if(validation)throw Error(validation);
         if(host.dataset.cvPreviewMode==='original'){
           if(!getEdited)throw Error('Edited CV is unavailable.');
           const model=getEdited(),stamp=JSON.stringify(model);

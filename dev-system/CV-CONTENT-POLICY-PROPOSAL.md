@@ -1,5 +1,8 @@
 # Förslag till styrdokument för CV och tailoring i Drafted
 
+Ägarbeställt tillägg 2026-11-08: [porträtt i CV, bildlösa varianter och bildkrav](CV-PORTRAIT-POLICY.md).
+Detta tillägg ändrar inte status för övriga kvarstående förslag nedan.
+
 **Status: Riktningen i v0.3 och den avgränsade första implementationen godkända av ägaren 2026-11-07. Kvarstående beslut och senare etapper är fortsatt förslag – ej godkända. Version 0.3.**
 
 Drafted ska hjälpa användaren att skapa ett relevant, trovärdigt och lättbedömt CV för en viss ansökan. CV:t är en vald representation av yrkeserfarenheten, inte hela personens professionella underlag. Tydlighet, faktatrohet och relevant urval går före maximalt innehåll, ett visst punktantal eller en viss mängd resultatmått.

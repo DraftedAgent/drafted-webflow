@@ -208,6 +208,7 @@ function setEditorProcessing(isOn) {
     document.getElementById("editor-preview-text") ||
     document.querySelector(".cv-document-text");
   const editorInput = document.getElementById("editor-input");
+  window.DraftedSpelling?.configure({getProtectedText:()=>JSON.stringify(documentBlocksState||[])+"\n"+(activeJobText||"")});
   const editorApplyBtn = document.getElementById("editor-send");       
   const editorChatBtn  = document.getElementById("editor-chat-send");   
   const contextChipEl  = document.getElementById("context-chip");
@@ -512,6 +513,8 @@ maybeShowTailor();
 
   function handleJobAdInput() {
     if (!jobAdInputEl) return;
+    portraitController?.jobChanged();
+    renderDocument(documentTextState);
     workspaceContextRevision++;
     jobContextReqSeq += 1;
     invalidateContextSuggestions();
@@ -732,7 +735,7 @@ maybeShowTailor();
          const section=body.querySelector('[data-review-block-id="'+CSS.escape(id)+'"]');if(!section)return;
          section.querySelector('.tailor-section-edit')?.remove();
          const form=add('form','',section);form.className='tailor-section-edit';
-         const label=add('label','What should change in this suggestion?',form),input=add('textarea','',label);input.maxLength=4000;input.rows=3;
+         const label=add('label','What should change in this suggestion?',form),input=add('textarea','',label);input.maxLength=4000;input.rows=3;input.dataset.draftedSpelling='suggestion:'+request.cvVersionId+':'+id;
          input.value=sectionSession.editDrafts?.[id]||'';input.addEventListener('input',()=>{(sectionSession.editDrafts??={})[id]=input.value;});
          const notice=add('p','Describe the change. Your CV stays unchanged until you accept.',form);notice.setAttribute('role','status');
          const update=add('button','Update suggestion',form);update.type='submit';const cancel=add('button','Cancel',form);cancel.type='button';
@@ -1532,6 +1535,7 @@ function setApplyLabel() {
   let documentTitle = "";
   // Presentation only: never part of CV/proposal snapshots or discovery context.
   let selectedCvDesign = 'classic_v1';
+  let portraitController = null;
   let previewView = null;
   let previewZoom = null;
   let browserPrint = null;
@@ -1607,11 +1611,12 @@ function setApplyLabel() {
       renderDocument(documentTextState);
     });
     designControls.append(designLabel,designSelect);previewTitle.append(designControls);
+    portraitController=DraftedCvPortrait.create({host:editorPreviewEl,getJob:()=>activeJobText,getDesign:()=>selectedCvDesign,onChange:()=>renderDocument(documentTextState)});
     previewZoom=DraftedCvPreviewZoom.create({host:editorPreviewEl,controls:previewTitle});
     const previewCard=editorPreviewEl.closest('.cv-card');
     if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
     documentComparison=DraftedCvDocumentComparison.create({host:editorPreviewEl,controls:previewTitle,getEdited:()=>tailorCvPreview?.model()||({blocks:documentBlocksState||[],cvTitle:documentTitle}),getCompared:()=>({blocks:documentBlocksState||[],cvTitle:documentTitle}),render:()=>renderDocument(documentTextState)});
-    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getTitle:()=>documentTitle,getEdited:()=>({blocks:deepClone(documentBlocksState||[]),title:documentTitle,templateId:selectedCvDesign,structure:DraftedCvStructure.create(documentComparison?.original()?.blocks||documentBlocksState||[])})});
+    browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getError:()=>portraitController?.error(),getTitle:()=>documentTitle,getEdited:()=>({portrait:portraitController?.model(),blocks:deepClone(documentBlocksState||[]),title:documentTitle,templateId:selectedCvDesign,structure:DraftedCvStructure.create(documentComparison?.original()?.blocks||documentBlocksState||[])})});
     const exportButton=previewTitle.querySelector('.workspace-print-button');
     const exportLabel=document.createElement('span');exportLabel.className='workspace-action-label';exportLabel.textContent='Export PDF';exportButton.append(exportLabel);
     actions.append(exportButton,previewTitle.querySelector('.workspace-print-status'));
@@ -1860,7 +1865,7 @@ function setApplyLabel() {
       workspaceTitle.title = documentTitle || 'Untitled CV';
     }
     return DraftedCvLayout.render(editorPreviewEl, {
-      structure:DraftedCvStructure.create(documentComparison?.original()?.blocks||documentBlocksState||[]), blocks: presentation?.blocks || documentBlocksState || [], title: presentation?.cvTitle ?? documentTitle ?? '', templateId: selectedCvDesign,
+      structure:DraftedCvStructure.create(documentComparison?.original()?.blocks||documentBlocksState||[]), blocks: presentation?.blocks || documentBlocksState || [], title: presentation?.cvTitle ?? documentTitle ?? '', templateId: selectedCvDesign,portrait:portraitController?.model(),
       onState(state) {
         previewView?.setState(state);
         previewZoom?.setState(state);
@@ -1869,6 +1874,7 @@ function setApplyLabel() {
         if(counter){counter.setAttribute('aria-busy',String(state==='loading'));if(state==='loading')counter.textContent='Updating pages…';else if(state==='error')counter.textContent='Page count unavailable';}
       },
       onLayout(count) {
+        portraitController?.mount();
         const heading = document.querySelector('.workspace-preview-title');
         if (heading) {
           let counter = heading.closest('.cv-card')?.querySelector('.workspace-page-count');
@@ -2250,6 +2256,7 @@ function updateContextChip() {
     // A response for a file replaced during upload must not restore its CV/questions.
     if (getFileInput()?.files?.[0] !== file) return;
     discoveryCvFile = file;
+    await portraitController?.reset();
     cvLanguageConfirmed=false;
     DraftedCvLayout.setZoom(editorPreviewEl,1);
     workspaceContextRevision++;
@@ -2883,7 +2890,7 @@ function bindPdfDownloadButton() {
   function captureWorkspace(){
     if(document.documentElement.dataset.workspacePage==='editor'&&document.documentElement.dataset.workspaceReady==='true'&&!document.documentElement.dataset.workspaceBooting)workspaceReading={chat:chatMessagesEl.scrollTop,document:editorPreviewEl.closest('.cv-document')?.scrollTop||0};
     const cv=documentBlocksState?.length?serialSnapshot(snapshotCurrentState()):null;
-    return {cv,tailorCompletionContext,cvSelection:cvSelectionState,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,cvLanguageConfirmed,design:selectedCvDesign,chatHistory,
+    return {cv,portrait:portraitController?.snapshot(),tailorCompletionContext,cvSelection:cvSelectionState,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,cvLanguageConfirmed,design:selectedCvDesign,chatHistory,
       messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card), :scope > .suggestion-receipt')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent,receiptId:el.dataset.receiptId||null,association:el.dataset.proposalAssociation||null})),
       activeSelectionRequest,appliedChatReceipts,selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
       jobText:activeJobText,jobDraft:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
@@ -2896,6 +2903,7 @@ function bindPdfDownloadButton() {
       zoom:document.querySelector('.workspace-zoom-fit')?.getAttribute('aria-pressed')==='true'?'fit':Number(document.querySelector('.workspace-zoom-slider')?.value||100)/100};
   }
   async function restoreWorkspace(saved,files){
+    await portraitController?.restore(saved.portrait,files.portrait,saved.design);
     workspaceContextRevision=Number.isInteger(saved.contextRevision)?saved.contextRevision:0;
     workspaceReading=saved.scroll||{chat:0,document:0};
     // Restore real file bytes through DataTransfer, never a persisted blob URL.
@@ -2944,4 +2952,4 @@ function bindPdfDownloadButton() {
     buildStateFromBlocks(blocks,{preserveCanonical:true});discoveryController?.adoptRepresentation(documentBlocksState,cvVersionId);
    }});
 
-  onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,commitJobDraft:async()=>{const next=jobAdInputEl.value;if(next===activeJobText)return;activeJobText=next;handleJobAdInput();clearJobContextDebounce();if(next.trim().length>=200)await runJobContextExtract();},sourceFile:()=>discoveryCvFile,adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;if(!coverageController?.model.restoreBlocked)coverageController?.sync();}});});
+  onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,commitJobDraft:async()=>{const next=jobAdInputEl.value;if(next===activeJobText)return;activeJobText=next;handleJobAdInput();clearJobContextDebounce();if(next.trim().length>=200)await runJobContextExtract();},sourceFile:()=>discoveryCvFile,portraitFile:()=>portraitController?.file(),adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;if(!coverageController?.model.restoreBlocked)coverageController?.sync();}});});

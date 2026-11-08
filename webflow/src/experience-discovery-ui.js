@@ -117,7 +117,7 @@
         if(busy||r.phase==='interpreting')container.append(el('p','I am reading your answer…'));
         else{
           if(r.phase==='correct'&&!drafts.has(q.id)){const answer=session.snapshot().answers.find(a=>a.id===q.answerId);if(answer)drafts.set(q.id,answer.revisions.at(-1).text);}
-          const label=el('label','Share a concrete example: what you did and what changed. Include numbers or results if you have them.'),input=el('textarea');input.id='discovery-answer-'+mountedRound+'-'+q.id;label.htmlFor=input.id;input.rows=4;input.value=drafts.get(q.id)||'';input.addEventListener('input',()=>drafts.set(q.id,input.value));
+          const label=el('label','Share a concrete example: what you did and what changed. Include numbers or results if you have them.'),input=el('textarea');input.id='discovery-answer-'+mountedRound+'-'+q.id;label.htmlFor=input.id;input.dataset.draftedSpelling='question:'+mountedRound+':'+q.id;input.rows=4;input.value=drafts.get(q.id)||'';input.addEventListener('input',()=>drafts.set(q.id,input.value));
           const saved=session.snapshot().answers.find(a=>a.id===q.answerId)?.revisions.at(-1)?.experienceContext;
           if(saved)container.append(el('p','Saved context: '+root.DraftedExperienceContext.describe(saved),'discovery-saved-context'));
           const answerHeader=el('div',null,'discovery-answer-header');

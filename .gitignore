@@ -1,4 +1,5 @@
 webflow/dist/
+/tools/spelling/node_modules/
 /tmp/pdfs/
 /output/pdf/
 /site/dist/
