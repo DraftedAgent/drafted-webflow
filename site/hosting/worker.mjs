@@ -1,6 +1,6 @@
 import Coverage from '../../webflow/src/cv-coverage-contract.js';
 import {inspectWav} from '../../backend/dictation-wav.cjs';
-// Open test gateway. No CVs, request bodies or credentials are stored.
+// Public gateway. No CVs, request bodies or credentials are stored.
 const upstream = 'https://drafted.app.n8n.cloud';
 const allowed = new Set(['webflow-upload-cv','webflow-editor-rewrite','webflow-chat-cv','webflow-export-pdf','webflow-jobcontext-extract','tailor-cv','webflow-experience-discovery'].map(x=>'/webhook/'+x));
 const publicOrigin = 'https://getmedrafted.com';
@@ -60,7 +60,13 @@ export default {async fetch(request,env){
 }};
 
 export class TestBudget {
-  constructor(state){this.state=state;}
+  constructor(state,env={}){
+    this.state=state;
+    // Enable only after the real OpenAI organization hard limit is verified.
+    // OpenAI meters actual monthly cost; this object retains abuse controls and
+    // the existing lifetime request counter for audit, without resetting it.
+    this.providerMonthly=env.COST_CONTROL==='openai-monthly'&&env.OPENAI_MONTHLY_BUDGET_USD==='15';
+  }
   async fetch(request){
     const {ticket}=await request.json();if(typeof ticket!=='string')return new Response('Invalid ticket',{status:400});
     const reserve=new URL(request.url).pathname==='/reserve';
@@ -69,8 +75,8 @@ export class TestBudget {
       data.recent=data.recent.filter(t=>t>now-60000);
       for(const [id,expiry] of Object.entries(data.leases))if(expiry<now)delete data.leases[id];
       if(reserve){
-        if(data.used>=100)return new Response('The test round has reached its request limit. Contact the test organiser.',{status:429});
-        if(Object.keys(data.leases).length>=2||data.recent.length>=20)return new Response('The test service is busy. Please wait before trying again.',{status:429});
+        if(!this.providerMonthly&&data.used>=100)return new Response('The test round has reached its request limit. Contact the test organiser.',{status:429});
+        if(Object.keys(data.leases).length>=2||data.recent.length>=20)return new Response('The service is busy. Please wait before trying again.',{status:429});
         data.used++;data.recent.push(now);data.leases[ticket]=now+300000;
       }else delete data.leases[ticket];
       await tx.put('budget',data);return new Response('OK');

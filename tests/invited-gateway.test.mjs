@@ -54,6 +54,20 @@ test('anonymous visitors/new tabs share the same persistent budget and kill swit
   assert.equal(calls,1);assert.equal((await env.db.get('budget')).used,100);assert.deepEqual([...new Set(ids)],['invited-test-round-1']);
  }finally{globalThis.fetch=oldFetch;}
 });
+
+test('verified provider monthly budget replaces lifetime cap without resetting audit or abuse limits',async()=>{
+ const db=storage(),config={COST_CONTROL:'openai-monthly',OPENAI_MONTHLY_BUDGET_USD:'15'};
+ await db.put('budget',{used:100,recent:[],leases:{}});
+ let gate=new TestBudget({storage:db},config);
+ const call=(route,ticket)=>gate.fetch(new Request('https://budget/'+route,{method:'POST',body:JSON.stringify({ticket})}));
+ assert.equal((await call('reserve','a')).status,200);assert.equal((await db.get('budget')).used,101);
+ assert.equal((await call('reserve','b')).status,200);assert.equal((await call('reserve','c')).status,429);
+ await call('release','a');await call('release','b');
+ gate=new TestBudget({storage:db},config);assert.equal((await call('reserve','restart')).status,200);await call('release','restart');
+ let state=await db.get('budget');state.recent=Array(20).fill(Date.now());await db.put('budget',state);assert.equal((await call('reserve','rate')).status,429);
+ state.recent=[];await db.put('budget',state);gate=new TestBudget({storage:db},{COST_CONTROL:'openai-monthly',OPENAI_MONTHLY_BUDGET_USD:'150'});assert.equal((await call('reserve','unverified')).status,429);
+ assert.equal((await db.get('budget')).used,103);
+});
 import C from '../webflow/src/cv-coverage-contract.js';
 import B from '../backend/cv-coverage.cjs';
 import Fixture from '../backend/cv-coverage-fixture.cjs';
