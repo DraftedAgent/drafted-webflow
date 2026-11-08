@@ -35,6 +35,10 @@
     "durableObjectIdentity": "invited-test-round-1",
     "perMinute": 20,
     "concurrent": 2,
-    "publication": "pending"
+    "publication": "verified",
+    "workerVersion": "fdaeb92e-6e51-454a-bf0a-6f897ebfa6be",
+    "previousWorkerVersion": "3ef83749-1166-45cd-a62d-5644abb4d863",
+    "sourceCommit": "9dda837",
+    "verification": "13 isolated gateway tests pass; deployed bindings confirm provider-monthly/15USD; exact existing public assets, routes, invalid-input/origin guards verified; no real model calls."
   }
 }

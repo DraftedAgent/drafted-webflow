@@ -1,7 +1,7 @@
 # Öppen testversion på getmedrafted.com
 
-Senast verifierad publicering: **DEV-300, 2026-11-07**, webbcommit `8b7ae15`,
-Worker-version `3ef83749-1166-45cd-a62d-5644abb4d863`. Se `current-release.json`.
+Senast verifierad publicering: **DEV-303, 2026-11-08**, webbcommit `8b7ae15`, gatewaycommit `9dda837`,
+Worker-version `fdaeb92e-6e51-454a-bf0a-6f897ebfa6be`. Se `current-release.json`.
 Tailor-profil1.5 har flerval av anställningar, gemensam bekräftelse och relevansstyrd
 placering utan automatisk kopiering till alla val. CV:t ändras först vid Accept.
 Editor och preview har oberoende innehållszoom med Ctrl+mushjul/zoomgest.
@@ -13,7 +13,8 @@ inbjudan eller konto. Tidigare inbjudningsuppgifter behövs inte.
 Samma Cloudflare Worker, Durable Object-binding, klass, migration och
 `invited-test-round-1` behålls. Det interna namnet är avsiktligt oförändrat
 så att den redan förbrukade budgeten inte nollställs vid övergången.
-Alla anonyma API-anrop delar100anrop totalt,20per minut och2samtidiga.
+Alla anonyma API-anrop delar20per minut och2samtidiga. Från DEV-303 gäller
+OpenAI-organisationens verifierade15USD/månad i stället för det historiska100-anropstaket.
 Budgeten finns på servern och är oberoende av cookies, flikar och webbläsarlagring.
 Ingen automatisk återställning. Befintliga direkta n8n-webhooks ligger fortsatt
 utanför denna gateways budget. Ingen n8n-/DNS-ändring ingår i DEV-174.
@@ -135,3 +136,6 @@ Krypterade före/efter-snapshots är verifierade. Lokala tester och exakt server
 Ägaren godkänner200kr/månad för Drafteds API-användning. I den befintliga OpenAI-organisationen Drafted har15USD/månad sparats med Limit enforced (tidigare100USD utan enforcement). Det motsvarar cirka185kr med25% planeringsmarginal för moms enligt ECB2026-11-06. Momssatsen är en konservativ budgetförutsättning, inte granskad fakturauppgift. Växelkurs/kortavgifter och OpenAI:s fördröjda enforcement gör att ett exakt SEK-tak inte kan garanteras. Se monthly-budget.json. Ingen kredit köptes; abonnemang, betalningsmetod, auto-recharge och credentials ändrades inte.
 
 Med COST_CONTROL=openai-monthly och OPENAI_MONTHLY_BUDGET_USD=15 ersätter den verifierade OpenAI-gränsen gatewayns gamla100-anropstak. OpenAI mäter faktisk API-kostnad och återställer månadsgränsen på sin egen månadscykel; gatewayn uppskattar inte kostnader per anrop.20/minut och2 samtidiga samt kill switch behålls. Befintlig Durable Object-identitet och räknare bevaras för audit. Utan verifierad driftskonfiguration gäller det äldre stängda läget. För framtida ändringar ska den faktiska hårda OpenAI-gränsen verifieras före motsvarande serverkonfiguration/publicering.
+
+
+DEV-303: budgetändringen är publicerad och verifierad på getmedrafted.com. Workerfdaeb92e-6e51-454a-bf0a-6f897ebfa6be, föregående3ef83749-1166-45cd-a62d-5644abb4d863. Samtliga webbassets är oförändrade; bara gatewayns budgetläge är ändrat. Befintliga secrets/binding/migration/namespace behålls.13 isolerade tester och publik byte-/guard-verifiering passerar, inga nya modellkörningar. Rollback av Worker ska behålla OpenAI15USD hårda gräns.

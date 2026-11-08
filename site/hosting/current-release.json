@@ -1,21 +1,24 @@
 {
   "url": "https://getmedrafted.com",
   "publishedSourceCommit": "8b7ae15917b8c78f909709c56ff7798b315795e9",
-  "workerVersion": "3ef83749-1166-45cd-a62d-5644abb4d863",
-  "previousWorkerVersion": "73d25d9b-a5b8-4d0f-9eb2-25bb82ff5641",
-  "publishedUTC": "2026-11-07T22:42:02.504Z",
+  "workerVersion": "fdaeb92e-6e51-454a-bf0a-6f897ebfa6be",
+  "previousWorkerVersion": "3ef83749-1166-45cd-a62d-5644abb4d863",
+  "publishedUTC": "2026-11-08T09:02:14.030Z",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
     "perMinute": 20,
     "concurrent": 2,
-    "total": 100,
+    "total": null,
     "sharedBy": "All seven existing API routes plus coverage and dictation",
-    "usedState": "preserved; not reset or inspected"
+    "usedState": "Legacy lifetime counter and identity preserved; cap replaced by actual OpenAI monthly cost enforcement.",
+    "costControl": "OpenAI organization hard monthly cap",
+    "monthlyUSD": 15,
+    "ownerMonthlyBudgetSEK": 200
   },
   "workflowExecutionOrModelCalls": 0,
   "verification": "Exact public root/editor/JS/CSS/config hashes verified. Public-origin linked answer, two employment selections, single pending placement in preview, Accept, holistic summary and reload pass with ALL API writes redirected to private local fixtures. Intro/Skip/Dictate/Send geometry verified on desktop and narrow view. Actual n8n saved/active definitions compared against exact two-code-node Tailor and one-code-node Discovery candidates. No real workflow/model executions.",
-  "rollback": "wrangler rollback 73d25d9b-a5b8-4d0f-9eb2-25bb82ff5641 --config site/hosting/wrangler.jsonc",
+  "rollback": "wrangler rollback 3ef83749-1166-45cd-a62d-5644abb4d863 --config site/hosting/wrangler.jsonc; retain OpenAI15USD enforced limit (do not restore previous100USD unenforced setting).",
   "changesExcluded": [
     "DNS",
     "models/token settings/credentials",
@@ -78,5 +81,7 @@
     "policyStage": 1,
     "workflowExecutions": 0,
     "previousVersion": "5e6ef2c3-8f4f-4c51-8ee0-8f5937d5ada5"
-  }
+  },
+  "workerSourceCommit": "9dda837",
+  "monthlyBudget": "monthly-budget.json"
 }
