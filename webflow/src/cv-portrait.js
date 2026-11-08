@@ -7,17 +7,19 @@
  const designConfig=id=>designs.find(d=>d.id===id)||designs[0];
  // Migrate a legacy global choice only with an explicitly known active template.
  function normalize(value,legacyDesign){
-  const shapeOverrides={};
+  const shapeOverrides={},sizeOverrides={};
   if(Object.prototype.hasOwnProperty.call(value||{},'shapeOverrides')){
    for(const design of designs){const shape=value.shapeOverrides?.[design.id];if(shapes.includes(shape))shapeOverrides[design.id]=shape;}
   }else if(designs.some(d=>d.id===legacyDesign)){
    const legacy=Object.prototype.hasOwnProperty.call(value||{},'shapeOverride')?value.shapeOverride:value?.shape;
    if(shapes.includes(legacy))shapeOverrides[legacyDesign]=legacy;
   }
-  return {enabled:value?.enabled===true,shapeOverrides,x:clamp(value?.x,0,100,50),y:clamp(value?.y,0,100,50),zoom:clamp(value?.zoom,1,3,1)};
+  for(const design of designs){const size=value?.sizeOverrides?.[design.id];if(Number.isFinite(size))sizeOverrides[design.id]=clamp(size,18,45,design.photoSizeMm);}
+  return {enabled:value?.enabled===true,shapeOverrides,sizeOverrides,x:clamp(value?.x,0,100,50),y:clamp(value?.y,0,100,50),zoom:clamp(value?.zoom,1,3,1)};
  }
  const effectiveShape=(value,design)=>normalize(value,design).shapeOverrides[design]??designConfig(design).defaultPhotoShape;
- const radius=(shape,design,scaled=false)=>shape==='circle'?'50%':shape==='rounded'?(scaled?6/(designConfig(design).photoSizeMm*96/25.4)*100+'%':'6px'):'0';
+ const photoSize=(value,design)=>normalize(value).sizeOverrides[design]??designConfig(design).photoSizeMm;
+ const radius=(shape,design,scaled=false,value)=>shape==='circle'?'50%':shape==='rounded'?(scaled?6/(photoSize(value,design)*96/25.4)*100+'%':'6px'):'0';
 
  function requirements(text=''){
   const clauses=String(text).split(/(?<=[.!?])\s+|\n/).map(s=>s.trim()).filter(Boolean),found=[];
@@ -38,7 +40,7 @@
   return {kind:kinds.has('required')&&kinds.has('forbidden')?'conflict':kinds.has('forbidden')?'forbidden':kinds.has('required')?'required':'optional',sources:found};
  }
  function frame(photo,design='classic_v1'){
-  const w=designConfig(design).photoSizeMm,h=w;
+  const w=photoSize(photo,design),h=w;
   const el=document.createElement('figure');el.className='cv-portrait cv-photo-slot';el.style.setProperty('--portrait-width',w+'mm');el.style.setProperty('--portrait-height',h+'mm');
   const image=document.createElement('img');image.alt='Portrait';image.src=photo.src;
   const crop=normalize(photo);
@@ -49,19 +51,36 @@
  async function decode(src){const image=new Image();image.src=src;await image.decode();if(!image.naturalWidth||!image.naturalHeight||image.naturalWidth*image.naturalHeight>40000000)throw Error('Choose an image smaller than 40 megapixels.');return {width:image.naturalWidth,height:image.naturalHeight};}
  function create({host,getJob,getDesign,onChange}){
   let state=normalize(),file=null,src=null,size=null,dialog=null,restoreIssue='';
+  const sizeHistory=new Map();
   const rule=()=>requirements(getJob());
   function model(){return file&&src&&state.enabled&&rule().kind!=='forbidden'?{...state,...size,src}:null;}
   function error(){const r=rule();return r.kind==='conflict'?'The application gives conflicting photo instructions. Check the job description before exporting.':r.kind==='required'&&!model()?'This application asks for a photo in the CV. Add a photo before exporting.':state.enabled&&!file&&r.kind!=='forbidden'?'Your photo is unavailable. Choose it again or remove it from this CV.':'';}
   function mount(){
-   host.querySelectorAll('[data-portrait-action]').forEach(n=>n.remove());
+   host.querySelectorAll('[data-portrait-action],.cv-photo-tools').forEach(n=>n.remove());
    const page=host.querySelector('.cv-page');if(!page)return;
    const portrait=page.querySelector('.cv-portrait'),button=document.createElement('button');button.type='button';button.dataset.portraitAction=portrait?'change':'add';button.dataset.cvEditorOnly='true';
-   if(portrait){button.className='cv-portrait-edit';button.setAttribute('aria-label','Change photo');button.title='Change photo';portrait.append(button);}
+   if(portrait){button.className='cv-portrait-edit';button.setAttribute('aria-label','Change photo');button.title='Change photo';portrait.append(button);mountResize(page,portrait);}
    else{button.className='cv-portrait-add';button.textContent='Add photo';const style=getComputedStyle(page);button.style.top=Math.max(4,parseFloat(style.paddingTop)-34)+'px';button.style[['studio_v1','editorial_v1'].includes(getDesign())?'left':'right']=style.paddingRight;page.append(button);}
+  }
+  function mountResize(page,portrait){
+   const design=getDesign(),left=['studio_v1','editorial_v1'].includes(design),header=portrait.parentElement;
+   const handle=document.createElement('button');handle.type='button';handle.className='cv-photo-resize';handle.dataset.cvEditorOnly='true';handle.dataset.side=left?'left':'right';handle.setAttribute('aria-label','Resize photo');handle.title='Drag to resize photo';const tools=document.createElement('div');tools.className='cv-photo-tools';tools.dataset.cvEditorOnly='true';tools.dataset.side=left?'left':'right';tools.append(handle);header.append(tools);
+   let drag=null;
+
+   function draw(mm){portrait.style.setProperty('--portrait-width',mm+'mm');portrait.style.setProperty('--portrait-height',mm+'mm');header.style.setProperty('--portrait-width',mm+'mm');handle.title='Resize photo ('+Math.round(mm)+' mm)';}
+   function cancel(){if(!drag)return;const original=drag.size;drag=null;handle.classList.remove('is-resizing');document.removeEventListener('keydown',escape,true);draw(original);}
+   function escape(e){if(e.key==='Escape'&&drag){e.preventDefault();e.stopPropagation();cancel();}}
+   async function save(mm){if(getDesign()!==design||!portrait.isConnected)return;const after=Math.round(clamp(mm,18,45,photoSize(state,design))*10)/10;if(after===photoSize(state,design))return;const history=sizeHistory.get(design)||{undo:[],redo:[]};history.undo.push({before:state.sizeOverrides[design],after});if(history.undo.length>100)history.undo.shift();history.redo=[];sizeHistory.set(design,history);state.sizeOverrides[design]=after;await commit();}
+   handle.onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const current=photoSize(state,design);drag={x:e.clientX,y:e.clientY,size:current,mm:current,pixelsPerMm:portrait.getBoundingClientRect().width/current};handle.setPointerCapture(e.pointerId);handle.classList.add('is-resizing');document.addEventListener('keydown',escape,true);};
+   handle.onpointermove=e=>{if(!drag)return;e.preventDefault();const dx=(e.clientX-drag.x)*(left?1:-1),dy=e.clientY-drag.y;drag.mm=clamp(drag.size+(dx+dy)/2/drag.pixelsPerMm,18,45,drag.size);draw(drag.mm);};
+   handle.onpointerup=e=>{if(!drag)return;e.preventDefault();e.stopPropagation();const mm=drag.mm;drag=null;handle.classList.remove('is-resizing');document.removeEventListener('keydown',escape,true);void save(mm);};
+   handle.onpointercancel=cancel;handle.onlostpointercapture=cancel;
+   handle.onclick=e=>{e.preventDefault();e.stopPropagation();};
+   handle.onkeydown=e=>{const direction={ArrowUp:-1,ArrowDown:1,ArrowLeft:left?-1:1,ArrowRight:left?1:-1}[e.key];if(direction){e.preventDefault();e.stopPropagation();void save(photoSize(state,design)+direction).then(()=>host.querySelector('.cv-photo-resize')?.focus({preventScroll:true}));}};
   }
   function focusControl(){host.querySelector('[data-portrait-action]')?.focus({preventScroll:true});}
   async function restore(value,original,legacyDesign){
-   if(src)URL.revokeObjectURL(src);state=normalize(value,legacyDesign);file=null;src=null;size=null;restoreIssue='';
+   sizeHistory.clear();if(src)URL.revokeObjectURL(src);state=normalize(value,legacyDesign);file=null;src=null;size=null;restoreIssue='';
    if(original){const next=URL.createObjectURL(original);try{size=await decode(next);file=original;src=next;}catch{URL.revokeObjectURL(next);restoreIssue='Your saved photo could not be restored. Choose it again.';}}
    else if(value?.hasOriginal)restoreIssue='Your original photo is unavailable. Choose it again.';
   }
@@ -81,7 +100,7 @@
    const status=add('p',restoreIssue);status.setAttribute('role','alert');
    const actions=add('div');actions.className='cv-portrait-actions';const remove=add('button','Remove photo',actions),cancel=add('button','Cancel',actions),save=add('button','Save',actions);remove.type=cancel.type=save.type='button';remove.className='cv-photo-remove';
    function draw(){
-    const shape=effectiveShape(draft,activeDesign);preview.style.borderRadius=radius(shape,activeDesign,true);for(const {value,button} of shapeButtons)button.setAttribute('aria-pressed',String(value===shape));
+    const shape=effectiveShape(draft,activeDesign);preview.style.borderRadius=radius(shape,activeDesign,true,draft);for(const {value,button} of shapeButtons)button.setAttribute('aria-pressed',String(value===shape));
     preview.setAttribute('role','button');preview.setAttribute('aria-label',draftSrc?'Change photo; drag to position your face':'Choose photo');preview.title=draftSrc?'Click to change photo. Drag to position.':'Choose photo';
     preview.replaceChildren();if(draftSrc){const crop=frame({...draft,...draftSize,src:draftSrc},activeDesign),ratio=parseFloat(crop.style.getPropertyValue('--portrait-height'))/parseFloat(crop.style.getPropertyValue('--portrait-width'));crop.style.width='100%';crop.style.height=ratio*100+'%';crop.style.borderRadius=preview.style.borderRadius;preview.append(crop);}else{const hint=add('span','Choose a photo',preview);hint.className='cv-photo-empty';}
     zoom.disabled=!draftSrc;save.disabled=loading||!draftSrc||r.kind==='forbidden';remove.hidden=!draftSrc;remove.disabled=loading;
@@ -104,11 +123,27 @@
     try{if(!['image/jpeg','image/png','image/webp'].includes(selected.type)||selected.size>12*1024*1024)throw Error('Choose a JPEG, PNG or WebP image up to 12 MB.');next=URL.createObjectURL(selected);const dimensions=await decode(next);if(!current.isConnected||read!==readSequence){URL.revokeObjectURL(next);return;}if(temporary)URL.revokeObjectURL(temporary);temporary=next;draftSrc=next;draftSize=dimensions;draftFile=selected;draft={...draft,enabled:true,x:50,y:50,zoom:1};zoom.value=1;}catch(e){if(next)URL.revokeObjectURL(next);status.textContent=e.message;}finally{if(read===readSequence){loading=false;draw();}}
    };
    cancel.onclick=()=>current.close();
-   save.onclick=async()=>{if(save.disabled)return;const old=src;state=normalize({...draft,enabled:true});file=draftFile;src=draftSrc;size=draftSize;restoreIssue='';temporary=null;current.close();await commit();if(old&&old!==src)URL.revokeObjectURL(old);};
+   save.onclick=async()=>{if(save.disabled)return;const old=src;if(draftFile!==file)sizeHistory.clear();state=normalize({...draft,enabled:true});file=draftFile;src=draftSrc;size=draftSize;restoreIssue='';temporary=null;current.close();await commit();if(old&&old!==src)URL.revokeObjectURL(old);};
    remove.onclick=async()=>{if(loading)return;state.enabled=false;current.close();await commit();};
    current.addEventListener('close',()=>{if(temporary)URL.revokeObjectURL(temporary);current.remove();focusControl();},{once:true});
    (host.closest('dialog[open]')||document.body).append(current);draw();current.showModal();
   }
+  document.addEventListener('keydown',event=>{
+   if(event.defaultPrevented||event.altKey||!(event.ctrlKey||event.metaKey)||!host.isConnected||dialog?.open||host.querySelector('.cv-photo-resize.is-resizing'))return;
+   const target=event.target;
+   // Keep native text undo in chat, answers, and every other editing field.
+   if(target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
+   if(!host.contains(target)&&!host.closest('.cv-card')?.contains(target))return;
+   const key=event.key.toLowerCase(),redo=key==='y'||key==='z'&&event.shiftKey;
+   if(key!=='z'&&key!=='y'||!model())return;
+   const design=getDesign(),history=sizeHistory.get(design),from=redo?history?.redo:history?.undo;
+   if(!from?.length)return;
+   event.preventDefault();event.stopPropagation();
+   const change=from.pop(),value=redo?change.after:change.before;
+   if(value===undefined)delete state.sizeOverrides[design];else state.sizeOverrides[design]=value;
+   (redo?history.undo:history.redo).push(change);
+   void commit();
+  });
   host.addEventListener('click',event=>{if(!event.target.closest('[data-portrait-action]'))return;event.preventDefault();event.stopImmediatePropagation();open();},true);
   return {model,error,mount,snapshot:()=>({...normalize(state),hasOriginal:!!file}),file:()=>file,restore,async reset(){await restore(null,null);},jobChanged(){state.enabled=false;},open};
  }

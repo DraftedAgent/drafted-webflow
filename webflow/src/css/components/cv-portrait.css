@@ -46,3 +46,19 @@
 .cv-photo-shape-icon {display:block;width:24px;height:24px;background:currentColor;opacity:.7;}
 .cv-photo-shape-icon[data-shape=rounded] {border-radius:4px;}
 .cv-photo-shape-icon[data-shape=circle] {border-radius:50%;}
+
+/* Outside the clipping mask so the inner corner also works for circular photos. */
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-resize {position:absolute;z-index:6;width:18px;height:18px;min-width:0;min-height:0;padding:0;margin:0;transform:translate(-50%,-50%);border:2px solid white;border-radius:4px;background:#00858c;box-shadow:0 0 0 1px #006c76;opacity:0;pointer-events:none;touch-action:none;cursor:nesw-resize;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-resize[data-side=left] {cursor:nwse-resize;}
+:is(.cv-layout,#editor-preview-text) .cv-page:has(.cv-portrait:hover) .cv-photo-resize,
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-resize:is(:hover,:focus-visible,.is-resizing) {opacity:1;pointer-events:auto;}
+
+/* Anchor editing tools to the same grid cell as the photo, not page coordinates. */
+:is(.cv-layout,#editor-preview-text) .has-cv-portrait>.cv-header-content {grid-column:1;grid-row:1;}
+:is(.cv-layout,#editor-preview-text) .has-cv-portrait>.cv-photo-slot {grid-column:2;grid-row:1;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-tools {grid-column:2;grid-row:1;position:relative;width:var(--portrait-width);height:var(--portrait-width);z-index:6;pointer-events:none;overflow:visible;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-tools[data-side=left] {grid-column:1;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-resize {left:0;top:100%;width:22px;height:22px;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-resize[data-side=left] {left:100%;}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-resize::after {content:'↔';display:block;color:white;font:700 14px/16px sans-serif;transform:rotate(-45deg);}
+:is(.cv-layout,#editor-preview-text) .cv-page .cv-photo-resize[data-side=left]::after {transform:rotate(45deg);}

@@ -23,7 +23,7 @@ godkänna övriga kvarstående förslag i den policyn.
   korrigeras genom det befintliga jobbannonsflödet.
   Motstridiga detekterade CV-krav behöver förtydligas före export. Saknad obligatorisk
   bild ska ge ett konkret besked, inte en export som påstås uppfylla bildkravet.
-- Mallens placering och bildstorlek är fasta; användaren väljer **Square / Rounded / Circle**.
+- Mallens placering är fast och bildstorleken har en mallspecifik standard; användaren väljer **Square / Rounded / Circle**.
   Båda använder samma kvadratiska beskärningsyta och sparade bildposition.
   Beskärningens position och förstoring
   får justeras; bildens proportioner bevaras. Bilden påverkar faktiskt
@@ -41,7 +41,7 @@ godkänna övriga kvarstående förslag i den policyn.
 
 ## Mallar och tekniskt kontrakt
 
-Fasta porträttmått:
+Porträttens standardmått:
 Classic: höger i headern, 28 × 28 mm och 6 mm mellanrum. Compact: höger,
 28 × 28 mm och 4 mm mellanrum. Editorial: vänster, 30 × 30 mm och 6 mm till
 namnkolumnen med mallens accentlinje. Studio: vänster under headerns tunna
@@ -51,6 +51,20 @@ tunn neutral kontur och 6 mm mellanrum. Circle ger cirkulär mask, Square en
 rak kvadrat och Rounded 6 px hörnradie vid fysisk CV-storlek; mallarna får inte ersätta användarens formval. Alla
 varianter hanterar radbrytning i långa namn, titlar och kontaktuppgifter. Porträtt
 visas endast på första sidan. Måtten är produktens formgivningsval, inte evidens.
+
+Storleken kan ändras direkt i preview genom att dra porträttets nedre inre
+hörn (vänster hörn för högerplacerat porträtt, höger för vänsterplacerat).
+Handtaget visas vid hover eller tangentbordsfokus och ligger utanför bildens
+klippmask, även för Circle. Storlek sparas per mall i `sizeOverrides`, 18–45 mm,
+och samma kvadratiska mått används i preview, sidräkning och PDF. Bilden ändrar
+storlek under dragning; sidbrytningar räknas om när dragningen avslutas.
+Escape/pointercancel återställer storleken före dragningen. Piltangenter ändrar
+1 mm. Ctrl/Cmd+Z ångrar en avslutad storleksändring och Ctrl/Cmd+Shift+Z
+eller Ctrl+Y gör om den när fokus är i preview. Historiken gäller per mall
+under aktuell session (högst 100 steg); omladdning eller ny bild återställer
+historiken, men den sparade storleken behålls. Textfält behåller inbyggd
+textångring. Beskärning, bildfil, zoom och formval påverkas inte. Handtaget är enbart
+redigerings-UI och tas bort ur utskriftskopian.
 
 Standardform definieras centralt i `cv-document-designs.js`: Classic och Compact
 använder Rounded, Editorial och Studio Square, Executive Circle. Alla mallar

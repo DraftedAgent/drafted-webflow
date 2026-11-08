@@ -41,6 +41,42 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),{spa
  await dialog.getByRole('button',{name:'Cancel',exact:true}).click();
  // Actual controller restoration migrates global shape only to the known saved template.
  await page.evaluate(async()=>{const saved=await DraftedWorkspaceStore.create().load(),host=document.createElement('div');const controller=DraftedCvPortrait.create({host,getJob:()=>'',getDesign:()=>'classic_v1',onChange:async()=>{}});await controller.restore({enabled:true,shapeOverride:'rounded',x:41,y:62,zoom:1.4},saved.files.portrait,'executive_v1');const state=controller.snapshot();if(JSON.stringify(state.shapeOverrides)!==JSON.stringify({executive_v1:'rounded'})||state.x!==41||state.y!==62||state.zoom!==1.4)throw Error('Legacy migration lost state');if(DraftedCvPortrait.effectiveShape(controller.model(),'studio_v1')!=='square')throw Error('Legacy leaked to untouched template');await controller.reset();});
+ // Resize the inner bottom corner at two viewer zooms; keep crop and template isolation.
+ const sharedBeforeResize=await page.evaluate(()=>captureWorkspace().portrait);
+ async function resizePhoto(design,delta,zoom){
+  await page.locator('#cv-design').selectOption(design);
+  await page.evaluate(z=>DraftedCvLayout.setZoom(document.querySelector('#editor-preview-text'),z),zoom);
+  await page.locator('#editor-preview-text .cv-portrait').hover();
+  const handle=page.getByRole('button',{name:'Resize photo',exact:true}),photo=page.locator('#editor-preview-text .cv-portrait');
+  assert.equal(await handle.evaluate(n=>getComputedStyle(n).opacity),'1','Handle is visibly painted on portrait hover');
+  const old=await page.evaluate(d=>captureWorkspace().portrait.sizeOverrides[d]??DraftedCvDesigns.find(c=>c.id===d).photoSizeMm,design),r=await photo.boundingBox(),h=await handle.boundingBox(),left=['studio_v1','editorial_v1'].includes(design),pixels=delta*r.width/old;
+  await page.screenshot({path:'tmp/pdfs/portrait/resize-handle-'+design+'.png',clip:{x:r.x-25,y:r.y-10,width:r.width+50,height:r.height+35}});
+  assert(Math.abs(h.x+h.width/2-(left?r.x+r.width:r.x))<2);assert(Math.abs(h.y+h.height/2-(r.y+r.height))<2);
+  await page.mouse.move(h.x+h.width/2,h.y+h.height/2);await page.mouse.down();await page.mouse.move(h.x+h.width/2+(left?pixels:-pixels),h.y+h.height/2+pixels,{steps:5});await page.mouse.up();
+  await page.waitForFunction(({d,n})=>Math.abs((captureWorkspace().portrait.sizeOverrides[d]||0)-n)<.2,{d:design,n:old+delta});
+  await page.waitForFunction(()=>document.querySelector('#editor-preview-text').dataset.layoutState==='ready');
+  assert.equal(await page.locator('.cv-portrait-dialog[open]').count(),0);
+ }
+ await resizePhoto('classic_v1',5,.7);await resizePhoto('classic_v1',-2,1);await resizePhoto('studio_v1',4,.65);
+ assert.deepEqual(await page.evaluate(()=>captureWorkspace().portrait.sizeOverrides),{classic_v1:31,studio_v1:36});
+ // One completed drag is one undo; other template dimensions and text undo stay intact.
+ await page.keyboard.press('Control+z');await page.waitForFunction(()=>!Object.hasOwn(captureWorkspace().portrait.sizeOverrides,'studio_v1'));
+ assert.deepEqual(await page.evaluate(()=>captureWorkspace().portrait.sizeOverrides),{classic_v1:31});
+ await page.keyboard.press('Control+Shift+z');await page.waitForFunction(()=>captureWorkspace().portrait.sizeOverrides.studio_v1===36);
+ await page.locator('#cv-design').selectOption('classic_v1');await page.locator('[data-portrait-action]').focus();
+ await page.keyboard.press('Control+z');await page.waitForFunction(()=>captureWorkspace().portrait.sizeOverrides.classic_v1===33);
+ await page.keyboard.press('Control+z');await page.waitForFunction(()=>!Object.hasOwn(captureWorkspace().portrait.sizeOverrides,'classic_v1'));
+ await page.keyboard.press('Control+y');await page.waitForFunction(()=>captureWorkspace().portrait.sizeOverrides.classic_v1===33);
+ await page.keyboard.press('Control+y');await page.waitForFunction(()=>captureWorkspace().portrait.sizeOverrides.classic_v1===31);
+ const sizesBeforeTyping=await page.evaluate(()=>captureWorkspace().portrait.sizeOverrides);
+ await page.locator('#editor-input').focus();await page.keyboard.type('test');await page.keyboard.press('Control+z');assert.deepEqual(await page.evaluate(()=>captureWorkspace().portrait.sizeOverrides),sizesBeforeTyping);await page.locator('#editor-input').fill('');
+ await page.locator('#cv-design').selectOption('studio_v1');
+
+ const afterResize=await page.evaluate(()=>captureWorkspace().portrait);for(const key of ['x','y','zoom','shapeOverrides'])assert.deepEqual(afterResize[key],sharedBeforeResize[key]);
+ await page.locator('#editor-preview-text .cv-portrait').hover();const resizeHandle=page.getByRole('button',{name:'Resize photo',exact:true}),resizeBox=await resizeHandle.boundingBox();
+ await page.mouse.move(resizeBox.x+resizeBox.width/2,resizeBox.y+resizeBox.height/2);await page.mouse.down();await page.mouse.move(resizeBox.x+40,resizeBox.y+40);await page.keyboard.press('Escape');await page.mouse.up();assert.deepEqual(await page.evaluate(()=>captureWorkspace().portrait),afterResize);
+ await page.reload();await page.getByRole('button',{name:'Review questions',exact:true}).waitFor();assert.deepEqual(await page.evaluate(()=>captureWorkspace().portrait.sizeOverrides),afterResize.sizeOverrides);
+ await page.locator('#cv-design').click();await page.keyboard.press('Escape');assert.equal(await page.locator('#cv-design').evaluate(n=>getComputedStyle(n).outlineStyle),'none');
  fs.mkdirSync('output/pdf/portrait',{recursive:true});fs.mkdirSync('tmp/pdfs/portrait',{recursive:true});const proofs=[];
  for(const design of ['classic_v1','compact_v1','editorial_v1','studio_v1','executive_v1'])for(const shape of ['circle','square','rounded','without']){const photo=shape!=='without';let expectedCrop=null;
   await page.locator('#cv-design').selectOption(design);await open();if(photo){await dialog.getByRole('button',{name:shape[0].toUpperCase()+shape.slice(1),exact:true}).click();assert.equal(await dialog.getByRole('button',{name:shape[0].toUpperCase()+shape.slice(1),exact:true}).getAttribute('aria-pressed'),'true');expectedCrop=await dialog.locator('.cv-portrait img').getAttribute('style');await apply();}else await dialog.getByRole('button',{name:'Remove photo',exact:true}).click();await page.waitForFunction(d=>document.querySelector('#editor-preview-text').dataset.cvDesign===d&&document.querySelector('#editor-preview-text').dataset.layoutState==='ready',design);
