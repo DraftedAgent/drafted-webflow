@@ -366,9 +366,11 @@
  .section-editor.discovery-enabled .workspace-aligned-panels :is(.chat-card,.cv-card),
  .section-editor .workspace-divider {background:#e4edf2;}
  .section-editor .workspace-aligned-panels .cv-document {background:#e4edf2;}
- .section-editor .workspace-aligned-panels .workspace-conversation-body {background:#fff;}
+ .section-editor .workspace-aligned-panels .workspace-conversation-body {background:#fff;border-radius:6px;box-shadow:0 3px 10px rgba(20,43,56,.10),0 14px 32px rgba(20,43,56,.09);}
  .section-editor .workspace-aligned-panels :is(.workspace-editor-toolbar,.workspace-preview-title) {border-bottom-color:transparent;}
- .section-editor .cv-document #editor-preview-text:not(.cv-layout-measure) .cv-page {box-shadow:0 3px 8px #18394b0b,0 12px 28px #18394b16;}
+ .section-editor .cv-document #editor-preview-text:not(.cv-layout-measure) .cv-page {border-radius:4px;box-shadow:0 4px 12px rgba(20,43,56,.13),0 20px 45px rgba(20,43,56,.13);}
+ /* Scroll-only paint clearance; page/content geometry and padding stay fixed. */
+ .section-editor .cv-document #editor-preview-text .cv-page-slot:last-child::before {content:'';position:absolute;top:100%;left:50%;width:1px;height:64px;pointer-events:none;}
  .section-editor.discovery-enabled .workspace-aligned-panels .workspace-conversation-body .workspace-composer {border-top:0;padding-top:6px;}
  .section-editor.discovery-enabled .workspace-composer .chat-command-bar,
  .section-editor .experience-answer-surface {background:#f5f8fa;border:1px solid #d5e1e7;border-radius:8px;box-shadow:0 2px 7px #18394b08,0 5px 12px #18394b05;padding:10px;}

@@ -2251,3 +2251,23 @@ Browser checks explicitly assert hover opacity and correct inner-corner position
 Added session-local per-template size history: a completed drag or keyboard size change records one before/after entry, preserving absence of an override when undoing back to template defaults. Ctrl/Cmd+Z undoes, Shift+Ctrl/Cmd+Z or Ctrl+Y redoes within the preview/card. Text inputs, contenteditable, selects, open photo dialog and active drag are excluded. No-op size changes do not create history; a new change clears redo. History is bounded to100 entries per template and resets on workspace restore/new image. Size state still saves through existing commit/rerender/persistence; crop/photo/shape and canonical CV untouched.
 
 Browser regression passes actual drag then undo/redo, undo two Classic steps to default and redo both, independent Studio sizing, Ctrl+Z in chat not altering portrait state, and the existing full20 variant preview/print flow. Unit tests and diff checks pass. Policy documents session lifetime. Local only; no model calls, production publication, commit or push.
+
+## DEV-318 — Refined screen surface elevation (2026-11-08)
+
+Owner requests stronger restrained shadows for white editor and actual CV paper. Updated only the existing screen-only surface rules in site/workspace-layout.css. Conversation body gets broad ambient 0 8px 28px -8px at13% plus supporting 0 2px 8px -2px at7%, using the existing blue-grey shadow hue. Actual cv-page gets slightly stronger ambient 0 10px 30px -10px at20% and support 0 3px 10px -3px at12%. Negative spread keeps edges soft and reduces clipping in current gutters. No borders, spacing, typography or container shadow added. Print/measurement excluded by existing screen-only scope.
+
+Temporary local browser visual check with synthetic CV: desktop1500x1000 geometry and page count identical before/after;390px viewport has no horizontal page overflow. Desktop/mobile screenshots reviewed. Shadow extent remains bounded by existing scroll viewport/gutters; no gutters or layout dimensions changed. Standalone rebuild protected outputs unchanged. No external calls, commit/push or publication.
+
+## DEV-319 — Clearly stronger layered shadows and last-page paint clearance (2026-11-08)
+
+Owner finds DEV-318 too subtle. Screen-only conversation-body shadow now0 3px 10px rgba(20,43,56,.10),0 14px 32px rgba(20,43,56,.09). Actual cv-page shadow now0 4px 12px rgba(20,43,56,.13),0 20px 45px rgba(20,43,56,.13), with no negative spread attenuating it. No border/radius or typography/template changes.
+
+Inspected computed shadow and ancestor overflow: slot/renderer/inner are overflow-visible; cv-document is the intentional scrolling clip, cv-card/editor-right are hidden. Last-page bottom shadow was clipped by the existing12px scroll gutter. Added a1px-wide invisible absolute pseudo-element64px below the final page-slot to extend scrollable paint clearance, without changing page/content dimensions, padding, page placement or page count. Existing side gutters remain; scrolling still bounds visible content normally. Scope is screen only, absent from print.
+
+Same1500x1000 viewport/80% zoom before/after screenshots compared, plus bottom-scrolled and390px mobile views. Computed values match requested layers; desktop geometry and measured page count identical; no mobile horizontal overflow; print computed box-shadow none. Final bottom shadow visually reviewed after adding clearance. Standalone protected outputs unchanged. No publication or Git delivery.
+
+## DEV-320 — Subtle screen-only surface corner rounding (2026-11-08)
+
+Owner requests6px main white editor surface and4px outer CV paper. Added those two radii to the existing screen-only elevation rules in site/workspace-layout.css. Existing conversation-body clipping already aligns its content with its own rounded background; no nested component radii changed. Paper retains overflow-visible and ample content margins, so no additional clipping layer or wrapper needed. Photo masks unchanged. Screen-only page radius is absent in print/PDF.
+
+Temporary browser check passes all five templates: computed paper4px/editor6px, shadow present, page overflow not hidden; page dimensions/text/page count identical with radius toggled; print radius0 and shadow none. Desktop screenshot visually reviewed,390px view has no horizontal overflow. Standalone protected outputs unchanged. No commit/push/publication.
