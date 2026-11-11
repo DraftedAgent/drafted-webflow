@@ -2408,3 +2408,6 @@ Local browser checks: visually inspected painted summary and greeting screenshot
 ## DEV-337 — Owner-authorized frontend release (2026-11-11)
 
 Owner requests commit, push and production publication of the current reviewed editor/demo/export changes to getmedrafted.com. Release excludes unrelated local backend/research edits; existing Worker settings, budget identity, credentials and backend workflows are preserved. Rollback baseline verified as Worker fdaeb92e-6e51-454a-bf0a-6f897ebfa6be. Seventeen coverage/diff unit checks and fullscreen mixed decisions plus all-accepted/mixed/all-declined local completion/reload checks passed. No model calls. Production result is recorded in the hosting release receipt.
+
+
+DEV-337 publication outcome: source c1cce7dc6b0fc758f47774eab6283b14f3f4b551 pushed to codex/local-dev and deployed to getmedrafted.com as Worker5042eb6c-62fd-47ba-9f9f-89f093abf25b. Exact public asset hashes and public-origin demo fullscreen/toggle/all-declined completion passed with zero API POSTs. Previous Worker fdaeb92e-6e51-454a-bf0a-6f897ebfa6be retained for rollback. No backend workflow mutations or model calls.

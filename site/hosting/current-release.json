@@ -1,9 +1,9 @@
 {
   "url": "https://getmedrafted.com",
-  "publishedSourceCommit": "8b7ae15917b8c78f909709c56ff7798b315795e9",
-  "workerVersion": "fdaeb92e-6e51-454a-bf0a-6f897ebfa6be",
-  "previousWorkerVersion": "3ef83749-1166-45cd-a62d-5644abb4d863",
-  "publishedUTC": "2026-11-08T09:02:14.030Z",
+  "publishedSourceCommit": "c1cce7dc6b0fc758f47774eab6283b14f3f4b551",
+  "workerVersion": "5042eb6c-62fd-47ba-9f9f-89f093abf25b",
+  "previousWorkerVersion": "fdaeb92e-6e51-454a-bf0a-6f897ebfa6be",
+  "publishedUTC": "2026-11-11T18:39:24.581155+00:00",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
@@ -17,12 +17,12 @@
     "ownerMonthlyBudgetSEK": 200
   },
   "workflowExecutionOrModelCalls": 0,
-  "verification": "Exact public root/editor/JS/CSS/config hashes verified. Public-origin linked answer, two employment selections, single pending placement in preview, Accept, holistic summary and reload pass with ALL API writes redirected to private local fixtures. Intro/Skip/Dictate/Send geometry verified on desktop and narrow view. Actual n8n saved/active definitions compared against exact two-code-node Tailor and one-code-node Discovery candidates. No real workflow/model executions.",
-  "rollback": "wrangler rollback 3ef83749-1166-45cd-a62d-5644abb4d863 --config site/hosting/wrangler.jsonc; retain OpenAI15USD enforced limit (do not restore previous100USD unenforced setting).",
+  "verification": "Exact public build and asset hashes verified. Public demo opened without API POSTs; four prepared cards, fullscreen close, Show changes off/on and all-declined completion with one follow-up verified in browser. Local17coverage/diff checks and accepted/mixed/declined completion/reload passed. Backend workflows unchanged. No new actual model quality evaluation.",
+  "rollback": "wrangler rollback fdaeb92e-6e51-454a-bf0a-6f897ebfa6be --config site/hosting/wrangler.jsonc; preserve existing15USD monthly control and budget identity.",
   "changesExcluded": [
+    "Unrelated local backend/research edits",
+    "n8n mutations",
     "DNS",
-    "models/token settings/credentials",
-    "other n8n workflows or nodes",
     "budget reset",
     "main merge",
     "stable promotion"
