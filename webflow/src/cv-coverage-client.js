@@ -28,14 +28,14 @@
    try{const common={coverageSchemaVersion:C.VERSION,jobText:input.jobText,jobContext:input.jobContext},jobRef=await C.jobRef(input.jobText,input.jobContext);let catalog=this.catalog;
     if(!catalog||C.canonical(catalog.jobRef)!==C.canonical(jobRef))catalog=await this.client.call({...common,operation:'anchorSignals',requestId:crypto.randomUUID()},controller.signal);
     if(!current())return;this.catalog=catalog;const request={...common,operation:'assessCoverage',requestId:crypto.randomUUID(),cvVersionId:input.cvVersionId,blocks:input.blocks,catalog,inputRef:await C.inputRef(input.cvVersionId,input.blocks,catalog)};
-    const result=await this.client.call(request,controller.signal);if(!current())return;this.result=result;this.resultCatalog=catalog;this.status='ready';this.restoreBlocked=false;this.emit();
+    const result=await this.client.call(request,controller.signal);if(!current())return;this.result=result;this.resultInput=copy(input);this.resultCatalog=catalog;this.status='ready';this.restoreBlocked=false;this.emit();
    }catch{if(current()){this.status='error';this.emit();}}finally{if(current())this.controller=null;}
   }
-  snapshot(){return copy({schemaVersion:C.VERSION,status:this.status,catalog:this.catalog,resultCatalog:this.resultCatalog,result:this.result});}
+  snapshot(){return copy({schemaVersion:C.VERSION,status:this.status,catalog:this.catalog,resultCatalog:this.resultCatalog,result:this.result,resultInput:this.resultInput||this.input});}
   async restore(saved,input){this.generation++;this.controller?.abort();this.input=copy(input);this.signature=C.canonical(input);this.status='idle';this.restoreBlocked=!!saved;this.catalog=null;this.resultCatalog=null;this.result=null;
    if(!saved){this.signature='';this.emit();return;}if(saved.schemaVersion!==C.VERSION){this.status=this.enabled?'error':'unavailable';this.emit();return;}try{
     if(!input?.jobContext||!input?.cvVersionId||!input.blocks?.length)throw Error('NO_INPUT');const catalog=saved.resultCatalog||saved.catalog;await C.validateCatalog(input.jobText,input.jobContext,catalog);this.catalog=catalog;this.resultCatalog=catalog;
-    const request={operation:'assessCoverage',inputRef:await C.inputRef(input.cvVersionId,input.blocks,this.catalog),catalog:this.catalog,blocks:input.blocks};await C.validateResult(request,saved.result);this.result=copy(saved.result);this.status=saved.status==='ready'?'ready':'error';this.restoreBlocked=this.status!=='ready';
+    const assessed=saved.resultInput||input;const request={operation:'assessCoverage',inputRef:await C.inputRef(assessed.cvVersionId,assessed.blocks,this.catalog),catalog:this.catalog,blocks:assessed.blocks};await C.validateResult(request,saved.result);this.result=copy(saved.result);this.resultInput=copy(assessed);this.status=!['ready','stale'].includes(saved.status)?'error':C.canonical(request.inputRef)===C.canonical(await C.inputRef(input.cvVersionId,input.blocks,this.catalog))?'ready':'stale';this.restoreBlocked=this.status!=='ready';
    }catch{this.resultCatalog=null;this.result=null;this.status=this.enabled?'error':'unavailable';}this.emit();
   }
  }

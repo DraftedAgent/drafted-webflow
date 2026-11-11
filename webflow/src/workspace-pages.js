@@ -1,6 +1,7 @@
 /* Exactly two fixed page views share the existing Webflow nodes/handlers. */
 (function(global){
   'use strict';
+  const sample=new URLSearchParams(location.search).get('sample')==='1';
   const editorPath='/editor',isEditor=()=>location.pathname.replace(/\/$/,'')===editorPath;
   document.documentElement.classList.add('drafted-pages');document.documentElement.dataset.workspacePage=isEditor()?'editor':'setup';document.documentElement.dataset.workspaceBooting='true';
   function create(adapter){
@@ -10,6 +11,7 @@
     const status=document.createElement('p');status.className='workspace-save-status';status.setAttribute('role','status');status.hidden=true;document.body.append(status);
     const empty=document.createElement('main');empty.className='workspace-empty';empty.hidden=true;empty.innerHTML='<h1>No CV is open yet</h1><p>Choose your current CV to start an editor workspace.</p><a href="/#section-input">Go to setup</a>';document.body.append(empty);
     const back=document.createElement('a');back.href='/#section-input';back.className='workspace-back-setup';back.textContent='Back to setup';section.querySelector('.workspace-identity').prepend(back);
+    if(sample){const group=document.createElement('div');group.className='workspace-sample-group';const badge=document.createElement('span');badge.className='workspace-sample-badge';badge.textContent='DEMO';group.append(badge);section.querySelector('.workspace-topbar').append(group);const actions=section.querySelector('.workspace-main-actions');const reset=document.createElement('button');reset.type='button';reset.className='workspace-edit-job';reset.textContent='Reset sample';reset.onclick=async()=>{reset.disabled=true;try{await ready;restoring=true;await saving.catch(()=>{});await store.save(global.DraftedSampleWorkspace.prepare(adapter.capture()),{});document.dispatchEvent(new Event('drafted-sample-reset'));location.reload();}catch(e){restoring=false;reset.disabled=false;notify(e.message);}};const own=document.createElement('a');own.href='/#section-input';own.textContent='Use my own CV';group.append(own);actions.prepend(reset);}
     const jobButton=document.createElement('button');jobButton.type='button';jobButton.className='workspace-edit-job';jobButton.textContent='Job description';section.querySelector('.workspace-main-actions').prepend(jobButton);
     const dialog=document.createElement('dialog');dialog.className='workspace-job-dialog';dialog.setAttribute('aria-labelledby','workspace-job-title');dialog.innerHTML='<h2 id="workspace-job-title">Job description</h2><div class="workspace-job-reading" tabindex="0" role="region" aria-label="Saved job description"></div><a class="workspace-change-job" href="/#section-input">Change job description in setup</a><div><button type="button" data-close>Close</button></div>';section.append(dialog);
     const jobReading=dialog.querySelector('.workspace-job-reading');
@@ -33,7 +35,7 @@
       else{await prepare();commit();}
       if(!isEditor())setup.scrollIntoView({behavior:'instant',block:'start'});focusPage();requestAnimationFrame(schedule);
     }catch(e){notify(e.message);}}
-    back.addEventListener('click',event=>{if(event.button||event.metaKey||event.ctrlKey||event.shiftKey)return;event.preventDefault();navigate('/#section-input');});
+    back.addEventListener('click',event=>{if(sample)return;if(event.button||event.metaKey||event.ctrlKey||event.shiftKey)return;event.preventDefault();navigate('/#section-input');});
     empty.querySelector('a').addEventListener('click',event=>{event.preventDefault();navigate('/#section-input');});
     global.addEventListener('popstate',()=>{render();if(!isEditor()&&location.hash!=='#section-input')global.scrollTo(0,history.state?.workspaceScroll||0);focusPage();requestAnimationFrame(schedule);});
     // A browser-restored older document must not overwrite newer saved work.
@@ -41,7 +43,7 @@
     jobButton.addEventListener('click',()=>{showJobState();dialog.showModal();dialog.querySelector('[data-close]').focus({preventScroll:true});});
     dialog.querySelector('[data-close]').addEventListener('click',()=>dialog.close());
     dialog.addEventListener('close',()=>{if(isEditor())(jobSourceOpener?.isConnected?jobSourceOpener:jobButton).focus({preventScroll:true});jobSourceOpener=null;});
-    dialog.querySelector('.workspace-change-job').addEventListener('click',event=>{if(event.button||event.metaKey||event.ctrlKey||event.shiftKey)return;event.preventDefault();dialog.close();navigate('/#section-input');});
+    dialog.querySelector('.workspace-change-job').addEventListener('click',event=>{if(sample)return;if(event.button||event.metaKey||event.ctrlKey||event.shiftKey)return;event.preventDefault();dialog.close();navigate('/#section-input');});
     async function confirmJobChange(){
       const modal=document.createElement('dialog');modal.className='workspace-replace-dialog';modal.setAttribute('aria-labelledby','workspace-job-change-title');modal.innerHTML='<h2 id="workspace-job-change-title">Use this job description?</h2><p>Your CV and saved answers will be kept. Existing suggestions will need to be updated.</p><button type="button" data-cancel>Cancel</button><button type="button" data-use>Use job description</button>';document.body.append(modal);
       return new Promise(resolve=>{let approved=false;modal.querySelector('[data-cancel]').onclick=()=>modal.close();modal.querySelector('[data-use]').onclick=()=>{approved=true;modal.close();};modal.addEventListener('close',()=>{modal.remove();document.getElementById('upload-btn').focus({preventScroll:true});resolve(approved);},{once:true});modal.showModal();modal.querySelector('[data-cancel]').focus();});
@@ -51,7 +53,7 @@
       return new Promise(resolve=>{let approved=false;modal.querySelector('[data-cancel]').onclick=()=>modal.close();modal.querySelector('[data-replace]').onclick=()=>{approved=true;modal.close();};modal.addEventListener('close',()=>{modal.remove();document.getElementById('upload-btn').focus({preventScroll:true});resolve(approved);},{once:true});modal.showModal();modal.querySelector('[data-cancel]').focus();});
     }
     const ready=(async()=>{
-      try{store=global.DraftedWorkspaceStore.create();const saved=await store.load();storageReady=true;if(saved){sourceHash=saved.state.sourceHash||(saved.files.source?await store.fingerprint(saved.files.source):null);await adapter.restore(saved.state,saved.files);if(saved.state.cv&&!saved.files.source)notify('Your editor work is restored. The original file is unavailable; choose it again to restore its preview.');}}
+      try{store=global.DraftedWorkspaceStore.create({namespace:sample?'sample':'personal'});let saved=await store.load();if(sample&&(!saved||saved.state.sampleVersion!==3||!global.DraftedWorkspaceStore.valid(saved.state))){const state=global.DraftedSampleWorkspace.prepare(adapter.capture());await store.save(state,{});saved={state,files:{}};}storageReady=true;if(saved){sourceHash=saved.state.sourceHash||(saved.files.source?await store.fingerprint(saved.files.source):null);await adapter.restore(saved.state,saved.files);if(!sample&&saved.state.cv&&!saved.files.source)notify('Your editor work is restored. The original file is unavailable; choose it again to restore its preview.');}}
       catch(e){notify(e.message);}finally{restoring=false;delete root.dataset.workspaceBooting;render();}
     })();
     document.addEventListener('drafted-draft-change',schedule);document.addEventListener('input',schedule,true);document.addEventListener('change',schedule,true);document.addEventListener('click',schedule,true);let scrollTimer;document.addEventListener('scroll',()=>{clearTimeout(scrollTimer);scrollTimer=setTimeout(schedule,100);},{capture:true,passive:true});
@@ -68,5 +70,5 @@
       async complete(file){sourceHash=await store.fingerprint(file);await navigate(editorPath,{transition:true});},
       showSetup:()=>navigate('/#section-input'),notify};
   }
-  global.DraftedWorkspacePages={enabled:true,create};
+  global.DraftedWorkspacePages={enabled:true,sample,create};
 })(window);

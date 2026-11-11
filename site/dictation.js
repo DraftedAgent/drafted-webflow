@@ -55,6 +55,7 @@
   }catch(e){if(!job.cancelled){ui(target,e.name==='NotAllowedError'?'Microphone access was denied. You can still type your answer.':e.name==='NotFoundError'?'No microphone was found. You can still type your answer.':e.message||'Recording could not start.');release(job);}}
  }
  function attach(input,{key,label='your draft',read=()=>input.value,write=value=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));},alive=()=>input.isConnected,maxLength=50000,variant='default'}={}){
+  if(root.DraftedWorkspacePages?.sample)return;
   if(!input||input.dataset.dictationAttached)return;input.dataset.dictationAttached='true';
   let target=targets.get(key);if(!target){target={key,views:new Set(),message:''};targets.set(key,target);}Object.assign(target,{read,write,alive,maxLength,label});
   const wrap=node('div',null,'drafted-dictation'),mic=node('button',null,'dictation-mic');mic.type='button';mic.setAttribute('aria-label','Dictate '+label);mic.title='Dictate '+label;mic.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 10v2a6 6 0 0 0 12 0v-2M12 18v3M8 21h8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
@@ -63,7 +64,7 @@
   if(variant==='answer'){wrap.dataset.variant='answer';stopButton.textContent='Stop recording';stopButton.className='dictation-stop';abort.className='dictation-cancel';const info=node('div',null,'dictation-info'),controls=node('div',null,'dictation-controls');info.append(mic,time,status);controls.append(abort,stopButton);wrap.append(info,controls);}else wrap.append(mic,stopButton,abort,time,status);input.after(wrap);target.views.add({wrap,start:mic,stop:stopButton,cancel:abort,time,status});
   if(!supported())target.message='Dictation needs microphone support and HTTPS or localhost. You can still type.';
   else if(config().mode==='blocked')target.message='Dictation is not connected yet. You can still type.';
-  else if(!target.message&&config().mode==='simulated')target.message='Simulated dictation test — audio is not recognised.';
+  else if(!target.message&&config().mode==='simulated')target.message='Dictation is unavailable here. You can still type.';
   refresh();
  }
  function mount(){const input=document.getElementById('editor-input');if(input)attach(input,{key:'chat',label:'chat message',variant:'answer',maxLength:input.maxLength>0?input.maxLength:5000});if(!dock){dock=node('div',null,'dictation-dock');dock.hidden=true;dock.label=node('span');dock.label.setAttribute('role','status');dock.time=node('span',null,'dictation-time');dock.stop=node('button','Stop recording');dock.stop.type='button';dock.stop.onclick=stop;const abort=node('button','Cancel');abort.type='button';abort.onclick=()=>cancel();dock.append(dock.label,dock.time,dock.stop,abort);document.body.append(dock);}}

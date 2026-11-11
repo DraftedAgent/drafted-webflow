@@ -43,11 +43,32 @@
     const button=global.DraftedWorkspaceView.iconButton('Export PDF','workspace-print-button','<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>');button.disabled=true;
     const status=document.createElement('span');status.className='workspace-print-status';status.setAttribute('role','alert');status.hidden=true;
     controls.insertBefore(button,controls.querySelector('.workspace-close-preview'));controls.append(status);
-    let state='loading',busy=false;
+    let state='loading',busy=false,noticeTimer;
+    function dismissNotice(){clearTimeout(noticeTimer);status.hidden=true;status.replaceChildren();}
+    let warmShown=false;try{warmShown=sessionStorage.getItem('drafted.export.greeting')==='shown';}catch{}
+    function returnNotice(){
+      if(status.hidden||!status.classList.contains('is-print-notice'))return;
+      // Replay the fade when the dialog releases the page; its time does not
+      // count toward the reading window while the native dialog covers it.
+      status.style.animation='none';void status.offsetWidth;status.style.animation='';
+      clearTimeout(noticeTimer);noticeTimer=setTimeout(dismissNotice,9000);
+    }
+    function openedNotice(){
+      dismissNotice();status.setAttribute('role','status');status.classList.add('is-print-notice');status.classList.toggle('is-warm-greeting',!warmShown);
+      const text=document.createElement('span');text.className='print-notice-copy';
+      if(!warmShown){
+        const title=document.createElement('strong'),body=document.createElement('span'),signature=document.createElement('strong');
+        title.textContent='Your next chapter, well drafted.';
+        body.textContent='Good luck with your application — we’re rooting for you.';
+        signature.textContent='Drafted';text.append(title,body,signature);warmShown=true;try{sessionStorage.setItem('drafted.export.greeting','shown');}catch{}
+      }else text.textContent='Ready to save as PDF';
+      const dismiss=document.createElement('button');dismiss.type='button';dismiss.textContent='×';dismiss.setAttribute('aria-label','Dismiss print notice');dismiss.onclick=dismissNotice;
+      status.append(text,dismiss);status.hidden=false;
+    }
     const refresh=()=>{const suggested=host.dataset.cvPreviewMode==='suggested',label='Export PDF';button.disabled=suggested||busy||state!=='ready'||Number(host.dataset.pageCount)<1;button.title=suggested?'Switch to Current before exporting.':label;button.setAttribute('aria-label',label);const text=button.querySelector('.workspace-action-label');if(text)text.textContent=label;button.setAttribute('aria-busy',String(busy));};
     button.addEventListener('click',async()=>{
       if(button.disabled||host.dataset.cvPreviewMode==='suggested')return;
-      busy=true;refresh();status.hidden=true;status.textContent='';let frame,temporary;
+      busy=true;refresh();dismissNotice();status.classList.remove('is-print-notice');let frame,temporary;
       try{
         const validation=getError?.();if(validation)throw Error(validation);
         if(host.dataset.cvPreviewMode==='original'){
@@ -60,9 +81,12 @@
           if(JSON.stringify(getEdited())!==stamp||host.dataset.cvPreviewMode==='suggested')throw Error('Your CV or preview changed. Please print again.');
         }else frame=await prepare(host,getTitle(),stylesheet);
         temporary?.remove();
-        frame.contentWindow.addEventListener('afterprint',()=>{frame.remove();busy=false;refresh();button.focus({preventScroll:true});},{once:true});
+        let returned=false;
+        frame.contentWindow.addEventListener('afterprint',()=>{returned=true;frame.remove();busy=false;refresh();queueMicrotask(returnNotice);},{once:true});
         frame.contentWindow.print();
-      }catch(error){temporary?.remove();frame?.remove();busy=false;refresh();status.hidden=false;status.textContent=error.message||'The print dialog could not be opened.';}
+        openedNotice(); // Guidance to save, never a claim that a file was saved.
+        if(returned)returnNotice();
+      }catch(error){temporary?.remove();frame?.remove();busy=false;refresh();status.setAttribute('role','alert');status.hidden=false;status.textContent=error.message||'The print dialog could not be opened.';}
     });
     return {setState(next){state=next;refresh();}};
   }

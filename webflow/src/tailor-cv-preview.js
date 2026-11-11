@@ -47,6 +47,7 @@
     hovered.push({node,children,minHeight});
    }
    paint();place();
+   document.dispatchEvent(new CustomEvent('drafted-review-hover',{detail:{blockId:activeId,pointerType:event.pointerType||event.type}}));
   }
   function leaveHover(event){if(hoverTarget?.contains(event.relatedTarget)||group.contains(event.relatedTarget))return;clearTimeout(leaveTimer);leaveTimer=setTimeout(hideHover,180);}
   function escapeHover(event){if(event.key==='Escape'&&hoverTarget){hideHover();event.preventDefault();event.stopImmediatePropagation();}}

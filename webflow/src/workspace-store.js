@@ -3,8 +3,10 @@
   'use strict';
   const SCHEMA=1,DB='drafted-workspace-v1';
   function valid(state){const cv=state?.cv;return !!(cv&&typeof cv.cvVersionId==='string'&&cv.cvVersionId&&Array.isArray(cv.documentBlocksState)&&cv.documentBlocksState.length&&new Set(cv.documentBlocksState.map(b=>b.blockId)).size===cv.documentBlocksState.length&&cv.documentBlocksState.every(b=>typeof b.blockId==='string'&&b.blockId&&typeof b.text==='string'&&Number.isFinite(b.order)));}
-  function create(){
+  function create({namespace='personal'}={}){
     let id;try{id=sessionStorage.getItem('drafted.workspace.tab');if(!id){id=crypto.randomUUID();sessionStorage.setItem('drafted.workspace.tab',id);}}catch{throw Error('Workspace storage is unavailable in this browser. Enable browser storage and try again.');}
+    if(!['personal','sample'].includes(namespace))throw Error('Unknown workspace');
+    if(namespace==='sample')id+=':sample';
     const mirror='drafted.workspace.state.'+id,identity=new WeakMap(),hashes=new WeakMap(),written=new Set();let sequence=0,chain=Promise.resolve();
     const database=new Promise((resolve,reject)=>{const request=indexedDB.open(DB,1);request.onupgradeneeded=()=>request.result.createObjectStore('entries',{keyPath:'key'});request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(Error('Your workspace could not be saved in this browser. Check browser storage and try again.'));request.onblocked=()=>reject(Error('Workspace storage is busy. Close other Drafted windows and try again.'));});
     const read=async key=>{const db=await database;return new Promise((resolve,reject)=>{const request=db.transaction('entries').objectStore('entries').get(key);request.onsuccess=()=>resolve(request.result?.value);request.onerror=()=>reject(request.error);});};

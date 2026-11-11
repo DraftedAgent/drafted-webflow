@@ -1,12 +1,12 @@
 /* Viewer interaction only: move the live preview, never clone or paginate it. */
 (function(global){
   'use strict';
-  function create({section,card,host,heading}){
+  function create({section,card,host,heading,onMove=()=>{}}){
     const pane=card.querySelector('.cv-document');
     const workspaceScroll=section.closest('.page-scroll');
     const expand=global.DraftedWorkspaceView.iconButton('Expand preview','workspace-preview-action workspace-expand-preview','<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>');
     expand.disabled=true;expand.setAttribute('aria-haspopup','dialog');expand.setAttribute('aria-controls','cv-preview-dialog');
-    const close=global.DraftedWorkspaceView.iconButton('Close','workspace-preview-action workspace-close-preview','<path d="m6 6 12 12M18 6 6 18"/>');close.hidden=true;
+    const close=global.DraftedWorkspaceView.iconButton('Close','workspace-preview-action workspace-close-preview','<path d="m6 6 12 12M18 6 6 18"/>');close.hidden=true;close.insertAdjacentText('afterbegin','Close ');
     heading.append(expand,close);
     const dialog=document.createElement('dialog');dialog.id='cv-preview-dialog';dialog.className='cv-preview-dialog';dialog.setAttribute('aria-labelledby','cv-preview-heading');
     section.append(dialog);
@@ -23,10 +23,13 @@
       // Keep the same export control/handler reachable inside the modal focus trap.
       const exportAction=section.querySelector('.workspace-main-actions .workspace-print-button');
       if(exportAction){const marker=document.createComment('workspace export position');exportAction.before(marker);saved.exportMarker=marker;close.before(exportAction);const status=section.querySelector('.workspace-main-actions .workspace-print-status');if(status){saved.exportStatus=status;heading.append(status);}}
+      const label=card.querySelector('.workspace-preview-label'),header=document.createElement('div');header.className='cv-preview-dialog-header';
+      const labelMarker=document.createComment('preview label position'),closeMarker=document.createComment('close position');label.before(labelMarker);close.before(closeMarker);saved.labelMarker=labelMarker;saved.closeMarker=closeMarker;saved.header=header;header.append(label,close);heading.before(header);
       card.replaceWith(placeholder);dialog.append(card);expand.hidden=true;close.hidden=false;
       document.body.style.overflow='hidden';dialog.showModal();
       if(workspaceScroll){workspaceScroll.style.scrollSnapType='none';workspaceScroll.style.overflow='hidden';}
-      global.DraftedCvLayout.rescale(host);
+      document.dispatchEvent(new Event('drafted-preview-overlay-change'));
+      global.DraftedCvLayout.rescale(host);onMove();
       // Keep the same reading position when the viewer scale increases.
       if(anchor&&rect?.height){const fraction=(bounds.top-rect.top)/rect.height,newRect=anchor.getBoundingClientRect();pane.scrollTop+=newRect.top-pane.getBoundingClientRect().top+fraction*newRect.height;}
       close.focus({preventScroll:true});
@@ -36,13 +39,14 @@
       if(!saved)return;
       const previous=saved;saved=null;
       if(previous.exportMarker){previous.exportMarker.replaceWith(heading.querySelector('.workspace-print-button'));if(previous.exportStatus)section.querySelector('.workspace-main-actions').append(previous.exportStatus);}
-      previous.placeholder.replaceWith(card);expand.hidden=false;close.hidden=true;
+      previous.placeholder.replaceWith(card);previous.labelMarker.replaceWith(previous.header.querySelector('.workspace-preview-label'));previous.closeMarker.replaceWith(close);previous.header.remove();expand.hidden=false;close.hidden=true;
       document.body.style.overflow=previous.overflow;
       if(previous.workspace){workspaceScroll.style.overflow=previous.workspace.overflow;global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);workspaceScroll.scrollLeft=previous.workspace.left;}
-      global.DraftedCvLayout.rescale(host);
+      document.dispatchEvent(new Event('drafted-preview-overlay-change'));
+      global.DraftedCvLayout.rescale(host);onMove();
       pane.scrollTop=previous.top;pane.scrollLeft=previous.left;
       window.scrollTo(previous.x,previous.y);
-      (previous.focus?.isConnected?previous.focus:expand).focus({preventScroll:true});
+      expand.focus({preventScroll:true});
       global.DraftedWorkspaceView.dismissTooltips(heading);
       requestAnimationFrame(()=>{if(workspaceScroll){global.DraftedWorkspaceView.restoreScroll(workspaceScroll,previous.workspace.reading);workspaceScroll.style.scrollSnapType=previous.workspace.snap;}});
     }

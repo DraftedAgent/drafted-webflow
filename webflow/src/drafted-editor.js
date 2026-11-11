@@ -637,20 +637,8 @@ maybeShowTailor();
        card.classList.add('tailor-review');
        card.dataset.proposalId=crypto.randomUUID();
        const body=add('div','');body.className='tailor-review-body';body.tabIndex=0;body.setAttribute('role','group');body.setAttribute('aria-label','Proposed changes');
-       const runs=(host,items,side,standalone=false)=>{
-         host.className='tailor-diff-text';
-         for(const [index,item] of items.entries()){
-           // A separate change row already presents the paragraph boundary.
-           // Keep internal breaks and every whitespace-only edit visible.
-           const text=standalone&&index===0&&items.some(run=>run.text.trim())?item.text.replace(/^(?:\r?\n)+/,''):item.text;
-           if(item.type==='equal')host.append(document.createTextNode(text));
-           else {const mark=add(side==='removed'?'del':'mark',text,host);mark.className=side==='before'?'tailor-mark-before':side==='removed'?'tailor-mark-removed':'tailor-mark-added';}
-         }
-         const marked=items.filter(item=>item.type!=='equal');
-         if(marked.length&&marked.every(item=>!item.text.trim())){host.setAttribute('aria-label','Spacing or line breaks changed');add('span','Spacing or line breaks changed',host).className='tailor-spacing-note';}
-       };
        const endPreview=()=>{const preview=tailorCvPreview;tailorCvPreview=null;preview?.dispose();};
-       const previewDialog=document.getElementById('cv-preview-dialog');previewDialog?.addEventListener('close',endPreview);
+       const previewDialog=document.getElementById('cv-preview-dialog');
        const navigate=block=>{
          if(!checkCurrent())return;
          documentComparison?.edited();
@@ -660,6 +648,8 @@ maybeShowTailor();
        };
        // Actual text changes drive the review; source receipts stay optional.
        const proposed=DraftedTailorChangePreview.changes(request.blocks,data.blocks);for(const item of data.languageChanges||[])if(!proposed.some(c=>c.blockId===item.blockId))proposed.push({blockId:item.blockId,edits:[]});
+       let noteTargets=[];
+       if(data.recipe?.reviewNotes?.length){try{noteTargets=DraftedTailorSources.makeCatalog(request,data.scope).targets;}catch{ /* Older proposals may have no source catalog. */ }}
        for(const change of proposed.filter(change=>changed.includes(change.blockId))){
          const block=data.blocks.find(b=>b.blockId===change.blockId),section=add('section','',body);section.className='tailor-block-change';section.dataset.reviewBlockId=change.blockId;
          const title=add('div','',section);title.className='tailor-block-title';
@@ -677,17 +667,13 @@ maybeShowTailor();
          }else heading.textContent=sectionName(block);
          const decisions=add('div','',section);decisions.className='tailor-section-actions';
          for(const [text,value]of [['Accept','accept'],['Decline','decline'],['Edit','edit']]){const button=add('button',text,decisions);button.type='button';button.addEventListener('click',()=>value==='edit'?openSectionEdit(change.blockId):decideSections([change.blockId],value));}
-         const languageChange=data.languageChanges?.find(x=>x.blockId===change.blockId);if(languageChange)for(const [key,after]of Object.entries(languageChange.afterFields)){const before=languageChange.beforeFields[key];if(before===after||key==='label'||key==='title')continue;const row=add('div','',section);row.className='tailor-diff-row';add('span',key,row).className='tailor-diff-label';add('p',before+' → '+after,row);}
-         for(const edit of change.edits){
-           const item=add('div','',section);item.className='tailor-edit';item.dataset.changeKind=edit.kind;
-           add('span',edit.kind,item).className='tailor-edit-kind tailor-kind-'+edit.kind.toLowerCase();
-           if(edit.kind==='Rewritten'){
-             for(const [label,content,side] of [['Before',edit.before,'before'],['After',edit.after,'after']]){const row=add('div','',item);row.className='tailor-diff-row';add('span',label,row).className='tailor-diff-label';runs(add('div','',row),content,side);}
-           }else{
-             const row=add('div','',item);row.className='tailor-diff-row tailor-diff-'+edit.kind.toLowerCase();const symbol=add('span',edit.kind==='Added'?'+':'−',row);symbol.className='tailor-diff-symbol';symbol.setAttribute('aria-hidden','true');
-             runs(add('div','',row),edit.kind==='Added'?edit.after:edit.before,edit.kind==='Added'?'after':'removed',edit.standalone);
-           }
-         }
+         const notes=(data.recipe?.reviewNotes||[]).filter(n=>noteTargets.some(t=>t.targetKey===n.targetKey&&t.blockId===change.blockId)).map(n=>n.reason);
+         const recommendation=DraftedTailorChangePreview.describe({before:originalBlock,after:block,request,data,notes,meaningfulTitle});
+         const overview=add('div','',section);overview.className='tailor-recommendation';
+         for(const [label,text]of [['Recommendation',recommendation.recommendation],['Why',recommendation.why]])if(text){const p=add('p','',overview);add('strong',label+': ',p);p.append(document.createTextNode(text));}
+         const fields=[];
+         for(const key of ['label','title','employer','startDate','endDate','degree','program','institution'])if((originalBlock?.[key]||'')!==(block[key]||''))fields.push({name:key,before:originalBlock?.[key],after:block[key]});
+         DraftedTailorChangePreview.renderDetails(section,originalBlock?.text||'',block.text,fields);
        }
        if(data.sourcesSchemaVersion){
          const notes=[];
@@ -713,7 +699,7 @@ maybeShowTailor();
        const actions=add('div','',footer);actions.className='tailor-actions';
        const apply=add('button','Accept all remaining',actions);apply.type='button';apply.className='tailor-primary';
        const dismiss=add('button','Decline all remaining',actions);dismiss.type='button';
-       const navigationNotice=add('p','Accept or decline each section here or in the CV preview.',footer);navigationNotice.className='tailor-current-notice';navigationNotice.setAttribute('role','status');
+       const navigationNotice=add('p','',footer);navigationNotice.className='tailor-current-notice';navigationNotice.setAttribute('role','status');
        let stale=false,settled=false,removalObserver,reviewScroll=null;
        const checkCurrent=()=>{
          if(settled)return false;
@@ -723,7 +709,7 @@ maybeShowTailor();
            return false;
          }return true;
        };
-       const dispose=()=>{reviewScroll?.dispose();revisionAbort?.abort();settled=true;removalObserver?.disconnect();tailorReviewCheck=null;tailorReviewDispose=null;endPreview();previewDialog?.removeEventListener('close',endPreview);jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
+       const dispose=()=>{reviewScroll?.dispose();revisionAbort?.abort();settled=true;removalObserver?.disconnect();tailorReviewCheck=null;tailorReviewDispose=null;endPreview();jobAdInputEl?.removeEventListener('input',checkCurrent);targetRoleInput?.removeEventListener('input',checkCurrent);};
        tailorReviewDispose=dispose;
        tailorReviewCheck=()=>{if(!card.isConnected){dispose();return;}checkCurrent();};
        removalObserver=new MutationObserver(()=>{if(!card.isConnected)dispose();});removalObserver.observe(chatMessagesEl,{childList:true});
@@ -742,6 +728,7 @@ maybeShowTailor();
          cancel.addEventListener('click',()=>{revisionAbort?.abort();revising=false;form.remove();});
          form.addEventListener('submit',async event=>{
            event.preventDefault();if(revising||!checkCurrent()||!input.value.trim())return;
+           if(window.DraftedWorkspacePages?.sample&&window.__DRAFTED_COVERAGE__?.mode==='simulated'){notice.textContent='AI editing is not connected in this local demo. Your instruction and suggestion are kept.';return;}
            const endpoint=draftedFeatures.tailorRevision;
            if(!endpoint){notice.textContent='Suggestion editing is available in local Dev; the live revision backend has not been published yet.';return;}
            revising=true;revisionAbort=new AbortController();const controller=revisionAbort;update.disabled=true;notice.textContent='Revising this suggestion…';
@@ -756,6 +743,7 @@ maybeShowTailor();
              const noLongerNeeded=DraftedCoverageContract.canonical(revised.blocks.find(b=>b.blockId===id))===DraftedCoverageContract.canonical(request.blocks.find(b=>b.blockId===id));
              sectionSession.readingBlockId=noLongerNeeded?nextReadingId([id]):id;
              dispose();showTailorSuggestion(revised,stamp,request,omittedContext,sectionSession);
+             document.dispatchEvent(new CustomEvent('drafted-review-action',{detail:{blockId:id,action:'edit'}}));
              if(noLongerNeeded){automaticSelectionPending=false;const notice=chatMessagesEl.querySelector('.tailor-suggestion .tailor-current-notice');if(notice)notice.textContent='The revised section matches your current CV, so this change is no longer needed.';else showTailorFeedback('The revised suggestion matches your current CV. No change is needed.');}
            }catch(error){if(!controller.signal.aborted)notice.textContent='Could not revise this suggestion. Your instruction and previous suggestion are kept. Try again.';}
            finally{if(revisionAbort===controller){revising=false;revisionAbort=null;}update.disabled=false;}
@@ -783,8 +771,9 @@ maybeShowTailor();
              tailorAppliedStamp=null;
              discoveryController?.showChat(true);refreshTailorPresentation();
              tailorCompletionContext={request:deepClone(request),data:deepClone(data),decisions:deepClone(result.session.decisions),phase:'ready-for-tailoring'};
-             if(draftedFeatures.cvSelection)cvSelectionUI?.prepare();else{tailorCompletionContext.phase='completed';finishTailoringMessage();}
+             if(draftedFeatures.cvSelection&&!window.DraftedWorkspacePages?.sample)cvSelectionUI?.prepare();else{tailorCompletionContext.phase='completed';finishTailoringMessage();}
            }
+           for(const blockId of ids)document.dispatchEvent(new CustomEvent('drafted-review-action',{detail:{blockId,action:decision}}));
          }catch(error){
            navigationNotice.textContent='This section could not be applied safely. Your CV is unchanged.';
            card.querySelectorAll('button').forEach(b=>b.disabled=false);
@@ -793,7 +782,7 @@ maybeShowTailor();
        apply.addEventListener('click',()=>decideSections(changed,'accept'));
        dismiss.addEventListener('click',()=>{if(!checkCurrent()){dispose();card.remove();tailorReviewState=null;refreshTailorPresentation();return;}decideSections(changed,'decline');});
        chatMessagesEl.prepend(card);chatMessagesEl.scrollTop=0;
-       documentComparison?.edited();
+       if(!sectionSession.showChangesInitialized){documentComparison?.edited({showChanges:true});sectionSession.showChangesInitialized=true;}else documentComparison?.edited();
        tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:previewData,baseline:previewBaseline,onDecision:(id,value)=>value==='edit'?openSectionEdit(id):decideSections([id],value),proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
        tailorCvPreview.start();
        reviewScroll=DraftedReviewScroll.create({editor:body,preview:editorPreviewEl.closest('.cv-document'),host:editorPreviewEl,isActive:()=>!settled&&documentComparison?.mode()!=='original'});
@@ -802,29 +791,39 @@ maybeShowTailor();
 
      }
 
-     function finishTailoringMessage(selection=cvSelectionState){
+     let summaryTask=null;
+     async function finishTailoringMessage(selection=cvSelectionState){
        if(tailorInFlight||tailorFinishing||cvSelectionUI?.isBusy()||cvSelectionUI?.hasPending()||tailorReviewState||!tailorCompletionContext||tailorCompletionContext.phase!=='completed')return;
-       const context=tailorCompletionContext,accepted=Object.values(context?.decisions||{}).some(v=>v==='accept');
+       const context=tailorCompletionContext,stamp=tailorContextStamp();
+       if(summaryTask?.context===context&&summaryTask.stamp===stamp)return;
+       const task={context,stamp};summaryTask=task;
+       let transition=null;
+       if(!workspacePages?.restoring()&&!chatMessagesEl.querySelector('.tailor-completion')){
+         transition=document.createElement('p');transition.className='tailor-summary-preparing';transition.setAttribute('role','status');transition.textContent='Preparing a summary of your choices…';chatMessagesEl.classList.add('is-summary-preparing');chatMessagesEl.prepend(transition);
+         // A brief presentation transition, not simulated AI processing. Start
+         // after a painted frame so the fast local path remains visible.
+         await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+         await new Promise(resolve=>setTimeout(resolve,750));
+       }
+       if(summaryTask!==task||context!==tailorCompletionContext||stamp!==tailorContextStamp()){transition?.remove();if(summaryTask===task){summaryTask=null;chatMessagesEl.classList.remove('is-summary-preparing');}return;}
+       const accepted=Object.values(context?.decisions||{}).some(v=>v==='accept');
        const ops=selection?.proposal?.operations||[],decisions=selection?.proposal?.decisions||{};
        const approved=ops.filter(o=>decisions[o.blockId]==='accept'),omitted=approved.some(o=>o.action==='omit'),shortened=approved.some(o=>o.action==='shorten');
        const role=context?.request?.jobContext?.roleTitle||context?.request?.targetRole||'';
        const acceptedUsage=(context.data?.sourceUsage||[]).filter(source=>context.decisions?.[source.blockId]==='accept');
-       const topics=[...new Set(acceptedUsage.flatMap(source=>{
-         const answer=context.request.sourceContext?.answers.find(a=>a.id===source.answerId),question=context.request.sourceContext?.questions.find(q=>q.id===answer?.questionId);
-         return (question?.signalRefs||[]).map(ref=>{const item=context.request.jobContext?.[ref.field]?.[ref.index];return typeof item==='string'?item:item?.signal;}).filter(Boolean);
-       }))].slice(0,2);
-       let text=accepted||approved.length?(topics.length?'The CV now gives more emphasis to '+topics.join(' and ')+'.':accepted?'The accepted wording presents your experience'+(role?' for '+role:'')+' more clearly.':'Your approved content selection has been updated.'):'';
-       if(acceptedUsage.length)text+=' Your answers have been integrated into the selected experience, without repeating them under every linked employment.';
-       if(!text){
-         const declined=Object.values(context.decisions||{}).includes('decline')||Object.values(decisions).includes('decline');
-         const reasons=[...new Set([...(context.data?.recipe?.reviewNotes||[]).map(n=>n.reason),...(selection?.retained||[]).map(n=>n.reason)].filter(Boolean))].slice(0,2);
-         text=declined?'Your existing CV content has been retained according to your review decisions.':'No changes were proposed.';
-         if(!declined)text+=' '+(reasons.length?reasons.join(' '):'Tailoring returned no supported wording or selection changes.');
-       }
-       if(shortened)text+=' Repeated or lengthy wording has been shortened to make the relevant contributions easier to assess.';
-       if(omitted)text+=' Less relevant experience has been left out of this version to give the stronger contributions more room.';
-       if(ops.some(o=>o.action==='omit'&&decisions[o.blockId]==='decline'))text+=' Experience proposed for omission has been retained according to your choices.';
-       if(approved.some(o=>o.action==='restore'))text+=' Previously omitted experience has been restored.';
+       const acceptedBlocks=(context.data?.blocks||[]).filter(b=>context.decisions?.[b.blockId]==='accept');
+       const compressed=shortened||acceptedBlocks.some(b=>b.text.length<(context.request.blocks.find(o=>o.blockId===b.blockId)?.text.length||0));
+       const hasChanges=accepted||approved.length;
+       const themes=[...new Set((context.request.jobContext?.keywords||[]).filter(k=>k.length>4&&acceptedBlocks.some(b=>b.text.toLowerCase().includes(k.toLowerCase()))))].slice(0,3);
+       let what=hasChanges?'The approved CV'+(themes.length?' brings '+themes.join(', ')+' into clearer focus.':' reflects the wording and content choices you approved.'):'Your original CV has been retained. None of the proposed changes were applied.';
+       if(compressed)what+=' Approved descriptions have been shortened, giving the retained experience more room.';
+       if(omitted)what+=' The experience you approved for omission is left out of this version; its source remains saved.';
+       if(approved.some(o=>o.action==='restore'))what+=' The saved experience you chose to restore is included again.';
+       const paragraphs=[['What changed',what]];
+       if(hasChanges)paragraphs.push(['Why it fits this role',acceptedUsage.length?'The approved wording connects the examples you shared to the experience presented for '+(role||'the target role')+'. This makes those contributions easier to assess alongside the original CV.':'The result follows your selection of the proposed wording for '+(role||'the target role')+'. Suggestions you declined have not been applied.']);
+       if(Object.values(context.decisions||{}).includes('decline')&&hasChanges)paragraphs.push(['Your choices','The original wording remains wherever you declined a suggestion.']);
+       const text=paragraphs;
+       transition?.remove();chatMessagesEl.classList.remove('is-summary-preparing');summaryTask=null;
        tailorAppliedStamp=tailorContextStamp(discoveryController?.sourceContentRevision());showTailorFeedback(text);tailorOverviewStamp=tailorContextStamp();
      }
 
@@ -832,9 +831,13 @@ maybeShowTailor();
        tailorOverviewStamp=null;
        document.querySelectorAll('.tailor-feedback').forEach(node=>node.remove());
        const feedback=document.createElement('div');feedback.className='tailor-feedback discovery-guidance';feedback.setAttribute('role','status');
-       const message=document.createElement('p');message.textContent=text;feedback.append(message);
+       if(Array.isArray(text)){feedback.classList.add('tailor-completion');for(const [title,body]of text){const section=document.createElement('section'),heading=document.createElement('h3'),p=document.createElement('p');heading.textContent=title;p.textContent=body;section.append(heading,p);feedback.append(section);}}else{const message=document.createElement('p');message.textContent=text;feedback.append(message);}
        if(retry){const button=document.createElement('button');button.type='button';button.className='discovery-primary';button.textContent='Try tailoring again';button.addEventListener('click',()=>runTailor());feedback.append(button);}
-       chatMessagesEl.prepend(feedback);chatMessagesEl.scrollTop=0;refreshTailorPresentation();
+
+       chatMessagesEl.querySelectorAll('.tailor-followup').forEach(n=>n.remove());
+       chatMessagesEl.prepend(feedback);
+       if(Array.isArray(text)){const follow=document.createElement('p');follow.className='tailor-followup';follow.textContent='Would you like to refine anything further, or ask a question about this CV? Select a section to focus your request, or use the whole CV.';feedback.after(follow);}
+       chatMessagesEl.scrollTop=0;refreshTailorPresentation();
      }
 
      async function fetchTailorSources(payload){
@@ -898,7 +901,7 @@ maybeShowTailor();
          console.error('Tailoring failed',{endpoint:endpoint.origin+endpoint.pathname,code:err instanceof DraftedTailorSourceClient.Failure?err.code:'TAILOR_FAILED',status:err instanceof DraftedTailorSourceClient.Failure?err.status:null,backendCode:err instanceof DraftedTailorSourceClient.Failure?err.backendCode:null});
          showTailorFeedback(err?.message==='SIGNAL_CATALOG_UNAVAILABLE'?'Job signals are not ready. Open Job signals to review or retry their preparation; your CV and answers are kept.':err?.message==='STALE_SIGNAL_CONTEXT'?'Your job context changed. Prepare a new suggestion.':sourceRequest?DraftedTailorSourceClient.message(err):'Tailoring failed. Try again.',true);
        }
-       finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();if(automaticSelectionPending){automaticSelectionPending=false;if(draftedFeatures.cvSelection)cvSelectionUI?.prepare();else{tailorCompletionContext.phase='completed';finishTailoringMessage();}}}
+       finally{tailorInFlight=false;btn.disabled=false;refreshTailorPresentation();if(automaticSelectionPending){automaticSelectionPending=false;if(draftedFeatures.cvSelection&&!window.DraftedWorkspacePages?.sample)cvSelectionUI?.prepare();else{tailorCompletionContext.phase='completed';finishTailoringMessage();}}}
      }
 
      function setTailorHidden() {
@@ -930,8 +933,8 @@ maybeShowTailor();
     }
   function maybeShowTailor() {
     syncWorkspaceJobContext();
-    if(!workspacePages?.restoring())coverageController?.sync();
-    if(!workspacePages?.restoring())discoveryController?.sync();
+    if(!window.DraftedWorkspacePages?.sample&&!workspacePages?.restoring())coverageController?.sync();
+    if(!window.DraftedWorkspacePages?.sample&&!workspacePages?.restoring())discoveryController?.sync();
     const hasJobContext =
       !!(window.__DRAFTED_JOBCONTEXT__ &&
         typeof window.__DRAFTED_JOBCONTEXT__ === "object" &&
@@ -1614,7 +1617,7 @@ function setApplyLabel() {
     portraitController=DraftedCvPortrait.create({host:editorPreviewEl,getJob:()=>activeJobText,getDesign:()=>selectedCvDesign,onChange:()=>renderDocument(documentTextState)});
     previewZoom=DraftedCvPreviewZoom.create({host:editorPreviewEl,controls:previewTitle});
     const previewCard=editorPreviewEl.closest('.cv-card');
-    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle});
+    if(previewCard)previewView=DraftedCvPreviewOverlay.create({section,card:previewCard,host:editorPreviewEl,heading:previewTitle,onMove:()=>{documentComparison?.afterRender();tailorCvPreview?.afterRender();}});
     documentComparison=DraftedCvDocumentComparison.create({host:editorPreviewEl,controls:previewTitle,getEdited:()=>tailorCvPreview?.model()||({blocks:documentBlocksState||[],cvTitle:documentTitle}),getCompared:()=>({blocks:documentBlocksState||[],cvTitle:documentTitle}),render:()=>renderDocument(documentTextState)});
     browserPrint=DraftedCvBrowserPrint.create({host:editorPreviewEl,controls:previewTitle,getError:()=>portraitController?.error(),getTitle:()=>documentTitle,getEdited:()=>({portrait:portraitController?.model(),blocks:deepClone(documentBlocksState||[]),title:documentTitle,templateId:selectedCvDesign,structure:DraftedCvStructure.create(documentComparison?.original()?.blocks||documentBlocksState||[])})});
     const exportButton=previewTitle.querySelector('.workspace-print-button');
@@ -1789,7 +1792,7 @@ function setApplyLabel() {
      BUILD STATE FROM BLOCKS
      =============================== */
   function buildStateFromBlocks(blocks, {preserveCanonical=false} = {}) {
-    queueMicrotask(() => {if(!workspacePages?.restoring())discoveryController?.sync();});
+    queueMicrotask(() => {if(!window.DraftedWorkspacePages?.sample&&!workspacePages?.restoring())discoveryController?.sync();});
     if (!Array.isArray(blocks) || !blocks.length) {
       documentBlocksState = null;
       blockRangesById = {};
@@ -1850,14 +1853,16 @@ function setApplyLabel() {
      =============================== */
   function renderDocument(text) {
     coverageNavigation?.clear();
-    queueMicrotask(()=>{if(!workspacePages?.restoring())coverageController?.sync();});
+    queueMicrotask(()=>{if(!workspacePages?.restoring())coverageController?.sync({automatic:!window.DraftedWorkspacePages?.sample});});
     tailorReviewCheck?.();
     tailorCvPreview?.beforeRender();
     documentComparison?.sync(isPreviewingProposal);
     documentComparison?.beforeRender();
-    const selection=cvSelectionUI?.model();
-    const suggestion=tailorCvPreview?.model(),original=documentComparison?.model(),presentation=original||selection||suggestion;
-    tailorCvPreview?.setPresentation({active:!original,marks:true});
+    const showChanges=documentComparison?.changes()??false;
+    const selection=showChanges?cvSelectionUI?.model():null;
+    const suggestion=showChanges?tailorCvPreview?.model():null,original=documentComparison?.model(),presentation=original||selection||suggestion;
+    tailorCvPreview?.setPresentation({active:!original&&showChanges,marks:showChanges});
+    document.querySelectorAll('.cv-selection-preview-review').forEach(node=>{node.hidden=!!original||!showChanges;});
     editorPreviewEl.dataset.cvPreviewMode=original?'original':selection&&cvSelectionUI.hasPending()||suggestion?'suggested':'current';
     const workspaceTitle = document.querySelector('.workspace-document-title');
     if (workspaceTitle) {
@@ -2491,6 +2496,7 @@ async function handlePreviewClick() {
    =============================== */
 
 async function sendChat() {
+  if(window.DraftedWorkspacePages?.sample&&window.__DRAFTED_COVERAGE__?.mode==='simulated'){appendChat('assistant','AI editing is not connected in this local demo. Your message has not been sent.');return;}
   // Block during upload-processing lock
   if (editorPaper && editorPaper.classList.contains("is-processing")) {
     return;
@@ -2890,7 +2896,7 @@ function bindPdfDownloadButton() {
   function captureWorkspace(){
     if(document.documentElement.dataset.workspacePage==='editor'&&document.documentElement.dataset.workspaceReady==='true'&&!document.documentElement.dataset.workspaceBooting)workspaceReading={chat:chatMessagesEl.scrollTop,document:editorPreviewEl.closest('.cv-document')?.scrollTop||0};
     const cv=documentBlocksState?.length?serialSnapshot(snapshotCurrentState()):null;
-    return {cv,portrait:portraitController?.snapshot(),tailorCompletionContext,cvSelection:cvSelectionState,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,cvLanguageConfirmed,design:selectedCvDesign,chatHistory,
+    return {cv,sampleVersion:window.DraftedWorkspacePages?.sample?3:undefined,portrait:portraitController?.snapshot(),tailorCompletionContext,cvSelection:cvSelectionState,comparison:documentComparison?.snapshot(),contextRevision:workspaceContextRevision,language:documentLanguage,cvLanguageConfirmed,design:selectedCvDesign,chatHistory,
       messages:[...chatMessagesEl.querySelectorAll(':scope > .chat-message:not(.drafted-proposal-card), :scope > .suggestion-receipt')].map(el=>({role:el.classList.contains('user')?'user':el.classList.contains('system')?'system':'assistant',text:el.textContent,receiptId:el.dataset.receiptId||null,association:el.dataset.proposalAssociation||null})),
       activeSelectionRequest,appliedChatReceipts,selectionSources,pendingProposal,pendingProposalMeta,pendingSuggestion,isPreviewingProposal,previewSnapshot:serialSnapshot(previewSnapshot),
       jobText:activeJobText,jobDraft:jobAdInputEl.value,jobContext:window.__DRAFTED_JOBCONTEXT__,jobStatus:jobContextStatusEl.dataset.state,
@@ -2927,6 +2933,7 @@ function bindPdfDownloadButton() {
     if(saved.discovery)discoveryController?.restore(saved.discovery);
     await coverageController?.restore(saved.coverage);
     tailorAppliedStamp=saved.tailorAppliedStamp||null;tailorReviewState=saved.tailorReview||null;
+    if(window.DraftedWorkspacePages?.sample&&saved.sampleReview&&!tailorReviewState)tailorReviewState={...saved.sampleReview,stamp:tailorContextStamp(),omittedContext:[],sectionSession:null};
     if(tailorReviewState){const review=tailorReviewState;try{if(review.stamp!==tailorContextStamp()||!cvLanguageDecision().language)throw Error('STALE_CONTEXT');if(review.data.sourcesSchemaVersion)await DraftedTailorSources.validateCandidate(review.request,review.data);if(review.sectionSession){const expected=await DraftedSectionReview.project(review.request,review.data,review.sectionSession);if(DraftedCoverageContract.canonical(expected.blocks)!==DraftedCoverageContract.canonical(documentBlocksState)||DraftedCoverageContract.canonical(expected.ledger)!==DraftedCoverageContract.canonical(DraftedSectionReview.ledger(tailorSourceLedger)))throw Error('STALE_SECTION_REVIEW');}showTailorSuggestion(review.data,review.stamp,review.request,new Set(review.omittedContext),review.sectionSession);const draft=chatMessagesEl.querySelector('.tailor-suggestion textarea');if(draft)draft.value=saved.tailorDraft||'';}catch{tailorReviewState=null;appendChat('system','The saved tailoring suggestion needs an update. Your CV and answers are unchanged.');}}
     cvSelectionUI?.sync();cvSelectionUI?.draw();
     if(pendingProposal||pendingSuggestion)appendProposalCard(pendingProposalMeta);setApplyLabel();syncWorkspaceJobContext();refreshTailorPresentation();
@@ -2937,7 +2944,7 @@ function bindPdfDownloadButton() {
   }
   window.DraftedTailorLanguageControl={create:createCvLanguageControl};
   DraftedReviewHover.create({editor:chatMessagesEl,host:editorPreviewEl});
-  cvSelectionUI=DraftedCvSelectionUI.create({host:chatMessagesEl,previewHost:editorPreviewEl,onReview:()=>{tailorFinishing=false;if(tailorCompletionContext)tailorCompletionContext.phase='selection-review';refreshTailorPresentation();},onStart:()=>{tailorFinishing=true;tailorAppliedStamp=null;if(tailorCompletionContext)tailorCompletionContext.phase='tailoring';chatMessagesEl.querySelectorAll('.tailor-feedback,.tailor-applied-language').forEach(n=>n.remove());refreshTailorPresentation();},onError:()=>{tailorFinishing=false;if(tailorCompletionContext)tailorCompletionContext.phase='failed';refreshTailorPresentation();},onComplete:selection=>{if(selection?.tailoringStatus!=='completed')return;tailorFinishing=false;if(tailorCompletionContext)tailorCompletionContext.phase='completed';finishTailoringMessage(selection);},getProtectedBlocks:()=>Object.entries(tailorCompletionContext?.decisions||{}).filter(([,value])=>value==='decline').map(([id])=>id),getState:()=>cvSelectionState,setState:value=>{cvSelectionState=value;},getCurrent:()=>deepClone(documentBlocksState||[]),getAnswers:()=>deepClone(discoveryController?.snapshot()?.session?.answers||[]),getVersion:()=>cvVersionId,getJob:()=>({text:activeJobText,context:window.__DRAFTED_JOBCONTEXT__}),getPages:()=>Number(editorPreviewEl.dataset.pageCount)||null,canReview:()=>!tailorInFlight&&!tailorReviewState&&!isPreviewingProposal&&!pendingProposal,
+  cvSelectionUI=DraftedCvSelectionUI.create({host:chatMessagesEl,previewHost:editorPreviewEl,isChangesVisible:()=>!!documentComparison?.changes()&&documentComparison?.mode()!=='original',onReview:()=>{documentComparison?.edited({showChanges:true});tailorFinishing=false;if(tailorCompletionContext)tailorCompletionContext.phase='selection-review';refreshTailorPresentation();},onStart:()=>{tailorFinishing=true;tailorAppliedStamp=null;if(tailorCompletionContext)tailorCompletionContext.phase='tailoring';chatMessagesEl.querySelectorAll('.tailor-feedback,.tailor-applied-language').forEach(n=>n.remove());refreshTailorPresentation();},onError:()=>{tailorFinishing=false;if(tailorCompletionContext)tailorCompletionContext.phase='failed';refreshTailorPresentation();},onComplete:selection=>{if(selection?.tailoringStatus!=='completed')return;tailorFinishing=false;if(tailorCompletionContext)tailorCompletionContext.phase='completed';finishTailoringMessage(selection);},getProtectedBlocks:()=>Object.entries(tailorCompletionContext?.decisions||{}).filter(([,value])=>value==='decline').map(([id])=>id),getState:()=>cvSelectionState,setState:value=>{cvSelectionState=value;},getCurrent:()=>deepClone(documentBlocksState||[]),getAnswers:()=>deepClone(discoveryController?.snapshot()?.session?.answers||[]),getVersion:()=>cvVersionId,getJob:()=>({text:activeJobText,context:window.__DRAFTED_JOBCONTEXT__}),getPages:()=>Number(editorPreviewEl.dataset.pageCount)||null,canReview:()=>!tailorInFlight&&!tailorReviewState&&!isPreviewingProposal&&!pendingProposal,
    render:()=>renderDocument(documentTextState),
    commit:(blocks,{operation,state})=>{
     if(!blocks.length)throw Error('At least one CV block must remain.');
@@ -2952,4 +2959,4 @@ function bindPdfDownloadButton() {
     buildStateFromBlocks(blocks,{preserveCanonical:true});discoveryController?.adoptRepresentation(documentBlocksState,cvVersionId);
    }});
 
-  onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,commitJobDraft:async()=>{const next=jobAdInputEl.value;if(next===activeJobText)return;activeJobText=next;handleJobAdInput();clearJobContextDebounce();if(next.trim().length>=200)await runJobContextExtract();},sourceFile:()=>discoveryCvFile,portraitFile:()=>portraitController?.file(),adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;if(!coverageController?.model.restoreBlocked)coverageController?.sync();}});});
+  onReady(()=>{if(!window.DraftedWorkspacePages?.enabled)return;workspacePages=DraftedWorkspacePages.create({capture:captureWorkspace,restore:restoreWorkspace,commitJobDraft:async()=>{const next=jobAdInputEl.value;if(next===activeJobText)return;activeJobText=next;handleJobAdInput();clearJobContextDebounce();if(next.trim().length>=200)await runJobContextExtract();},sourceFile:()=>discoveryCvFile,portraitFile:()=>portraitController?.file(),adoptSource:file=>{discoveryCvFile=file;},showEditor:()=>{chatMessagesEl.scrollTop=workspaceReading.chat;editorPreviewEl.closest('.cv-document').scrollTop=workspaceReading.document;if(!window.DraftedWorkspacePages?.sample&&!coverageController?.model.restoreBlocked)coverageController?.sync();previewZoom?.open(cvVersionId);}});if(window.DraftedWorkspacePages.sample)workspacePages.ready.then(()=>window.DraftedDemoTour.create({host:chatMessagesEl,getState:captureWorkspace,getSelection:()=>[...selectedBlockIds]}));});

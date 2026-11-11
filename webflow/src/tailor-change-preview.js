@@ -35,27 +35,71 @@
   }else{push('remove',x.join(''));push('add',y.join(''));}
   push('equal',end?a.slice(a.length-end).join(''):'');return ops;
  }
- function context(text,tail){
-  if(text.length<=100)return text;
-  return tail?'…'+text.slice(-100).replace(/^\S*\s/,''):text.slice(0,100).replace(/\s\S*$/,'')+'…';
- }
+ // Review complete blocks once. Context-window hunks used to overlap, split
+ // sentences and leave isolated bullet markers even though the sources were whole.
  function edits(before,after){
-  const ops=wordDiff(before,after),out=[];
-  for(let i=0;i<ops.length;i++){
-   if(ops[i].type==='equal')continue;
-   const from=i;let to=i;
-   while(to+1<ops.length){
-    if(ops[to+1].type!=='equal'){to++;continue;}
-    if(to+2<ops.length&&ops[to+1].text.length<70&&!/\n/.test(ops[to+1].text)){to+=2;continue;}break;
+  if(before===after)return [];
+  const ops=wordDiff(before,after),removed=ops.filter(o=>o.type==='remove').map(o=>o.text).join(''),added=ops.filter(o=>o.type==='add').map(o=>o.text).join('');
+  return [{kind:!before?'Added':!after?'Removed':'Rewritten',before:ops.filter(o=>o.type!=='add'),after:ops.filter(o=>o.type!=='remove'),removed,added,standalone:false}];
+ }
+ function describe({before,after,request={},data={},notes=[],meaningfulTitle=false,action}){
+  if(action==='omit')return {recommendation:'Omit this entire block from this CV version. The source content is preserved.',why:notes.join(' ')};
+  if(action==='restore')return {recommendation:'Restore the saved block to this CV version for approval.',why:notes.join(' ')};
+  const old=before?.text||'',text=after?.text||'',words=t=>(t.match(/[\p{L}\p{N}]+/gu)||[]).length;
+  const parts=[],changed=wordDiff(old,text).filter(o=>o.type!=='equal').map(o=>o.text).join(' ');
+  const topics=(request.jobContext?.keywords||[]).filter(k=>typeof k==='string'&&k.length>3&&text.toLocaleLowerCase().includes(k.toLocaleLowerCase())).slice(0,3);
+  const name=before?.type==='summary'?'profile':before?.type==='skills'?'skills section':'description';
+  // Extract an intact action clause from the most changed point. This names
+  // the real subject without generating career claims or guessing intent.
+  const actions={coordinated:'coordinating',introduced:'introducing',used:'using',wrote:'writing',interviewed:'interviewing',supported:'supporting',managed:'managing',led:'leading',developed:'developing',built:'building',created:'creating',delivered:'delivering',reviewed:'reviewing',collaborated:'collaborating',maintained:'maintaining',organised:'organising',organized:'organizing'};
+  const oldLines=old.split(/\n+/),points=text.split(/\n+/).map((line,i)=>{
+   const raw=line.replace(/^[•*\-]\s*/,''),match=raw.match(/^(\w+)\s+(.+?)(?:[,;.]| and |$)/),gerund=actions[match?.[1]?.toLowerCase()];
+   const delta=wordDiff(oldLines[i]||'',line).filter(o=>o.type==='add'||o.type==='remove').reduce((n,o)=>n+o.text.length,0);
+   return {topic:gerund&&match[2].length<100?gerund+' '+match[2]:'',delta};
+  }).filter(p=>p.topic&&p.delta).sort((a,b)=>b.delta-a.delta);
+
+  const scopePattern=/\b(responsib\w*|own\w*|led|lead|decid\w*|decision\w*|supervis\w*|independen\w*|mandat\w*|ansvar\w*|självständ\w*|handled\w*)\b/iu;
+  if(old!==text){
+   const oldItems=old.split(/\s*[·;]\s*/),newItems=text.split(/\s*[·;]\s*/);
+   if(oldItems.length>1&&JSON.stringify([...oldItems].sort())===JSON.stringify([...newItems].sort()))parts.push('Reorder the '+name+' to lead with '+newItems[0]+'.');
+   else if(words(text)<words(old))parts.push('Shorten the '+name+' from '+words(old)+' to '+words(text)+' words'+(topics.length?', focusing on '+topics.join(', '):'')+'.');
+   else parts.push(points.length?'Rework the point about '+points[0].topic+'.':'Rephrase the '+name+(topics.length?' around '+topics.join(', '):'')+'.');
+   if(words(text)<words(old)&&before?.type==='experience'&&points.length)parts.push('Rework the point about '+points[0].topic+'.');
+   const uses=(data.sourceUsage||[]).filter(u=>u.blockId===after?.blockId);
+   if(uses.length)parts.push('Incorporate '+(new Set(uses.map(u=>u.answerId)).size===1?'your saved answer':'your saved answers')+' into this block.');
+   if(scopePattern.test(changed)){
+    const clauses=text.split(/(?<=[.!?;])\s+|\n/).map(t=>t.replace(/^[•*\-]\s*/,''));
+    const scope=clauses.find(t=>scopePattern.test(t)&&!old.includes(t)&&t.length<=220);
+    const oldScope=old.split(/(?<=[.!?;])\s+|\n/).map(t=>t.replace(/^[•*\-]\s*/,'')).find(t=>scopePattern.test(t)&&!text.includes(t)&&t.length<=220);
+    parts.push(scope?'Responsibility wording: “'+scope+'”':oldScope?'Remove or replace the responsibility wording “'+oldScope+'” — check its scope before accepting.':'Change the wording about responsibility or decision-making; check its scope before accepting.');
    }
-   const middle=ops.slice(from,to+1),removed=middle.filter(o=>o.type==='remove').map(o=>o.text).join(''),added=middle.filter(o=>o.type==='add').map(o=>o.text).join('');
-   const kind=!removed?'Added':!added?'Removed':'Rewritten';
-   // A complete appended/removed sentence or paragraph needs no repeated block.
-   const standalone=kind!=='Rewritten'&&(/\n/.test(added||removed)||/^\s*[•*\-]/.test(added||removed)||/[.!?]\s*$/.test(added||removed));
-   const leading=standalone?'':context(ops[from-1]?.text||'',true),trailing=standalone?'':context(ops[to+1]?.text||'',false);
-   const runs=side=>[...(leading?[{type:'equal',text:leading}]:[]),...middle.filter(o=>o.type!==(side==='before'?'add':'remove')),...(trailing?[{type:'equal',text:trailing}]:[])];
-   out.push({kind,before:runs('before'),after:runs('after'),removed,added,standalone});i=to;
-  }return out;
+  }
+  if(meaningfulTitle)parts.push('Change the role title from “'+(before.title||'(none)')+'” to “'+(after.title||'(none)')+'”.');
+  if(!parts.length)parts.push('Update the displayed section information.');
+  const priorities=[];
+  for(const use of (data.sourceUsage||[]).filter(u=>u.blockId===after?.blockId)){
+   const answer=request.sourceContext?.answers?.find(a=>a.id===use.answerId),q=request.sourceContext?.questions?.find(q=>q.id===answer?.questionId);
+   for(const ref of q?.signalRefs||[]){const value=request.jobContext?.[ref.field]?.[ref.index],label=typeof value==='string'?value:value?.signal;if(label&&!priorities.includes(label))priorities.push(label);}
+  }
+  return {recommendation:parts.join(' '),why:notes.length?notes.join(' '):priorities.length?'The saved answer is linked to the target role’s priority: '+priorities.slice(0,2).join('; ')+'.':''};
+ }
+ function renderDetails(host,before,after,fields=[]){
+  const doc=host.ownerDocument,add=(tag,text,parent)=>{const n=doc.createElement(tag);n.textContent=text;parent.append(n);return n;};
+  const details=add('details','',host);details.className='tailor-exact-changes';add('summary','Show exact changes',details);
+  for(const field of fields){const row=add('p','',details);add('strong',field.name+': ',row);add('del',field.before||'(none)',row);row.append(doc.createTextNode(' → '));add('mark',field.after||'(none)',row);}
+  const ops=wordDiff(before,after);
+  for(const [label,excluded] of [['Before','add'],['After','remove']]){
+   const row=add('div','',details);row.className='tailor-diff-row';add('span',label,row).className='tailor-diff-label';
+   const text=add('div','',row);text.className='tailor-diff-text';text.dataset.diffSide=label.toLowerCase();
+   // Keep all original characters, including line boundaries. No shortening,
+   // context windows or separate DOM rows for individual token changes.
+   for(const op of ops.filter(o=>o.type!==excluded)){
+    if(op.type==='equal')text.append(doc.createTextNode(op.text));
+    else add(label==='Before'?'del':'mark',op.text,text).className=label==='Before'?'tailor-mark-removed':'tailor-mark-added';
+   }
+   if(!(label==='Before'?before:after))add('span',label==='Before'?'Not in this CV version.':'Omitted in this proposed version.',row).className='tailor-diff-empty';
+  }
+  return details;
  }
  function paragraph(text,start,end){while(start<end&&/\s/.test(text[start]))start++;const before=text.lastIndexOf('\n\n',start),after=text.indexOf('\n\n',end);return text.slice(before<0?0:before+2,after<0?text.length:after);}
  function changes(previous,next){
@@ -67,5 +111,5 @@
    out.push({blockId:b.blockId,action:!added?'Remove':!removed?'Add':'Update',text:added?paragraph(b.text,from,b.text.length-end):paragraph(old.text,from,old.text.length-end),edits:edits(old.text,b.text)});
   }return out;
  }
- return {changes,wordDiff};
+ return {changes,wordDiff,describe,renderDetails};
 });

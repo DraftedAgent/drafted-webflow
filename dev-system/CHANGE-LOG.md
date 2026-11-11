@@ -2271,3 +2271,140 @@ Same1500x1000 viewport/80% zoom before/after screenshots compared, plus bottom-s
 Owner requests6px main white editor surface and4px outer CV paper. Added those two radii to the existing screen-only elevation rules in site/workspace-layout.css. Existing conversation-body clipping already aligns its content with its own rounded background; no nested component radii changed. Paper retains overflow-visible and ample content margins, so no additional clipping layer or wrapper needed. Photo masks unchanged. Screen-only page radius is absent in print/PDF.
 
 Temporary browser check passes all five templates: computed paper4px/editor6px, shadow present, page overflow not hidden; page dimensions/text/page count identical with radius toggled; print radius0 and shadow none. Desktop screenshot visually reviewed,390px view has no horizontal overflow. Standalone protected outputs unchanged. No commit/push/publication.
+
+## DEV-321 — Sample CV entry in the existing editor (2026-11-11)
+
+Owner requests Try with a sample CV on the landing page, prebuilt fictional original/job/job-context/processed suggestions, isolated demo storage, discreet label, Reset sample and Use my own CV. Added a curated sample-workspace package (Alex Morgan, fictional product operations role, original source blocks and three prepared shorten proposals). Uses existing CvSelection.propose/preview, ordinary workspace restore, comparison, Accept/Decline/Edit and native print/export guards. Approved CV remains original until acceptance; no AI result is fabricated as an accepted decision. Original blocks remain in comparison/selection sources; no original PDF file is implied.
+
+Landing link opens /editor?sample=1. WorkspaceStore now accepts an allowlisted personal/sample namespace; sample appends a suffix to the existing tab ID without changing the personal ID, database schema or file handling. Sample changes persist separately. Reset writes a fresh prepared sample to only that namespace; Use my own CV and setup links return through a full normal-page navigation. Sample boot/reload bypasses automatic discovery and coverage sync; existing explicit Edit/chat/coverage requests use existing endpoint configuration and access boundaries. No provider keys, mocks, endpoints or real access granted by sample mode. Same shared editor, not a separate renderer or demo application. Mobile sample action row can wrap.
+
+Dedicated blocked-external browser regression passes: landing entry, three prepared suggestions and proposed preview, zero POSTs during sample startup/reset/reload, Original vs approved state, mixed Accept/Decline and ordinary export enablement/print contents, persisted sample decisions, reset to original pending package, one explicit Edit request via simulated endpoint with approved blocks unchanged, return to personal CV/job/draft and exact original-file bytes preserved. Desktop/mobile screenshots reviewed; no mobile horizontal overflow. Tests are local functional simulation, not real provider/model quality. Standalone build protected assets unchanged. No production publication, paid calls, commit or push. This implements explicit owner workflow requirements; no new research-dependent content policy inferred.
+
+## DEV-322 — Sample entry directly below Continue (2026-11-11)
+
+Moved Try with a sample CV from landing hero into the existing preparation-actions, immediately after Continue to editor and before status feedback. Centered the single entry with teal600-weight underlined text and a comfortable click area; existing destination/sample isolation unchanged. Standalone rebuilt with protected outputs unchanged. Local browser geometry check covers desktop/mobile alignment. No publication.
+
+## DEV-323 — Sample uses ordinary source-based tailoring review (2026-11-11)
+
+Owner requests simplified demo with centred DEMO, no introduction or duplicate preview action rows, completed prepared questions and meaningful normal tailoring suggestions. Replaced sample's selection-operation review with the existing source-based showTailorSuggestion/DraftedSectionReview/DraftedTailorCvPreview flow. Static sample-review-data contains two completed fictional question answers, employment references, validated1.3 request/catalog/recipe/candidate and four proposals (profile, both employments, skills ordering). Data was compiled deterministically from authored content and validated locally, with no AI/model call. Current approved CV still starts as original; preview shows proposed wording with normal diffs and hover actions. Preserves personal/sample storage separation; sample package version2 resets obsolete initial sample state only.
+
+Normal review restoration computes a context stamp from restored workspace/sources before candidate validation. Decisions use normal receipts, stable block IDs, accept/decline/edit and preview synchronization. Once sample review is handled, its pre-completed tailoring does not call the automatic content-selection provider; it completes through ordinary finishTailoringMessage, grounded in accepted source usage/decisions. Existing summary gets a Use my own CV link. No separate sample summary algorithm, tutorial or explanation box. DEMO is absolute-centred across desktop topbar independent of side actions; mobile keeps it on identity row, with sample actions wrapping. Removed initial assistant introduction and selection preview duplicate controls by using the ordinary reviewer rather than hiding real controls.
+
+Browser test passes zero POSTs for opening/reload/reset/review completion, two recorded source answers in completed round, four normal cards, diff highlights, preview-hover Accept immediately removing matching card, persistence of partial decisions, mixed acceptance/rejection and approved print content, all-declined retained-content summary, completed-summary reload and personal CV/job/draft/original-file preservation. Desktop/mobile screenshots reviewed; no horizontal page overflow. Static data is contract-validated synthetic content, not a real-model-quality evaluation. Access limits unchanged; user-triggered Edit uses ordinary revision endpoint. No new external access, paid model calls, commit/push or publication. Standalone protected outputs unchanged.
+
+## DEV-324 — Interactive first-visit demo tour over real editor actions (2026-11-11)
+
+Owner requests a short demo-only tour with anchored rectangular popups, stationary coach and subtle pulsing target, then real review/context/chat actions. Added demo-tour.js initialized only after sample workspace restoration. It observes existing editor DOM, stable review block IDs and success events emitted only after normal validated Accept/Decline/Edit operations. Steps: preview/Original comparison, first real suggestion, correct accepted/declined/revised result at the matching CV block, no coaches while reviewing remaining suggestions, ordinary final summary then real section selection/context chip and optional example fill. Filling dispatches ordinary input only, never submits. Guide never commits blocks or invokes fetch. No popup covering its current target; if no safe space exists in a tiny viewport, coach hides while toolbar Skip remains available. Arrow/marker follow clipped visible target geometry on scroll, zoom, rerender and resize. Result anchoring runs after the review's next-card alignment settles so removed cards cannot redirect the guide to the wrong block.
+
+Skip tour is always in sample toolbar while active and on visible coaches; Replay tour is available after completion/skip. Browser localStorage retains progress/completion/skip across reload and sample resets. Reset during an active tour closes it as skipped rather than leaving stale approved-state copy against a fresh sample; replay is explicit. Reduced motion disables marker pulse. Screen-only guide is outside printable document. No added tutorial-independent boxes.
+
+In the simulated local sample, attempting Edit/Send now explicitly says real AI editing is not connected and preserves instruction/message/proposal; no simulated success is presented. Real configured connections retain existing endpoints and access limits. Ordinary non-demo simulation unchanged.
+
+Dedicated local browser tests pass Accept/Decline/Edit success and failure, inaccessible AI with zero requests, contract-validated mocked revision still awaiting Accept, accepting that revision, exact matching card removal, partial-step reload, stable result through75% zoom, real CV selection/chip, example fill without send, explicit Send access message, completion/Skip/Replay/reload, completed and active Reset behavior, reduced motion and390px mobile coaches. Desktop/mobile screenshots visually inspected. Existing sample regression also passes source-validated decisions/summary/export/personal-work isolation. Successful Edit model output is locally mocked and validated, not a real-provider quality evaluation. No paid/external model calls or production publication. Standalone protected outputs unchanged; no commit/push.
+
+## DEV-325 — Hover comparison then real preview Accept in demo tour (2026-11-11)
+
+Owner splits tour step2 into See the difference, pointing to a changed CV block, then Try accepting a suggestion near that same block's real Accept button. Added a read-only review-hover event after the existing original-wording rendering/actions become active; the guide advances only for its stable block ID. Different blocks do not advance it. Pointer/focus/touch comparison remains owned by the existing preview. Hover loss restores suggested wording as before. Touch-capable devices receive tap copy and use existing tap/focus review controls.
+
+Popup anchoring reserves the union of the visible block, real review action group and joining corridor, with8px clearance; arrow targets the real Accept button while active. No scrolling is triggered by changing from comparison to Accept instruction, preserving hover and mouse access. If visitor compared Original in step1, Next switches presentation back via the ordinary Current button before comparison coaching; no CV mutation. Migrates old decision-stage progress to comparison. Conditional hidden writes avoid observer feedback when observing the real action group's visibility.
+
+Successful Accept/Decline/Edit events still advance from either substep, including actions performed in editor cards. Accepted copy is now Improvement accepted / This wording is now part of the CV. You can accept, decline or edit the remaining suggestions. Try the remaining suggestions hides the coach until ordinary final summary/context guidance. Removed popup Skip action; toolbar exit is visually subdued. Other persistence, replay and access behavior retained.
+
+Browser verification passes preview Accept with actual mouse travel from block to live button, editor Accept (including prior Original comparison), Decline and failed/successful mocked Edit, wrong-block hover not advancing, actual original display and restoration on mouse leave, zero popup intersection with block/button/corridor, unchanged block ID, no popup Skip, revised proposal still requiring Accept, renamed continuation, ordinary final review/context flow, reload/Skip/Replay/Reset, reduced motion and real mobile tap progression. Mobile Accept-coach screenshot visually inspected. No real model calls, production publication or Git delivery. Standalone protected assets unchanged.
+
+## DEV-326 — Compact opening, preview50-to70 zoom and centred hover counterpart (2026-11-11)
+
+Owner requests a more zoomed-out opening editor, buttons about30% smaller, CV entry animation50%→70%, midpoint-oriented hover counterparts and removal of footer instruction. Editor content now starts80% via its existing independent zoom state. Screen-only editor buttons/chrome actions use70% size; nested conversation actions compensate the editor zoom so the initial combined factor remains70%. Photo edit overlay and resize handle are excluded to keep their hit geometry correct. No CV typography or PDF geometry change. Empty navigation-status paragraph retains error handling but no longer renders instructional text or its spacing.
+
+PreviewZoom.open(version) starts50%, eases to70% over550ms through the same DraftedCvLayout zoom state/control events; reduced motion applies70% immediately. Opens once per CV version per page session; reload is a new entry. Manual zoom/fit, wheel, pointer interaction or gestures cancel opening animation. Opening anchors the document top; normal zoom gestures retain existing independent behavior. Existing fit-to-width still supports narrow mobile panes.
+
+Review scroll controller centres only the counterpart on real pointer entry using the stable block ID, clamped by natural scroll bounds. Tall cards use a visible-height anchor. Source pane remains under the pointer, no spacer content is added; programmatic hover scrolling clears scroll ownership to avoid loops. Ordinary manual scroll correspondence remains. Near-start profile returns preview to scrollTop0, retaining document top instead of pinning the profile to the toolbar.
+
+New browser check passes measured50/intermediate/70 scale events, live control synchronization, editor80%, removed footer copy, near-top hover clamping, mid-document centring or native bounds, manual90% control, unchanged page count, reduced-motion entry and no390px horizontal overflow. Desktop screenshot inspected. Full tour regression passes preview/editor Accept, Decline, failed/successful mocked Edit, hover original/return and real button path, guide persistence/context and mobile tap flow with the denser UI. No actual model calls, publication, commit or push. Standalone protected outputs unchanged.
+
+## DEV-327 — Quick eased hover centring instead of jumps (2026-11-11)
+
+Owner requests a quick smooth scroll when hover centres the matching content. Replaced immediate hover scrollTop assignment with a220ms ease-out interpolation to the same naturally clamped destination. New hover, manual wheel/touch/pointer/key scrolling, ordinary scroll alignment or reviewer disposal cancels the prior animation. Reduced motion retains immediate positioning. No change to block matching, padding, CV state or export.
+
+Local opening/centering browser check passes actual intermediate scroll positions before reaching the expected near-top clamp and middle/boundary position. Existing demo tour regression exercises mouse path/hover/Accept and alternate decisions/context with the updated scrolling. Standalone protected outputs unchanged. No publication or Git delivery.
+
+## DEV-328 — Consistent readable review action sizing (2026-11-11)
+
+Owner requests actual30–32px-high Accept/Decline/Edit with13–14px text in both editor cards and preview. Inspection found earlier9.1px card font/padding reduction combined with editor80% and global button zoom, plus preview10px/18px compact rules and70% button zoom. Removed the conflicting small local declarations and consolidated review actions to31px height,13.5px font,4px10px padding,1px border and4px radius. Conversation action zoom inversely compensates current editor-content zoom; preview actions use zoom1 outside the document transform. Preview Accept now matches editor's teal primary treatment. Existing intentional10% hover growth remains, not a shrinking transform. Footer actions likewise compensate editor zoom, with readable13.5px text and36px minimum height.
+
+Temporary local browser measurements confirm31px actual bounding height and13.5px font on editor and preview at document50/70/120%, plus stable card sizing after an editor Ctrl-wheel gesture. Shared actions meet36px/13.5px. Screenshot visually inspected. Full tour regression passes preview/editor Accept, Decline, failed/successful mocked Edit, live mouse corridor, reload/context and mobile taps with new dimensions. No model calls, production publication or Git delivery. Standalone protected outputs unchanged.
+
+## DEV-329 — Review controls sized by component group (2026-11-11)
+
+Owner replaces generic button scaling with clear group sizing. Removed global70% button zoom and conversation button multiplier. Toolbar buttons, comparison controls and template select are33px with14px text; page count and zoom value14px; template select128px width. Compact toolbar labels also14px. Review section buttons use29px/13px and existing inverse content-zoom compensation; preview counterparts retain matching29px/13px independent of document scale. Shared review actions retain36px minimum with12.5px medium-weight text. Existing template/preview behavior and document dimensions unchanged.
+
+Local browser measured actual desktop rendered dimensions: Chat, Questions, Job signals, Original and template select33px/14px; card action29px/13px; footer36px/12.5px. Screenshot visually reviewed. Standalone build protected outputs unchanged. No production publication or Git delivery.
+
+
+## DEV-330 — Compact per-block recommendations and intact exact comparisons (2026-11-11)
+
+Owner requests one recommendation and supported reason per suggestion, with exact wording primarily in preview. Editor cards now derive an overview from current original/candidate text, actual shortening/reordering, changed action clauses, source usage and linked job-priority references. Existing source-catalog review notes are shown only on their matched target. Missing relevance rationale is omitted, never invented. Role-title changes remain explicit in the heading/overview; responsibility wording changes are flagged directly. Selection/omission/restoration cards use the same overview/detail renderer, with omission and source preservation explicit. Edit rerenders recommendations from the validated revised candidate. No AI contracts, canonical blocks, approval groups, source history or export rules changed.
+
+Root cause of broken comparisons was the context-window hunk splitter, not damaged demo sources: separate word-edit hunks repeated overlapping context and cut through complete bullets. Replaced that splitter with a complete block comparison and native collapsed Show exact changes details. Both sides preserve every source character and paragraph/bullet boundary; changed words remain marked. Removed inline decoration padding in details to avoid fragmented highlight overlap. Existing preview hover/stable-ID matching and decisions are retained. Details support keyboard and touch through native summary/details.
+
+Local verification: six change-preview unit tests pass, including exact reconstruction, long text, spacing, HTML-like text, scope/title and missing-reason behavior. Focused browser test verifies the formerly three-part product experience, short profile, compact/expanded sizes, exact full texts, keyboard/mobile access, mocked contract-valid Edit updating card and preview while awaiting Accept, preview Decline, editor Accept, and omission with sources preserved. Desktop/mobile and expanded screenshots visually reviewed. Existing sample-workspace, demo-tour (preview/editor Accept, Decline, failed/successful Edit, touch) and editor-opening/scroll tests pass. Standalone protected outputs unchanged. Edit verification uses a synthetic provider response; no actual model-quality claim, external AI calls, production publication or Git delivery.
+
+
+## DEV-331 — Review display toggle and scroll centering (2026-11-11)
+
+Center hovered matches in the actual scrollable pane using its rendered bounds and block height. Default Show changes on for new review sessions; toggling it controls candidate preview, highlights and hover actions while preserving decisions and approved export. Mixed-decision local browser verification covers off/on and remaining cards. No external AI calls or production publication.
+
+
+## DEV-332 — Preserve review in expanded preview (2026-11-11)
+
+Removed the dialog-close listener that disposed the active suggestion preview, and repaint comparison/highlight ranges after moving the existing document into or out of the modal. Preserve the live model, decisions, Original/Current and Show changes; Close and Escape restore focus to the expand button. Move the live label and close control into a separate modal header, keep comparison and document controls together in the non-scrolling toolbar, and use grouped wrapping at narrow widths. Adapt panel compaction while the live controls reside in the dialog.
+
+Local browser verification covers repeated expand/close with mixed accepted, declined and pending suggestions, on/off highlights and hover, Original, template and zoom changes, Fit to width, keyboard Escape and focus return, plus narrow layout. Existing recommendation regression checked. Standalone protected outputs unchanged; no external model calls or publication.
+
+
+
+## DEV-333 — Partial demo transition cleanup (2026-11-11)
+
+Moved the demo entry CTA next to the DEMO badge, removed its duplicate from tailoring feedback, and hid the unavailable demo chat microphone. The requested decision-based summary, follow-up message and source-supported Job signals remain unfinished.
+
+
+## DEV-334 — Scope side-conversation rules without reclassifying the main agent (2026-11-11)
+
+Owner explicitly authorizes this documentation correction in the side conversation. Read-only inspection found the side-conversation instruction in the global C:/Users/wallg/.codex/AGENTS.md with no explicit applicability guard. This is a concrete source of shared context; it does not establish the complete runtime cause of a particular main-chat response. Added a minimal scope preamble there, preserving the existing side-chat rules. Project AGENTS now distinguishes current explicit role from quoted/inherited/handoff instructions and tells the main agent to execute owner-assigned tasks rather than rephrase a pasted main-agent prompt. Discussion/prompt-writing requests stay discussion/prompt writing. Task-scoped side-chat mutation authorization does not change role or production/access gates. Control README startup links the project rule; Research rule's side-chat paragraph explicitly scopes its restriction to identified side chats. No product files, Research sources, Git state or publication changed; no messages sent to the main chat. Existing active-chat context may retain its earlier injected instructions; files govern future reads/startup and do not retroactively rewrite messages.
+
+
+## DEV-333 — Decision-based completion and prepared demo signals (2026-11-11)
+
+Completion uses the ordinary tailoring feedback component with short What changed / Why it fits this role paragraphs derived from accepted blocks and approved selection operations; declined edits are never described as applied. Separate deduplicated follow-up invites chat. Existing centered DEMO/Use my own CV group retained with responsive grouping. Demo dictation attachment suppressed and internal simulation copy removed.
+
+Replaced the fictional ad with the supplied Example Works text; rebuilt the source-bound candidate and catalog without model calls. Expanded prepared context to communication, customer feedback, planning tools and English proficiency, with seven editorial coverage rows linked to exact original CV/ad quotes. No candidate facts added. Initial assessment describes approved original content only; pending improvements remain separate. Coverage invalidation runs without automatic demo requests, and saved assessed inputs allow stale assessments to remain explicitly stale after reload rather than being treated as current. This is prepared editorial assessment, not verified model quality.
+
+Local browser checks passed all-accepted, mixed and all-declined review, completion and follow-up after reload, initial Job signals and post-decision freshness, with zero POSTs. Static source/catalog/candidate/result validation passed. Standalone protected outputs unchanged. No production publication.
+
+
+## DEV-334 — Center demo identity (2026-11-11)
+
+Center DEMO and Use my own CV relative to the viewport. At constrained widths, center the group on its own row so it cannot collide with the identity or controls. Local standalone build only.
+
+
+## DEV-335 — Local summary transition and honest print notice (2026-11-11)
+
+Show Preparing a summary of your choices… during the yielded local summary task, with a quiet opacity animation and reduced-motion override. No minimum display duration, AI call or added result-generation delay. Guard duplicate tasks by context/stamp, discard changed contexts, and skip transition replay when restoring an existing completion. Existing decision-based summary and deduplicated follow-up remain.
+
+Browser export uses iframe window.print(), so neither return nor afterprint verifies a saved PDF. Added only Print preview opened after non-throwing print invocation, as a dismissible six-second status near the export action; no congratulations or PDF-ready claim on this path. Repeated prints use the same restrained notice. Errors remain errors, and afterprint only releases resources/busy state, with no confirmation-driven focus transfer.
+
+Local synthetic browser checks pass all accepted/mixed/all declined summaries and reload deduplication with no provider POSTs. Stubbed native print invocation checks first/repeated prints, dismissal, afterprint (which may mean cancellation), and thrown opening failure. This does not claim a real saved/downloaded PDF was verified. Standalone protected outputs unchanged; no production publication.
+
+
+## DEV-336 — Visible summary transition and warm save guidance (2026-11-11)
+
+Owner explicitly approves a 600–900ms visual transition for instant local summaries. Yield through painted frames, then retain the Preparing a summary of your choices… status for750ms. Hide prior tailoring prompts during this presentation, respect reduced motion, and retain context/stamp deduplication and no replay on reload.
+
+After prepared native print invocation, first session notice says Your next chapter, well drafted, explains saving as PDF in the print dialog and offers the requested good wishes/signature. Session storage limits the full greeting to once; subsequent invocations show Ready to save as PDF. No saved/downloaded claim. Fade in the notice and replay on afterprint return; the nine-second auto-dismiss starts only after afterprint, never while the native dialog is open. Manual dismissal remains available. Throwing preparation/print invocation does not show or consume the greeting.
+
+Local browser checks: visually inspected painted summary and greeting screenshots; measured export fade opacity changing from~0.52 to1. Held a stubbed print dialog open beyond nine seconds and verified notice remained; afterprint, repeated export, manual dismissal and reload tested. Accepted/mixed/declined completion checks pass. Reduced-motion status remains visible without animation; throwing print invocation shows only error and leaves session greeting unused. Native print callbacks are simulated for these checks; no actual saved PDF is claimed. No AI calls or production publication.
+
+
+## DEV-337 — Owner-authorized frontend release (2026-11-11)
+
+Owner requests commit, push and production publication of the current reviewed editor/demo/export changes to getmedrafted.com. Release excludes unrelated local backend/research edits; existing Worker settings, budget identity, credentials and backend workflows are preserved. Rollback baseline verified as Worker fdaeb92e-6e51-454a-bf0a-6f897ebfa6be. Seventeen coverage/diff unit checks and fullscreen mixed decisions plus all-accepted/mixed/all-declined local completion/reload checks passed. No model calls. Production result is recorded in the hosting release receipt.

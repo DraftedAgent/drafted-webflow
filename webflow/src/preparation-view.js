@@ -45,7 +45,8 @@
     action.textContent='Continue to editor';action.setAttribute('role','button');action.setAttribute('aria-disabled','false');
     action.addEventListener('keydown',event=>{if(event.key===' '){event.preventDefault();action.click();}});
     const status=el('p','preparation-status');status.id='preparation-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.hidden=true;
-    action.removeAttribute('aria-describedby');actions.append(action,status);
+    const sample=el('a','drafted-sample-action','Try with a sample CV');sample.href='/editor?sample=1';
+    action.removeAttribute('aria-describedby');actions.append(action,sample,status);
     left.replaceChildren(opportunity.group,starting.group,actions);
     right.replaceChildren(preview);right.setAttribute('role','figure');right.setAttribute('aria-label','Your uploaded CV preview');
     const layout=el('div','preparation-layout');layout.append(intro,left,right);section.replaceChildren(layout);

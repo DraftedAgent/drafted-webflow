@@ -16,9 +16,9 @@
     const body=document.createElement('div');body.className='workspace-conversation-body';
     for(const node of [...chat.children])if(!node.matches('.chat-title,.workspace-editor-toolbar'))body.append(node);
     chat.append(body);layout.classList.add('workspace-aligned-panels');
-    let editorZoom=100,editorGestureStart=100;
+    let editorZoom=80,editorGestureStart=80;
     const setEditorZoom=value=>{editorZoom=Math.max(50,Math.min(200,Math.round(value)));body.style.setProperty('--editor-content-zoom',editorZoom/100);body.dataset.editorZoom=String(editorZoom);};
-    setEditorZoom(100);
+    setEditorZoom(80);
     body.addEventListener('wheel',event=>{
       if(!event.ctrlKey)return;event.preventDefault();
       const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?body.clientHeight:1);
@@ -60,6 +60,7 @@
       if(comparison.parentElement!==toolbar)toolbar.prepend(comparison);
       if(zoom.parentElement!==toolbar)toolbar.append(zoom);
       const count=section.querySelector('.workspace-page-count');if(count&&count.parentElement!==display)display.prepend(count);
+      if(document.querySelector('#cv-preview-dialog[open]')){right.classList.remove('workspace-compact');return;}
       const compact=toolbar.scrollWidth>toolbar.clientWidth+1;
       right.classList.toggle('workspace-compact',compact);zoomButton.hidden=!compact;
       if(compact){zoomMenu.append(zoom);if(count)label.append(count);}
@@ -70,6 +71,7 @@
     new MutationObserver(adaptPanels).observe(chat.querySelector('.workspace-editor-toolbar'),{childList:true,subtree:true,characterData:true});
     if(zoom)new MutationObserver(compactLabels).observe(zoom,{childList:true,subtree:true,characterData:true});
     if(comparison)new MutationObserver(compactLabels).observe(comparison,{attributes:true,subtree:true,attributeFilter:['aria-pressed']});
+    document.addEventListener('drafted-preview-overlay-change',adaptPanels);
     adaptPanels();
     const desktop=matchMedia('(min-width:801px)'),key='drafted.workspace.panel-ratio.v1';
     let ratio=.38,dragging=false;
