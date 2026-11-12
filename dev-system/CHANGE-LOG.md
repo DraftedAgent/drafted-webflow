@@ -2473,3 +2473,6 @@ Local browser geometry checks: at140% target center is within0.1px of pane cente
 ## DEV-345 — Owner-authorized demo refinement publication (2026-11-12)
 
 Owner requests commit/push and production publication of the current local tutorial/context/summary, prepared edit and finale refinements. Targeted tour transitions, summary focus/reload/Replay, guided Send and zoom-centering checks passed. Same Cloudflare Worker/budget identity and existing backend remain. No model calls. Rollback baseline is Worker5042eb6c-62fd-47ba-9f9f-89f093abf25b. Public outcome recorded in hosting current-release receipt. Unrelated pending backend/research changes excluded.
+
+
+DEV-345 publication verified: source18cb23f57ab207e9c9c47b8aa80726aa7eaf76c1 on codex/local-dev, Worker3a879cc3-316d-4416-95d3-2202fe6b4e54 serving getmedrafted.com. Exact served build/asset hashes match. Public browser sequence passed summary start/focus, reload, selected context/prepared Send, final Decline, Reset and Replay with zero API POSTs. Same backend, monthly15USD limit and budget identity; previous Worker5042eb6c-62fd-47ba-9f9f-89f093abf25b available for rollback.

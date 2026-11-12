@@ -1,9 +1,9 @@
 {
   "url": "https://getmedrafted.com",
-  "publishedSourceCommit": "c1cce7dc6b0fc758f47774eab6283b14f3f4b551",
-  "workerVersion": "5042eb6c-62fd-47ba-9f9f-89f093abf25b",
-  "previousWorkerVersion": "fdaeb92e-6e51-454a-bf0a-6f897ebfa6be",
-  "publishedUTC": "2026-11-11T18:39:24.581155+00:00",
+  "publishedSourceCommit": "18cb23f57ab207e9c9c47b8aa80726aa7eaf76c1",
+  "workerVersion": "3a879cc3-316d-4416-95d3-2202fe6b4e54",
+  "previousWorkerVersion": "5042eb6c-62fd-47ba-9f9f-89f093abf25b",
+  "publishedUTC": "2026-11-12T12:11:35.957602+00:00",
   "budgetIdentity": "invited-test-round-1",
   "budgetNamespace": "7042ecc360ab42b5965fa6721922873a",
   "limits": {
@@ -17,8 +17,8 @@
     "ownerMonthlyBudgetSEK": 200
   },
   "workflowExecutionOrModelCalls": 0,
-  "verification": "Exact public build and asset hashes verified. Public demo opened without API POSTs; four prepared cards, fullscreen close, Show changes off/on and all-declined completion with one follow-up verified in browser. Local17coverage/diff checks and accepted/mixed/declined completion/reload passed. Backend workflows unchanged. No new actual model quality evaluation.",
-  "rollback": "wrangler rollback fdaeb92e-6e51-454a-bf0a-6f897ebfa6be --config site/hosting/wrangler.jsonc; preserve existing15USD monthly control and budget identity.",
+  "verification": "Exact public build and asset hashes verified. Public demo summary focus/start, reload, context selection, prepared guided Send, final Decline, Reset and Replay verified with API POSTs intercepted; zero API POSTs occurred. Local transition/hover and zoom-centering cases pass. No backend workflow changes or new live model evaluation.",
+  "rollback": "wrangler rollback 5042eb6c-62fd-47ba-9f9f-89f093abf25b --config site/hosting/wrangler.jsonc; preserve existing15USD monthly budget and budget identity.",
   "changesExcluded": [
     "Unrelated local backend/research edits",
     "n8n mutations",
