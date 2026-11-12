@@ -2411,3 +2411,65 @@ Owner requests commit, push and production publication of the current reviewed e
 
 
 DEV-337 publication outcome: source c1cce7dc6b0fc758f47774eab6283b14f3f4b551 pushed to codex/local-dev and deployed to getmedrafted.com as Worker5042eb6c-62fd-47ba-9f9f-89f093abf25b. Exact public asset hashes and public-origin demo fullscreen/toggle/all-declined completion passed with zero API POSTs. Previous Worker fdaeb92e-6e51-454a-bf0a-6f897ebfa6be retained for rollback. No backend workflow mutations or model calls.
+
+
+## DEV-338 — Document-anchored coaching, named context and completion typography (2026-11-12)
+
+Keep improving coaching follows the most visible rendered CV page, clipped to the scroll viewport, using a subtle document outline. Recompute on scroll/zoom; move coach/marker into the native fullscreen top layer when open. Context display uses actual role or education heading and adds employer for duplicate titles, preserving stable IDs. Ellipsis limits long chip text; full names are available through hover/focus tooltips and accessible remove labels.
+
+Ordinary completion renderer now has a prominent decision-dependent headline, short lead, What changed and Why it matters for this role. Remove mechanical approved-wording language; accepted topics and integrated answers inform the overview, declined wording remains original, and rejected-all completion explicitly keeps the original. Product-lead/coordination boundary is mentioned only when present in accepted content. Restrained teal edge, readable paragraph measures and responsive heading sizes. Separate follow-up retained. No new provider calls or production publication.
+
+Local accepted/mixed/declined completion/reload and tour Accept/editor Accept/Decline/Edit checks pass. Targeted browser verifies document marker, role-specific context, focus tooltip, duplicate long titles and mobile overflow. Synthetic UI checks do not establish new model quality.
+
+
+## DEV-339 — Near-page tour anchors and accepted-result reading position (2026-11-12)
+
+Both Your CV, taking shape and Keep improving target the visible rendered page edge with an8px popup gap and no broad marker. Accepted-result confirmation also anchors outside the visible page. Remove delayed result scrollIntoView replay, release original-hover/reading anchors, cancel pending anchor restoration, suspend paired scroll/hover while the confirmation is active, and scroll only the CV pane to0 once with smooth native scroll (instant under reduced motion). Returning to reviewing releases the suspension. No CV data or decisions changed.
+
+Local tour Accept/editor Accept/Decline/Edit/mobile tests pass. Additional accepted-product checks verify scrollTop0 remains stable, no broad marker, zoom variants and fullscreen/reduced motion. Screenshots reviewed for name/profile visibility and popup placement outside document text. No model calls or production publication.
+
+
+## DEV-340 — One-way coaching transitions without review lock (2026-11-12)
+
+Confirmation is triggered once by a successful review-action event, never inferred from saved decisions during refresh/hover. Result-seen state is persisted per tour; Continue moves to waiting and position updates cannot resurrect waiting popups. Direct interaction with another review closes confirmation on pointerdown without cancellation; success events cannot reopen it. Removed broad hover guards; the document-start reading reset is retained without locking subsequent hover. Coach captures only its own surface.
+
+Waiting advances only when the completed summary is rendered, to Your changes, explained with Next. Next introduces the exact revised context instruction. Selected chip target carries the stable block ID and specific context. Example fills input, completes tour, preserves selection and focuses input; Done completes without changing draft. Existing tour browser cases updated to intentional sequence changes. New isolated local regression verifies hover before/during/after result, direct Decline versus Continue, summary gate and non-overlap, selected chip, Example/Done, reload and no reactivation. No production publication or model calls.
+
+
+## DEV-341 — Source-checked prepared demo chat example (2026-11-12)
+
+Guided continuation targets stable sample-product experience. Composer explains before typing that only the prepared shortening instruction/context is supported; Use guided example restores both and Use my own CV retains the existing isolated-workspace transition. All sample Send requests are intercepted locally regardless of backend mode. Exact instruction, single context ID, known original/approved candidate text and metadata are checked before composing a source-validated local candidate from the current blocks/ledger. No later changed block is overwritten. Preview and ordinary section cards show Prepared demo example, with normal Accept/Decline and no automatic approval. Sample Edit explains the limited scope before free instruction entry; it offers the existing own-CV path, not an unsupported free-edit form.
+
+Prepared variant retains release planning, designer/four developers, delivery board/support updates, eight customer interviews/checklist and feedback routines; accepted-source variant retains Product Lead prioritisation/roadmap scope. After final example decision, an Accept/Decline-neutral That’s the workflow. Now make it yours message offers Use my own CV. Restore uses the persisted prepared-demo review/completion flag. Reset returns original prepared sample.
+
+Local browser checks pass original and accepted starting text, Send, pending source preservation, Accept/Decline, explicit Edit limitation, changed instruction, stale changed block and Reset with zero POSTs. Full tour transition path also passes context/example fill through Send and final decision. No external AI calls or production publication; source-bound local fixture verification is not live model-quality evaluation.
+
+
+## DEV-342 — Reveal new editor events and centered demo finale (2026-11-12)
+
+New ordinary chat, review card and completion events schedule a one-time editor-only reveal after two rendering frames. Short events reveal the bottom; oversized cards reveal their start/actions. Restore skips event scrolling; ongoing document rerender does not register as a new event. Removed old completion/follow-up remnants from the prepared example review.
+
+Prepared example introduction now uses Try one more refinement, short lead, small Prepared demo example label and styled Try guided edit button. Button selects the known context and starts the checked local candidate directly; tutorial fill/Send remains supported. No own-CV CTA in this intermediate step. Introduction disappears on successful example start.
+
+Example Accept and Decline share a dedicated centered finale: You’ve explored Drafted / Now make it yours, short invitation and primary own-CV link. Hide inactive composer/context and other old messages, retain functional preview, animate entrance once and skip on restoration/reduced motion. Existing own-workspace transition and Reset preserved.
+
+Local browser runs both decision routes through summary, guided button, pending card, final decision, centered completion, hidden controls, reload, Reset and own-CV CTA with zero POSTs. Final screenshot visually reviewed. No production publication or model calls.
+
+
+## DEV-343 — Focused demo summary and tutorial-only refinement introduction (2026-11-12)
+
+Demo completion omits the ordinary follow-up (retained outside demo), obsolete prepared-example introduction/badge/start controls and their spacing. No informational block is recreated during mounting, restoration or Replay. Demo summary carries a start-reveal intent so one-shot editor scrolling reveals heading/lead even when the summary is shorter than the viewport. Tutorial summary navigation/restoration also scrolls only the editor to the summary start. Next still gates context/example coaching; the selected-context coach describes the prepared example before filling/Send. Mismatch feedback is created only on explicit unsupported requests.
+
+Local browser verification passes summary start/no removed controls, reload, Next/context/example Send and final decision, Reset and Replay back through the summary. Ordinary follow-up code remains conditioned on non-demo. No provider calls or production publication.
+
+
+## DEV-344 — Preview-local tutorial centering and concise copy (2026-11-12)
+
+Keep improving centers the stable sample-product target after layout readiness in the actual CV pane client area, not viewport center; repeats positioning for zoom/resize/fullscreen transitions, not ordinary manual scroll. Uses full rendered block center for popup vertical anchor. Native scroll limits remain respected; no blank document spacers are introduced when low zoom makes the target already near document start. Popup copy matches the requested short instructions, with Prepared demo example in the selected-context popup and a visible pre-input demo-scope note. Example still fills, dismisses and focuses without submitting.
+
+Local browser geometry checks: at140% target center is within0.1px of pane center; at50% document-start clamp is preserved and popup matches block center within0.2px. Fullscreen transition, exact copy, badge, visible scope note and example fill/focus/no auto-send pass. No production publication or provider calls.
+
+
+## DEV-345 — Owner-authorized demo refinement publication (2026-11-12)
+
+Owner requests commit/push and production publication of the current local tutorial/context/summary, prepared edit and finale refinements. Targeted tour transitions, summary focus/reload/Replay, guided Send and zoom-centering checks passed. Same Cloudflare Worker/budget identity and existing backend remain. No model calls. Rollback baseline is Worker5042eb6c-62fd-47ba-9f9f-89f093abf25b. Public outcome recorded in hosting current-release receipt. Unrelated pending backend/research changes excluded.

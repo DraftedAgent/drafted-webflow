@@ -621,3 +621,44 @@
  .workspace-print-status.is-print-notice .print-notice-copy {min-width:0;}
  .workspace-print-status.is-print-notice button {flex:none;}
 }
+
+@media screen {
+ .demo-tour-target.is-document-target {border:1px solid #008a9060;box-shadow:0 0 0 3px #008a9012;animation:none;}
+ .section-editor .shared-section-chip {max-width:min(350px,60vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+ .section-editor .shared-section-chip:focus-visible {outline:2px solid #008a90;outline-offset:2px;}
+ .section-editor .tailor-feedback.tailor-completion {max-width:650px;border-left:2px solid #008a9070;background:linear-gradient(90deg,#008a9006,transparent 75%);border-radius:0;padding:20px 24px;}
+ .section-editor .tailor-completion h2 {font:650 24px/1.25 system-ui;letter-spacing:-.025em;color:#193b49;margin:0 0 12px;overflow-wrap:anywhere;}
+ .section-editor .tailor-completion .tailor-completion-intro {font-size:15px;color:#284b59;margin:0 0 22px;max-width:60ch;}
+ .section-editor .tailor-completion section {max-width:60ch;}
+ .section-editor .tailor-completion section+section {margin-top:18px;}
+ @media(max-width:700px){.section-editor .tailor-feedback.tailor-completion{padding:16px;}.section-editor .tailor-completion h2{font-size:21px;}}
+}
+
+@media screen {.chip-label{position:relative;}.context-full-name{position:absolute;bottom:calc(100% + 6px);left:0;max-width:min(420px,75vw);padding:6px 9px;background:#193b49;color:white;border-radius:4px;z-index:20;white-space:normal;overflow-wrap:anywhere;font:12px/1.5 system-ui;}.context-full-name[hidden]{display:none;}}
+
+@media screen {.demo-tour-popup{pointer-events:auto;}.demo-tour-target{pointer-events:none;}}
+
+@media screen {#sample-chat-limit{padding:8px 12px;border-bottom:1px solid #d8e3e9;font:12px/1.5 system-ui;color:#486272;}#sample-chat-limit p{margin:0 0 6px;}#sample-chat-limit button,#sample-chat-limit a{font-size:12px;margin-right:12px;}.prepared-demo-label{display:block;color:#486272;margin:8px 0;font:12px/1.5 system-ui;}.sample-workflow-complete h2{font-size:22px;}.sample-workflow-complete a{display:inline-block;margin-top:12px;}}
+
+@media screen {
+ .section-editor #sample-chat-limit {padding:16px 24px;border:0;margin-top:8px;}
+ .section-editor #sample-chat-limit small {color:#65818b;font:11px/1.5 system-ui;}
+ .section-editor #sample-chat-limit h3 {font:600 18px/1.35 system-ui;margin:6px 0;}
+ .section-editor #sample-chat-limit p {margin:0 0 12px;font:14px/1.6 system-ui;}
+ .section-editor #sample-chat-limit .discovery-primary {padding:8px 14px;min-height:34px;font:600 13px/1.4 system-ui;}
+ .workspace-conversation-body.is-sample-complete .workspace-composer {display:none!important;}
+ .section-editor .chat-messages.is-sample-complete {display:flex!important;flex-direction:column;align-items:center;justify-content:center;padding:24px!important;}
+ .chat-messages.is-sample-complete > :not(.sample-workflow-complete) {display:none!important;}
+ .section-editor .sample-workflow-complete {width:min(100%,480px);box-sizing:border-box;text-align:center;background:transparent;border:0;box-shadow:none;padding:24px;flex:none;}
+ .section-editor .sample-workflow-complete h2 {font:650 30px/1.2 system-ui;letter-spacing:-.03em;margin:0 0 18px;color:#193b49;}
+ .sample-workflow-complete h2 span {color:#007f86;}
+ .section-editor .sample-workflow-complete p {font:15px/1.65 system-ui;color:#486272;margin:0 auto 22px;max-width:32ch;}
+ .sample-workflow-complete .discovery-primary {display:inline-flex;padding:10px 20px;}
+ .sample-workflow-complete.is-entering {animation:sample-finale-in 350ms ease-out both;}
+ @keyframes sample-finale-in {from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+ @media(prefers-reduced-motion:reduce){.sample-workflow-complete.is-entering{animation:none;}}
+}
+
+@media screen {.section-editor #sample-chat-limit .discovery-primary,.section-editor .sample-workflow-complete .discovery-primary{background:#007f86;color:#fff;border:1px solid #007f86;border-radius:5px;text-decoration:none;font-weight:600;}.section-editor .sample-workflow-complete .discovery-primary:focus-visible{outline:2px solid #007f86;outline-offset:3px;}}
+
+@media screen {.demo-tour-popup{text-align:left;}.demo-example-label{display:block;font:11px/1.5 system-ui;color:#65818b;margin:0 0 6px;}#sample-chat-scope{font:11px/1.5 system-ui;color:#65818b;margin:0 0 6px;}}
