@@ -2501,3 +2501,6 @@ Local browser replayed the previously captured real longer-profile response (no 
 ## DEV-348 — Owner-authorized Edit presentation publication (2026-11-13)
 
 Owner requests commit/push and publication to getmedrafted. Scope: free demo Edit using existing budgeted provider and per-card full updated text/description/reveal. Local actual single-call result already verified in DEV-346; release validation replays it without another model call. Diff unit checks and updated-card/closed diff/unchanged canonical CV/reload/Accept browser checks pass. Other pending backend/research work excluded. Rollback baseline Worker3a879cc3-316d-4416-95d3-2202fe6b4e54. Public outcome recorded in hosting receipt.
+
+
+DEV-348 verified publication: source0006b501407314ce31bf29ee9a1fc5d510b85f5e pushed to codex/local-dev; Worker40708b80-d3b7-4117-b313-d28a29a13615 serves getmedrafted.com. Exact served asset hashes pass. Public-origin Edit/update/card presentation/reload/Accept test passes with intercepted response and zero new backend/model calls. Existing backend, budget and Worker bindings preserved. Previous Worker3a879cc3-316d-4416-95d3-2202fe6b4e54 retained for rollback.
