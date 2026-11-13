@@ -13,6 +13,8 @@ const selectionModel=selectionMode==='openai'?require('../backend/openai-cv-prov
 // Source-answer integration is a separate, explicitly enabled provider. Never
 // silently route user answers to the fixture or spend a selection-only budget.
 const tailorMode=process.env.DRAFTED_TAILOR_PROVIDER||'simulated';
+const revisionMode=process.env.DRAFTED_REVISION_PROVIDER||'simulated';
+if(!['simulated','public-gateway'].includes(revisionMode))throw Error('UNKNOWN_REVISION_PROVIDER');
 if(!['simulated','openai'].includes(tailorMode))throw Error('UNKNOWN_TAILOR_PROVIDER');
 if(tailorMode==='openai'&&process.env.DRAFTED_TAILOR_MODEL_APPROVAL!=='tailoring-local-approved')throw Error('TAILOR_MODEL_APPROVAL_REQUIRED');
 if(tailorMode==='openai'&&!process.env.OPENAI_API_KEY)throw Error('OPENAI_API_KEY_REQUIRED');
@@ -36,6 +38,13 @@ const server=http.createServer(async(req,res)=>{
  if(req.method==='POST'&&p==='/preview-api/tailor-revise'){
   req.setEncoding('utf8');let body='';for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>2000000){res.writeHead(413);return res.end();}}
   let input;try{input=JSON.parse(body);}catch{res.writeHead(400);return res.end();}
+  if(revisionMode==='public-gateway'){
+   if(req.headers.origin!==`http://127.0.0.1:${server.address().port}`){res.writeHead(403,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,error:'Local editor origin required.'}));}
+   try{
+    const upstream=await fetch('https://getmedrafted.com/api/webhook/tailor-cv',{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://getmedrafted.com'},body:JSON.stringify(input),signal:AbortSignal.timeout(100000)});
+    res.writeHead(upstream.status,{'Content-Type':'application/json','Cache-Control':'no-store'});return res.end(await upstream.text());
+   }catch{res.writeHead(503,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:false,error:'Real revision gateway unavailable. No automatic retry.'}));}
+  }
   const revision=require('../backend/tailor-section-revision.cjs'),result=await revision.createHandler({model:revision.fixture})(input);
   res.writeHead(result.status,{'Content-Type':'application/json','Cache-Control':'no-store'});return res.end(JSON.stringify(result.body));
  }
@@ -56,6 +65,7 @@ const server=http.createServer(async(req,res)=>{
  const rel=evidence?p.slice('/evidence/'.length):p==='/'?'index.html':/^\/editor\/?$/.test(p)?'editor/index.html':p.slice(1);
  const file=path.resolve(base,rel);
  if(!file.startsWith(base+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404,{'Content-Type':'text/html; charset=utf-8'});return res.end('<h1>Page not found</h1><a href="/">Back to Drafted</a>');}
+ if(p==='/local-config.js'){res.writeHead(200,{'Content-Type':'application/javascript','Cache-Control':'no-store'});return res.end(fs.readFileSync(file,'utf8')+'\nwindow.__DRAFTED_REVISION_LIVE__='+String(revisionMode==='public-gateway')+';');}
  const body=fs.readFileSync(file),type=types[path.extname(file)]||'application/octet-stream',compress=/html|javascript|css|json|svg/.test(type)&&(req.headers['accept-encoding']||'').includes('gzip');
  res.writeHead(200,{'Content-Type':type,...(compress?{'Content-Encoding':'gzip','Vary':'Accept-Encoding'}:{})});res.end(req.method==='HEAD'?undefined:compress?zlib.gzipSync(body):body);
 });

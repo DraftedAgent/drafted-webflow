@@ -122,3 +122,14 @@ Detaljer och krypterade snapshotmanifest: `dev-system/prepared/cv-coverage/deliv
 ### Separat lokal Tailor-provider (DEV-296)
 
 Standard är fortfarande simulering. Källintegrationen känner då bara sitt uttryckliga syntetiska exempelsvar; andra svar ger nu ett synligt fel och sparat underlag, inte ett färdigt oförändrat resultat. `DRAFTED_SELECTION_PROVIDER=openai` aktiverar inte källintegrationen. För ett nytt uttryckligen godkänt lokalt modelltest kan källintegrationen konfigureras separat med `DRAFTED_TAILOR_PROVIDER=openai`, `DRAFTED_TAILOR_MODEL_APPROVAL=tailoring-local-approved` och befintlig säker `OPENAI_API_KEY` i processmiljön. Detta är konfiguration, inte tillstånd att köra: tidigare förbrukade anropsbudgetar återanvänds inte. Adaptern har maximalt sex källanrop per process och inga automatiska återförsök; faktisk godkänd testbudget kan vara lägre. Urvalssteget har fortsatt sin separata provider och budget. Ingen ny modellkörning eller publicering genomfördes i DEV-296.
+
+
+## Riktig Edit i lokal demo
+
+`DRAFTED_REVISION_PROVIDER=public-gateway node tools/serve-standalone.cjs` aktiverar
+endast förslagens Edit via befintlig getmedrafted.com-gateway, med samma månadsbudget,
+anropsgränser och n8n-provider. Kräver uttrycklig behörighet för riktiga anrop.
+Standard är fortsatt simulering; Edit i demon är då inaktivt. Öppning av demon
+utlöser inget modellanrop. Fritt Edit skickas först med Update suggestion och
+kräver sedan Accept. För denna uppgift kör8825 med real Edit; andra lokala
+providers förblir simulerade. Inga backend- eller produktionsändringar ingår.

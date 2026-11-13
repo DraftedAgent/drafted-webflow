@@ -83,6 +83,19 @@
   }
   return {recommendation:parts.join(' '),why:notes.length?notes.join(' '):priorities.length?'The saved answer is linked to the target role’s priority: '+priorities.slice(0,2).join('; ')+'.':''};
  }
+ function describeRevision(before,after,instruction='',type=''){
+  const words=t=>(t.match(/[\p{L}\p{N}]+/gu)||[]).length,old=words(before),next=words(after),name=type==='summary'?'profile':'section';
+  const topics=[];
+  if(/release planning|planning releases|release coordination/i.test(after))topics.push('release planning');
+  if(/customer feedback/i.test(after))topics.push('customer feedback work');
+  if(/collaborat|designers and developers/i.test(after))topics.push('collaboration');
+  let text=next>old?'Expanded the '+name+(topics.length?' to describe '+topics.join(', ')+' in more detail.':' from '+old+' to '+next+' words.'):next<old?'Shortened the '+name+' from '+old+' to '+next+' words.':'Revised the wording while keeping a similar length.';
+  // Describe observable changes; do not claim arbitrary free-text requests
+  // have been fully satisfied when no such judgment was returned by the model.
+  if(/longer|expand|more detail|längre|utförligare/i.test(instruction)&&next<=old)text+=' The result is not longer; use Edit to clarify what needs more detail.';
+  else if(/shorter|concise|shorten|kortare/i.test(instruction)&&next>=old)text+=' The result is not shorter; use Edit to clarify what can be reduced.';
+  return text;
+ }
  function renderDetails(host,before,after,fields=[]){
   const doc=host.ownerDocument,add=(tag,text,parent)=>{const n=doc.createElement(tag);n.textContent=text;parent.append(n);return n;};
   const details=add('details','',host);details.className='tailor-exact-changes';add('summary','Show exact changes',details);
@@ -111,5 +124,5 @@
    out.push({blockId:b.blockId,action:!added?'Remove':!removed?'Add':'Update',text:added?paragraph(b.text,from,b.text.length-end):paragraph(old.text,from,old.text.length-end),edits:edits(old.text,b.text)});
   }return out;
  }
- return {changes,wordDiff,describe,renderDetails};
+ return {changes,wordDiff,describe,describeRevision,renderDetails};
 });

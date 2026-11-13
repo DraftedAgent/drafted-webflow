@@ -2476,3 +2476,28 @@ Owner requests commit/push and production publication of the current local tutor
 
 
 DEV-345 publication verified: source18cb23f57ab207e9c9c47b8aa80726aa7eaf76c1 on codex/local-dev, Worker3a879cc3-316d-4416-95d3-2202fe6b4e54 serving getmedrafted.com. Exact served build/asset hashes match. Public browser sequence passed summary start/focus, reload, selected context/prepared Send, final Decline, Reset and Replay with zero API POSTs. Same backend, monthly15USD limit and budget identity; previous Worker5042eb6c-62fd-47ba-9f9f-89f093abf25b available for rollback.
+
+
+## DEV-346 — Real suggestion Edit in demo, explicit local access (2026-11-13)
+
+Removed demo-only limited Edit panel. Demo uses the existing free-instruction textarea, Update suggestion/Cancel, source-bound revision payload, candidate/other-block/current-ledger checks and explicit Accept. Updated card motive records the user's revision intent; preview uses the validated returned candidate. Unsupported local access disables Edit rather than presenting a fake working form. Existing public-live endpoint uses the already published budgeted Tailor route.
+
+Inspection found local /tailor-revise always invoked the synthetic fixture even when other providers were real. Added explicit DRAFTED_REVISION_PROVIDER=public-gateway server mode for this route only, through the existing production monthly-budget/rate/concurrency gate. Default remains simulated. Local config exposes actual revision capability; loopback-origin check rejects cross-origin callers. No keys copied into browser, no direct OpenAI budget bypass, retries, backend mutations or production publication. Local8825 restarted in explicit real revision mode; other local providers remain simulated.
+
+One owner-authorized real browser call via existing gateway returned200 for Make the profile longer and explain more about my experience. Expanded profile: I work in product operations, helping teams make digital services easier to use. My experience includes planning releases, tracking customer feedback and keeping people informed about what happens next. I work with designers and developers to understand user needs and turn them into practical service improvements. Compared against original profile: these are existing facts, without invented metrics, employers, authority or new merits. Preview/card updated and canonical CV remained unchanged pending Accept. This verifies one real output only, not general model quality.
+
+Additional local replay of that captured synthetic-CV model response verifies Cancel sends nothing, updated revision rationale and explicit Accept updates only the profile. No additional model calls. No production publication.
+
+
+## DEV-347 — Show revised wording directly after Edit (2026-11-13)
+
+Successful source-validated revision records a presentation-only before/instruction descriptor in the section session. Only edited cards show a complete Updated suggestion section; original exact diff remains collapsed. Observable length/topic description replaces Requested revision echo, and unachieved longer/shorter requests are identified without claiming arbitrary request fulfillment. Existing Edit remains available for clarification. Preserve Accept/Decline/Edit and pending approval, stable block IDs, original source and export rules.
+
+One-shot reveal after rendered replacement scrolls editor review pane to updated text, accounting for inherited content zoom; short highlight respects reduced motion and does not replay on reload. Corresponding preview block is brought into view after layout readiness. Other cards remain compact.
+
+Local browser replayed the previously captured real longer-profile response (no additional AI calls): full text equals validated candidate, single expanded card, closed diff, observed-change rationale, editor reveal and preview wording, unchanged canonical CV, persisted text/no repeated highlight on reload and explicit Accept pass. Screenshot visually reviewed. Six existing diff tests and partial-length description checks pass. No production publication.
+
+
+## DEV-348 — Owner-authorized Edit presentation publication (2026-11-13)
+
+Owner requests commit/push and publication to getmedrafted. Scope: free demo Edit using existing budgeted provider and per-card full updated text/description/reveal. Local actual single-call result already verified in DEV-346; release validation replays it without another model call. Diff unit checks and updated-card/closed diff/unchanged canonical CV/reload/Accept browser checks pass. Other pending backend/research work excluded. Rollback baseline Worker3a879cc3-316d-4416-95d3-2202fe6b4e54. Public outcome recorded in hosting receipt.

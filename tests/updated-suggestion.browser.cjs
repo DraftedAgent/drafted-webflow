@@ -1,0 +1,20 @@
+const {chromium}=require('playwright'),a=require('assert/strict'),fs=require('fs');
+(async()=>{const server=require('child_process').spawn(process.execPath,['tools/serve-standalone.cjs'],{env:{...process.env,PORT:'0',DRAFTED_REVISION_PROVIDER:'public-gateway'},stdio:['ignore','pipe','pipe']});const base=await new Promise(resolve=>server.stdout.on('data',d=>{const m=String(d).match(/http:\/\/127\.0\.0\.1:\d+\//);if(m)resolve(m[0]);}));const b=await chromium.launch({channel:'msedge'});try{
+ const p=await b.newPage({viewport:{width:1500,height:900}});
+ await p.addInitScript(()=>localStorage.setItem('drafted.demo.tour.v1',JSON.stringify({stage:'skipped'})));
+ const box={window:{}};require('vm').runInNewContext(fs.readFileSync('webflow/src/sample-review-data.js','utf8'),box);const sample=JSON.parse(JSON.stringify(box.window.DraftedSampleReviewData)),recipe=structuredClone(sample.data.recipe);recipe.integrations[0].segments[0].text='I work in product operations, helping teams make digital services easier to use. My experience includes planning releases, tracking customer feedback and keeping people informed about what happens next. I work with designers and developers to understand user needs and turn them into practical service improvements.';const response=await require('../webflow/src/tailor-sources-v13.js').candidate(sample.request,recipe,{scope:sample.data.scope});
+ let calls=0;await p.route('**/preview-api/tailor-revise',r=>{calls++;return r.fulfill({json:response});});
+ await p.goto(base+'editor?sample=1');
+ const card=p.locator('[data-review-block-id="sample-profile"]');await card.waitFor();const before=await p.evaluate(()=>captureWorkspace().cv.documentBlocksState);
+ await card.getByRole('button',{name:'Edit',exact:true}).click();await card.locator('textarea').fill('Make the profile longer and explain more about my experience.');await card.getByRole('button',{name:'Update suggestion',exact:true}).click();
+ const updated=card.locator('.tailor-updated-suggestion');await updated.waitFor();await p.waitForTimeout(150);
+ a.equal(await card.locator('details[open]').count(),0);a.equal(await p.locator('.tailor-updated-suggestion').count(),1);
+ const text=response.blocks.find(b=>b.blockId==='sample-profile').text;a.equal(await updated.locator('.tailor-updated-text').textContent(),text);
+ a.match(await card.locator('.tailor-recommendation').textContent(),/Expanded the profile.*release planning.*customer feedback work.*collaboration/);
+ a(!(await card.textContent()).includes('Requested revision:'));a.deepEqual(await p.evaluate(()=>captureWorkspace().cv.documentBlocksState),before);
+ const top=await updated.evaluate(n=>n.getBoundingClientRect().top-n.closest('.tailor-review-body').getBoundingClientRect().top);a(Math.abs(top-10)<3,'updated start '+top);
+ await p.screenshot({path:'tmp/updated-suggestion-visible.png'});a.equal(calls,1);
+ await p.evaluate(()=>workspacePages.save());await p.reload();await updated.waitFor();a.equal(await card.locator('details[open]').count(),0);a.equal(await p.locator('.is-revision-highlight').count(),0);
+ await card.getByRole('button',{name:'Accept',exact:true}).click();await card.waitFor({state:'detached'});a.equal((await p.evaluate(()=>captureWorkspace().cv.documentBlocksState)).find(b=>b.blockId==='sample-profile').text,text);
+ console.log('PASS full revision, compact other cards, collapsed diff, accurate summary, reveal/highlight, reload and explicit Accept; captured response replay only');
+}finally{await b.close();server.kill()}})().catch(e=>{console.error(e);process.exitCode=1});

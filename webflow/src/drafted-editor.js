@@ -666,11 +666,14 @@ maybeShowTailor();
            const context=[block.employer,[block.startDate,block.endDate].filter(Boolean).join('–')].filter(Boolean).join(' · ');if(context)heading.append(document.createTextNode(' · '+context));
          }else heading.textContent=sectionName(block);
          const decisions=add('div','',section);decisions.className='tailor-section-actions';
-         for(const [text,value]of [['Accept','accept'],['Decline','decline'],['Edit','edit']]){const button=add('button',text,decisions);button.type='button';button.addEventListener('click',()=>value==='edit'?openSectionEdit(change.blockId):decideSections([change.blockId],value));}
+         for(const [text,value]of [['Accept','accept'],['Decline','decline'],['Edit','edit']]){const button=add('button',text,decisions);button.type='button';if(value==='edit'&&window.DraftedWorkspacePages?.sample&&window.__DRAFTED_COVERAGE__?.mode==='simulated'&&!window.__DRAFTED_REVISION_LIVE__){button.disabled=true;button.title='Real AI revision is not enabled on this local server.';}button.addEventListener('click',()=>value==='edit'?openSectionEdit(change.blockId):decideSections([change.blockId],value));}
          const notes=(data.recipe?.reviewNotes||[]).filter(n=>noteTargets.some(t=>t.targetKey===n.targetKey&&t.blockId===change.blockId)).map(n=>n.reason);
+         const revision=sectionSession.revisionDisplays?.[change.blockId]||(sectionSession.revisionInstructions?.[change.blockId]?{before:originalBlock.text,instruction:sectionSession.revisionInstructions[change.blockId]}:null);
+         if(revision)notes.splice(0,notes.length,DraftedTailorChangePreview.describeRevision(revision.before,block.text,revision.instruction,block.type));
          const recommendation=DraftedTailorChangePreview.describe({before:originalBlock,after:block,request,data,notes,meaningfulTitle});
          const overview=add('div','',section);overview.className='tailor-recommendation';
          for(const [label,text]of [['Recommendation',recommendation.recommendation],['Why',recommendation.why]])if(text){const p=add('p','',overview);add('strong',label+': ',p);p.append(document.createTextNode(text));}
+         if(revision){const updated=add('section','',section);updated.className='tailor-updated-suggestion';add('h4','Updated suggestion',updated);add('div',block.text,updated).className='tailor-updated-text';}
          const fields=[];
          for(const key of ['label','title','employer','startDate','endDate','degree','program','institution'])if((originalBlock?.[key]||'')!==(block[key]||''))fields.push({name:key,before:originalBlock?.[key],after:block[key]});
          DraftedTailorChangePreview.renderDetails(section,originalBlock?.text||'',block.text,fields);
@@ -720,7 +723,6 @@ maybeShowTailor();
          if(deciding||revising||!checkCurrent())return;
          const section=body.querySelector('[data-review-block-id="'+CSS.escape(id)+'"]');if(!section)return;
          section.querySelector('.tailor-section-edit')?.remove();
-         if(window.DraftedWorkspacePages?.sample){const box=add('div','',section);box.className='tailor-section-edit';add('p','This demo offers the guided shortening example. Custom Edit instructions are available with your own CV.',box);const own=add('a','Use my own CV',box);own.href='/#section-input';return;}
          const form=add('form','',section);form.className='tailor-section-edit';
          const label=add('label','What should change in this suggestion?',form),input=add('textarea','',label);input.maxLength=4000;input.rows=3;input.dataset.draftedSpelling='suggestion:'+request.cvVersionId+':'+id;
          input.value=sectionSession.editDrafts?.[id]||'';input.addEventListener('input',()=>{(sectionSession.editDrafts??={})[id]=input.value;});
@@ -729,7 +731,7 @@ maybeShowTailor();
          cancel.addEventListener('click',()=>{revisionAbort?.abort();revising=false;form.remove();});
          form.addEventListener('submit',async event=>{
            event.preventDefault();if(revising||!checkCurrent()||!input.value.trim())return;
-           if(window.DraftedWorkspacePages?.sample&&window.__DRAFTED_COVERAGE__?.mode==='simulated'){notice.textContent='AI editing is not connected in this local demo. Your instruction and suggestion are kept.';return;}
+           if(window.DraftedWorkspacePages?.sample&&window.__DRAFTED_COVERAGE__?.mode==='simulated'&&!window.__DRAFTED_REVISION_LIVE__){notice.textContent='Real AI revision is not enabled on this local server. Your instruction and suggestion are kept.';return;}
            const endpoint=draftedFeatures.tailorRevision;
            if(!endpoint){notice.textContent='Suggestion editing is available in local Dev; the live revision backend has not been published yet.';return;}
            revising=true;revisionAbort=new AbortController();const controller=revisionAbort;update.disabled=true;notice.textContent='Revising this suggestion…';
@@ -743,6 +745,8 @@ maybeShowTailor();
              if(!checkCurrent()||DraftedCoverageContract.canonical(expected.blocks)!==DraftedCoverageContract.canonical(documentBlocksState)||DraftedCoverageContract.canonical(expected.ledger)!==DraftedCoverageContract.canonical(DraftedSectionReview.ledger(tailorSourceLedger)))throw Error('STALE_REVISION');
              const noLongerNeeded=DraftedCoverageContract.canonical(revised.blocks.find(b=>b.blockId===id))===DraftedCoverageContract.canonical(request.blocks.find(b=>b.blockId===id));
              sectionSession.readingBlockId=noLongerNeeded?nextReadingId([id]):id;
+             (sectionSession.revisionInstructions??={})[id]=input.value.trim();
+             (sectionSession.revisionDisplays??={})[id]={before:data.blocks.find(b=>b.blockId===id).text,instruction:input.value.trim()};sectionSession.revealRevisionId=id;
              dispose();showTailorSuggestion(revised,stamp,request,omittedContext,sectionSession);
              document.dispatchEvent(new CustomEvent('drafted-review-action',{detail:{blockId:id,action:'edit'}}));
              if(noLongerNeeded){automaticSelectionPending=false;const notice=chatMessagesEl.querySelector('.tailor-suggestion .tailor-current-notice');if(notice)notice.textContent='The revised section matches your current CV, so this change is no longer needed.';else showTailorFeedback('The revised suggestion matches your current CV. No change is needed.');}
@@ -787,7 +791,14 @@ maybeShowTailor();
        tailorCvPreview=DraftedTailorCvPreview.create({host:editorPreviewEl,candidate:previewData,baseline:previewBaseline,onDecision:(id,value)=>value==='edit'?openSectionEdit(id):decideSections([id],value),proposalId:card.dataset.proposalId,render:()=>renderDocument(documentTextState),isCurrent:checkCurrent,onClose:endPreview});
        tailorCvPreview.start();
        reviewScroll=DraftedReviewScroll.create({editor:body,preview:editorPreviewEl.closest('.cv-document'),host:editorPreviewEl,isActive:()=>!settled&&documentComparison?.mode()!=='original'&&document.documentElement.dataset.demoTourStart!=='true'});
-       const readingId=sectionSession.readingBlockId;
+       const revisionId=sectionSession.revealRevisionId;delete sectionSession.revealRevisionId;
+       if(revisionId)requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{
+         if(settled||!body.isConnected)return;
+         const updated=body.querySelector('[data-review-block-id="'+CSS.escape(revisionId)+'"] .tailor-updated-suggestion');
+         if(updated){body.scrollTop+=(updated.getBoundingClientRect().top-body.getBoundingClientRect().top-10)/(body.getBoundingClientRect().height/body.offsetHeight||1);updated.classList.add('is-revision-highlight');setTimeout(()=>updated.classList.remove('is-revision-highlight'),2000);}
+         Promise.resolve(DraftedCvLayout.ready(editorPreviewEl)).then(()=>{if(settled)return;const node=editorPreviewEl.querySelector('.cv-block[data-block-id="'+CSS.escape(revisionId)+'"]'),pane=editorPreviewEl.closest('.cv-document');if(node)pane.scrollTop+=node.getBoundingClientRect().top-pane.getBoundingClientRect().top-16;});
+       })));
+       const readingId=revisionId?null:sectionSession.readingBlockId;
        if(readingId)requestAnimationFrame(()=>{if(settled||!body.isConnected)return;const next=body.querySelector('[data-review-block-id="'+CSS.escape(readingId)+'"]');if(next){body.scrollTop+=next.getBoundingClientRect().top-body.getBoundingClientRect().top-3;reviewScroll.align(readingId,'editor');}});
 
      }
@@ -2526,7 +2537,7 @@ function fillPreparedSample(){selectedBlockIds.clear();selectedBlockIds.add('sam
 function sampleMessage(text){let n=document.getElementById('sample-request-note');if(!n){n=document.createElement('p');n.id='sample-request-note';n.setAttribute('role','status');editorInput.closest('.workspace-composer').prepend(n);}n.textContent=text;}
 function mountSampleChat(){
  document.getElementById('sample-chat-limit')?.remove();
- let limit=document.getElementById('sample-chat-scope');if(!limit){limit=document.createElement('p');limit.id='sample-chat-scope';limit.textContent='Demo: prepared example only. Custom requests are available with your own CV.';editorInput.before(limit);}
+ let limit=document.getElementById('sample-chat-scope');if(!limit){limit=document.createElement('p');limit.id='sample-chat-scope';limit.textContent='Demo: prepared example only. Custom chat requires your own CV. Suggestion Edit uses real AI when available.';editorInput.before(limit);}
  editorInput.placeholder='Follow the guided demo example';
  editorInput.title='This demo supports the prepared shortening example; custom requests require your own CV.';
 }
